@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "downlevelIteration": true,
+        "moduleResolution": "node",
+        "target": "es5",
+        "module": "commonjs",
+        "lib": [
+            "es5",
+            "dom"
+        ],
+        "strict": true,
+        "outDir": "dist"
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "**/*.d.ts"
+    ]
+}

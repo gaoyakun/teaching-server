@@ -1,0 +1,111 @@
+{
+  "name": "teaching-server",
+  "version": "0.0.1",
+  "description": "the teaching server.",
+  "keywords": [
+    "teaching",
+    "server"
+  ],
+  "main": "dist/server.js",
+  "typings": "dist/types/server.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "GaoYakun <g.leisuregame@outlook.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaoyakun/teaching-server"
+  },
+  "license": "GPL-3.0",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "test": "jest",
+    "lint": "npm run tslint && npm run prettier",
+    "tslint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prettier": "prettier --write --single-quote --list-different --tab-width 4 --print-width 180",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 75,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "collectCoverage": true,
+    "mapCoverage": true
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^7.2.1",
+    "@commitlint/config-conventional": "^7.1.2",
+    "@types/jest": "^21.1.0",
+    "@types/node": "^8.10.38",
+    "colors": "^1.1.2",
+    "commitizen": "^2.9.6",
+    "commitlint": "^7.2.1",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.0.1",
+    "cz-conventional-changelog": "^2.0.0",
+    "eslint": "^5.10.0",
+    "husky": "^1.2.0",
+    "jest": "^21.0.0",
+    "prettier": "^1.15.3",
+    "prompt": "^1.0.0",
+    "replace-in-file": "^3.0.0-beta.2",
+    "rimraf": "^2.6.1",
+    "semantic-release": "^8.2.0",
+    "ts-jest": "^21.0.0",
+    "ts-node": "^3.0.6",
+    "tslint": "^5.4.3",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-config-standard": "^6.0.0",
+    "typedoc": "^0.9.0",
+    "typescript": "^2.3.4",
+    "validate-commit-msg": "^2.12.2"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.17.0",
+    "@types/cookie-parser": "^1.4.1",
+    "@types/express": "^4.16.0",
+    "@types/http-errors": "^1.6.1",
+    "@types/morgan": "^1.7.35",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "http-errors": "^1.7.1",
+    "make-error": "^1.3.0",
+    "morgan": "^1.9.1"
+  }
+}
