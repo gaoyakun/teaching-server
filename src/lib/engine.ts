@@ -7,11 +7,6 @@ export interface IQuery {
     param: any[];
 }
 
-export interface IQueryResult {
-    err: ErrorCode;
-    rows?: any;
-}
-
 export class Col {
     type: number;
     column: string|null;
@@ -28,8 +23,480 @@ export class Col {
 }
 
 export default class Engine {
+    static readonly DBQueryContext = class {
+        private _objects: any;
+        private _joins: any[];
+        private _fields: any[];
+        private _orderby: any[];
+        private _groupby: any[];
+        private _orderDesc: boolean;
+        private _filters: any;
+        private _offset: number|null;
+        private _limit: number|null;
+        constructor (objects: any) {
+            this._objects = objects;
+            this._joins = [];
+            this._fields = [];
+            this._orderby = [];
+            this._groupby = [];
+            this._orderDesc = false;
+            this._filters = null;
+            this._offset = null;
+            this._limit = null;
+        }
+        all (): Promise<any> {
+            return new Promise<any> ((resolve, reject) => {
+                let fields:any = [];
+                let orderby:any = [];
+                let groupby:any = [];
+                let params:any = [];
+        
+                this._fields.forEach (item=>{
+                    let field = Engine.parseField(item, this._objects.tableName);
+                    if (field == null) {
+                        throw new Error(`[Engine.DBQueryContext.all]: invalid field: ${item}`);
+                    }
+                    fields.push (field);
+                });
+                fields = fields.length == 0 ? '*' : fields.join(',');
+                this._orderby.forEach (item=>{
+                    let field = Engine.parseField(item, this._objects.tableName);
+                    if (field == null) {
+                        throw new Error(`[Engine.DBQueryContext.all]: Invalid field: ${item}`);
+                    }
+                    orderby.push (field);
+                });
+                orderby = orderby.length == 0 ? '' : `order by ${orderby.join(',')}`;
+                if (orderby != '' && this._orderDesc) {
+                    orderby += ' desc';
+                }
+                this._groupby.forEach (item=>{
+                    let field = Engine.parseField(item, this._objects.tableName);
+                    if (field == null) {
+                        throw new Error(`[Engine.DBQueryContext.all]: Invalid field: ${item}`);
+                    }
+                    groupby.push (field);
+                });
+                groupby = groupby.length == 0 ? '' : `group by ${groupby.join(',')}`;
+                let limit = '';
+                if (this._limit != null) {
+                    limit = this._offset != null ? `limit ${this._offset}, ${this._limit}` : `limit ${this._limit}`;
+                }
+                let join = this._parseJoin(this._joins, params);
+                let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
+                let sql = `SELECT ${fields} FROM \`${this._objects.tableName}\` ${join} ${filter} ${groupby} ${orderby} ${limit}`;
+                this._objects.session.query ({
+                    sql:sql,
+                    param:params
+                }, (err:any, rows:any)=>{
+                    if (err) {
+                        reject (ErrorCode.kDatabaseError);
+                    } else {
+                        resolve (rows);
+                    }
+                });
+            });
+        }
+        update (keys: any, values: any): Promise<any> {
+            return new Promise<any> ((resolve, reject) => {
+                let fields:any = [];
+                let params = [];
+                if (!Utils.isArray(keys)) {
+                    keys = [keys];
+                }
+                if (!Utils.isArray(values)) {
+                    values = [values];
+                }
+                if (keys.length != values.length || keys.length == 0) {
+                    throw new Error('[Engine.DBQueryContext.update]: Invalid keys or values');
+                }
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    let field = Engine.parseField(key, this._objects.tableName);
+                    if (field == null) {
+                        throw new Error('[Engine.DBQueryContext.update]: Invalid update field');
+                    }
+                    fields.push (`${field}=?`);
+                    params.push (values[i]);
+                }
+                if (fields.length == 0) {
+                    throw new Error('[Engine.DBQueryContext.update]:fields length is 0');
+                }
+                fields = `SET ${fields.join(',')}`;
+                let join = this._parseJoin(this._joins, params);
+                let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
+                let sql = `UPDATE \`${this._objects.tableName}\` ${join} ${fields} ${filter}`;
+                this._objects.session.query ({
+                    sql:sql,
+                    param:params
+                }, (err:any, rows:any)=>{
+                    if (err) {
+                        reject (ErrorCode.kDatabaseError);
+                    } else {
+                        resolve (rows);
+                    }
+                });
+            });
+        }
+        delete (tables:any): Promise<any> {
+            return new Promise<any> ((resolve, reject) => {
+                if (tables == null) {
+                    tables = [this._objects.tableName];
+                    if (this._joins) {
+                        this._joins.forEach(item=>{
+                            tables.push(`\`${item.table}\``);
+                        });
+                    }
+                }
+                let tableName = tables.length > 0 ? tables.join(',') : null;
+                if (tableName == null) {
+                    throw new Error(`[Engine.DBQueryContext.delete]: Invalid tables: ${tables}`);
+                }
+                let params: any = [];
+                let join = this._parseJoin(this._joins, params);
+                let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
+                let sql = `DELETE ${tableName} FROM \`${this._objects.tableName}\` ${join} ${filter}`;
+                this._objects.session.query ({
+                    sql:sql,
+                    param:params
+                }, (err:any, rows:any)=>{
+                    if (err) {
+                        reject (ErrorCode.kDatabaseError);
+                    } else {
+                        resolve (rows);
+                    }
+                });
+            });
+        }
+        orderBy (fields:any, bDesc:boolean) {
+            if (Utils.isString(fields)) {
+                fields = [fields];
+            }
+            this._orderby = this._orderby.concat (fields);
+            this._orderDesc = !!bDesc;
+            return this;
+        }
+        groupBy (fields:any) {
+            if (Utils.isString(fields)) {
+                fields = [fields];
+            }
+            this._groupby = this._groupby.concat (fields);
+            return this;
+        }
+        limit (offset:any, limit:any) {
+            if (Utils.isUndefined(limit)) {
+                limit = offset;
+                offset = null;
+            }
+            this._offset = Utils.safeParseInt(offset);
+            this._limit = Utils.safeParseInt(limit);
+            return this;
+        }
+        filter (filter:any) {
+            if (filter) {
+                if (this._filters) {
+                    this._filters = {
+                        and: [this._filters, filter]
+                    };
+                } else {
+                    this._filters = filter;
+                }
+            }
+            return this;
+        }
+        _parseFilter (filter:any, param:any): string {
+            if (Utils.isObject(filter)) {
+                let keys = Object.keys(filter);
+                if (Object.keys(filter).length != 1) {
+                    throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                }
+                let subFilters:any = [];
+                let filterValue = filter[keys[0]];
+                if (Utils.isArray(filterValue)) {
+                    filterValue.forEach((item:any) => {
+                        subFilters.push (`(${this._parseFilter(item, param)})`);
+                    });
+                } else {
+                    subFilters.push (this._parseFilter(filterValue, param));
+                }
+                if (subFilters.length == 1) {
+                    return `${keys[0]} (${subFilters[0]})`;
+                } else {
+                    return subFilters.join(` ${keys[0]} `);
+                }
+            } else if (Utils.isFunction(filter)) {
+                let f = new filter();
+                return `${Engine.parseField(f.field, param)} ${f.postfix}`;
+            } else if (Utils.isArray(filter)) {
+                if (filter.length == 0) {
+                    throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                }
+                if (Utils.isString(filter[0]) || Utils.isFunction(filter[0]) || Utils.isNumber(filter[0])) {
+                    let field = Engine.parseField (filter[0], this._objects.tableName);
+                    if (field == null) {
+                        throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                    }
+                    if (filter.length != 2) {
+                        throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                    }
+                    if (Utils.isObject(filter[1])) {
+                        let keys = Object.keys(filter[1]);
+                        if (keys.length != 1 || !Utils.isString(keys[0])) {
+                            throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                        }
+                        let key = Utils.mergeBlank(Utils.trim(keys[0].toLowerCase()));
+                        if (key == 'between' || key == 'not between') {
+                            let value = filter[1][keys[0]];
+                            if (!Utils.isArray(value) || value.length != 2) {
+                                throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                            }
+                            param.push (value[0]);
+                            param.push (value[1]);
+                            return `${field} ${key} ? and ?`;
+                        } else if (key == 'in') {
+                            let value = filter[1][keys[0]];
+                            if (!Utils.isArray(value)) {
+                                throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+                            }
+                            let tmp:any[] = [];
+                            value.forEach((item:any) => {
+                                tmp.push ('?');
+                                param.push(item);
+                            });
+                            return `${field} in (${tmp.join(',')})`;
+                        } else {
+                            param.push(filter[1][keys[0]]);
+                            return `${field} ${key} ?`;
+                        }
+                    } else if (Utils.isFunction(filter[1])) {
+                        let f1 = Engine.parseField (filter[1], this._objects.tableName);
+                        if (f1 == null) {
+                            throw new Error(`'[Engine.DBQueryContext._parseFilter]: Invalid field: ${filter[1]}`);
+                        }
+                        return `${field} = ${f1}`;
+                    } else {
+                        param.push (filter[1]);
+                        return `${field} = ?`;
+                    }
+                } else {
+                    return this._parseFilter({ and:filter }, param);
+                }
+            } else {
+                throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
+            }
+        }
+        _join (tableName:string, type:any, on:any) {
+            this._joins.push ({
+                table: tableName,
+                type: type,
+                on: on
+            });
+            return this;
+        }
+        _parseJoin (joins:any[], param:any) {
+            let result = '';
+            joins.forEach ((item:any) => {
+                result += `${item.type} ${item.table} on ${this._parseFilter(item.on, param)} `;
+            });
+            return result;
+        }
+        leftJoin (tableName:string, on:any) {
+            return this._join (tableName, 'left join', on);
+        }
+        innerJoin (tableName:string, on:any) {
+            return this._join (tableName, 'inner join', on);
+        }
+        rightJoin (tableName:string, on:any) {
+            return this._join (tableName, 'right join', on);
+        }
+        fields (fields:any) {
+            if (!Utils.isArray(fields)) {
+                fields = [ fields ];
+            }
+            this._fields = fields;
+            return this;
+        }
+    }
+    static readonly DBObjects = class {
+        public readonly session: any;
+        public readonly tableName: string;
+        constructor (session: any, tableName: string) {
+            this.session = session;
+            this.tableName = tableName;
+        }
+        async all () {
+            return await new Engine.DBQueryContext(this).all();
+        }
+        async delete (tables:any) {
+            if (Utils.isNull(tables)) {
+                return await new Engine.DBQueryContext(this).delete(null);
+            } else if (Utils.isArray(tables)) {
+                return await new Engine.DBQueryContext(this).delete(tables);
+            } else if (Utils.isString(tables)) {
+                return await new Engine.DBQueryContext(this).delete([tables]);
+            } else {
+                throw new Error(`[Engine.DBObjects.delete]: Invalid table names: ${tables}`);
+            }
+        }
+        orderBy (fields:any, bDesc:boolean) {
+            return new Engine.DBQueryContext(this).orderBy (fields, bDesc);
+        }
+        groupBy (fields:any) {
+            return new Engine.DBQueryContext(this).groupBy (fields);
+        }
+        limit (offset:any, limit:any) {
+            return new Engine.DBQueryContext(this).limit (offset, limit);
+        }
+        filter (filter:any) {
+            return new Engine.DBQueryContext(this).filter(filter);
+        }
+        innerJoin (tableName:any, on:any) {
+            return new Engine.DBQueryContext(this).innerJoin(tableName, on);
+        }
+        leftJoin (tableName:any, on:any) {
+            return new Engine.DBQueryContext(this).leftJoin(tableName, on);
+        }
+        rightJoin (tableName:any, on:any) {
+            return new Engine.DBQueryContext(this).rightJoin(tableName, on);
+        }
+        fields (fields:any) {
+            return new Engine.DBQueryContext(this).fields(fields);
+        }
+        async update (keys:any, values:any) {
+            return await new Engine.DBQueryContext(this).update(keys, values);
+        }
+        async add (obj:any, options:any) {
+            options = options || {};
+            if (!Utils.isArray(obj)) {
+                obj = [ obj ];
+            }
+            let fields:any = [];
+            let values:any = [];
+            let params:any = [];
+            let ondup:any = [];
+            for (let field in obj[0]) {
+                fields.push (`\`${field}\``);
+                if (options.allowUpdate) {
+                    ondup.push (`\`${field}\`=values(\`${field}\`)`);
+                }
+            }
+            obj.forEach ((item:any) => {
+                let value:any[] = [];
+                fields.forEach ((f:any) => {
+                    value.push ('?');
+                    params.push (item[f.substr(1,f.length-2)]);
+                });
+                values.push (`(${value.join(',')})`);
+            });
+            fields = '(' + fields.join(',') + ')';
+            values = values.join(',');
+            ondup = ondup.length > 0 ? `ON DUPLICATE KEY UPDATE ${ondup.join(',')}` : '';
+            let sql = `INSERT INTO \`${this.tableName}\` ${fields} VALUES ${values} ${ondup}`;
+            return await this.session.query ({
+                sql:sql,
+                param:params
+            });
+        }
+    }
+    static Session = class {
+        private engine: Engine;
+        private connection: mysql.PoolConnection|null;
+        constructor (engine: Engine, connection: mysql.PoolConnection) {
+            this.engine = engine;
+            this.connection = connection;
+        }
+        begin (): Promise<any> {
+            if (!this.engine || !this.connection) {
+                throw new Error('[Engine.Session.begin]: session has null connection');
+            }
+            return new Promise<any>((resolve, reject) => {
+                this.engine.getConnection().then (conn => {
+                    this.connection = conn;
+                    this.connection.beginTransaction (err => {
+                        if (err) {
+                            this.engine.releaseConnection (this.connection as mysql.PoolConnection);
+                            this.connection = null;
+                            reject (ErrorCode.kDatabaseError);
+                        } else {
+                            resolve ();
+                        }
+                    });
+                }, (reason?:any) => {
+                    reject (ErrorCode.kDatabaseError);
+                });
+            });
+        }
+        end (): Promise<any> {
+            return new Promise<any> ((resolve, reject) => {
+                if (this.connection != null) {
+                    this.connection.commit(err=>{
+                        if (err) {
+                            reject (ErrorCode.kDatabaseError);
+                        } else {
+                            this.engine.releaseConnection(this.connection as mysql.PoolConnection);
+                            this.connection = null;
+                            resolve ();
+                        }
+                    });
+                } else {
+                    reject (ErrorCode.kDatabaseError);
+                }
+            });
+        };
+        cancel () {
+            if (this.connection != null) {
+                this.connection.rollback();
+                this.engine.releaseConnection(this.connection);
+                this.connection = null;
+            }
+        };
+        objects (tableName: string) {
+            return new Engine.DBObjects(this, tableName);
+        };
+        async query (q: IQuery) {
+            if (this.connection) {
+                return await Engine.query_wo_pool (this.connection, q);
+            } else {
+                return await this.engine.query (q);
+            }
+        };
+    }
     private static engineMap: {[name:string]: Engine} = {};
     private static onlyFullGroupBy: boolean = false;
+    private static parseField (item:any, defTableName: string): string|null {
+        if (Utils.isString(item)) {
+            return `\`${item}\``;
+        } else if (Utils.isFunction(item)) {
+            let f = new item();
+            if (f.type == 1) {
+                let tableName = f.table || defTableName;
+                let colname = f.column=='*' ? f.column : `\`${f.column}\``;
+                return `\`${tableName}\`.${colname}`;
+            } else if (f.type == 2) {
+                if (Utils.isUndefined(f.field)) {
+                    return `${f.aggfunc}(*)`;
+                } else if (Utils.isNull(f.field)) {
+                    return `${f.aggfunc}(NULL)`;
+                } else if (Utils.isString(f.field)) {
+                    return `${f.aggfunc}(\`${f.field}\`)`;
+                } else if (Utils.isFunction(f.field)) {
+                    return `${f.aggfunc}(${Engine.parseField(f.field, defTableName)})`;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else if (Utils.isArray(item) && item.length == 2){
+            let field = this.parseField (item[0], defTableName);
+            if (field == null) {
+                return null;
+            }
+            return `${field} as ${item[1]}`;
+        } else {
+            return null;
+        }
+    }
     private options: any;
     private pool: mysql.Pool;
     constructor (options: mysql.PoolConfig|null) {
@@ -62,7 +529,7 @@ export default class Engine {
     static createConnection (options: mysql.PoolConfig) {
         return mysql.createConnection (options);
     }
-    static query_wo_pool(conn: mysql.Connection, q:IQuery|string): Promise<IQueryResult> {
+    static query_wo_pool(conn: mysql.Connection, q:IQuery|string): Promise<any> {
         let sql:string;
         let param:any[];
         if (Utils.isString(q)) {
@@ -74,12 +541,12 @@ export default class Engine {
         } else {
             throw new Error('[query_wo_pool]: invalid parameter');
         }
-        const promise = new Promise<IQueryResult>((resolve, reject) => {
+        const promise = new Promise<any>((resolve, reject) => {
             conn.query (sql, param, (err, rows)=>{
                 if (err) {
                     reject (ErrorCode.kDatabaseError);
                 } else {
-                    resolve ({err:ErrorCode.kDatabaseError, rows:rows});
+                    resolve (rows);
                 }
             });
         });

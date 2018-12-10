@@ -1,24 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var app_1 = require("./app");
-var http = require("http");
-var https = require("https");
-var fs = require("fs");
-var useHttps = false;
-var options = useHttps ? {
+const app_1 = require("./app");
+const http = require("http");
+const https = require("https");
+const fs = require("fs");
+const useHttps = false;
+const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
     cert: fs.readFileSync('cert/1531277059027.pem')
 } : {};
 /**
  * Get port from environment and store in Express.
  */
-var httpPort = normalizePort(80);
-var httpsPort = normalizePort(443);
+const httpPort = normalizePort(80);
+const httpsPort = normalizePort(443);
 /**
  * Create HTTP server.
  */
-var server = http.createServer(app_1.app);
-var serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
+const server = http.createServer(app_1.app);
+const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -34,7 +34,7 @@ if (useHttps && serverHttps) {
  * Normalize a port into a number, string, or false.
  */
 function normalizePort(val) {
-    var port = parseInt(val, 10);
+    const port = parseInt(val, 10);
     if (isNaN(port)) {
         // named pipe
         return val;
@@ -52,7 +52,7 @@ function onError(error) {
     if (error.syscall !== 'listen') {
         throw error;
     }
-    var bind = typeof httpPort === 'string'
+    const bind = typeof httpPort === 'string'
         ? 'Pipe ' + httpPort
         : 'Port ' + httpPort;
     // handle specific listen errors with friendly messages
@@ -76,7 +76,7 @@ function onErrorHttps(error) {
     if (error.syscall !== 'listen') {
         throw error;
     }
-    var bind = typeof httpsPort === 'string'
+    const bind = typeof httpsPort === 'string'
         ? 'Pipe ' + httpsPort
         : 'Port ' + httpsPort;
     // handle specific listen errors with friendly messages
@@ -97,16 +97,16 @@ function onErrorHttps(error) {
  * Event listener for HTTP server "listening" event.
  */
 function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
+    const addr = server.address();
+    const bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
 }
 function onListeningHttps() {
     if (serverHttps) {
-        var addr = serverHttps.address();
-        var bind = typeof addr === 'string'
+        const addr = serverHttps.address();
+        const bind = typeof addr === 'string'
             ? 'pipe ' + addr
             : 'port ' + addr.port;
         console.log('Listening on ' + bind);

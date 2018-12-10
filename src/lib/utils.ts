@@ -78,7 +78,7 @@ export class Utils {
     static safeParseNumber (value: any) {
         return isNaN(value) ? null : parseFloat(value);
     }
-    static safeParseInt (value: any, defaultValue: any) {
+    static safeParseInt (value: any, defaultValue?: any) {
         let result =  value!==null && value!==undefined && /^[-+]?\d+$/.test(value.toString()) ? parseInt(value,10) : null;
         if (result == null && this.isNumber(defaultValue)) {
             result = parseInt(defaultValue, 10);
