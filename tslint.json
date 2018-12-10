@@ -3,7 +3,8 @@
       "tslint-config-standard",
       "tslint-config-prettier"
     ],
-      "rules": {
-          "no-empty": false
-      }
-  }
+    "rules": {
+        "no-empty": false,
+        "no-arg": false
+    }
+}
