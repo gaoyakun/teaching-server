@@ -88,7 +88,6 @@ test('test delete data', async () => {
     }
 });
 
-/*
 test('test drop database', async () => {
     const engine = getEngine();
     try {
@@ -96,8 +95,7 @@ test('test drop database', async () => {
         await engine.close ();
     } catch (e) {
         await engine.close ();
-        throw new Error('drop database failed');
+        throw e;
     }
 });
-*/
 

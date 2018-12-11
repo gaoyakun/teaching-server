@@ -1,5 +1,5 @@
 var tsc = require('typescript');
-var tsConfig = require('../src/tsconfig.json');
+var tsConfig = require('../tsconfig.json');
 
 module.exports = {
   process(src, path) {
