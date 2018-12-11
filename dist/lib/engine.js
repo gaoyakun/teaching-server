@@ -11,63 +11,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mysql = require("mysql");
 const utils_1 = require("./utils");
 const errcodes_1 = require("./errcodes");
-class Col {
-    constructor(type, column, table, aggfunc, aggfield) {
-        this.type = type;
-        this.column = column;
-        this.table = table;
-        this.aggfunc = aggfunc;
-        this.aggfield = aggfield;
-    }
-}
-exports.Col = Col;
 class Engine {
     constructor(options) {
         this.options = options;
         this.pool = mysql.createPool(this.options);
-    }
-    static parseField(item, defTableName) {
-        if (utils_1.Utils.isString(item)) {
-            return `\`${item}\``;
-        }
-        else if (utils_1.Utils.isFunction(item)) {
-            let f = new item();
-            if (f.type == 1) {
-                let tableName = f.table || defTableName;
-                let colname = f.column == '*' ? f.column : `\`${f.column}\``;
-                return `\`${tableName}\`.${colname}`;
-            }
-            else if (f.type == 2) {
-                if (utils_1.Utils.isUndefined(f.field)) {
-                    return `${f.aggfunc}(*)`;
-                }
-                else if (utils_1.Utils.isNull(f.field)) {
-                    return `${f.aggfunc}(NULL)`;
-                }
-                else if (utils_1.Utils.isString(f.field)) {
-                    return `${f.aggfunc}(\`${f.field}\`)`;
-                }
-                else if (utils_1.Utils.isFunction(f.field)) {
-                    return `${f.aggfunc}(${Engine.parseField(f.field, defTableName)})`;
-                }
-                else {
-                    return null;
-                }
-            }
-            else {
-                return null;
-            }
-        }
-        else if (utils_1.Utils.isArray(item) && item.length == 2) {
-            let field = this.parseField(item[0], defTableName);
-            if (field == null) {
-                return null;
-            }
-            return `${field} as ${item[1]}`;
-        }
-        else {
-            return null;
-        }
     }
     static getInstance(name) {
         return this.engineMap[name] || null;
@@ -126,10 +73,10 @@ class Engine {
         if (!utils_1.Utils.isString(column) || (tableName && !utils_1.Utils.isString(tableName))) {
             throw new Error(`Invalid column definition: ${column}, ${tableName}`);
         }
-        return new Col(1, column, tableName, null, null);
+        return new this.Col(1, column, tableName, null, null);
     }
     static agg(field, func) {
-        return new Col(2, null, null, func, field);
+        return new this.Col(2, null, null, func, field);
     }
     static count(field) {
         return this.agg(field, 'count');
@@ -141,6 +88,49 @@ class Engine {
         return this.onlyFullGroupBy ? this.agg(field, 'any_value') : field;
     }
     ;
+    static parseField(item, defTableName) {
+        if (utils_1.Utils.isString(item)) {
+            return `\`${item}\``;
+        }
+        else if (utils_1.Utils.isFunction(item)) {
+            let f = new item();
+            if (f.type === 1) {
+                let tableName = f.table || defTableName;
+                let colname = f.column === '*' ? f.column : `\`${f.column}\``;
+                return `\`${tableName}\`.${colname}`;
+            }
+            else if (f.type === 2) {
+                if (utils_1.Utils.isUndefined(f.field)) {
+                    return `${f.aggfunc}(*)`;
+                }
+                else if (utils_1.Utils.isNull(f.field)) {
+                    return `${f.aggfunc}(NULL)`;
+                }
+                else if (utils_1.Utils.isString(f.field)) {
+                    return `${f.aggfunc}(\`${f.field}\`)`;
+                }
+                else if (utils_1.Utils.isFunction(f.field)) {
+                    return `${f.aggfunc}(${Engine.parseField(f.field, defTableName)})`;
+                }
+                else {
+                    return null;
+                }
+            }
+            else {
+                return null;
+            }
+        }
+        else if (utils_1.Utils.isArray(item) && item.length === 2) {
+            let field = this.parseField(item[0], defTableName);
+            if (field == null) {
+                return null;
+            }
+            return `${field} as ${item[1]}`;
+        }
+        else {
+            return null;
+        }
+    }
     getConnection() {
         return new Promise((resolve, reject) => {
             this.pool.getConnection((err, connection) => {
@@ -167,6 +157,15 @@ class Engine {
         });
     }
 }
+Engine.Col = class {
+    constructor(type, column, table, aggfunc, aggfield) {
+        this.type = type;
+        this.column = column;
+        this.table = table;
+        this.aggfunc = aggfunc;
+        this.aggfield = aggfield;
+    }
+};
 Engine.DBQueryContext = class {
     constructor(objects) {
         this._objects = objects;
@@ -628,7 +627,7 @@ Engine.Session = class {
 };
 Engine.engineMap = {};
 Engine.onlyFullGroupBy = false;
-exports.default = Engine;
+exports.Engine = Engine;
 /*
     Engine.isNull = function Engine_isNull(field) {
         return function() {

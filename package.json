@@ -43,7 +43,7 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      ".(ts|tsx)": "<rootDir>/scripts/prep.js"
     },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
@@ -63,8 +63,8 @@
         "statements": 95
       }
     },
-    "collectCoverage": true,
-    "mapCoverage": true
+    "collectCoverage": false,
+    "mapCoverage": false
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
