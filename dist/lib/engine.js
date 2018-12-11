@@ -131,6 +131,18 @@ class Engine {
             return null;
         }
     }
+    close() {
+        return new Promise((resolve, reject) => {
+            if (this.pool) {
+                this.pool.end(err => {
+                    resolve(err);
+                });
+            }
+            else {
+                resolve('ok');
+            }
+        });
+    }
     getConnection() {
         return new Promise((resolve, reject) => {
             this.pool.getConnection((err, connection) => {
@@ -148,6 +160,17 @@ class Engine {
             connection.release();
         }
     }
+    beginSession() {
+        return new Promise((resolve, reject) => {
+            let session = new Engine.Session(this);
+            session.begin().then(value => resolve(session)).catch(reason => reject(errcodes_1.ErrorCode.kDatabaseError));
+        });
+    }
+    ;
+    objects(tableName) {
+        return new Engine.Session(this).objects(tableName);
+    }
+    ;
     query(q) {
         return __awaiter(this, void 0, void 0, function* () {
             const conn = yield this.getConnection();
@@ -157,7 +180,7 @@ class Engine {
         });
     }
 }
-Engine.Col = class {
+Engine.Col = class Col {
     constructor(type, column, table, aggfunc, aggfield) {
         this.type = type;
         this.column = column;
@@ -166,7 +189,7 @@ Engine.Col = class {
         this.aggfield = aggfield;
     }
 };
-Engine.DBQueryContext = class {
+Engine.DBQueryContext = class DBQueryContext {
     constructor(objects) {
         this._objects = objects;
         this._joins = [];
@@ -179,7 +202,7 @@ Engine.DBQueryContext = class {
         this._limit = null;
     }
     all() {
-        return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
             let fields = [];
             let orderby = [];
             let groupby = [];
@@ -191,7 +214,7 @@ Engine.DBQueryContext = class {
                 }
                 fields.push(field);
             });
-            fields = fields.length == 0 ? '*' : fields.join(',');
+            fields = fields.length === 0 ? '*' : fields.join(',');
             this._orderby.forEach(item => {
                 let field = Engine.parseField(item, this._objects.tableName);
                 if (field == null) {
@@ -199,8 +222,8 @@ Engine.DBQueryContext = class {
                 }
                 orderby.push(field);
             });
-            orderby = orderby.length == 0 ? '' : `order by ${orderby.join(',')}`;
-            if (orderby != '' && this._orderDesc) {
+            orderby = orderby.length === 0 ? '' : `order by ${orderby.join(',')}`;
+            if (orderby !== '' && this._orderDesc) {
                 orderby += ' desc';
             }
             this._groupby.forEach(item => {
@@ -210,7 +233,7 @@ Engine.DBQueryContext = class {
                 }
                 groupby.push(field);
             });
-            groupby = groupby.length == 0 ? '' : `group by ${groupby.join(',')}`;
+            groupby = groupby.length === 0 ? '' : `group by ${groupby.join(',')}`;
             let limit = '';
             if (this._limit != null) {
                 limit = this._offset != null ? `limit ${this._offset}, ${this._limit}` : `limit ${this._limit}`;
@@ -218,21 +241,14 @@ Engine.DBQueryContext = class {
             let join = this._parseJoin(this._joins, params);
             let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
             let sql = `SELECT ${fields} FROM \`${this._objects.tableName}\` ${join} ${filter} ${groupby} ${orderby} ${limit}`;
-            this._objects.session.query({
+            return yield this._objects.session.query({
                 sql: sql,
                 param: params
-            }, (err, rows) => {
-                if (err) {
-                    reject(errcodes_1.ErrorCode.kDatabaseError);
-                }
-                else {
-                    resolve(rows);
-                }
             });
         });
     }
     update(keys, values) {
-        return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
             let fields = [];
             let params = [];
             if (!utils_1.Utils.isArray(keys)) {
@@ -241,7 +257,7 @@ Engine.DBQueryContext = class {
             if (!utils_1.Utils.isArray(values)) {
                 values = [values];
             }
-            if (keys.length != values.length || keys.length == 0) {
+            if (keys.length !== values.length || keys.length === 0) {
                 throw new Error('[Engine.DBQueryContext.update]: Invalid keys or values');
             }
             for (let i = 0; i < keys.length; i++) {
@@ -253,28 +269,21 @@ Engine.DBQueryContext = class {
                 fields.push(`${field}=?`);
                 params.push(values[i]);
             }
-            if (fields.length == 0) {
+            if (fields.length === 0) {
                 throw new Error('[Engine.DBQueryContext.update]:fields length is 0');
             }
             fields = `SET ${fields.join(',')}`;
             let join = this._parseJoin(this._joins, params);
             let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
             let sql = `UPDATE \`${this._objects.tableName}\` ${join} ${fields} ${filter}`;
-            this._objects.session.query({
+            return yield this._objects.session.query({
                 sql: sql,
                 param: params
-            }, (err, rows) => {
-                if (err) {
-                    reject(errcodes_1.ErrorCode.kDatabaseError);
-                }
-                else {
-                    resolve(rows);
-                }
             });
         });
     }
     delete(tables) {
-        return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
             if (tables == null) {
                 tables = [this._objects.tableName];
                 if (this._joins) {
@@ -291,16 +300,10 @@ Engine.DBQueryContext = class {
             let join = this._parseJoin(this._joins, params);
             let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
             let sql = `DELETE ${tableName} FROM \`${this._objects.tableName}\` ${join} ${filter}`;
-            this._objects.session.query({
+            console.log(sql);
+            return yield this._objects.session.query({
                 sql: sql,
                 param: params
-            }, (err, rows) => {
-                if (err) {
-                    reject(errcodes_1.ErrorCode.kDatabaseError);
-                }
-                else {
-                    resolve(rows);
-                }
             });
         });
     }
@@ -344,7 +347,7 @@ Engine.DBQueryContext = class {
     _parseFilter(filter, param) {
         if (utils_1.Utils.isObject(filter)) {
             let keys = Object.keys(filter);
-            if (Object.keys(filter).length != 1) {
+            if (Object.keys(filter).length !== 1) {
                 throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
             }
             let subFilters = [];
@@ -357,7 +360,7 @@ Engine.DBQueryContext = class {
             else {
                 subFilters.push(this._parseFilter(filterValue, param));
             }
-            if (subFilters.length == 1) {
+            if (subFilters.length === 1) {
                 return `${keys[0]} (${subFilters[0]})`;
             }
             else {
@@ -369,7 +372,7 @@ Engine.DBQueryContext = class {
             return `${Engine.parseField(f.field, param)} ${f.postfix}`;
         }
         else if (utils_1.Utils.isArray(filter)) {
-            if (filter.length == 0) {
+            if (filter.length === 0) {
                 throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
             }
             if (utils_1.Utils.isString(filter[0]) || utils_1.Utils.isFunction(filter[0]) || utils_1.Utils.isNumber(filter[0])) {
@@ -377,25 +380,25 @@ Engine.DBQueryContext = class {
                 if (field == null) {
                     throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
                 }
-                if (filter.length != 2) {
+                if (filter.length !== 2) {
                     throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
                 }
                 if (utils_1.Utils.isObject(filter[1])) {
                     let keys = Object.keys(filter[1]);
-                    if (keys.length != 1 || !utils_1.Utils.isString(keys[0])) {
+                    if (keys.length !== 1 || !utils_1.Utils.isString(keys[0])) {
                         throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
                     }
                     let key = utils_1.Utils.mergeBlank(utils_1.Utils.trim(keys[0].toLowerCase()));
-                    if (key == 'between' || key == 'not between') {
+                    if (key === 'between' || key === 'not between') {
                         let value = filter[1][keys[0]];
-                        if (!utils_1.Utils.isArray(value) || value.length != 2) {
+                        if (!utils_1.Utils.isArray(value) || value.length !== 2) {
                             throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
                         }
                         param.push(value[0]);
                         param.push(value[1]);
                         return `${field} ${key} ? and ?`;
                     }
-                    else if (key == 'in') {
+                    else if (key === 'in') {
                         let value = filter[1][keys[0]];
                         if (!utils_1.Utils.isArray(value)) {
                             throw new Error('[Engine.DBQueryContext._parseFilter]: Invalid filter');
@@ -464,7 +467,7 @@ Engine.DBQueryContext = class {
         return this;
     }
 };
-Engine.DBObjects = class {
+Engine.DBObjects = class DBObjects {
     constructor(session, tableName) {
         this.session = session;
         this.tableName = tableName;
@@ -554,10 +557,10 @@ Engine.DBObjects = class {
         });
     }
 };
-Engine.Session = class {
-    constructor(engine, connection) {
+Engine.Session = class Session {
+    constructor(engine) {
         this.engine = engine;
-        this.connection = connection;
+        this.connection = null;
     }
     begin() {
         if (!this.engine || !this.connection) {
@@ -752,10 +755,6 @@ exports.Engine = Engine;
                 callback (session);
             }
         });
-    };
-
-    Engine.prototype.objects = function objects (tableName) {
-        return new EngineSession(this).objects(tableName);//DBObjects(this, tableName);
     };
 
     const DBObjects = function (session, tableName) {
@@ -1180,3 +1179,4 @@ exports.Engine = Engine;
 
     module.exports = Engine;
 */ 
+//# sourceMappingURL=engine.js.map

@@ -13,7 +13,7 @@ const options = useHttps ? {
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(80);
+const httpPort = normalizePort(8888);
 const httpsPort = normalizePort(443);
 
 /**
