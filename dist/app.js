@@ -13,6 +13,7 @@ const path = require("path");
 const engine = require("./lib/engine");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const middlewares = require("./middlewares/middlewares");
 require('express-async-errors');
 exports.app = express();
 exports.app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +23,7 @@ exports.app.use(express.urlencoded({ extended: false }));
 exports.app.use(express.json());
 exports.app.use(cookieParser());
 exports.app.use(express.static(path.join(__dirname, 'public')));
+exports.app.use(middlewares.middlewareSession);
 exports.app.use((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const e = new engine.Engine({ user: 'root', password: '123456' });
     const databases = yield e.query('show databases');

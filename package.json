@@ -26,8 +26,8 @@
     "lint": "npm run tslint && npm run prettier",
     "tslint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prettier": "prettier --write --single-quote --list-different --tab-width 4 --print-width 180",
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc -p src",
+    "watch": "tsc -w -p src",
     "commit": "git-cz",
     "semantic-release": "semantic-release"
   },

@@ -60,7 +60,7 @@ class Engine {
         const promise = new Promise((resolve, reject) => {
             conn.query(sql, param, (err, rows) => {
                 if (err) {
-                    reject(errcodes_1.ErrorCode.kDatabaseError);
+                    reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
                 }
                 else {
                     resolve(rows);
@@ -135,11 +135,16 @@ class Engine {
         return new Promise((resolve, reject) => {
             if (this.pool) {
                 this.pool.end(err => {
-                    resolve(err);
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve('Ok');
+                    }
                 });
             }
             else {
-                resolve('ok');
+                resolve('Ok');
             }
         });
     }
@@ -147,7 +152,7 @@ class Engine {
         return new Promise((resolve, reject) => {
             this.pool.getConnection((err, connection) => {
                 if (err) {
-                    reject(errcodes_1.ErrorCode.kDatabaseError);
+                    reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
                 }
                 else {
                     resolve(connection);
@@ -163,7 +168,7 @@ class Engine {
     beginSession() {
         return new Promise((resolve, reject) => {
             let session = new Engine.Session(this);
-            session.begin().then(value => resolve(session)).catch(reason => reject(errcodes_1.ErrorCode.kDatabaseError));
+            session.begin().then(value => resolve(session)).catch(reason => reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError])));
         });
     }
     ;
@@ -573,14 +578,14 @@ Engine.Session = class Session {
                     if (err) {
                         this.engine.releaseConnection(this.connection);
                         this.connection = null;
-                        reject(errcodes_1.ErrorCode.kDatabaseError);
+                        reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
                     }
                     else {
                         resolve();
                     }
                 });
             }, (reason) => {
-                reject(errcodes_1.ErrorCode.kDatabaseError);
+                reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
             });
         });
     }
@@ -589,7 +594,7 @@ Engine.Session = class Session {
             if (this.connection != null) {
                 this.connection.commit(err => {
                     if (err) {
-                        reject(errcodes_1.ErrorCode.kDatabaseError);
+                        reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
                     }
                     else {
                         this.engine.releaseConnection(this.connection);
@@ -599,7 +604,7 @@ Engine.Session = class Session {
                 });
             }
             else {
-                reject(errcodes_1.ErrorCode.kDatabaseError);
+                reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
             }
         });
     }

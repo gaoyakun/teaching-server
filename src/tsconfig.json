@@ -9,11 +9,11 @@
             "dom"
         ],
         "strict": true,
-        "outDir": "dist",
+        "outDir": "../dist",
         "sourceMap": true
     },
     "include": [
-        "src"
+        "."
     ],
     "exclude": [
         "node_modules",

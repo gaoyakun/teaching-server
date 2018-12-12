@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Long = require("long");
+const errcodes_1 = require("./errcodes");
 class Utils {
     static isNumber(obj) {
         return typeof obj === 'number';
@@ -142,7 +143,7 @@ class Utils {
     }
     static debugOut(str, up) {
         if (this.debug) {
-            console.log(this.genDebugStr(str, up));
+            console.log(this.genDebugStr(str, up || 0));
         }
     }
     static getFunctionName(callee) {
@@ -162,6 +163,12 @@ class Utils {
             return name[1];
         }
         return 'anonymous';
+    }
+    static httpResult(err) {
+        return {
+            err: err,
+            message: errcodes_1.ErrorCode[err]
+        };
     }
 }
 Utils.debug = false;
