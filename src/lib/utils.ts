@@ -1,4 +1,5 @@
 import * as Long from 'long';
+import { ErrorCode } from './errcodes';
 
 export class Utils {
     static debug: boolean = false;
@@ -134,9 +135,9 @@ export class Utils {
         let funcName = f ? this.getFunctionName(f)+': ' : '';
         return `${funcName}${str}`;
     }
-    static debugOut (str:string, up:number) {
+    static debugOut (str:string, up?:number) {
         if (this.debug) {
-            console.log (this.genDebugStr(str, up));
+            console.log (this.genDebugStr(str, up||0));
         }
     }
     static getFunctionName (callee: Function){
@@ -156,5 +157,11 @@ export class Utils {
             return name[1];
         }
         return 'anonymous';
+    }
+    static httpResult (err: ErrorCode) {
+        return { 
+            err:err,
+            message:ErrorCode[err]
+        };
     }
 }

@@ -21,7 +21,7 @@ test('test create database', async () => {
         await engine.close ();
     } catch (e) {
         await engine.close ();
-        throw new Error('create database failed');
+        throw e;
     }
 });
 
@@ -43,7 +43,7 @@ test('test create table', async () => {
         await engine.close ();
     } catch (e) {
         await engine.close ();
-        throw new Error('create table failed');
+        throw e;
     }
 });
 
@@ -60,7 +60,7 @@ test('test insert data', async () => {
         await engine.close ();
     } catch (e) {
         await engine.close ();
-        throw new Error('insert data failed');
+        throw e;
     }
 });
 

@@ -392,13 +392,13 @@ export class Engine {
                         if (err) {
                             this.engine.releaseConnection (this.connection as mysql.PoolConnection);
                             this.connection = null;
-                            reject (ErrorCode.kDatabaseError);
+                            reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                         } else {
                             resolve ();
                         }
                     });
                 }, (reason?:any) => {
-                    reject (ErrorCode.kDatabaseError);
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                 });
             });
         }
@@ -407,7 +407,7 @@ export class Engine {
                 if (this.connection != null) {
                     this.connection.commit(err=>{
                         if (err) {
-                            reject (ErrorCode.kDatabaseError);
+                            reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                         } else {
                             this.engine.releaseConnection(this.connection as mysql.PoolConnection);
                             this.connection = null;
@@ -415,7 +415,7 @@ export class Engine {
                         }
                     });
                 } else {
-                    reject (ErrorCode.kDatabaseError);
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                 }
             });
         };
@@ -486,7 +486,7 @@ export class Engine {
         const promise = new Promise<any>((resolve, reject) => {
             conn.query (sql, param, (err, rows)=>{
                 if (err) {
-                    reject (ErrorCode.kDatabaseError);
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                 } else {
                     resolve (rows);
                 }
@@ -550,10 +550,14 @@ export class Engine {
         return new Promise<any> ((resolve, reject) => {
             if (this.pool) {
                 this.pool.end (err => {
-                    resolve (err);
+                    if (err) {
+                        reject (err);
+                    } else {
+                        resolve ('Ok');
+                    }
                 });
             } else {
-                resolve ('ok');
+                resolve ('Ok');
             }
         });
     }
@@ -561,7 +565,7 @@ export class Engine {
         return new Promise<mysql.PoolConnection>((resolve:(value?:any)=>void, reject:(reason?:any)=>void) => {
             this.pool.getConnection((err, connection)=>{
                 if (err) {
-                    reject (ErrorCode.kDatabaseError);
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
                 } else {
                     resolve (connection);
                 }
@@ -576,7 +580,7 @@ export class Engine {
     beginSession (): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             let session = new Engine.Session(this);
-            session.begin().then (value => resolve (session)).catch (reason => reject (ErrorCode.kDatabaseError));
+            session.begin().then (value => resolve (session)).catch (reason => reject (new Error(ErrorCode[ErrorCode.kDatabaseError])));
         });
     };
     objects (tableName: string) {
