@@ -2,6 +2,11 @@ const rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const uglify = require('rollup-plugin-uglify');
+const postcss = require('rollup-plugin-postcss');
+const simplevars = require('postcss-simple-vars');
+const nested = require('postcss-nested');
+const cssnext = require('postcss-cssnext');
+const cssnano = require('cssnano');
 const path = require('path');
 const fs = require('fs');
 
@@ -16,10 +21,20 @@ async function build(inputOptions, outputOptions) {
     await bundle.write(outputOptions);
 }
 
+copyFolderRecursive (staticDir, siteDir);
+
 const promises = jsFiles.map (name => {
     return build ({
         input: path.join(compiledDir, name+'.js'),
-        plugins: [commonjs(), resolve({
+        plugins: [postcss({
+            plugins: [
+                simplevars(),
+                nested(),
+                cssnext({ warnForDuplicates: false}),
+                cssnano()
+            ],
+            extensions: [ '.css', '.scss' ]
+        }), commonjs(), resolve({
             moduleDirectory: path.join(rootDir, 'node_modules')
         }), uglify.uglify()]
     }, {
@@ -48,6 +63,9 @@ function mkdirsSync(dirpath) { 
         let pathtmp;
         dirpath.split(/[/\\]/).forEach(function (dirname) {
             pathtmp = pathtmp ? path.join(pathtmp, dirname) : dirname;
+            if (pathtmp === '') {
+                pathtmp = '/';
+            }
             if (!fs.existsSync(pathtmp)) {
                 fs.mkdirSync (pathtmp)
             }
@@ -74,7 +92,6 @@ function copyFolderRecursive(src, dst) {
 
 Promise.all (promises).then (result => {
     deleteFolderRecursive (compiledDir);
-    copyFolderRecursive (staticDir, siteDir);
     process.exit(0);
 }).catch (reason => {
     console.error (reason);
