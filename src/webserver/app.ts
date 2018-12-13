@@ -19,10 +19,6 @@ app.use (express.static(path.join(__dirname, 'public')));
 app.use (middlewares.middlewareSession);
 
 app.use (async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const e = new engine.Engine({ user:'root', password:'123456' });
-    const databases = await e.query ('show databases');
-    console.log (databases);
-    await e.close ();
     throw Error('aysnc error test');
 });
 

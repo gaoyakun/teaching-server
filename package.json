@@ -28,7 +28,8 @@
     "prettier": "prettier --write --single-quote --list-different --tab-width 4 --print-width 180",
     "build": "npm run clean && tsc -p src/webserver && tsc -p src/site && node scripts/build-site.js",
     "commit": "git-cz",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "start-server": "npm run build && node dist/webserver/webserver/main.js"
   },
   "husky": {
     "hooks": {

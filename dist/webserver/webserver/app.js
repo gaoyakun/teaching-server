@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const path = require("path");
-const engine = require("./lib/engine");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const middlewares = require("./middlewares/middlewares");
@@ -25,10 +24,6 @@ exports.app.use(cookieParser());
 exports.app.use(express.static(path.join(__dirname, 'public')));
 exports.app.use(middlewares.middlewareSession);
 exports.app.use((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    const e = new engine.Engine({ user: 'root', password: '123456' });
-    const databases = yield e.query('show databases');
-    console.log(databases);
-    yield e.close();
     throw Error('aysnc error test');
 }));
 exports.app.use((err, req, res, next) => {
