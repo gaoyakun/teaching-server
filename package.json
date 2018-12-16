@@ -26,7 +26,7 @@
     "lint": "npm run tslint && npm run prettier",
     "tslint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prettier": "prettier --write --single-quote --list-different --tab-width 4 --print-width 180",
-    "build": "npm run clean && tsc -p src/webserver && tsc -p src/site && node scripts/build-site.js",
+    "build": "npm run clean && tsc -p src/webserver && tsc -p src/site && node scripts/build-site.js && cp -r src/webserver/install dist/webserver/webserver && cp -r src/webserver/views dist/webserver/webserver",
     "commit": "git-cz",
     "semantic-release": "semantic-release",
     "start-server": "npm run build && node dist/webserver/webserver/main.js"

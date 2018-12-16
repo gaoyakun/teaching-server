@@ -8,7 +8,165 @@ export interface IQuery {
 }
 
 export class Engine {
-    static readonly Col = class Col {
+    private static engineMap: {[name:string]: Engine} = {};
+    private static onlyFullGroupBy: boolean = false;
+    private options: any;
+    private pool: mysql.Pool;
+    constructor (options: mysql.PoolConfig|null) {
+        this.options = options;
+        this.pool = mysql.createPool(this.options);
+    }
+    static getInstance (name: string) {
+        return this.engineMap[name] || null;
+    }
+    static registerInstance (name:string, engine:Engine) {
+        if (name && engine && !this.engineMap[name]) {
+            this.engineMap[name] = engine;
+            return true;
+        }
+        return false;
+    }
+    static unregisterInstance (name: string) {
+        if (this.engineMap[name]) {
+            delete this.engineMap[name];
+        }
+    }
+    static checkResult (err: any, result: any, callback: Function) {
+        if (err) {
+            Utils.debugOut(''+err, 1);
+            return callback && callback(ErrorCode.kDatabaseError);
+        } else {
+            return callback && callback(ErrorCode.kSuccess, result);
+        }
+    }
+    static createConnection (options: mysql.PoolConfig) {
+        return mysql.createConnection (options);
+    }
+    static query_wo_pool(conn: mysql.Connection, q:IQuery|string): Promise<any> {
+        let sql:string;
+        let param:any[];
+        if (Utils.isString(q)) {
+            sql = q as string;
+            param = [];
+        } else if (Utils.isObject(q)){
+            sql = (q as IQuery).sql;
+            param = (q as IQuery).param||[];
+        } else {
+            throw new Error('[query_wo_pool]: invalid parameter');
+        }
+        const promise = new Promise<any>((resolve, reject) => {
+            conn.query (sql, param, (err, rows)=>{
+                if (err) {
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
+                } else {
+                    resolve (rows);
+                }
+            });
+        });
+        return promise;
+    }
+    static col (column:string, tableName:string) {
+        if (!Utils.isString(column) || (tableName && !Utils.isString(tableName))) {
+            throw new Error(`Invalid column definition: ${column}, ${tableName}`);
+        }
+        return new Engine.Col(1, column, tableName, null, null);
+    }
+    static agg (field:string, func:string) {
+        return new Engine.Col(2, null, null, func, field);
+    }
+    static count (field:string) {
+        return this.agg (field, 'count');
+    }
+    static sum (field:string) {
+        return this.agg (field, 'sum');
+    }
+    static anyValue (field:string):any {
+        return this.onlyFullGroupBy ? this.agg (field, 'any_value') : field;
+    };    
+    static parseField (item:any, defTableName: string): string|null {
+        if (Utils.isString(item)) {
+            return `\`${item}\``;
+        } else if (Utils.isFunction(item)) {
+            let f = new item();
+            if (f.type === 1) {
+                let tableName = f.table || defTableName;
+                let colname = f.column==='*' ? f.column : `\`${f.column}\``;
+                return `\`${tableName}\`.${colname}`;
+            } else if (f.type === 2) {
+                if (Utils.isUndefined(f.field)) {
+                    return `${f.aggfunc}(*)`;
+                } else if (Utils.isNull(f.field)) {
+                    return `${f.aggfunc}(NULL)`;
+                } else if (Utils.isString(f.field)) {
+                    return `${f.aggfunc}(\`${f.field}\`)`;
+                } else if (Utils.isFunction(f.field)) {
+                    return `${f.aggfunc}(${Engine.parseField(f.field, defTableName)})`;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else if (Utils.isArray(item) && item.length === 2){
+            let field = this.parseField (item[0], defTableName);
+            if (field == null) {
+                return null;
+            }
+            return `${field} as ${item[1]}`;
+        } else {
+            return null;
+        }
+    }
+    close (): Promise<any> {
+        return new Promise<any> ((resolve, reject) => {
+            if (this.pool) {
+                this.pool.end (err => {
+                    if (err) {
+                        reject (err);
+                    } else {
+                        resolve ('Ok');
+                    }
+                });
+            } else {
+                resolve ('Ok');
+            }
+        });
+    }
+    getConnection (): Promise<mysql.PoolConnection> {
+        return new Promise<mysql.PoolConnection>((resolve:(value?:any)=>void, reject:(reason?:any)=>void) => {
+            this.pool.getConnection((err, connection)=>{
+                if (err) {
+                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
+                } else {
+                    resolve (connection);
+                }
+            });
+        });
+    }
+    releaseConnection (connection:mysql.PoolConnection) {
+        if (connection) {
+            connection.release();
+        }
+    }
+    beginSession (): Promise<Engine.Session> {
+        return new Promise<Engine.Session>((resolve, reject) => {
+            let session = new Engine.Session(this);
+            session.begin().then (value => resolve (session)).catch (reason => reject (new Error(ErrorCode[ErrorCode.kDatabaseError])));
+        });
+    };
+    objects (tableName: string) {
+        return new Engine.Session(this).objects(tableName);
+    };
+    async query (q:IQuery|string) {
+        const conn = await this.getConnection ();
+        const result = await Engine.query_wo_pool (conn, q);
+        this.releaseConnection (conn);
+        return result;
+    }
+}
+
+export namespace Engine {
+    export class Col {
         type: number;
         column: string|null;
         table: string|null;
@@ -22,8 +180,8 @@ export class Engine {
             this.aggfield = aggfield;
         }
     }
-    static readonly DBQueryContext = class DBQueryContext {
-        private _objects: any;
+    export class DBQueryContext {
+        private _objects: Engine.DBObjects;
         private _joins: any[];
         private _fields: any[];
         private _orderby: any[];
@@ -32,7 +190,7 @@ export class Engine {
         private _filters: any;
         private _offset: number|null;
         private _limit: number|null;
-        constructor (objects: any) {
+        constructor (objects: Engine.DBObjects) {
             this._objects = objects;
             this._joins = [];
             this._fields = [];
@@ -293,10 +451,10 @@ export class Engine {
             return this;
         }
     }
-    static readonly DBObjects = class DBObjects {
-        public readonly session: any;
+    export class DBObjects {
+        public readonly session: Engine.Session;
         public readonly tableName: string;
-        constructor (session: any, tableName: string) {
+        constructor (session: Engine.Session, tableName: string) {
             this.session = session;
             this.tableName = tableName;
         }
@@ -374,7 +532,7 @@ export class Engine {
             });
         }
     }
-    static Session = class Session {
+    export class Session {
         private engine: Engine;
         private connection: mysql.PoolConnection|null;
         constructor (engine: Engine) {
@@ -429,168 +587,13 @@ export class Engine {
         objects (tableName: string) {
             return new Engine.DBObjects(this, tableName);
         };
-        async query (q: IQuery) {
+        async query (q: IQuery|string) {
             if (this.connection) {
                 return await Engine.query_wo_pool (this.connection, q);
             } else {
                 return await this.engine.query (q);
             }
         };
-    }
-    private static engineMap: {[name:string]: Engine} = {};
-    private static onlyFullGroupBy: boolean = false;
-    private options: any;
-    private pool: mysql.Pool;
-    constructor (options: mysql.PoolConfig|null) {
-        this.options = options;
-        this.pool = mysql.createPool(this.options);
-    }
-    static getInstance (name: string) {
-        return this.engineMap[name] || null;
-    }
-    static registerInstance (name:string, engine:Engine) {
-        if (name && engine && !this.engineMap[name]) {
-            this.engineMap[name] = engine;
-            return true;
-        }
-        return false;
-    }
-    static unregisterInstance (name: string) {
-        if (this.engineMap[name]) {
-            delete this.engineMap[name];
-        }
-    }
-    static checkResult (err: any, result: any, callback: Function) {
-        if (err) {
-            Utils.debugOut(''+err, 1);
-            return callback && callback(ErrorCode.kDatabaseError);
-        } else {
-            return callback && callback(ErrorCode.kSuccess, result);
-        }
-    }
-    static createConnection (options: mysql.PoolConfig) {
-        return mysql.createConnection (options);
-    }
-    static query_wo_pool(conn: mysql.Connection, q:IQuery|string): Promise<any> {
-        let sql:string;
-        let param:any[];
-        if (Utils.isString(q)) {
-            sql = q as string;
-            param = [];
-        } else if (Utils.isObject(q)){
-            sql = (q as IQuery).sql;
-            param = (q as IQuery).param||[];
-        } else {
-            throw new Error('[query_wo_pool]: invalid parameter');
-        }
-        const promise = new Promise<any>((resolve, reject) => {
-            conn.query (sql, param, (err, rows)=>{
-                if (err) {
-                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
-                } else {
-                    resolve (rows);
-                }
-            });
-        });
-        return promise;
-    }
-    static col (column:string, tableName:string) {
-        if (!Utils.isString(column) || (tableName && !Utils.isString(tableName))) {
-            throw new Error(`Invalid column definition: ${column}, ${tableName}`);
-        }
-        return new this.Col(1, column, tableName, null, null);
-    }
-    static agg (field:string, func:string) {
-        return new this.Col(2, null, null, func, field);
-    }
-    static count (field:string) {
-        return this.agg (field, 'count');
-    }
-    static sum (field:string) {
-        return Engine.agg (field, 'sum');
-    }
-    static anyValue (field:string):any {
-        return this.onlyFullGroupBy ? this.agg (field, 'any_value') : field;
-    };    
-    private static parseField (item:any, defTableName: string): string|null {
-        if (Utils.isString(item)) {
-            return `\`${item}\``;
-        } else if (Utils.isFunction(item)) {
-            let f = new item();
-            if (f.type === 1) {
-                let tableName = f.table || defTableName;
-                let colname = f.column==='*' ? f.column : `\`${f.column}\``;
-                return `\`${tableName}\`.${colname}`;
-            } else if (f.type === 2) {
-                if (Utils.isUndefined(f.field)) {
-                    return `${f.aggfunc}(*)`;
-                } else if (Utils.isNull(f.field)) {
-                    return `${f.aggfunc}(NULL)`;
-                } else if (Utils.isString(f.field)) {
-                    return `${f.aggfunc}(\`${f.field}\`)`;
-                } else if (Utils.isFunction(f.field)) {
-                    return `${f.aggfunc}(${Engine.parseField(f.field, defTableName)})`;
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } else if (Utils.isArray(item) && item.length === 2){
-            let field = this.parseField (item[0], defTableName);
-            if (field == null) {
-                return null;
-            }
-            return `${field} as ${item[1]}`;
-        } else {
-            return null;
-        }
-    }
-    close (): Promise<any> {
-        return new Promise<any> ((resolve, reject) => {
-            if (this.pool) {
-                this.pool.end (err => {
-                    if (err) {
-                        reject (err);
-                    } else {
-                        resolve ('Ok');
-                    }
-                });
-            } else {
-                resolve ('Ok');
-            }
-        });
-    }
-    getConnection (): Promise<mysql.PoolConnection> {
-        return new Promise<mysql.PoolConnection>((resolve:(value?:any)=>void, reject:(reason?:any)=>void) => {
-            this.pool.getConnection((err, connection)=>{
-                if (err) {
-                    reject (new Error(ErrorCode[ErrorCode.kDatabaseError]));
-                } else {
-                    resolve (connection);
-                }
-            });
-        });
-    }
-    releaseConnection (connection:mysql.PoolConnection) {
-        if (connection) {
-            connection.release();
-        }
-    }
-    beginSession (): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            let session = new Engine.Session(this);
-            session.begin().then (value => resolve (session)).catch (reason => reject (new Error(ErrorCode[ErrorCode.kDatabaseError])));
-        });
-    };
-    objects (tableName: string) {
-        return new Engine.Session(this).objects(tableName);
-    };
-    async query (q:IQuery|string) {
-        const conn = await this.getConnection ();
-        const result = await Engine.query_wo_pool (conn, q);
-        this.releaseConnection (conn);
-        return result;
     }
 }
 /*

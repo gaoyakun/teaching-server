@@ -13,7 +13,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const middlewares = require("./middlewares/middlewares");
-require('express-async-errors');
+const config_1 = require("./config");
+require("express-async-errors");
+config_1.Config.load();
 exports.app = express();
 exports.app.set('views', path.join(__dirname, 'views'));
 exports.app.set('view engine', 'ejs');
@@ -21,10 +23,10 @@ exports.app.use(logger('dev'));
 exports.app.use(express.urlencoded({ extended: false }));
 exports.app.use(express.json());
 exports.app.use(cookieParser());
-exports.app.use(express.static(path.join(__dirname, 'public')));
+exports.app.use(express.static(path.join(__dirname, '../../site')));
 exports.app.use(middlewares.middlewareSession);
-exports.app.use((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    throw Error('aysnc error test');
+exports.app.use('/install', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    res.render('install');
 }));
 exports.app.use((err, req, res, next) => {
     res.locals.message = err.message;

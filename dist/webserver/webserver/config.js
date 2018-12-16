@@ -1,0 +1,123 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require("fs");
+const path = require("path");
+const engine_1 = require("./lib/engine");
+const configFileDir = path.join(__dirname, 'conf');
+const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
+class Config {
+    static load() {
+        try {
+            if (fs.existsSync(jsonConfigFileName)) {
+                const content = fs.readFileSync(jsonConfigFileName, 'utf-8');
+                this._config = JSON.parse(content);
+            }
+        }
+        catch (err) {
+            console.log('load configurations failed: ' + err);
+            this._config = null;
+        }
+    }
+    static save() {
+        if (this._config) {
+            try {
+                if (!fs.existsSync(configFileDir)) {
+                    fs.mkdirSync(configFileDir);
+                }
+                const content = JSON.stringify(this._config);
+                fs.writeFileSync(jsonConfigFileName, content, 'utf-8');
+            }
+            catch (err) {
+                console.log('save configurations failed: ' + err);
+            }
+        }
+    }
+    static get databaseHost() {
+        return this._config && this._config.databaseConfig ? (this._config.databaseConfig.host || null) : null;
+    }
+    static set databaseHost(host) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.databaseConfig) {
+            this._config.databaseConfig = {};
+        }
+        this._config.databaseConfig.host = host;
+    }
+    static get databasePort() {
+        return this._config && this._config.databaseConfig ? (this._config.databaseConfig.port || null) : null;
+    }
+    static set databasePort(port) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.databaseConfig) {
+            this._config.databaseConfig = {};
+        }
+        this._config.databaseConfig.port = port;
+    }
+    static get databaseUser() {
+        return this._config && this._config.databaseConfig ? (this._config.databaseConfig.user || null) : null;
+    }
+    static set databaseUser(user) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.databaseConfig) {
+            this._config.databaseConfig = {};
+        }
+        this._config.databaseConfig.user = user;
+    }
+    static get databasePassword() {
+        return this._config && this._config.databaseConfig ? (this._config.databaseConfig.password || null) : null;
+    }
+    static set databasePassword(password) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.databaseConfig) {
+            this._config.databaseConfig = {};
+        }
+        this._config.databaseConfig.password = password;
+    }
+    static get databaseName() {
+        return this._config && this._config.databaseConfig ? (this._config.databaseConfig.name || null) : null;
+    }
+    static set databaseName(name) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.databaseConfig) {
+            this._config.databaseConfig = {};
+        }
+        this._config.databaseConfig.name = name;
+    }
+    static get engine() {
+        if (!this._engine) {
+            if (this.test()) {
+                const opt = {
+                    host: this.databaseHost,
+                    port: this.databasePort,
+                    user: this.databaseUser,
+                    password: this.databasePassword,
+                    database: this.databaseName
+                };
+                this._engine = new engine_1.Engine(opt);
+            }
+        }
+        if (!this._engine) {
+            throw new Error('Database engine not initialized');
+        }
+        return this._engine;
+    }
+    static test() {
+        if (this.databaseHost && this.databasePort && this.databaseUser && this.databasePassword && this.databaseName) {
+            return true;
+        }
+        return false;
+    }
+}
+Config._config = null;
+Config._engine = null;
+exports.Config = Config;
+//# sourceMappingURL=config.js.map
