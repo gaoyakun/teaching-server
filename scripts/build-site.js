@@ -25,7 +25,7 @@ copyFolderRecursive (staticDir, siteDir);
 
 const promises = jsFiles.map (name => {
     return build ({
-        input: path.join(compiledDir, name+'.js'),
+        input: path.join(compiledDir, 'site', 'src', name+'.js'),
         plugins: [postcss({
             plugins: [
                 simplevars(),

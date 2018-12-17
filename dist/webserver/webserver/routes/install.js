@@ -14,13 +14,13 @@ const config_1 = require("../config");
 const engine_1 = require("../lib/engine");
 const express = require("express");
 exports.installRouter = express.Router();
-exports.installRouter.get('/', (req, res, next) => {
+exports.installRouter.get('/database', (req, res, next) => {
     const host = config_1.Config.databaseHost || '';
     const port = config_1.Config.databasePort ? String(config_1.Config.databasePort) : '';
     const user = config_1.Config.databaseUser || '';
     const password = config_1.Config.databasePassword || '';
     const name = config_1.Config.databaseName || '';
-    res.render('install', { db: {
+    res.render('install_db', { db: {
             host: host,
             port: port,
             user: user,
@@ -66,6 +66,32 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
             config_1.Config.databasePassword = opt.password;
             config_1.Config.databaseName = req.body.name;
             config_1.Config.save();
+            res.redirect('/install/account');
+        }
+        catch (err) {
+            console.error(err);
+            res.json({
+                err: errcodes_1.ErrorCode.kDatabaseError
+            });
+        }
+    }
+}));
+exports.installRouter.get('/account', (req, res, next) => {
+    res.render('install_account');
+});
+exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    if (!req.body.account || !req.body.md5password) {
+        res.json({
+            err: errcodes_1.ErrorCode.kParamError
+        });
+    }
+    else {
+        const engine = config_1.Config.engine;
+        try {
+            yield engine.query({
+                sql: 'insert into `user` (account, passwd, name) values (?, ?, "管理员")',
+                param: [req.body.account, req.body.md5password]
+            });
             res.redirect('/');
         }
         catch (err) {

@@ -25,6 +25,9 @@ class Session {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 this._data = yield cache_1.CacheStore.get(id || this._id);
+                if (this._data === undefined) {
+                    this._data = {};
+                }
             }
             catch (e) {
                 this._data = null;

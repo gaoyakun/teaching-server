@@ -6,13 +6,13 @@ import * as express from 'express';
 
 export const installRouter = express.Router();
 
-installRouter.get('/', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+installRouter.get('/database', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const host = Config.databaseHost || '';
     const port = Config.databasePort ? String(Config.databasePort) : '';
     const user = Config.databaseUser || '';
     const password = Config.databasePassword || '';
     const name = Config.databaseName || '';
-    res.render ('install', { db: {
+    res.render ('install_db', { db: {
         host: host,
         port: port,
         user: user,
@@ -58,6 +58,32 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
             Config.databasePassword = opt.password;
             Config.databaseName = req.body.name;
             Config.save ();
+            res.redirect ('/install/account');
+        } catch (err) {
+            console.error (err);
+            res.json ({
+                err: ErrorCode.kDatabaseError
+            });
+        }
+    }
+});
+
+installRouter.get('/account', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('install_account');
+});
+
+installRouter.post('/setup_admin', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    if (!req.body.account || !req.body.md5password) {
+        res.json ({
+            err: ErrorCode.kParamError
+        });
+    } else {
+        const engine = Config.engine;
+        try {
+            await engine.query ({
+                sql: 'insert into `user` (account, passwd, name) values (?, ?, "管理员")',
+                param: [ req.body.account, req.body.md5password ]
+            });
             res.redirect ('/');
         } catch (err) {
             console.error (err);

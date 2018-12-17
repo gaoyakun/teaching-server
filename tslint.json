@@ -5,6 +5,7 @@
     ],
     "rules": {
         "no-empty": false,
-        "no-arg": false
+        "no-arg": false,
+        "one-variable-per-declaration": false
     }
 }

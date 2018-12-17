@@ -14,6 +14,9 @@ export class Session {
     async load (id?: string) {
         try {
             this._data = await CacheStore.get(id || this._id);
+            if (this._data === undefined) {
+                this._data = {};
+            }
         } catch (e) {
             this._data = null;
         }

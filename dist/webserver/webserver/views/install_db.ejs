@@ -4,29 +4,22 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.9">
-        <title>index</title>
+        <title>Open Teaching Project - 安装服务器</title>
         <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/fontawesome.min.css">
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
-            <a class="navbar-brand" href="#">Open Teaching Project</a>
+            <a class="navbar-brand" href="#">Open Teaching Project - 安装服务器</a>
         </nav>
         <div class="jumbotron">
             <div class="container">
-                <h1>安装OpenTeaching服务器</h1>
-                <p>这是您第一次运行OpenTeaching服务器，请提供必要的配置参数以完成服务器的安装。</p>
+                <h1>配置OpenTeaching数据库服务器</h1>
+                <p>请提供必要的配置参数以便OpenTeaching服务器完成数据库的配置（注意：原有的数据将全部丢失！）。</p>
             </div>
         </div>
         <div class="container">	
             <form class="form-horizontal" role="form" method="POST" action="/install/setup_database">
-                <div class="row">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                        <h2>MySQL数据库配置</h2>
-                        <hr>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
@@ -128,7 +121,7 @@
                 <div class="row" style="padding-top: 1rem">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
-                        <button type="submit" class="btn btn-success"><i class="fa fa-sign-in"></i> Login</button>
+                        <button type="submit" class="btn btn-success"><i class="fa fa-sign-in"></i>确定</button>
                     </div>
                 </div>
             </form>        
@@ -136,5 +129,11 @@
         <script src="/js/jquery.min.js"></script>
         <script src="/js/bootstrap.min.js"></script>
         <script src="/js/install.js"></script>
+        <script>
+            $(document).ready (function () {
+                console.log ('ready');
+                new install.InstallServer('database');
+            });
+        </script>
     </body>
 </html>
