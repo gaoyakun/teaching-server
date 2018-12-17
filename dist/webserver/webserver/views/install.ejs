@@ -5,6 +5,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.9">
         <title>index</title>
+        <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/fontawesome.min.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
@@ -14,7 +16,6 @@
             <div class="container">
                 <h1>安装OpenTeaching服务器</h1>
                 <p>这是您第一次运行OpenTeaching服务器，请提供必要的配置参数以完成服务器的安装。</p>
-                <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
             </div>
         </div>
         <div class="container">	
@@ -34,13 +35,13 @@
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
                                 <input type="text" name="host" class="form-control" id="host"
-                                        placeholder="localhost" required autofocus>
+                                        placeholder="localhost" value="<%= db.host %>" required autofocus>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-control-feedback">
-                            <span class="text-danger align-middle">
+                            <span class="text-danger align-middle" id="err_msg_host">
                             <!-- Put password error message here -->    
                             </span>
                         </div>
@@ -54,13 +55,13 @@
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
                                 <input type="number" name="port" step="1" class="form-control" id="port"
-                                        placeholder="3306" required>
+                                        placeholder="3306" value="<%= db.port %>" required>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-control-feedback">
-                            <span class="text-danger align-middle">
+                            <span class="text-danger align-middle" id="err_msg_port">
                             <!-- Put port error message here -->    
                             </span>
                         </div>
@@ -74,13 +75,13 @@
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-key"></i></div>
                                 <input type="text" name="username" class="form-control" id="username"
-                                        placeholder="root" required>
+                                        placeholder="root" value="<%= db.user %>" required>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-control-feedback">
-                            <span class="text-danger align-middle">
+                            <span class="text-danger align-middle" id="err_msg_user">
                             <!-- Put password error message here -->    
                             </span>
                         </div>
@@ -93,13 +94,13 @@
                             <label class="sr-only" for="password">MySQL密码</label>
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-key"></i></div>
-                                <input type="password" name="password" class="form-control" id="password" required>
+                                <input type="password" name="password" class="form-control" id="password" value="<%= db.password %>" required>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-control-feedback">
-                            <span class="text-danger align-middle">
+                            <span class="text-danger align-middle" id="err_msg_password">
                             <!-- Put password error message here -->    
                             </span>
                         </div>
@@ -112,13 +113,13 @@
                             <label class="sr-only" for="name">MySQL数据库名</label>
                             <div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                 <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-key"></i></div>
-                                <input type="text" name="name" class="form-control" id="name" required>
+                                <input type="text" name="name" class="form-control" id="name" value="<%= db.name %>" required>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-control-feedback">
-                            <span class="text-danger align-middle">
+                            <span class="text-danger align-middle" id="err_msg_name">
                             <!-- Put password error message here -->    
                             </span>
                         </div>
@@ -132,8 +133,8 @@
                 </div>
             </form>        
         </div>
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/index.js"></script>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/install.js"></script>
     </body>
 </html>

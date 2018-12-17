@@ -13,17 +13,22 @@ const errcodes_1 = require("../../common/errcodes");
 const config_1 = require("../config");
 const engine_1 = require("../lib/engine");
 const express = require("express");
-const router = express.Router();
-router.get('/', (req, res, next) => {
-    let session = req.session;
-    if (session.loginUserId) {
-        res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
-    }
-    else {
-        res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
-    }
+exports.installRouter = express.Router();
+exports.installRouter.get('/', (req, res, next) => {
+    const host = config_1.Config.databaseHost || '';
+    const port = config_1.Config.databasePort ? String(config_1.Config.databasePort) : '';
+    const user = config_1.Config.databaseUser || '';
+    const password = config_1.Config.databasePassword || '';
+    const name = config_1.Config.databaseName || '';
+    res.render('install', { db: {
+            host: host,
+            port: port,
+            user: user,
+            password: password,
+            name: name
+        } });
 });
-router.post('/setup_database', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     if (!req.body.host || !utils_1.Utils.safeParseInt(req.body.port) || !req.body.username || !req.body.password || !req.body.name) {
         res.json({
             err: errcodes_1.ErrorCode.kParamError
@@ -39,10 +44,13 @@ router.post('/setup_database', (req, res, next) => __awaiter(this, void 0, void 
         const engine = new engine_1.Engine(opt);
         try {
             const session = yield engine.beginSession();
-            yield session.query(`drop database if exists \`${req.body.name}\``);
-            yield session.query(`create database \`${req.body.name}\` default charset utf8mb4 collate utf8mb4_general_ci`);
-            yield session.query(`use \`${req.body.name}\``);
-            yield session.query(`create table \`user\` (
+            const sqlDropDb = `drop database if exists \`${req.body.name}\``;
+            yield session.query(sqlDropDb);
+            const sqlCreateDb = `create database \`${req.body.name}\` default charset utf8mb4 collate utf8mb4_general_ci`;
+            yield session.query(sqlCreateDb);
+            const sqlUseDb = `use \`${req.body.name}\``;
+            yield session.query(sqlUseDb);
+            const sqlCreateTable = `create table \`user\` (
                 \`id\` int auto_increment,
                 \`account\` varchar(32) unique not null,
                 \`passwd\` varchar(32) not null,
@@ -50,7 +58,8 @@ router.post('/setup_database', (req, res, next) => __awaiter(this, void 0, void 
                 \`state\` tinyint not null default 0,
                 \`role\` tinyint not null default 0,
                 primary key (\`id\`)
-            ) engine=InnoDB default charset=utf8mb4;`);
+            ) engine=InnoDB default charset=utf8mb4;`;
+            yield session.query(sqlCreateTable);
             config_1.Config.databaseHost = opt.host;
             config_1.Config.databasePort = opt.port;
             config_1.Config.databaseUser = opt.user;
@@ -60,11 +69,11 @@ router.post('/setup_database', (req, res, next) => __awaiter(this, void 0, void 
             res.redirect('/');
         }
         catch (err) {
+            console.error(err);
             res.json({
                 err: errcodes_1.ErrorCode.kDatabaseError
             });
         }
     }
 }));
-module.exports = router;
 //# sourceMappingURL=install.js.map

@@ -4,6 +4,8 @@ import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
 import * as middlewares from './middlewares/middlewares';
 import { Config } from './config';
+import { installRouter } from './routes/install';
+import { indexRouter } from './routes/index';
 import 'express-async-errors';
 
 Config.load ();
@@ -19,9 +21,8 @@ app.use (cookieParser());
 app.use (express.static(path.join(__dirname, '../../site')));
 app.use (middlewares.middlewareSession);
 
-app.use ('/install', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    res.render ('install');
-});
+app.use ('/', indexRouter);
+app.use ('/install', installRouter);
 
 app.use ((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     res.locals.message = err.message;

@@ -540,9 +540,6 @@ export namespace Engine {
             this.connection = null;
         }
         begin (): Promise<any> {
-            if (!this.engine || !this.connection) {
-                throw new Error('[Engine.Session.begin]: session has null connection');
-            }
             return new Promise<any>((resolve, reject) => {
                 this.engine.getConnection().then (conn => {
                     this.connection = conn;

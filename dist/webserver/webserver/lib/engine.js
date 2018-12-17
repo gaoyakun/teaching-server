@@ -575,9 +575,6 @@ exports.Engine = Engine;
             this.connection = null;
         }
         begin() {
-            if (!this.engine || !this.connection) {
-                throw new Error('[Engine.Session.begin]: session has null connection');
-            }
             return new Promise((resolve, reject) => {
                 this.engine.getConnection().then(conn => {
                     this.connection = conn;

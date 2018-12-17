@@ -1,22 +1,27 @@
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
-import { Session } from '../lib/session';
 import { Config } from '../config';
 import { Engine } from '../lib/engine';
 import * as express from 'express';
 
-const router = express.Router();
+export const installRouter = express.Router();
 
-router.get('/', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    let session = req.session as Session;
-    if (session.loginUserId) {
-        res.json(Utils.httpResult(ErrorCode.kSuccess));
-    } else {
-        res.json(Utils.httpResult(ErrorCode.kAuthError));
-    }
+installRouter.get('/', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const host = Config.databaseHost || '';
+    const port = Config.databasePort ? String(Config.databasePort) : '';
+    const user = Config.databaseUser || '';
+    const password = Config.databasePassword || '';
+    const name = Config.databaseName || '';
+    res.render ('install', { db: {
+        host: host,
+        port: port,
+        user: user,
+        password: password,
+        name: name
+    }});
 });
 
-router.post('/setup_database', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+installRouter.post('/setup_database', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     if (!req.body.host || !Utils.safeParseInt(req.body.port) || !req.body.username || !req.body.password || !req.body.name) {
         res.json ({
             err: ErrorCode.kParamError
@@ -31,10 +36,13 @@ router.post('/setup_database', async (req:express.Request, res:express.Response,
         const engine = new Engine (opt);
         try {
             const session: Engine.Session = await engine.beginSession ();
-            await session.query (`drop database if exists \`${req.body.name}\``);
-            await session.query (`create database \`${req.body.name}\` default charset utf8mb4 collate utf8mb4_general_ci`);
-            await session.query (`use \`${req.body.name}\``);
-            await session.query (`create table \`user\` (
+            const sqlDropDb = `drop database if exists \`${req.body.name}\``;
+            await session.query (sqlDropDb);
+            const sqlCreateDb = `create database \`${req.body.name}\` default charset utf8mb4 collate utf8mb4_general_ci`;
+            await session.query (sqlCreateDb);
+            const sqlUseDb = `use \`${req.body.name}\``;
+            await session.query (sqlUseDb);
+            const sqlCreateTable = `create table \`user\` (
                 \`id\` int auto_increment,
                 \`account\` varchar(32) unique not null,
                 \`passwd\` varchar(32) not null,
@@ -42,7 +50,8 @@ router.post('/setup_database', async (req:express.Request, res:express.Response,
                 \`state\` tinyint not null default 0,
                 \`role\` tinyint not null default 0,
                 primary key (\`id\`)
-            ) engine=InnoDB default charset=utf8mb4;`);
+            ) engine=InnoDB default charset=utf8mb4;`;
+            await session.query (sqlCreateTable);
             Config.databaseHost = opt.host;
             Config.databasePort = opt.port;
             Config.databaseUser = opt.user;
@@ -51,6 +60,7 @@ router.post('/setup_database', async (req:express.Request, res:express.Response,
             Config.save ();
             res.redirect ('/');
         } catch (err) {
+            console.error (err);
             res.json ({
                 err: ErrorCode.kDatabaseError
             });
@@ -58,4 +68,3 @@ router.post('/setup_database', async (req:express.Request, res:express.Response,
     }
 });
 
-module.exports = router;
