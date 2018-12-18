@@ -17,9 +17,14 @@ indexRouter.get('/', (req:express.Request, res:express.Response, next:express.Ne
             data.user = {
                 name: session.loginUserAccount
             }
+            res.render ('index', data);
         } else {
-            data.user = null;
+            res.render ('login');
         }
-        res.render ('index', data);
     }
 });
+
+indexRouter.get('/login', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('login');
+});
+

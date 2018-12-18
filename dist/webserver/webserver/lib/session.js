@@ -11,9 +11,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cache_1 = require("./cache");
 const uid_1 = require("./uid");
 class Session {
-    constructor(data) {
-        this._id = uid_1.UID('sid');
-        this._data = data || {};
+    constructor(id) {
+        this._id = id || uid_1.UID('sid');
+        this._data = {};
+    }
+    static loadSession(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield cache_1.CacheStore.get(id);
+            if (data) {
+                const session = new Session(id);
+                session._data = data;
+                return session;
+            }
+            else {
+                return null;
+            }
+        });
     }
     save() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -21,10 +34,10 @@ class Session {
         });
     }
     ;
-    load(id) {
+    load() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this._data = yield cache_1.CacheStore.get(id || this._id);
+                this._data = yield cache_1.CacheStore.get(this._id);
                 if (this._data === undefined) {
                     this._data = {};
                 }
@@ -65,11 +78,17 @@ class Session {
     }
     set loginUserAccount(value) {
         if (this._data.loginUserAccount !== value) {
-            this._data.loginUserId = value;
+            this._data.loginUserAccount = value;
             this.save().catch(reason => {
                 throw new Error(reason);
             });
         }
+    }
+    set(props) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this._data = Object.assign(this._data, props);
+            yield this.save();
+        });
     }
 }
 exports.Session = Session;

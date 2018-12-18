@@ -27,15 +27,14 @@ export const middlewareSession = async function (req: express.Request, res: expr
     if (req.session) {
         return next();
     }
-    req.session = new Session ();
     const sessionId = req.cookies[SESSION_COOKIE];
-    res.cookie(SESSION_COOKIE, req.session.id);
     if (sessionId) {
-        try {
-            await req.session.load (sessionId);
-        } catch (e) {            
-            await req.session.clear ();
-        }
+        req.session = await Session.loadSession(sessionId) || undefined;
+    }
+    if (!req.session) {
+        req.session = new Session ();
+        await req.session.save ();
+        res.cookie(SESSION_COOKIE, req.session.id);
     }
     return next();
 };

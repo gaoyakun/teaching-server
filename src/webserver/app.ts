@@ -6,6 +6,7 @@ import * as middlewares from './middlewares/middlewares';
 import { Config } from './config';
 import { installRouter } from './routes/install';
 import { indexRouter } from './routes/index';
+import { apiRouter } from './routes/api';
 import 'express-async-errors';
 
 Config.load ();
@@ -23,6 +24,7 @@ app.use (middlewares.middlewareSession);
 
 app.use ('/', indexRouter);
 app.use ('/install', installRouter);
+app.use ('/api', apiRouter);
 
 app.use ((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     res.locals.message = err.message;

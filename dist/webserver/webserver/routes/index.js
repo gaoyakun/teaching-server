@@ -14,11 +14,14 @@ exports.indexRouter.get('/', (req, res, next) => {
             data.user = {
                 name: session.loginUserAccount
             };
+            res.render('index', data);
         }
         else {
-            data.user = null;
+            res.render('login');
         }
-        res.render('index', data);
     }
+});
+exports.indexRouter.get('/login', (req, res, next) => {
+    res.render('login');
 });
 //# sourceMappingURL=index.js.map

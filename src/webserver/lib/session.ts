@@ -4,16 +4,26 @@ import { UID } from './uid';
 export class Session {
     private _id: string;
     private _data: any;
-    constructor (data?: any) {
-        this._id = UID('sid')
-        this._data = data || {};
+    constructor (id?: string) {
+        this._id = id || UID('sid')
+        this._data = {};
+    }
+    static async loadSession (id: string) {
+        const data = await CacheStore.get (id);
+        if (data) {
+            const session = new Session (id);
+            session._data = data;
+            return session;
+        } else {
+            return null;
+        }
     }
     async save () {
         await CacheStore.set(this._id, this._data);
     };
-    async load (id?: string) {
+    async load () {
         try {
-            this._data = await CacheStore.get(id || this._id);
+            this._data = await CacheStore.get(this._id);
             if (this._data === undefined) {
                 this._data = {};
             }
@@ -47,11 +57,15 @@ export class Session {
     }
     set loginUserAccount (value: string) {
         if (this._data.loginUserAccount !== value) {
-            this._data.loginUserId = value;
+            this._data.loginUserAccount = value;
             this.save ().catch (reason => {
                 throw new Error (reason);
             });
         }
+    }
+    async set (props: object) {
+        this._data = Object.assign (this._data, props);
+        await this.save ();
     }
 }
 

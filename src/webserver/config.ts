@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { Engine } from './lib/engine';
 
-const configFileDir = path.join(__dirname, 'conf');
+const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
 
 export class Config {

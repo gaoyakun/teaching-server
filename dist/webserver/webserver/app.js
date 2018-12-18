@@ -8,6 +8,7 @@ const middlewares = require("./middlewares/middlewares");
 const config_1 = require("./config");
 const install_1 = require("./routes/install");
 const index_1 = require("./routes/index");
+const api_1 = require("./routes/api");
 require("express-async-errors");
 config_1.Config.load();
 exports.app = express();
@@ -21,6 +22,7 @@ exports.app.use(express.static(path.join(__dirname, '../../site')));
 exports.app.use(middlewares.middlewareSession);
 exports.app.use('/', index_1.indexRouter);
 exports.app.use('/install', install_1.installRouter);
+exports.app.use('/api', api_1.apiRouter);
 exports.app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};

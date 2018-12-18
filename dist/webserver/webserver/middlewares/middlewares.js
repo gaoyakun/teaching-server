@@ -26,16 +26,14 @@ exports.middlewareSession = function (req, res, next) {
         if (req.session) {
             return next();
         }
-        req.session = new session_1.Session();
         const sessionId = req.cookies[SESSION_COOKIE];
-        res.cookie(SESSION_COOKIE, req.session.id);
         if (sessionId) {
-            try {
-                yield req.session.load(sessionId);
-            }
-            catch (e) {
-                yield req.session.clear();
-            }
+            req.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
+        }
+        if (!req.session) {
+            req.session = new session_1.Session();
+            yield req.session.save();
+            res.cookie(SESSION_COOKIE, req.session.id);
         }
         return next();
     });

@@ -14,7 +14,7 @@ const rootDir = path.join(__dirname, '..');
 const staticDir = path.join(rootDir, 'src/site/static');
 const siteDir = path.join(rootDir, 'dist/site');
 const compiledDir = path.join(siteDir, 'compiled')
-const jsFiles = ['install'];
+const jsFiles = ['install','login'];
 
 async function build(inputOptions, outputOptions) {
     const bundle = await rollup.rollup(inputOptions);

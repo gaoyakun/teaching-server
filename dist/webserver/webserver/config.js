@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const engine_1 = require("./lib/engine");
-const configFileDir = path.join(__dirname, 'conf');
+const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
 class Config {
     static load() {
