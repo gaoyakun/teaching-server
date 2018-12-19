@@ -103,9 +103,9 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
 installRouter.get('/storage', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     res.render ('install_storage', {
         storage: {
-            external: Config.storageType || false,
+            external: (Config.storageType || 'local') !== 'local',
             host: Config.storageHost || '',
-            port: Config.storagePort || 0
+            port: Config.storagePort || ''
         }
     });
 });

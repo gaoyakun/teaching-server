@@ -37,10 +37,11 @@ export function init_admin_setup() {
     $('input').on ('input', function () {
         checkConfig ();
     });
-    $('#submit').on ('click', function(){
+    $('#ok').on ('click', function(e: Event){
+        e.preventDefault();
         if (checkConfig ()) {
             $('#md5password').val(md5(String($('#password').val())));
-            $('admin_account_form').submit ();
+            $('#admin_account_form').submit ();
         }
     });
 };

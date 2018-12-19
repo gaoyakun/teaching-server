@@ -52,9 +52,10 @@ export function init_database_setup() {
         checkConfig ();
     });
 
-    $('#submit').on ('click', function(){
+    $('#ok').on ('click', function(e: Event){
+        e.preventDefault();
         if (checkConfig ()) {
-            $('setup-database-form').submit ();
+            $('#setup-database-form').submit ();
         }
     });
 };

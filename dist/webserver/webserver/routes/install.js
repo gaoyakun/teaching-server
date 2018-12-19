@@ -111,9 +111,9 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
 exports.installRouter.get('/storage', (req, res, next) => {
     res.render('install_storage', {
         storage: {
-            external: config_1.Config.storageType || false,
+            external: (config_1.Config.storageType || 'local') !== 'local',
             host: config_1.Config.storageHost || '',
-            port: config_1.Config.storagePort || 0
+            port: config_1.Config.storagePort || ''
         }
     });
 });
