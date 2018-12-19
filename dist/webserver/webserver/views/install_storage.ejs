@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.9">
+        <title>Open Teaching Project - 安装服务器</title>
+        <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/fontawesome.min.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
+            <a class="navbar-brand" href="#">Open Teaching Project - 安装服务器</a>
+        </nav>
+        <div class="jumbotron">
+            <div class="container">
+                <h1>配置OpenTeaching服务器资源存储位置</h1>
+                <p>请提供服务器静态资源的存储位置（注意：原有的数据将全部丢失！）。</p>
+            </div>
+        </div>
+        <div class="container">	
+            <form class="form-horizontal" role="form" method="POST" action="/install/setup_storage">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <div class="form-group has-danger">
+                            <label class="sr-only" for="external">使用单独的存储服务器</label>
+                            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
+                                <% if (storage.external) { %>
+                                <input type="checkbox" name="external" class="form-control" id="external" checked="checked">
+                                <% } else { %>
+                                <input type="checkbox" name="external" class="form-control" id="external">
+                                <% } %>
+                                <input type="hidden" name="type" id="type">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <div class="form-group has-danger">
+                            <label class="sr-only" for="host">资源服务器地址</label>
+                            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
+                                <input type="text" name="host" class="form-control" id="host"
+                                        placeholder="localhost" value="<%= storage.host %>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-control-feedback">
+                            <span class="text-danger align-middle" id="err_msg_host">
+                            <!-- Put password error message here -->    
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <div class="form-group has-danger">
+                            <label class="sr-only" for="port">资源服务器端口</label>
+                            <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                                <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
+                                <input type="number" name="port" step="1" class="form-control" id="port"
+                                        placeholder="80" value="<%= storage.port %>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-control-feedback">
+                            <span class="text-danger align-middle" id="err_msg_port">
+                            <!-- Put port error message here -->    
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 1rem">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-success"><i class="fa fa-sign-in"></i>确定</button>
+                    </div>
+                </div>
+            </form>        
+        </div>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/install.js"></script>
+        <script>
+            $(document).ready (function () {
+                console.log ('ready');
+                new install.InstallServer('storage');
+            });
+        </script>
+    </body>
+</html>

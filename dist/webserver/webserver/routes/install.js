@@ -92,7 +92,7 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
                 sql: 'insert into `user` (account, passwd, name) values (?, ?, "管理员")',
                 param: [req.body.account, req.body.md5password]
             });
-            res.redirect('/');
+            res.redirect('/install/storage');
         }
         catch (err) {
             console.error(err);
@@ -102,4 +102,36 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
         }
     }
 }));
+exports.installRouter.get('/storage', (req, res, next) => {
+    res.render('install_storage', {
+        storage: {
+            external: config_1.Config.storageType || false,
+            host: config_1.Config.storageHost || '',
+            port: config_1.Config.storagePort || 0
+        }
+    });
+});
+exports.installRouter.post('/setup_storage', (req, res, next) => {
+    let storageType = req.body.type;
+    let storageHost = '';
+    let storagePort = 0;
+    if (storageType !== 'local') {
+        const host = req.body.host;
+        const port = utils_1.Utils.safeParseInt(req.body.port);
+        if (!host || !port) {
+            return res.json({
+                err: errcodes_1.ErrorCode.kParamError
+            });
+        }
+        else {
+            storageHost = host;
+            storagePort = port;
+        }
+    }
+    config_1.Config.storageType = storageType;
+    config_1.Config.storageHost = storageHost;
+    config_1.Config.storagePort = storagePort;
+    config_1.Config.save();
+    res.redirect('/');
+});
 //# sourceMappingURL=install.js.map

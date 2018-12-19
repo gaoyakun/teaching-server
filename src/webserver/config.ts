@@ -33,6 +33,42 @@ export class Config {
             }
         }
     }
+    static get storageType (): string {
+        return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;
+    }
+    static set storageType (type: string) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.storageConfig) {
+            this._config.storageConfig = {};
+        }
+        this._config.storageConfig.type = type;
+    }
+    static get storageHost (): string {
+        return this._config && this._config.storageConfig ? (this._config.storageConfig.host || null) : null;
+    }
+    static set storageHost (host: string) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.storageConfig) {
+            this._config.storageConfig = {};
+        }
+        this._config.storageConfig.host = host;
+    }
+    static get storagePort (): number {
+        return this._config && this._config.storageConfig ? (this._config.storageConfig.port || null) : null;
+    }
+    static set storagePort (port: number) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.storageConfig) {
+            this._config.storageConfig = {};
+        }
+        this._config.storageConfig.port = port;
+    }
     static get databaseHost (): string {
         return this._config && this._config.databaseConfig ? (this._config.databaseConfig.host || null) : null;
     } 
@@ -95,7 +131,7 @@ export class Config {
     }
     static get engine (): Engine {
         if (!this._engine) {
-            if (this.test ()) {
+            if (this.testDatabaseConfig ()) {
                 const opt = {
                     host: this.databaseHost,
                     port: this.databasePort,
@@ -111,10 +147,23 @@ export class Config {
         }
         return this._engine;
     }
-    static test (): boolean {
+    static testDatabaseConfig (): boolean {
         if (this.databaseHost && this.databasePort && this.databaseUser && this.databasePassword && this.databaseName) {
             return true;
         }
         return false;
+    }
+    static testStorageConfig (): boolean {
+        const storageType = this.storageType;
+        if (!storageType) {
+            return false;
+        }
+        if (storageType !== 'local' && (this.storageHost === null || this.storagePort === null)) {
+            return false;
+        }
+        return true;
+    }
+    static test (): boolean {
+        return this.testStorageConfig() && this.testDatabaseConfig();
     }
 }
