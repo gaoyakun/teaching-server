@@ -44,7 +44,8 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
             await session.query (sqlUseDb);
             const sqlCreateTable = `create table \`user\` (
                 \`id\` int auto_increment,
-                \`account\` varchar(32) unique not null,
+                \`account\` varchar(32) not null,
+                \`email\` varchar(255) not null,
                 \`passwd\` varchar(32) not null,
                 \`name\` varchar(64) not null default '',
                 \`state\` tinyint not null default 0,
@@ -69,11 +70,16 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
 });
 
 installRouter.get('/account', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    res.render ('install_account');
+    res.render ('install_account', {
+        admin: {
+            user: '',
+            email: ''
+        }
+    });
 });
 
 installRouter.post('/setup_admin', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    if (!req.body.account || !req.body.md5password) {
+    if (!req.body.account || !req.body.email || !req.body.md5password) {
         res.json ({
             err: ErrorCode.kParamError
         });
@@ -81,8 +87,8 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
         const engine = Config.engine;
         try {
             await engine.query ({
-                sql: 'insert into `user` (account, passwd, name) values (?, ?, "管理员")',
-                param: [ req.body.account, req.body.md5password ]
+                sql: 'insert into `user` (account, email, passwd, name) values (?, ?, ?, "管理员")',
+                param: [ req.body.account, req.body.email, req.body.md5password ]
             });
             res.redirect ('/install/storage');
         } catch (err) {

@@ -54,6 +54,7 @@ export class Engine {
         } else {
             throw new Error('[query_wo_pool]: invalid parameter');
         }
+        console.log ('SQL: ' + sql);
         const promise = new Promise<any>((resolve, reject) => {
             conn.query (sql, param, (err, rows)=>{
                 if (err) {

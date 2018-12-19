@@ -45,5 +45,4 @@ export function login_setup() {
             });
         }
     });
-    checkConfig ();
 };

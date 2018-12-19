@@ -31,7 +31,7 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
             res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidParameter));
         }
         else {
-            const rows = yield config_1.Config.engine.objects('user').filter([['account', account], ['passwd', password]]).fields(['id', 'account', 'name']).all();
+            const rows = yield config_1.Config.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
             if (rows.length === 1) {
                 session.set({
                     loginUserAccount: account,

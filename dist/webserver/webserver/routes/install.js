@@ -52,7 +52,8 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
             yield session.query(sqlUseDb);
             const sqlCreateTable = `create table \`user\` (
                 \`id\` int auto_increment,
-                \`account\` varchar(32) unique not null,
+                \`account\` varchar(32) not null,
+                \`email\` varchar(255) not null,
                 \`passwd\` varchar(32) not null,
                 \`name\` varchar(64) not null default '',
                 \`state\` tinyint not null default 0,
@@ -77,10 +78,15 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
     }
 }));
 exports.installRouter.get('/account', (req, res, next) => {
-    res.render('install_account');
+    res.render('install_account', {
+        admin: {
+            user: '',
+            email: ''
+        }
+    });
 });
 exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    if (!req.body.account || !req.body.md5password) {
+    if (!req.body.account || !req.body.email || !req.body.md5password) {
         res.json({
             err: errcodes_1.ErrorCode.kParamError
         });
@@ -89,8 +95,8 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
         const engine = config_1.Config.engine;
         try {
             yield engine.query({
-                sql: 'insert into `user` (account, passwd, name) values (?, ?, "管理员")',
-                param: [req.body.account, req.body.md5password]
+                sql: 'insert into `user` (account, email, passwd, name) values (?, ?, ?, "管理员")',
+                param: [req.body.account, req.body.email, req.body.md5password]
             });
             res.redirect('/install/storage');
         }

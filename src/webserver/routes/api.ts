@@ -24,7 +24,7 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         if (!account || !password) {
             res.json (Utils.httpResult(ErrorCode.kInvalidParameter));
         } else {
-            const rows = await Config.engine.objects('user').filter([['account', account], ['passwd', password]]).fields(['id','account','name']).all();
+            const rows = await Config.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
             if (rows.length === 1) {
                 session.set ({
                     loginUserAccount: account,

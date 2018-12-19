@@ -11,6 +11,13 @@ export function init_admin_setup() {
         } else {
             $('#err_msg_account').html('');
         }
+        const email = $.trim(String($('#email').val()));
+        if (!email) {
+            $('#err_msg_email').html('管理员邮箱不正确');
+            ok = false;
+        } else {
+            $('#err_msg_email').html('');
+        }
         const password = $('#password').val();
         if (!password) {
             $('#err_msg_password').html('管理员密码不正确');
@@ -36,5 +43,4 @@ export function init_admin_setup() {
             $('admin_account_form').submit ();
         }
     });
-    checkConfig ();
 };
