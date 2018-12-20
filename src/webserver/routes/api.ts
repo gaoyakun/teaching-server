@@ -30,6 +30,10 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
+                let remember = Utils.safeParseInt(req.body.remember);
+                res.cookie(Config.sessionToken, session.id, {
+                    expires: remember ? new Date(Date.now() + 1000*3600*24*7) : undefined
+                });
                 res.json (Utils.httpResult(ErrorCode.kSuccess));
             } else {
                 res.json (Utils.httpResult(ErrorCode.kAuthError));

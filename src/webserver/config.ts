@@ -5,6 +5,7 @@ import { Engine } from './lib/engine';
 
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
+const defaultSessionToken = 'ts_session_id';
 
 export class Config {
     private static _config: any = null;
@@ -32,6 +33,9 @@ export class Config {
                 console.log ('save configurations failed: ' + err);
             }
         }
+    }
+    static get sessionToken (): string {
+        return this._config && this._config.sessionToken || defaultSessionToken;
     }
     static get storageType (): string {
         return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;

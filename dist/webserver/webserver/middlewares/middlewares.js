@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const errcodes_1 = require("../../common/errcodes");
 const utils_1 = require("../../common/utils");
 const session_1 = require("../lib/session");
-const SESSION_COOKIE = 'ts_session_id';
+const config_1 = require("../config");
 exports.middlewareAppAuth = function (req, res, next) {
     let session = req.session;
     if (!session || !session.loginUserId) {
@@ -26,14 +26,23 @@ exports.middlewareSession = function (req, res, next) {
         if (req.session) {
             return next();
         }
-        const sessionId = req.cookies[SESSION_COOKIE];
+        const sessionId = req.cookies[config_1.Config.sessionToken];
         if (sessionId) {
             req.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
+            if (req.session) {
+                console.log(`*** <${req.url}> session loaded from cookie ${sessionId}`);
+            }
+            else {
+                console.log(`*** <${req.url}> session not loaded from cookie ${sessionId}`);
+            }
         }
         if (!req.session) {
             req.session = new session_1.Session();
             yield req.session.save();
-            res.cookie(SESSION_COOKIE, req.session.id);
+            console.log(`*** <${req.url}> session created and cookie set to ${req.session.id}`);
+            res.cookie(config_1.Config.sessionToken, req.session.id, {
+                expires: new Date(Date.now() + 1000 * 3600 * 24 * 7)
+            });
         }
         return next();
     });

@@ -30,7 +30,8 @@ export function login_setup() {
                 type: 'post',
                 data: {
                     account: $('#account').val(),
-                    md5password: md5(String($('#password').val()))
+                    md5password: md5(String($('#password').val())),
+                    remember: $('#remember-checkbox').prop('checked') ? 1 : 0
                 },
                 dataType: 'json',
                 success: function(result) {

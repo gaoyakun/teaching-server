@@ -6,6 +6,7 @@ const os = require("os");
 const engine_1 = require("./lib/engine");
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
+const defaultSessionToken = 'ts_session_id';
 class Config {
     static load() {
         try {
@@ -32,6 +33,9 @@ class Config {
                 console.log('save configurations failed: ' + err);
             }
         }
+    }
+    static get sessionToken() {
+        return this._config && this._config.sessionToken || defaultSessionToken;
     }
     static get storageType() {
         return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;

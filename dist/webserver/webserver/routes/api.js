@@ -37,6 +37,10 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
+                let remember = utils_1.Utils.safeParseInt(req.body.remember);
+                res.cookie(config_1.Config.sessionToken, session.id, {
+                    expires: remember ? new Date(Date.now() + 1000 * 3600 * 24 * 7) : undefined
+                });
                 res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
             }
             else {
