@@ -1,6 +1,6 @@
 export enum ErrorCode {
     kSuccess = 0,
-    kInvalidParameter,
+    kInvalidOperation,
     kAuthError,
     kDatabaseError,
     kParamError

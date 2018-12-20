@@ -28,7 +28,7 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
         let account = req.body.account;
         let password = req.body.md5password;
         if (!account || !password) {
-            res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidParameter));
+            res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
         }
         else {
             const rows = yield config_1.Config.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
@@ -50,6 +50,30 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
     }
     else {
         res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
+    }
+}));
+exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    let session = req.session;
+    if (session.loginUserId) {
+        return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidOperation));
+    }
+    let account = req.body.account;
+    let email = req.body.email;
+    let password = req.body.md5password;
+    if (!account || !email || !password) {
+        res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
+    }
+    else {
+        const rows = yield config_1.Config.engine.query({
+            sql: 'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
+            param: [account, email, password, account, account, email]
+        });
+        if (rows.affectedRows === 1) {
+            return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
+        }
+        else {
+            return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
+        }
     }
 }));
 //# sourceMappingURL=api.js.map

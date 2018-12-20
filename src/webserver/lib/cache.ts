@@ -22,7 +22,7 @@ export class CacheStore {
     static set (key:string, value:any): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             if (value === undefined || !Utils.isString(key)) {
-                reject (new Error(ErrorCode[ErrorCode.kInvalidParameter]));
+                reject (new Error(ErrorCode[ErrorCode.kParamError]));
             } else {
                 if (this.redisClient) {
                     const s = JSON.stringify(value);
@@ -43,7 +43,7 @@ export class CacheStore {
     static get (key: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             if (!Utils.isString(key)) {
-                reject (new Error(ErrorCode[ErrorCode.kInvalidParameter]));
+                reject (new Error(ErrorCode[ErrorCode.kParamError]));
             } else if (this.redisClient) {
                 this.redisClient.get (key, (err, data)=>{
                     if (err) {
@@ -60,7 +60,7 @@ export class CacheStore {
     static del (key: string): Promise<any> {
         return new Promise<any> ((resolve, reject) => {
             if (!Utils.isString(key)) {
-                reject (new Error(ErrorCode[ErrorCode.kInvalidParameter]));
+                reject (new Error(ErrorCode[ErrorCode.kParamError]));
             } else if (this.redisClient) {
                 this.redisClient.del (key, (err, reply)=>{
                     if (err) {

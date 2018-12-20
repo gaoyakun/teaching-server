@@ -24,4 +24,20 @@ exports.indexRouter.get('/', (req, res, next) => {
 exports.indexRouter.get('/login', (req, res, next) => {
     res.render('login');
 });
+exports.indexRouter.get('/register', (req, res, next) => {
+    res.render('register');
+});
+exports.indexRouter.get('/profile', (req, res, next) => {
+    const session = req.session;
+    if (!session.loginUserId) {
+        res.redirect('/login');
+    }
+    else {
+        res.render('settings/userprofile', {
+            user: {
+                name: session.loginUserAccount
+            }
+        });
+    }
+});
 //# sourceMappingURL=index.js.map

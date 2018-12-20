@@ -22,7 +22,7 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         let account = req.body.account;
         let password = req.body.md5password;
         if (!account || !password) {
-            res.json (Utils.httpResult(ErrorCode.kInvalidParameter));
+            res.json (Utils.httpResult(ErrorCode.kParamError));
         } else {
             const rows = await Config.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
             if (rows.length === 1) {
@@ -41,6 +41,29 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         }
     } else {
         res.json (Utils.httpResult(ErrorCode.kSuccess));
+    }
+});
+
+apiRouter.post('/register', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let session: Session = req.session as Session;
+    if (session.loginUserId) {
+        return res.json (Utils.httpResult(ErrorCode.kInvalidOperation));
+    }
+    let account = req.body.account;
+    let email = req.body.email;
+    let password = req.body.md5password;
+    if (!account || !email || !password) {
+        res.json (Utils.httpResult(ErrorCode.kParamError));
+    } else {
+        const rows = await Config.engine.query({
+            sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
+            param:[account, email, password, account, account, email]
+        });
+        if (rows.affectedRows === 1) {
+            return res.json (Utils.httpResult(ErrorCode.kSuccess));
+        } else {
+            return res.json (Utils.httpResult(ErrorCode.kAuthError));
+        }
     }
 });
 
