@@ -12,9 +12,11 @@ interface ITreeNodeProps {
 
 interface ITreeNode {
     text: string;
+    expanded?: boolean;
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
+    callback?: ()=>void;
 }
 
 interface ITreeData {
@@ -56,13 +58,12 @@ export class FolderTree {
             this.create ();
         }
     }
-    create (): boolean {
-        if (!this._treeData) {
-            return false;
-        }
-        const treeData = this._treeData as ITreeData;
-        this._contentPanel.empty ();
-        const ul = $('<ul></ul>').appendTo(this._contentPanel);
+    create () {
+        return this._treeData && this._create(this._contentPanel, this._treeData);
+    }
+    private _create (container: JQuery<HTMLElement>, treeData: ITreeData): boolean {
+        container.empty ();
+        const ul = $('<ul></ul>').appendTo(container);
         ul.addClass (['m-0', 'p-0']);
         ul.css ({
             listStyle: 'none',
@@ -97,8 +98,12 @@ export class FolderTree {
                     borderBottom: '1px solid #d7dcdf'
                 });
             }
+            entry.on('click', () => {
+                node.expanded = !node.expanded;
+                this.create ();
+            });
             const span = $('<span></span>').appendTo(entry);
-            const icon = this.getNodeProp ('icon');
+            const icon = this.getNodeProp ('icon', node);
             if (typeof icon === 'string') {
                 const c = `color:${this.getNodeProp('iconColor',node)}`;
                 const s = `font-size:${this.getNodeProp('iconSize',node)}`;
@@ -107,6 +112,23 @@ export class FolderTree {
             } else {
                 span.html(node.text);
             }
+            if (node.expanded && node.nodes && node.nodes.length > 0) {
+                const liSub = $('<li></li>').appendTo(ul);
+                liSub.css ({
+                    display: 'block',
+                    position: 'relative',
+                    overflow: 'visible',
+                    marginLeft: '1rem',
+                    padding: 0
+                });
+                const subNodes = $('<div></div>').appendTo (liSub);
+                this._create (subNodes, {
+                    itemHeight: treeData.itemHeight,
+                    props: treeData.props,
+                    propsExpanded: treeData.propsExpanded,
+                    nodes: node.nodes
+                });
+            }
         });
         return true;
     }
@@ -114,13 +136,8 @@ export class FolderTree {
         return props && props[name];
     }
     private getNodeProp (name: PropName, node?: ITreeNode): string {
-        return ((node && this.getProp(name, node.props)) 
-        || (this._treeData && this.getProp(name, this._treeData.props)) 
-        || this.getProp(name, this._defaultNodeProps)) as string;
-    }
-    private getNodePropExpanded (name: PropName, node?: ITreeNode): string {
-        return ((node && this.getProp(name, node.propsExpanded)) 
-        || (this._treeData && this.getProp(name, this._treeData.propsExpanded)) 
-        || this.getProp(name, this._defaultNodePropsExpanded)) as string;
+        return ((node && this.getProp(name, node.expanded ? node.propsExpanded : node.props)) 
+        || (this._treeData && this.getProp(name, node && node.expanded ? this._treeData.propsExpanded : this._treeData.props)) 
+        || this.getProp(name, node && node.expanded ? this._defaultNodePropsExpanded : this._defaultNodeProps)) as string;
     }
 }

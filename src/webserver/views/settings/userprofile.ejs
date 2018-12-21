@@ -93,15 +93,28 @@
                 itemHeight: '43px',
                 props: {
                     textSize: '1rem',
-                    textColor: 'red',
+                    textColor: '#000',
                     icon: 'fa fa-folder',
-                    iconSize: '1.5rem',
+                    iconSize: '1.2rem',
+                    iconColor: '#4c99f4'
+                },
+                propsExpanded: {
+                    textSize: '1rem',
+                    textColor: '#4c99f4',
+                    icon: 'fa fa-folder-open',
+                    iconSize: '1.2rem',
                     iconColor: '#4c99f4'
                 },
                 nodes: [{
                     text: 'Item1'
                 },{
-                    text: 'Item2'
+                    text: 'Item2',
+                    expanded: true,
+                    nodes: [{
+                        text: 'SubItem1'
+                    },{
+                        text: 'SubItem2'
+                    }]
                 },{
                     text: 'Item3'
                 }]

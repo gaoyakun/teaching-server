@@ -40,6 +40,7 @@ const promises = jsFiles.map (name => {
     }, {
         file: path.join(siteDir, 'js', name+'.js'),
         name: name,
+        exports: 'named',
         format: 'umd'
     });
 });
