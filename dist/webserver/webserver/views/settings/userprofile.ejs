@@ -8,31 +8,53 @@
         <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/all.min.css">
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
         <style>
-            html, body {
-                width: 100%;
-                height: 100%;
+            a {
+                color: #0366d6;
+                text-decoration: none;
+                cursor: pointer;
+                background-color: initial;
             }
-            aside {
-                width: 32rem;
-                top: 0;
-                bottom: 0;
-                background-color: #ccc;
-                overflow: auto;
-                position: absolute;
-                z-index: 99;
-                box-shadow: 2px 3px 10px 0 rgba(119,119,119,.1);
+            .menu {
+                background-color: #fff;
+                border: 1px solid #d1d5da;
+                border-radius: 3px;
+                list-style: none;
+                margin-bottom: 15px;
             }
-            .content {
-                margin-left: 32rem;
-                top: 0;
-                bottom: 0;
-                overflow: auto;
-                z-index: 0;
-                background-color: #600;
+            .menu-heading {
+                background-color: #f3f5f8;
+                border-bottom: 1px solid #e1e4e8;
+                color: #586069;
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 20px;
+                margin-bottom: 0;
+                margin-top: 0;
+                padding: 8px 10px;
+            }		
+            .menu-item.selected {
+                background-color: #fff;
+                color: #24292e;
+                cursor: default;
+                font-weight: 600;
             }
+            .menu-item {
+                border-bottom: 1px solid #e1e4e8;
+                display: block;
+                padding: 8px 10px;
+                position: relative;
+            }	
+            .menu-item:last-child, .menu-item:last-child:before {
+                border-bottom-left-radius: 2px;
+            }
+            .menu-item:last-child {
+                border-bottom: 0;
+                border-bottom-right-radius: 2px;
+            }	 
         </style>
     </head>
-    <body class="d-flex flex-column">
+    <body>
         <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
             <a class="navbar-brand" href="#">Open Teaching Project</a>
             <div class="justify-content-end">
@@ -41,29 +63,49 @@
                 </ul>
             </div>
         </nav>
-        <div class="container d-flex flex-row flex-grow-1 p-0">	
-            <div class="bg-dark" style="box-shadow: 2px 3px 15px 0 rgba(11,11,11,.8);">
-                <nav class="navbar pl-0 pr-0 pt-0">
-                    <ul class="navbar-nav" style="width:240px;color:#fff;font-weight:bold;">
-                        <li><div class="row p-0 m-0" style="background:#fff;">
-                            <div class="col-5 d-flex flex-row justify-content-center align-items-center pt-3 pb-3">
-                                <span class="fa fa-user" style="color:#000;font-size:2rem;"></span>
-                            </div>
-                            <div class="d-flex flex-row align-items-center" style="color:#000;">
-                                <h3><small><%= user.name %></small></h3>
-                            </div>
-                        </div></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                        <li class="nav-item pl-3 pt-1"><a class="nav-link" href="#" style="color:#fff;">用户信息</a></li>
-                    </ul>
-                </nav>
+        <div class="container pt-4">	
+            <div class="row">
+                <div class="col-md-3 pr-4">
+                    <nav class="menu" id="treeview">
+                        <!--
+                        <h3 class="menu-heading">个人设置</h3>
+                        <a class="menu-item" href="#">基本资料</a>
+                        <a class="menu-item" href="#">账号</a>
+                        <a class="menu-item" href="#">素材</a>
+                        <a class="menu-item" href="#">课程</a>
+                        <a class="menu-item" href="#">班级</a>
+                        <a class="menu-item" href="#">消息</a>
+                        -->
+                    </nav>
+                </div>
+                <div class="col-md-9 pr-4">
+                    <div class="container-fluid" style="background:#0f0;">
+                        <h1>Hello</h1>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="/js/jquery.min.js"></script>
         <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/ui.js"></script>
+        <script>
+            new ui.FolderTree($("#treeview"), {
+                itemHeight: '43px',
+                props: {
+                    textSize: '1rem',
+                    textColor: 'red',
+                    icon: 'fa fa-folder',
+                    iconSize: '1.5rem',
+                    iconColor: '#4c99f4'
+                },
+                nodes: [{
+                    text: 'Item1'
+                },{
+                    text: 'Item2'
+                },{
+                    text: 'Item3'
+                }]
+            });
+        </script>
     </body>
 </html>
