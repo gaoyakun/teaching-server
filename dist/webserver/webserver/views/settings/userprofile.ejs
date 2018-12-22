@@ -7,6 +7,7 @@
         <title>Open Teaching Project - 主页</title>
         <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/all.min.css">
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/css/ui.css">
         <style>
             a {
                 color: #0366d6;
@@ -16,10 +17,9 @@
             }
             .menu {
                 background-color: #fff;
-                border: 1px solid #d1d5da;
-                border-radius: 3px;
-                list-style: none;
                 margin-bottom: 15px;
+                overflow-y: scroll;
+                max-height: 500px;
             }
             .menu-heading {
                 background-color: #f3f5f8;
@@ -67,15 +67,6 @@
             <div class="row">
                 <div class="col-md-3 pr-4">
                     <nav class="menu" id="treeview">
-                        <!--
-                        <h3 class="menu-heading">个人设置</h3>
-                        <a class="menu-item" href="#">基本资料</a>
-                        <a class="menu-item" href="#">账号</a>
-                        <a class="menu-item" href="#">素材</a>
-                        <a class="menu-item" href="#">课程</a>
-                        <a class="menu-item" href="#">班级</a>
-                        <a class="menu-item" href="#">消息</a>
-                        -->
                     </nav>
                 </div>
                 <div class="col-md-9 pr-4">
@@ -89,34 +80,91 @@
         <script src="/js/bootstrap.min.js"></script>
         <script src="/js/ui.js"></script>
         <script>
+            function callback (node) {
+                alert (node.text);
+            }
             new ui.FolderTree($("#treeview"), {
-                itemHeight: '43px',
                 props: {
-                    textSize: '1rem',
-                    textColor: '#000',
-                    icon: 'fa fa-folder',
-                    iconSize: '1.2rem',
-                    iconColor: '#4c99f4'
+                    iconExpand: 'fa fa-angle-down'
                 },
                 propsExpanded: {
-                    textSize: '1rem',
-                    textColor: '#4c99f4',
-                    icon: 'fa fa-folder-open',
-                    iconSize: '1.2rem',
-                    iconColor: '#4c99f4'
+                    iconExpand: 'fa fa-angle-down'
                 },
                 nodes: [{
-                    text: 'Item1'
+                    text: 'Item1',
+                    callback: callback
                 },{
                     text: 'Item2',
                     expanded: true,
+                    callback: callback,
                     nodes: [{
-                        text: 'SubItem1'
+                        text: 'SubItem1',
+                        callback: callback,
+                        nodes: [{
+                            text: 'SubSubItem1',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }, {
+                            text: 'SubSubItem2',
+                            callback: callback
+                        }]
                     },{
-                        text: 'SubItem2'
+                        text: 'SubItem2',
+                        callback: callback
                     }]
                 },{
-                    text: 'Item3'
+                    text: 'Item3',
+                    callback: callback
                 }]
             });
         </script>

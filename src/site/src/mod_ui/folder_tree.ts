@@ -1,11 +1,12 @@
 import * as $ from 'jquery';
 
-type PropName = 'textSize'|'textColor'|'icon'|'iconSize'|'iconColor';
+type PropName = 'textSize'|'textColor'|'icon'|'iconExpand'|'iconSize'|'iconColor';
 
 interface ITreeNodeProps {
     textSize?: string;
     textColor?: string;
     icon?: string;
+    iconExpand?: string;
     iconSize?: string;
     iconColor?: string;
 }
@@ -16,11 +17,12 @@ interface ITreeNode {
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
-    callback?: ()=>void;
+    callback?: (node:ITreeNode)=>void;
 }
 
 interface ITreeData {
-    itemHeight: string,
+    itemHeight?: string,
+    borderColor?: string,
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes: ITreeNode[]
@@ -32,102 +34,121 @@ export class FolderTree {
     private _treeData: ITreeData|null;
     private _defaultNodeProps: ITreeNodeProps;
     private _defaultNodePropsExpanded: ITreeNodeProps;
+    private _activeElement: JQuery<HTMLElement>|null;
     constructor (container: JQuery<HTMLElement>, treeData?: ITreeData) {
         this._container = container;
         this._treeData = null;
+        this._activeElement = null;
         this._defaultNodeProps = {
-            textSize: '1rem',
-            textColor: '#000',
+            textSize: 'inherit',
+            textColor: 'inherit',
             icon: 'fa fa-folder',
-            iconSize: '1.2rem',
-            iconColor: '#4c99f4'
+            iconExpand: 'fa fa-angle-down',
+            iconSize: 'inherit',
+            iconColor: 'inherit'
         };
         this._defaultNodePropsExpanded = {
-            textSize: '1rem',
-            textColor: '#4c99f4',
+            textSize: 'inherit',
+            textColor: 'inherit',
             icon: 'fa fa-folder-open',
-            iconSize: '1.2rem',
-            iconColor: '#4c99f4'
+            iconExpand: 'fa fa-angle-up',
+            iconSize: 'inherit',
+            iconColor: 'inherit'
         };
-        this._contentPanel = $('<div></div>').appendTo(this._container);
-        this._contentPanel.css ({
-            width: '100%'
-        });
+        this._contentPanel = $('<div></div>').appendTo(this._container).addClass(['folder-tree-container']);
         if (treeData) {
             this._treeData = treeData;
             this.create ();
         }
     }
     create () {
-        return this._treeData && this._create(this._contentPanel, this._treeData);
-    }
-    private _create (container: JQuery<HTMLElement>, treeData: ITreeData): boolean {
-        container.empty ();
-        const ul = $('<ul></ul>').appendTo(container);
-        ul.addClass (['m-0', 'p-0']);
-        ul.css ({
-            listStyle: 'none',
-        });
-        treeData.nodes.forEach ((node: ITreeNode, index:number) => {
-            const li = $('<li></li>').appendTo(ul);
-            li.css ({
-                display: 'block',
-                position: 'relative',
-                overflow: 'visible',
-                margin: 0,
-                padding: 0
-            });
-            const entry = $('<a></a>').appendTo(li);
-            entry.css({
-                display: 'block',
-                margin: 0,
-                marginBottom: '1px',
-                border: 0,
-                textAlign: 'left',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                fontWeight: 'normal',
-                fontSize: this.getNodeProp('textSize', node),
-                color: this.getNodeProp('textColor', node),
-                padding: 0,
-                height: treeData.itemHeight,
-                lineHeight: treeData.itemHeight
-            });
-            if (index !== treeData.nodes.length-1) {
-                entry.css({
-                    borderBottom: '1px solid #d7dcdf'
+        if (this._treeData) {
+            if (this._treeData.borderColor) {
+                this._contentPanel.css({
+                    borderColor: this._treeData.borderColor
                 });
             }
+            this._activeElement = null;
+            this._create(this._contentPanel, this._treeData, 0);
+        }
+    }
+    private _create (container: JQuery<HTMLElement>, treeData: ITreeData, indent: number): boolean {
+        container.empty ();
+        const ul = $('<ul></ul>').appendTo(container);
+        treeData.nodes.forEach ((node: ITreeNode, index:number) => {
+            const indentValue = `${indent}rem`;
+            const li = $('<li></li>').appendTo(ul);
+            const entry = $('<a></a>').appendTo(li);
+            entry.css({
+                fontSize: this.getNodeProp('textSize', true, node) as string,
+                color: this.getNodeProp('textColor', true, node) as string,
+                paddingLeft: indentValue
+            });
+            if (typeof treeData.itemHeight === 'string') {
+                entry.css({
+                    height: treeData.itemHeight as string,
+                    lineHeight: treeData.itemHeight as string
+                })
+            }
             entry.on('click', () => {
-                node.expanded = !node.expanded;
-                this.create ();
+                if (this._activeElement) {
+                    this._activeElement.removeClass (['active']);
+                }
+                li.addClass(['active']);
+                this._activeElement = li;
+
+                if (node.callback) {
+                    const cb = node.callback;
+                    setTimeout( function() { cb (node) }, 0);
+                }
             });
             const span = $('<span></span>').appendTo(entry);
-            const icon = this.getNodeProp ('icon', node);
+            const icon = this.getNodeProp ('icon', false, node);
+            let folderIcon: JQuery<HTMLElement>|null = null;
             if (typeof icon === 'string') {
-                const c = `color:${this.getNodeProp('iconColor',node)}`;
-                const s = `font-size:${this.getNodeProp('iconSize',node)}`;
-                const i = `<i class="${icon}" style="padding:0 1rem;${s};${c}"></i>`;
-                span.html(i + node.text);
+                folderIcon = $('<i></i>').appendTo(span).addClass(icon.split(' ')).css({
+                    color: this.getNodeProp('iconColor', true, node) as string,
+                    fontSize: this.getNodeProp('iconSize', true, node) as string
+                }).after(node.text);
             } else {
                 span.html(node.text);
             }
-            if (node.expanded && node.nodes && node.nodes.length > 0) {
-                const liSub = $('<li></li>').appendTo(ul);
-                liSub.css ({
-                    display: 'block',
-                    position: 'relative',
-                    overflow: 'visible',
-                    marginLeft: '1rem',
-                    padding: 0
+            if (node.nodes && node.nodes.length > 0) {
+                const btnExpand = $('<a></a>').appendTo(entry);
+                btnExpand.attr('href', 'javascript:void(0)');
+                const iconExpand = this.getNodeProp ('iconExpand', true, node) as string;
+                const i = $('<i></i>').appendTo(btnExpand);
+                i.addClass (iconExpand.split(' ')).css({
+                    color: this.getNodeProp('iconColor', true, node) as string,
+                    fontSize: this.getNodeProp('iconSize', true, node) as string
+                }).on ('click', (e:Event) => {
+                    e.cancelBubble = true;
+                    e.stopPropagation ();
+                    i.removeClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+                    if (folderIcon) {
+                        folderIcon.removeClass ((this.getNodeProp('icon', true, node) as string).split(' '));
+                    }
+                    node.expanded = !node.expanded;
+                    i.addClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+                    if (folderIcon) {
+                        folderIcon.addClass ((this.getNodeProp('icon', true, node) as string).split(' '));
+                    }
+                    if (node.expanded) {
+                        li.next().removeClass(['collapsed']);
+                    } else {
+                        li.next().addClass(['collapsed']);
+                    }
                 });
-                const subNodes = $('<div></div>').appendTo (liSub);
-                this._create (subNodes, {
+                const liSub = $('<li></li>').appendTo(ul);
+                this._create (liSub, {
                     itemHeight: treeData.itemHeight,
                     props: treeData.props,
                     propsExpanded: treeData.propsExpanded,
                     nodes: node.nodes
-                });
+                }, indent+1);
+                if (!node.expanded) {
+                    liSub.addClass (['collapsed']);
+                }
             }
         });
         return true;
@@ -135,9 +156,14 @@ export class FolderTree {
     private getProp (name: PropName, props: ITreeNodeProps|undefined): string|undefined {
         return props && props[name];
     }
-    private getNodeProp (name: PropName, node?: ITreeNode): string {
-        return ((node && this.getProp(name, node.expanded ? node.propsExpanded : node.props)) 
-        || (this._treeData && this.getProp(name, node && node.expanded ? this._treeData.propsExpanded : this._treeData.props)) 
-        || this.getProp(name, node && node.expanded ? this._defaultNodePropsExpanded : this._defaultNodeProps)) as string;
+    private getNodeProp (name: PropName, force?: boolean, node?: ITreeNode): string|null|undefined {
+        let prop:string|null|undefined = node && this.getProp(name, node.expanded ? node.propsExpanded : node.props);
+        if (prop === undefined || (force && prop === null)) {
+            prop = this._treeData && this.getProp(name, node && node.expanded ? this._treeData.propsExpanded : this._treeData.props);
+        }
+        if (prop === undefined || (force && prop === null)) {
+            prop = this.getProp(name, node && node.expanded ? this._defaultNodePropsExpanded : this._defaultNodeProps);
+        }
+        return prop;
     }
 }
