@@ -81,89 +81,35 @@
         <script src="/js/ui.js"></script>
         <script>
             function callback (node) {
-                alert (node.text);
+                node.active = !node.active;
+                $("#treeview").folderTree('refresh');
             }
-            new ui.FolderTree($("#treeview"), {
+            $("#treeview").folderTree ({
                 props: {
-                    iconExpand: 'fa fa-angle-down'
+                    icon: null,
+                    iconExpand: 'fa fa-angle-down',
+                    iconSize: '0px'
                 },
                 propsExpanded: {
-                    iconExpand: 'fa fa-angle-down'
+                    icon: null,
+                    iconExpand: 'fa fa-angle-down',
+                    iconSize: '0px'
                 },
                 nodes: [{
-                    text: 'Item1',
+                    text: '基本资料',
+                    active: true,
                     callback: callback
                 },{
-                    text: 'Item2',
-                    expanded: true,
-                    callback: callback,
-                    nodes: [{
-                        text: 'SubItem1',
-                        callback: callback,
-                        nodes: [{
-                            text: 'SubSubItem1',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }, {
-                            text: 'SubSubItem2',
-                            callback: callback
-                        }]
-                    },{
-                        text: 'SubItem2',
-                        callback: callback
-                    }]
+                    text: '账号设置',
+                    callback: callback
                 },{
-                    text: 'Item3',
+                    text: '素材管理',
+                    callback: callback
+                },{
+                    text: '我加入的班级',
+                    callback: callback
+                },{
+                    text: '属于我的班级',
                     callback: callback
                 }]
             });

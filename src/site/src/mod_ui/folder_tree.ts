@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 
-type PropName = 'textSize'|'textColor'|'icon'|'iconExpand'|'iconSize'|'iconColor';
+type PropName = 'textSize'|'textColor'|'icon'|'iconExpand'|'iconSize'|'iconColor'|'iconExpandSize'|'iconExpandColor';
 
 interface ITreeNodeProps {
     textSize?: string;
@@ -9,11 +9,14 @@ interface ITreeNodeProps {
     iconExpand?: string;
     iconSize?: string;
     iconColor?: string;
+    iconExpandSize?: string;
+    iconExpandColor?: string;
 }
 
 interface ITreeNode {
     text: string;
     expanded?: boolean;
+    active?: boolean;
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
@@ -35,17 +38,21 @@ export class FolderTree {
     private _defaultNodeProps: ITreeNodeProps;
     private _defaultNodePropsExpanded: ITreeNodeProps;
     private _activeElement: JQuery<HTMLElement>|null;
+    private _activeNode: ITreeNode|null;
     constructor (container: JQuery<HTMLElement>, treeData?: ITreeData) {
         this._container = container;
         this._treeData = null;
         this._activeElement = null;
+        this._activeNode = null;
         this._defaultNodeProps = {
             textSize: 'inherit',
             textColor: 'inherit',
             icon: 'fa fa-folder',
             iconExpand: 'fa fa-angle-down',
             iconSize: 'inherit',
-            iconColor: 'inherit'
+            iconColor: 'inherit',
+            iconExpandSize: 'inherit',
+            iconExpandColor: 'inherit'
         };
         this._defaultNodePropsExpanded = {
             textSize: 'inherit',
@@ -53,7 +60,9 @@ export class FolderTree {
             icon: 'fa fa-folder-open',
             iconExpand: 'fa fa-angle-up',
             iconSize: 'inherit',
-            iconColor: 'inherit'
+            iconColor: 'inherit',
+            iconExpandSize: 'inherit',
+            iconExpandColor: 'inherit'
         };
         this._contentPanel = $('<div></div>').appendTo(this._container).addClass(['folder-tree-container']);
         if (treeData) {
@@ -69,6 +78,7 @@ export class FolderTree {
                 });
             }
             this._activeElement = null;
+            this._activeNode = null;
             this._create(this._contentPanel, this._treeData, 0);
         }
     }
@@ -78,6 +88,13 @@ export class FolderTree {
         treeData.nodes.forEach ((node: ITreeNode, index:number) => {
             const indentValue = `${indent}rem`;
             const li = $('<li></li>').appendTo(ul);
+            if (node.active && !this._activeElement) {
+                li.addClass (['active']);
+                this._activeElement = li;
+                this._activeNode = node;
+            } else {
+                node.active = false;
+            }
             const entry = $('<a></a>').appendTo(li);
             entry.css({
                 fontSize: this.getNodeProp('textSize', true, node) as string,
@@ -92,10 +109,13 @@ export class FolderTree {
             }
             entry.on('click', () => {
                 if (this._activeElement) {
+                    (this._activeNode as ITreeNode).active = false;
                     this._activeElement.removeClass (['active']);
                 }
                 li.addClass(['active']);
+                node.active = true;
                 this._activeElement = li;
+                this._activeNode = node;
 
                 if (node.callback) {
                     const cb = node.callback;
@@ -111,7 +131,11 @@ export class FolderTree {
                     fontSize: this.getNodeProp('iconSize', true, node) as string
                 }).after(node.text);
             } else {
-                span.html(node.text);
+                const dummyIcon = this.getNodeProp ('icon', true, node) as string;
+                $('<i></i>').appendTo(span).addClass(dummyIcon.split(' ')).css({
+                    color: 'rgba(0,0,0,0)',
+                    fontSize: this.getNodeProp('iconSize', true, node) as string
+                }).after(node.text);
             }
             if (node.nodes && node.nodes.length > 0) {
                 const btnExpand = $('<a></a>').appendTo(entry);
@@ -119,8 +143,8 @@ export class FolderTree {
                 const iconExpand = this.getNodeProp ('iconExpand', true, node) as string;
                 const i = $('<i></i>').appendTo(btnExpand);
                 i.addClass (iconExpand.split(' ')).css({
-                    color: this.getNodeProp('iconColor', true, node) as string,
-                    fontSize: this.getNodeProp('iconSize', true, node) as string
+                    color: this.getNodeProp('iconExpandColor', true, node) as string,
+                    fontSize: this.getNodeProp('iconExpandSize', true, node) as string
                 }).on ('click', (e:Event) => {
                     e.cancelBubble = true;
                     e.stopPropagation ();
@@ -167,3 +191,17 @@ export class FolderTree {
         return prop;
     }
 }
+
+(function(jq: JQueryStatic){
+    (jq.fn as any).folderTree = function (arg0: ITreeData|string, ...args: any[]) {
+        if (typeof arg0 === 'string') {
+            if (arg0 === 'refresh') {
+                const folderTree = $(this as HTMLElement).data('folderTree') as FolderTree;
+                folderTree.create ();
+            }
+        } else {
+            const jqObj = $(this as HTMLElement);
+            jqObj.data('folderTree', new FolderTree(jqObj, arg0));
+        }
+    }
+})(jQuery);
