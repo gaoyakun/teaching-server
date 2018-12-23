@@ -27,7 +27,7 @@ exports.indexRouter.get('/login', (req, res, next) => {
 exports.indexRouter.get('/register', (req, res, next) => {
     res.render('register');
 });
-exports.indexRouter.get('/profile', (req, res, next) => {
+exports.indexRouter.get('/settings/profile', (req, res, next) => {
     const session = req.session;
     if (!session.loginUserId) {
         res.redirect('/login');

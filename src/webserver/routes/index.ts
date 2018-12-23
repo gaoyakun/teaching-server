@@ -33,7 +33,7 @@ indexRouter.get('/register', (req:express.Request, res:express.Response, next:ex
     res.render ('register');
 });
 
-indexRouter.get('/profile', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+indexRouter.get('/settings/profile', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const session:Session = req.session as Session;
     if (!session.loginUserId) {
         res.redirect ('/login');

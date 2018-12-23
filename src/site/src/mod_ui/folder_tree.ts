@@ -2,28 +2,30 @@ import * as $ from 'jquery';
 
 type PropName = 'textSize'|'textColor'|'icon'|'iconExpand'|'iconSize'|'iconColor'|'iconExpandSize'|'iconExpandColor';
 
-interface ITreeNodeProps {
+export interface ITreeNodeProps {
     textSize?: string;
     textColor?: string;
-    icon?: string;
-    iconExpand?: string;
+    icon?: string|null;
+    iconExpand?: string|null;
     iconSize?: string;
     iconColor?: string;
     iconExpandSize?: string;
     iconExpandColor?: string;
 }
 
-interface ITreeNode {
+export interface ITreeNode {
     text: string;
+    id: string;
     expanded?: boolean;
     active?: boolean;
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
+    element?: JQuery<HTMLElement>;
     callback?: (node:ITreeNode)=>void;
 }
 
-interface ITreeData {
+export interface ITreeData {
     itemHeight?: string,
     borderColor?: string,
     props?: ITreeNodeProps;
@@ -37,13 +39,13 @@ export class FolderTree {
     private _treeData: ITreeData|null;
     private _defaultNodeProps: ITreeNodeProps;
     private _defaultNodePropsExpanded: ITreeNodeProps;
-    private _activeElement: JQuery<HTMLElement>|null;
     private _activeNode: ITreeNode|null;
+    private _nodeMap: { [name:string]: ITreeNode };
     constructor (container: JQuery<HTMLElement>, treeData?: ITreeData) {
         this._container = container;
         this._treeData = null;
-        this._activeElement = null;
         this._activeNode = null;
+        this._nodeMap = {};
         this._defaultNodeProps = {
             textSize: 'inherit',
             textColor: 'inherit',
@@ -77,23 +79,73 @@ export class FolderTree {
                     borderColor: this._treeData.borderColor
                 });
             }
-            this._activeElement = null;
             this._activeNode = null;
+            this._nodeMap = {};
             this._create(this._contentPanel, this._treeData, 0);
+        }
+    }
+    getNode (id: string): ITreeNode|null {
+        return this._nodeMap[id] || null;
+    }
+    activateNode (node: ITreeNode) {
+        if (this._activeNode !== node) {
+            if (this._activeNode) {
+                this._activateNode (this._activeNode, false);
+                this._activeNode = null;
+            }
+            if (node) {
+                this._activateNode (node, true);
+                this._activeNode = node;
+            }
+        }
+    }
+    toggleCollapsingNode (node: ITreeNode) {
+        if (!node.element || !node.nodes || node.nodes.length === 0) {
+            return;
+        }
+        const i = node.element.find('>a>a>i');
+        i.removeClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+        const fi = node.element.find('>a>span>i');
+        fi.removeClass ((this.getNodeProp('icon', true, node) as string).split(' '));
+        node.expanded = !node.expanded;
+        i.addClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+        fi.addClass ((this.getNodeProp('icon', true, node) as string).split(' '));
+        if (node.expanded) {
+            node.element.next().removeClass(['collapsed']);
+        } else {
+            node.element.next().addClass(['collapsed']);
+        }
+    }
+    collapseNode (node: ITreeNode) {
+        if (node && node.expanded) {
+            this.toggleCollapsingNode (node);
+        }
+    }
+    expandNode (node: ITreeNode) {
+        if (node && !node.expanded) {
+            this.toggleCollapsingNode (node);
+        }
+    }
+    private _activateNode (node: ITreeNode, active: boolean) {
+        node.active = active;
+        if (node.element) {
+            if(active) {
+                node.element && node.element.addClass (['active']);
+            } else {
+                node.element && node.element.removeClass (['active']);
+            }
         }
     }
     private _create (container: JQuery<HTMLElement>, treeData: ITreeData, indent: number): boolean {
         container.empty ();
         const ul = $('<ul></ul>').appendTo(container);
         treeData.nodes.forEach ((node: ITreeNode, index:number) => {
+            this._nodeMap[node.id] = node;
             const indentValue = `${indent}rem`;
             const li = $('<li></li>').appendTo(ul);
-            if (node.active && !this._activeElement) {
-                li.addClass (['active']);
-                this._activeElement = li;
-                this._activeNode = node;
-            } else {
-                node.active = false;
+            node.element = li;
+            if (node.active) {
+                this.activateNode (node);
             }
             const entry = $('<a></a>').appendTo(li);
             entry.css({
@@ -108,15 +160,7 @@ export class FolderTree {
                 })
             }
             entry.on('click', () => {
-                if (this._activeElement) {
-                    (this._activeNode as ITreeNode).active = false;
-                    this._activeElement.removeClass (['active']);
-                }
-                li.addClass(['active']);
-                node.active = true;
-                this._activeElement = li;
-                this._activeNode = node;
-
+                this.activateNode (node);
                 if (node.callback) {
                     const cb = node.callback;
                     setTimeout( function() { cb (node) }, 0);
@@ -124,9 +168,8 @@ export class FolderTree {
             });
             const span = $('<span></span>').appendTo(entry);
             const icon = this.getNodeProp ('icon', false, node);
-            let folderIcon: JQuery<HTMLElement>|null = null;
             if (typeof icon === 'string') {
-                folderIcon = $('<i></i>').appendTo(span).addClass(icon.split(' ')).css({
+                $('<i></i>').appendTo(span).addClass(icon.split(' ')).css({
                     color: this.getNodeProp('iconColor', true, node) as string,
                     fontSize: this.getNodeProp('iconSize', true, node) as string
                 }).after(node.text);
@@ -145,23 +188,11 @@ export class FolderTree {
                 i.addClass (iconExpand.split(' ')).css({
                     color: this.getNodeProp('iconExpandColor', true, node) as string,
                     fontSize: this.getNodeProp('iconExpandSize', true, node) as string
-                }).on ('click', (e:Event) => {
+                });
+                btnExpand.on ('click', (e:Event) => {
                     e.cancelBubble = true;
                     e.stopPropagation ();
-                    i.removeClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
-                    if (folderIcon) {
-                        folderIcon.removeClass ((this.getNodeProp('icon', true, node) as string).split(' '));
-                    }
-                    node.expanded = !node.expanded;
-                    i.addClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
-                    if (folderIcon) {
-                        folderIcon.addClass ((this.getNodeProp('icon', true, node) as string).split(' '));
-                    }
-                    if (node.expanded) {
-                        li.next().removeClass(['collapsed']);
-                    } else {
-                        li.next().addClass(['collapsed']);
-                    }
+                    this.toggleCollapsingNode (node);
                 });
                 const liSub = $('<li></li>').appendTo(ul);
                 this._create (liSub, {
@@ -177,7 +208,7 @@ export class FolderTree {
         });
         return true;
     }
-    private getProp (name: PropName, props: ITreeNodeProps|undefined): string|undefined {
+    private getProp (name: PropName, props: ITreeNodeProps|undefined): string|null|undefined {
         return props && props[name];
     }
     private getNodeProp (name: PropName, force?: boolean, node?: ITreeNode): string|null|undefined {
@@ -198,6 +229,8 @@ export class FolderTree {
             if (arg0 === 'refresh') {
                 const folderTree = $(this as HTMLElement).data('folderTree') as FolderTree;
                 folderTree.create ();
+            } else if (arg0 === 'activate') {
+                //const node:ITreeNode = args.length > 0 && typeof args[0] === 'string' && 
             }
         } else {
             const jqObj = $(this as HTMLElement);

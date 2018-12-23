@@ -81,8 +81,7 @@
         <script src="/js/ui.js"></script>
         <script>
             function callback (node) {
-                node.active = !node.active;
-                $("#treeview").folderTree('refresh');
+                alert (node.text);
             }
             $("#treeview").folderTree ({
                 props: {
@@ -97,19 +96,28 @@
                 },
                 nodes: [{
                     text: '基本资料',
+                    id: 'profile',
                     active: true,
                     callback: callback
                 },{
                     text: '账号设置',
-                    callback: callback
+                    id: 'account',
+                    callback: callback,
+                    nodes: [{
+                        text: '更改密码',
+                        id: 'resetpass'
+                    }]
                 },{
                     text: '素材管理',
+                    id: 'assets',
                     callback: callback
                 },{
                     text: '我加入的班级',
+                    id: 'joined',
                     callback: callback
                 },{
                     text: '属于我的班级',
+                    id: 'owned',
                     callback: callback
                 }]
             });
