@@ -27,17 +27,18 @@ exports.indexRouter.get('/login', (req, res, next) => {
 exports.indexRouter.get('/register', (req, res, next) => {
     res.render('register');
 });
-exports.indexRouter.get('/settings/profile', (req, res, next) => {
-    const session = req.session;
-    if (!session.loginUserId) {
-        res.redirect('/login');
-    }
-    else {
-        res.render('settings/userprofile', {
-            user: {
-                name: session.loginUserAccount
-            }
-        });
-    }
+exports.indexRouter.get('/trust/settings/profile', (req, res, next) => {
+    res.render('settings/userprofile', {
+        user: {
+            name: req.session.loginUserAccount
+        }
+    });
+});
+exports.indexRouter.get('/trust/settings/reset', (req, res, next) => {
+    res.render('settings/resetpass', {
+        user: {
+            name: req.session.loginUserAccount
+        }
+    });
 });
 //# sourceMappingURL=index.js.map

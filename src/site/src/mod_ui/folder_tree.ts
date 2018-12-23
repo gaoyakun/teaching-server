@@ -226,11 +226,29 @@ export class FolderTree {
 (function(jq: JQueryStatic){
     (jq.fn as any).folderTree = function (arg0: ITreeData|string, ...args: any[]) {
         if (typeof arg0 === 'string') {
+            const folderTree = $(this as HTMLElement).data('folderTree') as FolderTree;
             if (arg0 === 'refresh') {
-                const folderTree = $(this as HTMLElement).data('folderTree') as FolderTree;
                 folderTree.create ();
             } else if (arg0 === 'activate') {
-                //const node:ITreeNode = args.length > 0 && typeof args[0] === 'string' && 
+                const node = args.length > 0 && typeof args[0] === 'string' ? folderTree.getNode(args[0] as string) : null;
+                if (node) {
+                    folderTree.activateNode (node);
+                }
+            } else if (arg0 === 'expand') {
+                const node = args.length > 0 && typeof args[0] === 'string' ? folderTree.getNode(args[0] as string) : null;
+                if (node) {
+                    folderTree.expandNode (node);
+                }
+            } else if (arg0 === 'collapse') {
+                const node = args.length > 0 && typeof args[0] === 'string' ? folderTree.getNode(args[0] as string) : null;
+                if (node) {
+                    folderTree.collapseNode (node);
+                }
+            } else if (arg0 === 'toggleCollapse') {
+                const node = args.length > 0 && typeof args[0] === 'string' ? folderTree.getNode(args[0] as string) : null;
+                if (node) {
+                    folderTree.toggleCollapsingNode (node);
+                }
             }
         } else {
             const jqObj = $(this as HTMLElement);

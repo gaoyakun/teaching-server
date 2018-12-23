@@ -22,6 +22,8 @@ app.use (cookieParser());
 app.use (express.static(path.join(__dirname, '../../site')));
 app.use (middlewares.middlewareSession);
 
+app.use ('/trust', middlewares.middlewareAuth);
+app.use ('/api/trust', middlewares.middlewareAuth);
 app.use ('/', indexRouter);
 app.use ('/install', installRouter);
 app.use ('/api', apiRouter);

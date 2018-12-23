@@ -33,15 +33,18 @@ indexRouter.get('/register', (req:express.Request, res:express.Response, next:ex
     res.render ('register');
 });
 
-indexRouter.get('/settings/profile', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    const session:Session = req.session as Session;
-    if (!session.loginUserId) {
-        res.redirect ('/login');
-    } else {
-        res.render ('settings/userprofile', {
-            user: {
-                name: session.loginUserAccount
-            }
-        });
-    }
+indexRouter.get('/trust/settings/profile', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('settings/userprofile', {
+        user: {
+            name: (req.session as Session).loginUserAccount
+        }
+    });
+});
+
+indexRouter.get('/trust/settings/reset', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('settings/resetpass', {
+        user: {
+            name: (req.session as Session).loginUserAccount
+        }
+    });
 });

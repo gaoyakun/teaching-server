@@ -13,15 +13,6 @@ declare global {
 
 import * as express from 'express';
 
-export const middlewareAppAuth = function (req: express.Request, res: express.Response, next: express.NextFunction) {
-    let session = req.session;
-    if (!session || !session.loginUserId) {
-        return res.json (Utils.httpResult(ErrorCode.kAuthError));
-    } else {
-        next ();
-    }
-}
-
 export const middlewareSession = async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     if (req.session) {
         return next();
@@ -45,3 +36,18 @@ export const middlewareSession = async function (req: express.Request, res: expr
     }
     return next();
 };
+
+export const middlewareAuth = function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    const session = req.session;
+    if (!session || !session.loginUserId) {
+        if (req.xhr) {
+            // ajax request
+            return res.json ({
+                err: Utils.httpResult(ErrorCode.kAuthError)
+            });
+        } else {
+            return res.redirect ('/login');
+        }
+    }
+    return next();
+}

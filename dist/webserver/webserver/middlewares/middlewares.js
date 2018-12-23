@@ -12,15 +12,6 @@ const errcodes_1 = require("../../common/errcodes");
 const utils_1 = require("../../common/utils");
 const session_1 = require("../lib/session");
 const config_1 = require("../config");
-exports.middlewareAppAuth = function (req, res, next) {
-    let session = req.session;
-    if (!session || !session.loginUserId) {
-        return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
-    }
-    else {
-        next();
-    }
-};
 exports.middlewareSession = function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (req.session) {
@@ -46,5 +37,20 @@ exports.middlewareSession = function (req, res, next) {
         }
         return next();
     });
+};
+exports.middlewareAuth = function (req, res, next) {
+    const session = req.session;
+    if (!session || !session.loginUserId) {
+        if (req.xhr) {
+            // ajax request
+            return res.json({
+                err: utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError)
+            });
+        }
+        else {
+            return res.redirect('/login');
+        }
+    }
+    return next();
 };
 //# sourceMappingURL=middlewares.js.map

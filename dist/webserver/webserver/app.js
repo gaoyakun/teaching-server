@@ -20,6 +20,8 @@ exports.app.use(express.json());
 exports.app.use(cookieParser());
 exports.app.use(express.static(path.join(__dirname, '../../site')));
 exports.app.use(middlewares.middlewareSession);
+exports.app.use('/trust', middlewares.middlewareAuth);
+exports.app.use('/api/trust', middlewares.middlewareAuth);
 exports.app.use('/', index_1.indexRouter);
 exports.app.use('/install', install_1.installRouter);
 exports.app.use('/api', api_1.apiRouter);
