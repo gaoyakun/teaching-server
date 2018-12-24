@@ -1,5 +1,13 @@
-import { FolderTree, ITreeData } from './mod_ui/folder_tree';
+import { ITreeData, ITreeNode } from './ui';
 
+interface IFolderTree {
+    (options?: ITreeData): JQuery;
+    (command:'getNode', id:string): ITreeNode|null;
+    (command:'activateNode|toggleCollapsingNode|collapseNode|expandNode', node:ITreeNode): void;
+}
+interface JQuery {
+    folderTree: IFolderTree;
+}
 const menuData: ITreeData = {
     props: {
         icon: null,
@@ -14,34 +22,26 @@ const menuData: ITreeData = {
     nodes: [{
         text: '基本资料',
         id: 'profile',
-        active: true,
-        callback: function () {
-            window.location.href = '/settings/profile';
-        }
+        active: true
     },{
         text: '账号设置',
         id: 'account',
-        callback: function () {
-            window.location.href = '/settings/account';
-        }
+        nodes: [{
+            text: '更改密码',
+            id: 'resetpass',
+            callback: function (node) {
+                window.location.href = "/trust/settings/reset";
+            }
+        }]
     },{
         text: '素材管理',
         id: 'assets',
-        callback: function () {
-            window.location.href = '/settings/assets';
-        }
     },{
         text: '我加入的班级',
         id: 'joined',
-        callback: function () {
-            window.location.href = '/settings/joined';
-        }
     },{
         text: '属于我的班级',
         id: 'owned',
-        callback: function () {
-            window.location.href = '/settins/owned';
-        }
     }]
 };
 
