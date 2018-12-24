@@ -50,7 +50,8 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
             yield session.query(sqlCreateDb);
             const sqlUseDb = `use \`${req.body.name}\``;
             yield session.query(sqlUseDb);
-            const sqlCreateTable = `create table \`user\` (
+            // create user table
+            yield session.query(`create table \`user\` (
                 \`id\` int auto_increment,
                 \`account\` varchar(32) not null,
                 \`email\` varchar(255) not null,
@@ -59,8 +60,7 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
                 \`state\` tinyint not null default 0,
                 \`role\` tinyint not null default 0,
                 primary key (\`id\`)
-            ) engine=InnoDB default charset=utf8mb4;`;
-            yield session.query(sqlCreateTable);
+            ) engine=InnoDB default charset=utf8mb4`);
             config_1.Config.databaseHost = opt.host;
             config_1.Config.databasePort = opt.port;
             config_1.Config.databaseUser = opt.user;

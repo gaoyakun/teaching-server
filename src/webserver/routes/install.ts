@@ -42,7 +42,8 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
             await session.query (sqlCreateDb);
             const sqlUseDb = `use \`${req.body.name}\``;
             await session.query (sqlUseDb);
-            const sqlCreateTable = `create table \`user\` (
+            // create user table
+            await session.query (`create table \`user\` (
                 \`id\` int auto_increment,
                 \`account\` varchar(32) not null,
                 \`email\` varchar(255) not null,
@@ -51,8 +52,7 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`state\` tinyint not null default 0,
                 \`role\` tinyint not null default 0,
                 primary key (\`id\`)
-            ) engine=InnoDB default charset=utf8mb4;`;
-            await session.query (sqlCreateTable);
+            ) engine=InnoDB default charset=utf8mb4`);
             Config.databaseHost = opt.host;
             Config.databasePort = opt.port;
             Config.databaseUser = opt.user;

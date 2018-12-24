@@ -4,6 +4,8 @@ import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
 import * as middlewares from './middlewares/middlewares';
 import { Config } from './config';
+import { Utils } from '../common/utils';
+import { ErrorCode } from '../common/errcodes';
 import { installRouter } from './routes/install';
 import { indexRouter } from './routes/index';
 import { apiRouter } from './routes/api';
@@ -24,15 +26,35 @@ app.use (middlewares.middlewareSession);
 
 app.use ('/trust', middlewares.middlewareAuth);
 app.use ('/api/trust', middlewares.middlewareAuth);
-app.use ('/', indexRouter);
-app.use ('/install', installRouter);
 app.use ('/api', apiRouter);
+app.use ('/install', installRouter);
+app.use ('/', indexRouter);
 
-app.use ((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    res.status(err.status || 500);
-    res.send(err.message);
+app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const session = req.session;
+    res.render ('error', {
+        user: session && session.loginUserId ? { name: session.loginUserAccount } : undefined,
+        error: {
+            code: 404,
+            message: '对不起，您访问的页面不存在。'
+        }
+    });
+});
+
+app.use ((err:any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error (err.stack);
+    if (req.xhr) {
+        res.status(500).json (Utils.httpResult(ErrorCode.kServerError));
+    } else {
+        const session = req.session;
+        res.render ('error', {
+            user: session && session.loginUserId ? { name: session.loginUserAccount } : undefined,
+            error: {
+                code: err.code ? Number(err.code) : 500,
+                message: String(err.message) || '对不起，服务器错误，请联系客服。'
+            }
+        });
+    }
 });
 
 export default { app };

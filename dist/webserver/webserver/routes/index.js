@@ -28,6 +28,7 @@ exports.indexRouter.get('/register', (req, res, next) => {
     res.render('register');
 });
 exports.indexRouter.get('/trust/settings/profile', (req, res, next) => {
+    throw new Error('xxx');
     res.render('settings/userprofile', {
         user: {
             name: req.session.loginUserAccount

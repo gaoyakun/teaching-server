@@ -3,6 +3,7 @@ export enum ErrorCode {
     kInvalidOperation,
     kAuthError,
     kDatabaseError,
-    kParamError
+    kParamError,
+    kServerError
 }
 
