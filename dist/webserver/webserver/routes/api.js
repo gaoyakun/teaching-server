@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const config_1 = require("../config");
+const assets_1 = require("../server/user/assets");
 const express = require("express");
 exports.apiRouter = express.Router();
 exports.apiRouter.get('/auth', (req, res, next) => {
@@ -76,9 +77,11 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         }
     }
 }));
-exports.apiRouter.post('/trust/upload_asset', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    let session = req.session;
-    console.log(req.files);
+exports.apiRouter.post('/trust/asset', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    if (req.files && req.files.content) {
+        const file = req.files.content;
+        assets_1.AssetManager.uploadAssetBuffer(req.session.loginUserId, '/', file.data, file.name);
+    }
     return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
 }));
 //# sourceMappingURL=api.js.map

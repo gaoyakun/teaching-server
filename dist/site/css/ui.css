@@ -1,4 +1,10 @@
 
+a {
+    color: #0366d6;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .folder-tree-container {
     width: 100%;
     border-style: solid;

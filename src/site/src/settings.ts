@@ -1,6 +1,8 @@
 import './ui';
 import { ITreeData, ITreeNode } from './ui';
 import { Utils } from '../../common/utils';
+import { asset_setup } from './mod_settings/assets';
+
 
 const menuData: ITreeData = {
     props: {
@@ -41,6 +43,9 @@ const menuData: ITreeData = {
     },{
         text: '素材管理',
         id: 'assets',
+        callback: function (node) {
+            window.location.href = '/trust/settings/assets';
+        }
     },{
         text: '教案管理',
         id: 'pages',
@@ -89,6 +94,16 @@ const getSettingsMenuData = (id: string):ITreeData => {
         return false;
     });
     return menuData;
+}
+
+export class Settings {
+    constructor (step: string) {
+        switch (step) {
+        case 'asset':
+            asset_setup ();
+            break;
+        }
+    }
 }
 
 export { getSettingsMenuData };

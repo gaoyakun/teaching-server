@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as sharp from 'sharp';
 import { Utils } from '../../../common/utils';
+import { UID } from '../../lib/uid';
 
 const MAX_USER_ID_LENGTH:number = 16;
 const THUMBNAIL_SIZE:number = 128;
@@ -15,17 +16,14 @@ export enum AssetType {
 }
 
 export class AssetManager {
-    private _userDataPath: string;
-    constructor () {
-        this._userDataPath = path.join(os.homedir(), '.open_teaching', 'data');
-    }
-    getUserDataPathById (userId: number): string {
+    private static _userDataPath = path.join(os.homedir(), '.open_teaching', 'data');
+    static getUserDataPathById (userId: number): string {
         return this._getUserDataPathById (userId);
     }
-    getUserAssetPathById (userId: number): string {
+    static getUserAssetPathById (userId: number): string {
         return path.join(this.getUserDataPathById(userId), 'assets');
     }
-    loadAssetList (userId: number, relPath: string): string[] {
+    static loadAssetList (userId: number, relPath: string): string[] {
         const result: string[] = [];
         const dir = path.join (this.getUserAssetPathById(userId), relPath);
         if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
@@ -39,21 +37,23 @@ export class AssetManager {
         }
         return result;
     }
-    uploadAssetBaset64 (userId: number, relPath: string, contentBase64: string, filename: string): boolean {
+    static uploadAssetBaset64 (userId: number, relPath: string, contentBase64: string, filename: string): boolean {
         return this.uploadAssetBuffer (userId, relPath, new Buffer(contentBase64, 'base64'), filename);
     }
-    uploadAssetBuffer (userId: number, relPath: string, buffer: Buffer, filename: string): boolean {
+    static uploadAssetBuffer (userId: number, relPath: string, buffer: Buffer, filename: string): boolean {
         try {
             const filePath = path.join (this.getUserAssetPathById(userId), relPath);
             this._mkdirsSync (filePath);
-            const fullName = path.join (filePath, filename);
+            const u = UID('FILE');
+            const fullName = path.join (filePath, u + path.extname (filename));
             fs.writeFileSync (fullName, buffer);
 
+            const thumbFileName = path.join (filePath, `.${u}.jpg`);
             sharp(buffer).resize (THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
                 fit: 'contain',
-                background: {r:0,g:0,b:0,alpha:0},
+                background: {r:0,g:0,b:0,alpha:1},
                 withoutEnlargement: true
-            }).toFile (path.join (filePath, '.' + path.basename(filename) + '.png'), (err, info) => {
+            }).toFile (thumbFileName, (err, info) => {
                 if (err) {
                     throw new Error (err.message);
                 }
@@ -63,7 +63,7 @@ export class AssetManager {
             return false;
         }
     }
-    private _getUserIdString (userId: number): string {
+    private static _getUserIdString (userId: number): string {
         if (!Utils.isInt (userId)) {
             throw new Error (`[AssetManager._getUserDataPath]: Invalid user id ${userId}`);
         }
@@ -76,11 +76,11 @@ export class AssetManager {
         }
         return strId;
     }
-    private _getUserDataPathById (userId: number): string {
+    private static _getUserDataPathById (userId: number): string {
         const strId = this._getUserIdString (userId);
         return path.join (this._userDataPath, strId);
     }
-    private _mkdirsSync(dirpath: string) { 
+    private static _mkdirsSync(dirpath: string) { 
         if (!fs.existsSync(dirpath)) {
             let pathtmp = '';
             dirpath.split(/[/\\]/).forEach(function (dirname) {
@@ -90,7 +90,7 @@ export class AssetManager {
                 }
                 if (!fs.existsSync(pathtmp)) {
                     fs.mkdirSync (pathtmp)
-                } else if (!fs.statSync(dirpath).isDirectory()) {
+                } else if (!fs.statSync(pathtmp).isDirectory()) {
                     throw new Error(`[AssetManager._mkdirsSync] path already exists but is not a directory <${dirpath}>`);
                 }
             });

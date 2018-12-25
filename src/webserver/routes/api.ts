@@ -1,8 +1,9 @@
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { Session } from '../lib/session';
-import { Engine } from '../lib/engine';
 import { Config } from '../config';
+import { AssetManager } from '../server/user/assets';
+import * as fileUpload from 'express-fileupload';
 import * as express from 'express';
 
 export const apiRouter = express.Router();
@@ -67,9 +68,11 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     }
 });
 
-apiRouter.post('/trust/upload_asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    let session: Session = req.session as Session;
-    console.log ((req as any).files);
+apiRouter.post('/trust/asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    if (req.files && req.files.content) {
+        const file = req.files.content as fileUpload.UploadedFile;
+        AssetManager.uploadAssetBuffer ((req.session as Session).loginUserId, '/', file.data, file.name);
+    }
     return res.json (Utils.httpResult(ErrorCode.kSuccess));
 });
 

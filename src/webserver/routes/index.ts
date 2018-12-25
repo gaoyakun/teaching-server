@@ -1,9 +1,8 @@
-import { Utils} from '../../common/utils';
-import { ErrorCode } from '../../common/errcodes';
 import { Config } from '../config';
 import { Session } from '../lib/session';
-import { Engine } from '../lib/engine';
+import { AssetManager } from '../server/user/assets';
 import * as express from 'express';
+import * as fileUpload from 'express-fileupload';
 
 export const indexRouter = express.Router();
 
@@ -42,6 +41,26 @@ indexRouter.get('/trust/settings/profile', (req:express.Request, res:express.Res
 
 indexRouter.get('/trust/settings/reset', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     res.render ('settings/resetpass', {
+        user: {
+            name: (req.session as Session).loginUserAccount
+        }
+    });
+});
+
+indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('settings/assets', {
+        user: {
+            name: (req.session as Session).loginUserAccount
+        }
+    });
+});
+
+indexRouter.post('/trust/settings/assets', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    if (req.files && req.files.content) {
+        const file = req.files.content as fileUpload.UploadedFile;
+        AssetManager.uploadAssetBuffer ((req.session as Session).loginUserId, '/', file.data, file.name);
+    }
+    res.render ('settings/assets', {
         user: {
             name: (req.session as Session).loginUserAccount
         }

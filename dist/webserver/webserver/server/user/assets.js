@@ -5,6 +5,7 @@ const path = require("path");
 const os = require("os");
 const sharp = require("sharp");
 const utils_1 = require("../../../common/utils");
+const uid_1 = require("../../lib/uid");
 const MAX_USER_ID_LENGTH = 16;
 const THUMBNAIL_SIZE = 128;
 var AssetType;
@@ -15,16 +16,13 @@ var AssetType;
     AssetType[AssetType["Object"] = 3] = "Object";
 })(AssetType = exports.AssetType || (exports.AssetType = {}));
 class AssetManager {
-    constructor() {
-        this._userDataPath = path.join(os.homedir(), '.open_teaching', 'data');
-    }
-    getUserDataPathById(userId) {
+    static getUserDataPathById(userId) {
         return this._getUserDataPathById(userId);
     }
-    getUserAssetPathById(userId) {
+    static getUserAssetPathById(userId) {
         return path.join(this.getUserDataPathById(userId), 'assets');
     }
-    loadAssetList(userId, relPath) {
+    static loadAssetList(userId, relPath) {
         const result = [];
         const dir = path.join(this.getUserAssetPathById(userId), relPath);
         if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
@@ -38,20 +36,22 @@ class AssetManager {
         }
         return result;
     }
-    uploadAssetBaset64(userId, relPath, contentBase64, filename) {
+    static uploadAssetBaset64(userId, relPath, contentBase64, filename) {
         return this.uploadAssetBuffer(userId, relPath, new Buffer(contentBase64, 'base64'), filename);
     }
-    uploadAssetBuffer(userId, relPath, buffer, filename) {
+    static uploadAssetBuffer(userId, relPath, buffer, filename) {
         try {
             const filePath = path.join(this.getUserAssetPathById(userId), relPath);
             this._mkdirsSync(filePath);
-            const fullName = path.join(filePath, filename);
+            const u = uid_1.UID('FILE');
+            const fullName = path.join(filePath, u + path.extname(filename));
             fs.writeFileSync(fullName, buffer);
+            const thumbFileName = path.join(filePath, `.${u}.jpg`);
             sharp(buffer).resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
                 fit: 'contain',
-                background: { r: 0, g: 0, b: 0, alpha: 0 },
+                background: { r: 0, g: 0, b: 0, alpha: 1 },
                 withoutEnlargement: true
-            }).toFile(path.join(filePath, '.' + path.basename(filename) + '.png'), (err, info) => {
+            }).toFile(thumbFileName, (err, info) => {
                 if (err) {
                     throw new Error(err.message);
                 }
@@ -62,7 +62,7 @@ class AssetManager {
             return false;
         }
     }
-    _getUserIdString(userId) {
+    static _getUserIdString(userId) {
         if (!utils_1.Utils.isInt(userId)) {
             throw new Error(`[AssetManager._getUserDataPath]: Invalid user id ${userId}`);
         }
@@ -75,11 +75,11 @@ class AssetManager {
         }
         return strId;
     }
-    _getUserDataPathById(userId) {
+    static _getUserDataPathById(userId) {
         const strId = this._getUserIdString(userId);
         return path.join(this._userDataPath, strId);
     }
-    _mkdirsSync(dirpath) {
+    static _mkdirsSync(dirpath) {
         if (!fs.existsSync(dirpath)) {
             let pathtmp = '';
             dirpath.split(/[/\\]/).forEach(function (dirname) {
@@ -90,7 +90,7 @@ class AssetManager {
                 if (!fs.existsSync(pathtmp)) {
                     fs.mkdirSync(pathtmp);
                 }
-                else if (!fs.statSync(dirpath).isDirectory()) {
+                else if (!fs.statSync(pathtmp).isDirectory()) {
                     throw new Error(`[AssetManager._mkdirsSync] path already exists but is not a directory <${dirpath}>`);
                 }
             });
@@ -100,5 +100,6 @@ class AssetManager {
         }
     }
 }
+AssetManager._userDataPath = path.join(os.homedir(), '.open_teaching', 'data');
 exports.AssetManager = AssetManager;
 //# sourceMappingURL=assets.js.map
