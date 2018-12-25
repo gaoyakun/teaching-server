@@ -76,4 +76,9 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         }
     }
 }));
+exports.apiRouter.post('/trust/upload_asset', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    let session = req.session;
+    console.log(req.files);
+    return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
+}));
 //# sourceMappingURL=api.js.map

@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
+import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
 import * as middlewares from './middlewares/middlewares';
 import { Config } from './config';
@@ -19,6 +20,7 @@ app.set ('view engine', 'ejs');
 
 app.use (logger('dev'));
 app.use (express.urlencoded({ extended: false }));
+app.use(fileUpload({ limits: { fileSize: 50 * 1024 * 1024 } }));
 app.use (express.json());
 app.use (cookieParser());
 app.use (express.static(path.join(__dirname, '../../site')));

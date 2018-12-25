@@ -1,15 +1,20 @@
-/// <reference types="jquery" />
+import * as UI from './mod_ui';
 
-import { ITreeData, ITreeNode } from './mod_ui';
+export type ITreeData = UI.ITreeData;
+export type ITreeNode = UI.ITreeNode;
 
-export { ITreeData, ITreeNode};
-
-export interface IFolderTree {
-    (options?: ITreeData): JQuery;
-    (command:'getNode', id:string): ITreeNode|null;
-    (command:'activateNode|toggleCollapsingNode|collapseNode|expandNode', node:ITreeNode): void;
+interface IFolderTree {
+    (options?: UI.ITreeData): JQuery;
+    (command:'getNodes', id:string|RegExp|UI.ITreeNode): UI.ITreeNode[];
+    (command:'toggleSelectNodes'|'selectNodes'|'deselectNodes'|'toggleCollapsingNodes'|'collapseNodes'|'expandNodes', id:string|RegExp|UI.ITreeNode): void;
 }
 
-export interface JQuery {
-    folderTree: IFolderTree;
+declare global {
+    interface JQuery {
+        folderTree: IFolderTree;
+    }
 }
+
+(function () {
+    UI.Widget.register (UI.FolderTree, 'folderTree');
+})();

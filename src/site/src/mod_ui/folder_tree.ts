@@ -18,7 +18,7 @@ export interface ITreeNode {
     text: string;
     id: string;
     expanded?: boolean;
-    active?: boolean;
+    selected?: boolean;
     props?: ITreeNodeProps;
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
@@ -38,6 +38,7 @@ export class FolderTree extends Widget {
     protected static defaults = {
         itemHeight: '43px',
         borderColor: '#e1e4e9',
+        multiSelect: false,
         props: {
             textSize: 'inherit',
             textColor: 'inherit',
@@ -61,55 +62,63 @@ export class FolderTree extends Widget {
         nodes: []
     };
     private _contentPanel: JQuery|null = null;
-    private _activeNode: ITreeNode|null = null;
-    private _nodeMap: { [name:string]: ITreeNode } = {};
-    getNode (id: string): ITreeNode|null {
-        return this._nodeMap[id] || null;
-    }
-    activateNode (node: ITreeNode) {
-        if (this._activeNode !== node) {
-            if (this._activeNode) {
-                this._activateNode (this._activeNode, false);
-                this._activeNode = null;
+    private _selectedNodes: ITreeNode[] = [];
+    private _nodeMap: { [name:string]: ITreeNode[] } = {};
+    getNodes (id: string|RegExp|ITreeNode): ITreeNode[] {
+        if (typeof id === 'string') {
+            return this._nodeMap[id] || [];
+        } else if (id instanceof RegExp) {
+            const result: ITreeNode[] = [];
+            for (const key in this._nodeMap) {
+                if (id.test(key)) {
+                    for (const node of this._nodeMap[key]) {
+                        result.push (node);
+                    }
+                }
             }
-            if (node) {
-                this._activateNode (node, true);
-                this._activeNode = node;
-            }
-        }
-    }
-    toggleCollapsingNode (node: ITreeNode) {
-        if (!node.element || !node.nodes || node.nodes.length === 0) {
-            return;
-        }
-        const i = node.element.find('>a>a>i');
-        i.removeClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
-        const fi = node.element.find('>a>span>i');
-        let iconClass = this.getNodeProp('icon', true, node);
-        if (iconClass) {
-            fi.removeClass (iconClass.split(' '));
-        }
-        node.expanded = !node.expanded;
-        i.addClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
-        iconClass = this.getNodeProp('icon', true, node);
-        if (iconClass) {
-            fi.addClass (iconClass.split(' '));
-        }
-        if (node.expanded) {
-            node.element.next().removeClass(['collapsed']);
+            return result;
+        } else if (id) {
+            return [id];
         } else {
-            node.element.next().addClass(['collapsed']);
+            return [];
         }
     }
-    collapseNode (node: ITreeNode) {
-        if (node && node.expanded) {
-            this.toggleCollapsingNode (node);
+    toggleSelectNodes (id: string|RegExp|ITreeNode) {
+        const nodes = this.getNodes (id);
+        for (const node of nodes) {
+            this._selectNode (node, !node.selected);
+        }
+        if (this._selectedNodes.length > 1) {
+            this.options.multiSelect = true;
         }
     }
-    expandNode (node: ITreeNode) {
-        if (node && !node.expanded) {
-            this.toggleCollapsingNode (node);
+    selectNodes (id: string|RegExp|ITreeNode) {
+        const nodes = this.getNodes (id);
+        for (const node of nodes) {
+            if (!node.selected) {
+                this._selectNode (node, true);
+            }
         }
+        if (this._selectedNodes.length > 1) {
+            this.options.multiSelect = true;
+        }
+    }
+    deselectNodes (id: string|RegExp|ITreeNode) {
+        const nodes = this.getNodes (id);
+        for (const node of nodes) {
+            if (node.selected) {
+                this._selectNode (node, false);
+            }
+        }
+    }
+    toggleCollapsingNodes (id: string|RegExp|ITreeNode) {
+        this._toggleCollapsingNodes (this.getNodes (id));
+    }
+    collapseNodes (id: string|RegExp|ITreeNode) {
+        this._toggleCollapsingNodes (this.getNodes (id).filter ((node, index, array) => !!node.expanded));
+    }
+    expandNodes (id: string|RegExp|ITreeNode) {
+        this._toggleCollapsingNodes (this.getNodes (id).filter ((node, index, array) => !node.expanded));
     }
     protected _init () {
         this._contentPanel = $('<div></div>').appendTo(this.$el).addClass(['folder-tree-container']);
@@ -119,14 +128,50 @@ export class FolderTree extends Widget {
             });
         }
         this._create(this._contentPanel, this.options, 0);
+        if (this._selectedNodes.length > 1) {
+            this.options.multiSelect = true;
+        }
     }
-    private _activateNode (node: ITreeNode, active: boolean) {
-        node.active = active;
+    private _selectNode (node: ITreeNode, select: boolean) {
+        node.selected = select;
         if (node.element) {
-            if(active) {
+            if(select) {
                 node.element && node.element.addClass (['active']);
             } else {
                 node.element && node.element.removeClass (['active']);
+            }
+        }
+        if (select && this._selectedNodes.indexOf(node) < 0) {
+            this._selectedNodes.push (node);
+        } else if (!select) {
+            const idx = this._selectedNodes.indexOf(node);
+            if (idx >= 0) {
+                this._selectedNodes.splice (idx, 1);
+            }
+        }
+    }
+    private _toggleCollapsingNodes (nodes: ITreeNode[]) {
+        for (const node of nodes) {
+            if (!node.element || !node.nodes || node.nodes.length === 0) {
+                continue;
+            }
+            const i = node.element.find('>a>a>i');
+            i.removeClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+            const fi = node.element.find('>a>span>i');
+            let iconClass = this.getNodeProp('icon', true, node);
+            if (iconClass) {
+                fi.removeClass (iconClass.split(' '));
+            }
+            node.expanded = !node.expanded;
+            i.addClass ((this.getNodeProp('iconExpand', true, node) as string).split(' '));
+            iconClass = this.getNodeProp('icon', true, node);
+            if (iconClass) {
+                fi.addClass (iconClass.split(' '));
+            }
+            if (node.expanded) {
+                node.element.next().removeClass(['collapsed']);
+            } else {
+                node.element.next().addClass(['collapsed']);
             }
         }
     }
@@ -134,13 +179,13 @@ export class FolderTree extends Widget {
         container.empty ();
         const ul = $('<ul></ul>').appendTo(container);
         treeData.nodes.forEach ((node: ITreeNode, index:number) => {
-            this._nodeMap[node.id] = node;
+            const nodelist = this._nodeMap[node.id] || [];
+            nodelist.push (node);
+            this._nodeMap[node.id] = nodelist;
             const indentValue = `${indent}rem`;
             const li = $('<li></li>').appendTo(ul);
             node.element = li;
-            if (node.active) {
-                this.activateNode (node);
-            }
+            this._selectNode (node, !!node.selected);
             const entry = $('<a></a>').appendTo(li);
             entry.css({
                 fontSize: this.getNodeProp('textSize', true, node) as string,
@@ -154,7 +199,12 @@ export class FolderTree extends Widget {
                 })
             }
             entry.on('click', () => {
-                this.activateNode (node);
+                if (this.options.multiSelect) {
+                    this.toggleSelectNodes (node);
+                } else {
+                    this.deselectNodes (/^.*$/);
+                    this.selectNodes (node);
+                }
                 if (node.callback) {
                     const cb = node.callback;
                     setTimeout( function() { cb.call(container, node) }, 0);
@@ -186,7 +236,7 @@ export class FolderTree extends Widget {
                 btnExpand.on ('click', (e:Event) => {
                     e.cancelBubble = true;
                     e.stopPropagation ();
-                    this.toggleCollapsingNode (node);
+                    this.toggleCollapsingNodes (node);
                 });
                 const liSub = $('<li></li>').appendTo(ul);
                 this._create (liSub, {
@@ -213,5 +263,3 @@ export class FolderTree extends Widget {
         return prop;
     }
 }
-
-Widget.register (FolderTree, 'folderTree');

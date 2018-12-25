@@ -72,7 +72,7 @@
                         <div class="row" style="border-bottom: 1px solid #e1e4e8; padding-bottom:8px;">
                             <h2>个人资料</h2>
                         </div>
-                        <form id="form-userprofile" autocomplete="off" role="form" method="POST" action="/settings/userprofile" style="margin-top:10px;">
+                        <form id="form-userprofile" autocomplete="off" role="form" method="POST" enctype="multipart/form-data" action="/api/trust/upload_asset" style="margin-top:10px;">
                             <div class="row">
                                 <div class="col-md-9">
                                     <div class="form-group">
@@ -86,6 +86,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="file" name="content" >
                             <button class="btn btn-success" id="btn-update-userprofile"><i class="fa fa-edit"></i>更新资料</button>
                         </form>
                     </div>
@@ -94,53 +95,9 @@
         </div>
         <script src="/js/jquery.min.js"></script>
         <script src="/js/bootstrap.min.js"></script>
-        <script src="/js/ui.js"></script>
+        <script src="/js/settings.js"></script>
         <script>
-            function callback (node) {
-                alert (node.text);
-            }
-            $("#treeview").folderTree ({
-                props: {
-                    icon: null,
-                    iconExpand: 'fa fa-angle-down',
-                    iconSize: '0px'
-                },
-                propsExpanded: {
-                    icon: null,
-                    iconExpand: 'fa fa-angle-down',
-                    iconSize: '0px'
-                },
-                nodes: [{
-                    text: '基本资料',
-                    id: 'profile',
-                    active: true
-                },{
-                    text: '账号设置',
-                    id: 'account',
-                    callback: function (node) {
-                        $("#treeview").folderTree ('toggleCollapse', 'account');
-                    },
-                    nodes: [{
-                        text: '更改密码',
-                        id: 'resetpass',
-                        callback: function (node) {
-                            window.location.href = "/trust/settings/reset";
-                        }
-                    }]
-                },{
-                    text: '素材管理',
-                    id: 'assets',
-                    callback: callback
-                },{
-                    text: '我加入的班级',
-                    id: 'joined',
-                    callback: callback
-                },{
-                    text: '属于我的班级',
-                    id: 'owned',
-                    callback: callback
-                }]
-            });
+            $("#treeview").folderTree (settings.getSettingsMenuData('profile'));
         </script>
     </body>
 </html>

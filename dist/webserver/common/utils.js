@@ -6,6 +6,9 @@ class Utils {
     static isNumber(obj) {
         return typeof obj === 'number';
     }
+    static isInt(obj) {
+        return this.isNumber(obj) && obj % 1 === 0;
+    }
     static isBoolean(obj) {
         return typeof obj === 'boolean';
     }

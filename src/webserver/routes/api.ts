@@ -67,3 +67,9 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     }
 });
 
+apiRouter.post('/trust/upload_asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let session: Session = req.session as Session;
+    console.log ((req as any).files);
+    return res.json (Utils.httpResult(ErrorCode.kSuccess));
+});
+
