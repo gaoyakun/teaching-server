@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
-const assets_1 = require("../server/user/assets");
 const express = require("express");
 exports.indexRouter = express.Router();
 exports.indexRouter.get('/', (req, res, next) => {
@@ -43,17 +42,6 @@ exports.indexRouter.get('/trust/settings/reset', (req, res, next) => {
     });
 });
 exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {
-    res.render('settings/assets', {
-        user: {
-            name: req.session.loginUserAccount
-        }
-    });
-});
-exports.indexRouter.post('/trust/settings/assets', (req, res, next) => {
-    if (req.files && req.files.content) {
-        const file = req.files.content;
-        assets_1.AssetManager.uploadAssetBuffer(req.session.loginUserId, '/', file.data, file.name);
-    }
     res.render('settings/assets', {
         user: {
             name: req.session.loginUserAccount

@@ -1,8 +1,33 @@
+* {
+    /*font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;*/
+    font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
 
 a {
     color: #0366d6;
     text-decoration: none;
     cursor: pointer;
+}
+
+.gridview-container {
+    width: 100%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: inherit;
+}
+
+.gridview-container .gridview-item-placeholder::after {
+    content: /*attr(item-placeholder);*/"\f24e";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    position: absolute;
+    font-size: 1em;
+    color: lightblue;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
 }
 
 .folder-tree-container {
@@ -72,7 +97,3 @@ a {
     float: right;
 }
 
-* {
-    /*font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;*/
-    font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-}

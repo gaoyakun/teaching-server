@@ -27,7 +27,7 @@
                 <div class="col-md-9 pr-4">
                     <div class="container-fluid">
                         <div class="row" style="border-bottom: 1px solid #e1e4e8; padding-bottom:8px;">
-                            <h2>更改密码</h2>
+                            <h2>素材管理</h2>
                         </div>
                         <div class="row">
                             <div class="col-md-9">
@@ -42,6 +42,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row" id="grid-view" style="max-height: 600px; overflow: auto;">
+
+                        </div>
                         <button class="btn btn-success" id="btn-upload-asset"><i class="fa fa-cloud-upload-alt"></i>立即上传</button>
                     </div>
                 </div>
@@ -51,8 +54,66 @@
         <script src="/js/bootstrap.min.js"></script>
         <script src="/js/settings.js"></script>
         <script>
-            new settings.Settings ('asset');
-            $("#treeview").folderTree (settings.getSettingsMenuData('assets'));
+            $(document).ready(function(){
+                new settings.Settings ('assets');
+                $("#grid-view").gridView ({
+                    itemMinWidth: '100px',
+                    itemMaxWidth: '100px',
+                    itemMinHeight: '100px',
+                    nodes: [{
+                        text: 'item 1',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }, {
+                        text: 'item 2',
+                        id: 'item 1',
+                        thumbUrl: '/images/default.jpg'
+                    }]
+                });
+                $('#grid-view').on ('itemclick', function(evt, node){
+                    alert ('item clicked: ' + node.text);
+                });
+            });
         </script>
     </body>
 </html>

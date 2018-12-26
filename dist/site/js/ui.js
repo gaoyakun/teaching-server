@@ -290,6 +290,18 @@
 	        this._toggleCollapsingNodes(this.getNodes(id).filter(function (node, index, array) { return !node.expanded; }));
 	    };
 	    FolderTree.prototype._init = function () {
+	        var that = this;
+	        this.$el.off('itemclick');
+	        this.$el.on('itemclick', function (evt, node) {
+	            console.log('internal');
+	            if (that.options.multiSelect) {
+	                that.toggleSelectNodes(node);
+	            }
+	            else {
+	                that.deselectNodes(/^.*$/);
+	                that.selectNodes(node);
+	            }
+	        });
 	        this._contentPanel = jquery('<div></div>').appendTo(this.$el).addClass(['folder-tree-container']);
 	        if (this.options.borderColor) {
 	            this._contentPanel.css({
@@ -383,17 +395,7 @@
 	                });
 	            }
 	            entry.on('click', function () {
-	                if (_this.options.multiSelect) {
-	                    _this.toggleSelectNodes(node);
-	                }
-	                else {
-	                    _this.deselectNodes(/^.*$/);
-	                    _this.selectNodes(node);
-	                }
-	                if (node.callback) {
-	                    var cb_1 = node.callback;
-	                    setTimeout(function () { cb_1.call(container, node); }, 0);
-	                }
+	                _this.$el.trigger('itemclick', node);
 	            });
 	            var span = jquery('<span></span>').appendTo(entry);
 	            var icon = _this.getNodeProp('icon', false, node);
@@ -483,10 +485,258 @@
 	unwrapExports(folder_tree);
 	var folder_tree_1 = folder_tree.FolderTree;
 
+	var grid_view = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
+	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	    if (m) return m.call(o);
+	    return {
+	        next: function () {
+	            if (o && i >= o.length) o = void 0;
+	            return { value: o && o[i++], done: !o };
+	        }
+	    };
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var GridView = /** @class */ (function (_super) {
+	    __extends(GridView, _super);
+	    function GridView() {
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this._contentPanel = null;
+	        _this._selectedNodes = [];
+	        _this._nodeMap = {};
+	        return _this;
+	    }
+	    GridView.prototype.getNodes = function (id) {
+	        var e_1, _a;
+	        if (typeof id === 'string') {
+	            return this._nodeMap[id] || [];
+	        }
+	        else if (id instanceof RegExp) {
+	            var result = [];
+	            for (var key in this._nodeMap) {
+	                if (id.test(key)) {
+	                    try {
+	                        for (var _b = __values(this._nodeMap[key]), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                            var node = _c.value;
+	                            result.push(node);
+	                        }
+	                    }
+	                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+	                    finally {
+	                        try {
+	                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                        }
+	                        finally { if (e_1) throw e_1.error; }
+	                    }
+	                }
+	            }
+	            return result;
+	        }
+	        else if (id) {
+	            return [id];
+	        }
+	        else {
+	            return [];
+	        }
+	    };
+	    GridView.prototype.toggleSelectNodes = function (id) {
+	        var e_2, _a;
+	        var nodes = this.getNodes(id);
+	        try {
+	            for (var nodes_1 = __values(nodes), nodes_1_1 = nodes_1.next(); !nodes_1_1.done; nodes_1_1 = nodes_1.next()) {
+	                var node = nodes_1_1.value;
+	                this._selectNode(node, !node.selected);
+	            }
+	        }
+	        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	        finally {
+	            try {
+	                if (nodes_1_1 && !nodes_1_1.done && (_a = nodes_1.return)) _a.call(nodes_1);
+	            }
+	            finally { if (e_2) throw e_2.error; }
+	        }
+	        if (this._selectedNodes.length > 1) {
+	            this.options.multiSelect = true;
+	        }
+	    };
+	    GridView.prototype.selectNodes = function (id) {
+	        var e_3, _a;
+	        var nodes = this.getNodes(id);
+	        try {
+	            for (var nodes_2 = __values(nodes), nodes_2_1 = nodes_2.next(); !nodes_2_1.done; nodes_2_1 = nodes_2.next()) {
+	                var node = nodes_2_1.value;
+	                if (!node.selected) {
+	                    this._selectNode(node, true);
+	                }
+	            }
+	        }
+	        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+	        finally {
+	            try {
+	                if (nodes_2_1 && !nodes_2_1.done && (_a = nodes_2.return)) _a.call(nodes_2);
+	            }
+	            finally { if (e_3) throw e_3.error; }
+	        }
+	        if (this._selectedNodes.length > 1) {
+	            this.options.multiSelect = true;
+	        }
+	    };
+	    GridView.prototype.deselectNodes = function (id) {
+	        var e_4, _a;
+	        var nodes = this.getNodes(id);
+	        try {
+	            for (var nodes_3 = __values(nodes), nodes_3_1 = nodes_3.next(); !nodes_3_1.done; nodes_3_1 = nodes_3.next()) {
+	                var node = nodes_3_1.value;
+	                if (node.selected) {
+	                    this._selectNode(node, false);
+	                }
+	            }
+	        }
+	        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+	        finally {
+	            try {
+	                if (nodes_3_1 && !nodes_3_1.done && (_a = nodes_3.return)) _a.call(nodes_3);
+	            }
+	            finally { if (e_4) throw e_4.error; }
+	        }
+	    };
+	    GridView.prototype.setData = function (data) {
+	        this.options = jQuery.extend({}, GridView.defaults, data);
+	        this._init();
+	    };
+	    GridView.prototype._init = function () {
+	        if (!this._contentPanel) {
+	            this._contentPanel = jquery('<div></div>').appendTo(this.$el).addClass(['gridview-container']);
+	            if (this.options.borderColor) {
+	                this._contentPanel.css({
+	                    borderColor: this.options.borderColor
+	                });
+	            }
+	        }
+	        this._create(this._contentPanel, this.options);
+	        if (this._selectedNodes.length > 1) {
+	            this.options.multiSelect = true;
+	        }
+	    };
+	    GridView.prototype._selectNode = function (node, select) {
+	        node.selected = select;
+	        if (node.element) {
+	            if (select) {
+	                node.element && node.element.addClass(['active']);
+	            }
+	            else {
+	                node.element && node.element.removeClass(['active']);
+	            }
+	        }
+	        if (select && this._selectedNodes.indexOf(node) < 0) {
+	            this._selectedNodes.push(node);
+	        }
+	        else if (!select) {
+	            var idx = this._selectedNodes.indexOf(node);
+	            if (idx >= 0) {
+	                this._selectedNodes.splice(idx, 1);
+	            }
+	        }
+	    };
+	    GridView.prototype._create = function (container, treeData) {
+	        var _this = this;
+	        container.empty();
+	        var gridContainer = jquery('<div></div>').appendTo(container).css({
+	            display: 'flex',
+	            flexWrap: 'wrap',
+	            flexDirection: 'row',
+	            width: '100%'
+	        });
+	        treeData.nodes.forEach(function (node, index) {
+	            var nodelist = _this._nodeMap[node.id] || [];
+	            nodelist.push(node);
+	            _this._nodeMap[node.id] = nodelist;
+	            var item = node.element = jquery('<a></a>').appendTo(gridContainer).css({
+	                display: 'block',
+	                margin: '15px',
+	                width: _this.options.itemMinWidth
+	            }).on('click', function () {
+	                _this.$el.trigger('itemclick', node);
+	            });
+	            _this._selectNode(node, !!node.selected);
+	            var body = jquery('<div></div>').appendTo(item).css({
+	                position: 'relative',
+	                display: 'block',
+	                width: '100%',
+	                minHeight: _this.options.itemMinHeight
+	            });
+	            var img = jquery('<img/>').appendTo(body).css({
+	                width: _this.options.itemMinWidth,
+	                height: _this.options.itemMinHeight
+	            });
+	            if (node.thumbUrl) {
+	                img.attr('src', node.thumbUrl);
+	            }
+	            var footer = jquery('<div></div>').appendTo(item).css({
+	                width: '100%'
+	            });
+	            var desc = jquery('<p></p>').appendTo(footer).css({
+	                textAlign: 'center',
+	                fontSize: _this.getNodeProp('textSize'),
+	                color: _this.getNodeProp('textColor')
+	            }).html(node.text);
+	        });
+	        return true;
+	    };
+	    GridView.prototype.getProp = function (name, props) {
+	        return props && props[name];
+	    };
+	    GridView.prototype.getNodeProp = function (name, force, node) {
+	        var prop = node && this.getProp(name, node.selected ? node.propsSelected : node.props);
+	        if (prop === undefined || (force && prop === null)) {
+	            prop = this.getProp(name, node && node.selected ? this.options.propsSelected : this.options.props);
+	        }
+	        return prop;
+	    };
+	    GridView.defaults = {
+	        itemMinHeight: '128px',
+	        itemMaxHeight: 'none',
+	        itemMinWidth: '128px',
+	        itemMaxWidth: 'none',
+	        borderColor: '#e1e4e9',
+	        multiSelect: false,
+	        props: {
+	            textSize: 'inherit',
+	            textColor: 'inherit',
+	        },
+	        propsSelected: {
+	            textSize: 'inherit',
+	            textColor: 'inherit',
+	        },
+	        nodes: []
+	    };
+	    return GridView;
+	}(widget.Widget));
+	exports.GridView = GridView;
+
+	});
+
+	unwrapExports(grid_view);
+	var grid_view_1 = grid_view.GridView;
+
 	var mod_ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 	exports.FolderTree = folder_tree.FolderTree;
+
+	exports.GridView = grid_view.GridView;
 
 	exports.Widget = widget.Widget;
 
@@ -494,13 +744,15 @@
 
 	unwrapExports(mod_ui);
 	var mod_ui_1 = mod_ui.FolderTree;
-	var mod_ui_2 = mod_ui.Widget;
+	var mod_ui_2 = mod_ui.GridView;
+	var mod_ui_3 = mod_ui.Widget;
 
 	var ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 	(function () {
 	    mod_ui.Widget.register(mod_ui.FolderTree, 'folderTree');
+	    mod_ui.Widget.register(mod_ui.GridView, 'gridView');
 	})();
 
 	});

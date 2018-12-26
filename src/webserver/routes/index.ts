@@ -55,14 +55,3 @@ indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Resp
     });
 });
 
-indexRouter.post('/trust/settings/assets', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    if (req.files && req.files.content) {
-        const file = req.files.content as fileUpload.UploadedFile;
-        AssetManager.uploadAssetBuffer ((req.session as Session).loginUserId, '/', file.data, file.name);
-    }
-    res.render ('settings/assets', {
-        user: {
-            name: (req.session as Session).loginUserAccount
-        }
-    });
-});

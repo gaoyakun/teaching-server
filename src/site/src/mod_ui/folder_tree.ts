@@ -23,7 +23,6 @@ export interface ITreeNode {
     propsExpanded?: ITreeNodeProps;
     nodes?: ITreeNode[];
     element?: JQuery;
-    callback?: (this:JQuery, node:ITreeNode)=>void;
 }
 
 export interface ITreeData {
@@ -121,6 +120,17 @@ export class FolderTree extends Widget {
         this._toggleCollapsingNodes (this.getNodes (id).filter ((node, index, array) => !node.expanded));
     }
     protected _init () {
+        const that = this;
+        this.$el.off('itemclick');
+        this.$el.on('itemclick', function(this:JQuery, evt:any, node:ITreeNode) {
+            console.log ('internal');
+            if (that.options.multiSelect) {
+                that.toggleSelectNodes (node);
+            } else {
+                that.deselectNodes (/^.*$/);
+                that.selectNodes (node);
+            }
+        });
         this._contentPanel = $('<div></div>').appendTo(this.$el).addClass(['folder-tree-container']);
         if (this.options.borderColor) {
             this._contentPanel.css({
@@ -199,16 +209,7 @@ export class FolderTree extends Widget {
                 })
             }
             entry.on('click', () => {
-                if (this.options.multiSelect) {
-                    this.toggleSelectNodes (node);
-                } else {
-                    this.deselectNodes (/^.*$/);
-                    this.selectNodes (node);
-                }
-                if (node.callback) {
-                    const cb = node.callback;
-                    setTimeout( function() { cb.call(container, node) }, 0);
-                }
+                this.$el.trigger ('itemclick', node)
             });
             const span = $('<span></span>').appendTo(entry);
             const icon = this.getNodeProp ('icon', false, node);

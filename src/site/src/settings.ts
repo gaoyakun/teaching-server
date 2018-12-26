@@ -18,34 +18,19 @@ const menuData: ITreeData = {
     nodes: [{
         text: '基本资料',
         id: 'profile',
-        callback: function (node) {
-            window.location.href = "/trust/settings/profile"
-        }
     },{
         text: '账号设置',
-        id: 'account',
-        callback: function (node) {
-            $(this).folderTree('toggleCollapsingNodes', node);
-        },
+        id: '_account',
         nodes: [{
             text: '更改密码',
-            id: 'resetpass',
-            callback: function (node) {
-                window.location.href = '/trust/settings/reset';
-            }
+            id: 'reset',
         }, {
             text: '删除账号',
-            id: 'deleteaccount',
-            callback: function (node) {
-                window.location.href = '/trust/settings/delete';
-            }
+            id: 'delete',
         }]
     },{
         text: '素材管理',
         id: 'assets',
-        callback: function (node) {
-            window.location.href = '/trust/settings/assets';
-        }
     },{
         text: '教案管理',
         id: 'pages',
@@ -84,11 +69,11 @@ function traverseNode_r (root:ITreeNode|ITreeNode[], callback: (this:ITreeNode) 
 const getSettingsMenuData = (id: string):ITreeData => {
     let accountNode:ITreeNode|null = null;
     traverseNode_r (menuData.nodes, function(this:ITreeNode) {
-        if (this.id === 'account') {
+        if (this.id === '_account') {
             accountNode = this;
         }
         this.selected = (this.id === id);
-        if (id === 'resetpass' && accountNode) {
+        if (id === 'reset' && accountNode) {
             accountNode.expanded = true;
         }
         return false;
@@ -98,6 +83,15 @@ const getSettingsMenuData = (id: string):ITreeData => {
 
 export class Settings {
     constructor (step: string) {
+        $("#treeview").folderTree (getSettingsMenuData(step));
+        $("#treeview").folderTree ('selectNodes', step);
+        $("#treeview").on('itemclick', function(evt, node:ITreeNode){
+            if (node.id && node.id.length > 0 && node.id[0] !== '_') {
+                window.location.href = `/trust/settings/${node.id}`;
+            } else if (node.nodes && node.nodes.length > 0) {
+                $(this).folderTree('toggleCollapsingNodes', node);
+            }
+        });
         switch (step) {
         case 'asset':
             asset_setup ();
