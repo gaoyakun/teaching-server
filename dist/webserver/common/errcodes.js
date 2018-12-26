@@ -8,5 +8,6 @@ var ErrorCode;
     ErrorCode[ErrorCode["kDatabaseError"] = 3] = "kDatabaseError";
     ErrorCode[ErrorCode["kParamError"] = 4] = "kParamError";
     ErrorCode[ErrorCode["kServerError"] = 5] = "kServerError";
+    ErrorCode[ErrorCode["kFileNotFound"] = 6] = "kFileNotFound";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
 //# sourceMappingURL=errcodes.js.map

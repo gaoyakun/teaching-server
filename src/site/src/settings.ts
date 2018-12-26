@@ -93,7 +93,7 @@ export class Settings {
             }
         });
         switch (step) {
-        case 'asset':
+        case 'assets':
             asset_setup ();
             break;
         }

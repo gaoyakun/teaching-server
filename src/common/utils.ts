@@ -161,7 +161,7 @@ export class Utils {
         }
         return 'anonymous';
     }
-    static httpResult (err: ErrorCode) {
+    static httpResult (err: ErrorCode): any {
         return { 
             err:err,
             message:ErrorCode[err]

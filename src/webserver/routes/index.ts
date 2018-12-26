@@ -1,5 +1,7 @@
 import { Config } from '../config';
 import { Session } from '../lib/session';
+import { Utils } from '../../common/utils';
+import { ErrorCode } from '../../common/errcodes';
 import { AssetManager } from '../server/user/assets';
 import * as express from 'express';
 import * as fileUpload from 'express-fileupload';
@@ -45,6 +47,24 @@ indexRouter.get('/trust/settings/reset', (req:express.Request, res:express.Respo
             name: (req.session as Session).loginUserAccount
         }
     });
+});
+
+indexRouter.get('/trust/assets/image', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const thumb = Utils.safeParseInt(req.query.thumb) || 0;
+    const relPath = req.query.relPath;
+    const name = req.query.name;
+    if (!name || !relPath) {
+        return res.status(404).json (Utils.httpResult(ErrorCode.kParamError));
+    }
+    const content = AssetManager.readAssetContent((req.session as Session).loginUserId, relPath, name, thumb !== 0);
+    if (!content) {
+        return res.status(404).json (Utils.httpResult(ErrorCode.kFileNotFound));
+    } else {
+        res.writeHead (200, {
+            'Content-Type': 'image/jpeg'
+        });
+        res.end (content);
+    }
 });
 
 indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Response, next:express.NextFunction) => {

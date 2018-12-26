@@ -4,6 +4,7 @@ export enum ErrorCode {
     kAuthError,
     kDatabaseError,
     kParamError,
-    kServerError
+    kServerError,
+    kFileNotFound
 }
 

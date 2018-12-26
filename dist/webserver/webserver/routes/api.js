@@ -77,11 +77,17 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         }
     }
 }));
-exports.apiRouter.post('/trust/asset', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+exports.apiRouter.get('/trust/asset', (req, res, next) => {
+    const relPath = req.query.relPath || '/';
+    const result = utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess);
+    result.data = assets_1.AssetManager.loadAssetList(req.session.loginUserId, relPath);
+    return res.json(result);
+});
+exports.apiRouter.post('/trust/asset', (req, res, next) => {
     if (req.files && req.files.content) {
         const file = req.files.content;
         assets_1.AssetManager.uploadAssetBuffer(req.session.loginUserId, '/', file.data, file.name);
     }
     return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
-}));
+});
 //# sourceMappingURL=api.js.map

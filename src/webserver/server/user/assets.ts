@@ -28,11 +28,13 @@ export class AssetManager {
         const dir = path.join (this.getUserAssetPathById(userId), relPath);
         if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
             fs.readdirSync(dir).forEach(function(file) {
-                let curPath = path.join(dir, file);
-                if(fs.statSync(curPath).isDirectory()) {
-                    file += '/';
+                if (file[0] !== '.') {
+                    let curPath = path.join(dir, file);
+                    if(fs.statSync(curPath).isDirectory()) {
+                        file += '/';
+                    }
+                    result.push (file);
                 }
-                result.push (file);
             });
         }
         return result;
@@ -45,10 +47,14 @@ export class AssetManager {
             const filePath = path.join (this.getUserAssetPathById(userId), relPath);
             this._mkdirsSync (filePath);
             const u = UID('FILE');
-            const fullName = path.join (filePath, u + path.extname (filename));
+            let ext = path.extname(filename).toLowerCase();
+            if (ext === '.jpeg') {
+                ext = '.jpg';
+            }
+            const fullName = path.join (filePath, u + ext);
             fs.writeFileSync (fullName, buffer);
 
-            const thumbFileName = path.join (filePath, `.${u}.jpg`);
+            const thumbFileName = path.join (filePath, `.${u}${ext}`);
             sharp(buffer).resize (THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
                 fit: 'contain',
                 background: {r:0,g:0,b:0,alpha:1},
@@ -61,6 +67,17 @@ export class AssetManager {
             return true;
         } catch (err) {
             return false;
+        }
+    }
+    static readAssetContent (userId: number, relPath: string, filename: string, thumb: boolean): Buffer|null {
+        try {
+            if (thumb) {
+                filename = '.' + filename;
+            }
+            const filePath = path.join (this.getUserAssetPathById(userId), relPath, filename);
+            return fs.readFileSync (filePath);
+        } catch (err) {
+            return null;
         }
     }
     private static _getUserIdString (userId: number): string {

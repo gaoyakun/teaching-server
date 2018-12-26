@@ -68,11 +68,17 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     }
 });
 
-apiRouter.post('/trust/asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+apiRouter.get('/trust/asset', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const relPath = req.query.relPath || '/';
+    const result = Utils.httpResult(ErrorCode.kSuccess);
+    result.data = AssetManager.loadAssetList ((req.session as Session).loginUserId, relPath);
+    return res.json (result);
+});
+
+apiRouter.post('/trust/asset', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     if (req.files && req.files.content) {
         const file = req.files.content as fileUpload.UploadedFile;
         AssetManager.uploadAssetBuffer ((req.session as Session).loginUserId, '/', file.data, file.name);
     }
     return res.json (Utils.httpResult(ErrorCode.kSuccess));
 });
-
