@@ -172,6 +172,9 @@ export class GridView extends Widget {
             });
             const desc = $('<p></p>').appendTo(footer).css({
                 textAlign: 'center',
+                wordBreak: 'normal',
+                whiteSpace: 'pre-wrap',
+                wordWrap: 'break-word',
                 fontSize: this.getNodeProp ('textSize'),
                 color: this.getNodeProp ('textColor')
             }).html(node.text);

@@ -689,6 +689,9 @@
 	            });
 	            var desc = jquery('<p></p>').appendTo(footer).css({
 	                textAlign: 'center',
+	                wordBreak: 'normal',
+	                whiteSpace: 'pre-wrap',
+	                wordWrap: 'break-word',
 	                fontSize: _this.getNodeProp('textSize'),
 	                color: _this.getNodeProp('textColor')
 	            }).html(node.text);

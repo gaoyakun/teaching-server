@@ -13,6 +13,7 @@ const errcodes_1 = require("../../common/errcodes");
 const config_1 = require("../config");
 const engine_1 = require("../lib/engine");
 const express = require("express");
+require("express-async-errors");
 exports.installRouter = express.Router();
 exports.installRouter.get('/database', (req, res, next) => {
     const host = config_1.Config.databaseHost || '';

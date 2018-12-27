@@ -1,10 +1,19 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
 const express = require("express");
+require("express-async-errors");
 exports.indexRouter = express.Router();
 exports.indexRouter.get('/', (req, res, next) => {
     if (!config_1.Config.test()) {
@@ -44,14 +53,14 @@ exports.indexRouter.get('/trust/settings/reset', (req, res, next) => {
         }
     });
 });
-exports.indexRouter.get('/trust/assets/image', (req, res, next) => {
+exports.indexRouter.get('/trust/assets/image', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const thumb = utils_1.Utils.safeParseInt(req.query.thumb) || 0;
     const relPath = req.query.relPath;
     const name = req.query.name;
     if (!name || !relPath) {
         return res.status(404).json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
     }
-    const content = assets_1.AssetManager.readAssetContent(req.session.loginUserId, relPath, name, thumb !== 0);
+    const content = yield assets_1.AssetManager.readAssetContent(req.session.loginUserId, relPath, name, thumb !== 0);
     if (!content) {
         return res.status(404).json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kFileNotFound));
     }
@@ -61,7 +70,7 @@ exports.indexRouter.get('/trust/assets/image', (req, res, next) => {
         });
         res.end(content);
     }
-});
+}));
 exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {
     res.render('settings/assets', {
         user: {

@@ -20,16 +20,10 @@ export const middlewareSession = async function (req: express.Request, res: expr
     const sessionId = req.cookies[Config.sessionToken];
     if (sessionId) {
         req.session = await Session.loadSession(sessionId) || undefined;
-        if (req.session) {
-            console.log (`*** <${req.url}> session loaded from cookie ${sessionId}`);
-        } else {
-            console.log (`*** <${req.url}> session not loaded from cookie ${sessionId}`);
-        }
     }
     if (!req.session) {
         req.session = new Session ();
         await req.session.save ();
-        console.log (`*** <${req.url}> session created and cookie set to ${req.session.id}`);
         res.cookie(Config.sessionToken, req.session.id, {
             expires: new Date(Date.now() + 1000*3600*24*7)
         });

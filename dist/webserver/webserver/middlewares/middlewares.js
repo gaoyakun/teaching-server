@@ -20,17 +20,10 @@ exports.middlewareSession = function (req, res, next) {
         const sessionId = req.cookies[config_1.Config.sessionToken];
         if (sessionId) {
             req.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
-            if (req.session) {
-                console.log(`*** <${req.url}> session loaded from cookie ${sessionId}`);
-            }
-            else {
-                console.log(`*** <${req.url}> session not loaded from cookie ${sessionId}`);
-            }
         }
         if (!req.session) {
             req.session = new session_1.Session();
             yield req.session.save();
-            console.log(`*** <${req.url}> session created and cookie set to ${req.session.id}`);
             res.cookie(config_1.Config.sessionToken, req.session.id, {
                 expires: new Date(Date.now() + 1000 * 3600 * 24 * 7)
             });

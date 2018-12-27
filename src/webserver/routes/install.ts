@@ -3,6 +3,7 @@ import { ErrorCode } from '../../common/errcodes';
 import { Config } from '../config';
 import { Engine } from '../lib/engine';
 import * as express from 'express';
+import 'express-async-errors';
 
 export const installRouter = express.Router();
 
