@@ -32,8 +32,8 @@ const menuData: ITreeData = {
         text: '素材管理',
         id: 'assets',
     },{
-        text: '教案管理',
-        id: 'pages',
+        text: '白板管理',
+        id: 'whiteboards',
     },{
         text: '我加入的班级',
         id: 'joined',
