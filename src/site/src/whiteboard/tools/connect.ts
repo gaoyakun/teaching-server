@@ -6,8 +6,8 @@ export class WBConnectTool extends wb.WBTool {
     public static readonly toolname: string = 'Connect';
     private _createParams: any;
     private _moving: boolean;
-    public constructor(pg: wb.WhiteBoard) {
-        super(WBConnectTool.toolname, pg);
+    public constructor(whiteboard: wb.WhiteBoard) {
+        super(WBConnectTool.toolname, whiteboard);
         this._createParams = {
             lineWidth: 3,
             arrowLen: 15,
@@ -78,7 +78,7 @@ export class WBConnectTool extends wb.WBTool {
         super.activate (options);
         this._moving = false;
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
-            const view = this._pg.view;
+            const view = this._wb.view;
             if (view) {
                 this._moving = true;
                 this._createParams.objectFrom = null;
@@ -96,7 +96,7 @@ export class WBConnectTool extends wb.WBTool {
         });
         this.on (lib.EvtMouseMove.type, (ev: lib.EvtMouseMove) => {
             if (this._moving) {
-                const view = this._pg.view;
+                const view = this._wb.view;
                 if (view) {
                     const hitObjects = view.hitObjects;
                     if (hitObjects.length > 1 && hitObjects[0] !== this._createParams.objectFrom && hitObjects[0].entityType !== 'Arrow') {
@@ -135,7 +135,7 @@ export class WBConnectTool extends wb.WBTool {
                 this._createParams.positionFromX = 0;
                 this._createParams.positionFromY = 0;
             }
-            const cmd: commands.IPGCommand  = {
+            const cmd: commands.IWBCommand  = {
                 command: 'CreateObject',
                 type: 'Arrow',
                 name: null,
@@ -143,7 +143,7 @@ export class WBConnectTool extends wb.WBTool {
                 y: y,
                 params: this._createParams
             };
-            this._pg.executeCommand (cmd);
+            this._wb.executeCommand (cmd);
         });
         this.on (lib.EvtDraw.type, (ev: lib.EvtDraw) => {
             if (this._moving) {
@@ -182,6 +182,6 @@ export class WBConnectTool extends wb.WBTool {
     public deactivateObject(object: lib.SceneObject) {
         super.deactivateObject (object);
     }
-    public executeCommand(cmd: commands.IPGCommand) {
+    public executeCommand(cmd: commands.IWBCommand) {
     }
 }

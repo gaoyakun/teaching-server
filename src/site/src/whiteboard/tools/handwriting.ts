@@ -9,8 +9,8 @@ export class WBHandWritingTool extends wb.WBTool {
     private _paramsDraw: any;
     private _paramsErase: any;
     private _mode: string;
-    constructor(pg: wb.WhiteBoard) {
-        super(WBHandWritingTool.toolname, pg);
+    constructor(whiteboard: wb.WhiteBoard) {
+        super(WBHandWritingTool.toolname, whiteboard);
         this._freedrawNode = null;
         this._mode = 'draw';
         this._paramsDraw = {
@@ -97,14 +97,14 @@ export class WBHandWritingTool extends wb.WBTool {
         }
         this._freedrawNode = this.findFreedrawNode ();
         if (!this._freedrawNode) {
-            const cmd: commands.IPGCommand = {
+            const cmd: commands.IWBCommand = {
                 command: 'CreateObject',
                 type: 'FreeDraw',
                 name: null,
                 x: 0,
                 y: 0
             };
-            this._pg.executeCommand (cmd);
+            this._wb.executeCommand (cmd);
             this._freedrawNode = cmd.objectCreated;
         }
         if (this._freedrawNode) {
@@ -140,7 +140,7 @@ export class WBHandWritingTool extends wb.WBTool {
         }
     }
     private findFreedrawNode (rootNode?: lib.SceneObject): objects.WBFreeDraw|null {
-        const view = this._pg.view;
+        const view = this._wb.view;
         if (view) {
             const root = rootNode || view.rootNode;
             if (root) {

@@ -3,8 +3,8 @@ import * as label from './label';
 import * as arrow from './arrow';
 import * as freedraw from './freedraw';
 
-export function installFactories (pg: wb.WhiteBoard) {
-    pg.addFactory (new label.WBLabelFactory('Label'));
-    pg.addFactory (new arrow.WBArrowFactory('Arrow'));
-    pg.addFactory (new freedraw.WBFreeDrawFactory('FreeDraw'));
+export function installFactories (wb: wb.WhiteBoard) {
+    wb.addFactory (new label.WBLabelFactory('Label'));
+    wb.addFactory (new arrow.WBArrowFactory('Arrow'));
+    wb.addFactory (new freedraw.WBFreeDrawFactory('FreeDraw'));
 }

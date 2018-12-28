@@ -340,7 +340,7 @@ export class WBPropertyGrid {
     }
     getObjectProperty (name: string): any {
         if (this._object) {
-            const cmd: commands.IPGCommand = {
+            const cmd: commands.IWBCommand = {
                 command: 'GetObjectProperty',
                 objectName: (this._object as lib.SceneObject).entityName,
                 propName: name
@@ -583,24 +583,24 @@ export class WBEditor {
     private _strokeColor: string;
     private _fillColor: string;
     private _toolFontSize: number;
-    private _pg: wb.WhiteBoard;
+    private _wb: wb.WhiteBoard;
     private _toolset: IToolSet;
     private _toolPalette: WBToolPalette;
     private _opPalette: WBToolPalette;
     private _objectPropGrid: WBPropertyGrid;
     private _toolPropGrid: WBPropertyGrid;
-    constructor (pg: wb.WhiteBoard, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
+    constructor (whiteboard: wb.WhiteBoard, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
         this._strokeColor = '#00000000';
         this._fillColor = 'red';
         this._toolFontSize = 14;
-        this._pg = pg;
+        this._wb = whiteboard;
         this._toolset = toolset;
         this._toolPalette = new WBToolPalette (this, toolPaletteElement);
         this._toolPalette.loadToolPalette (toolset.tools);
         this._opPalette = new WBToolPalette (this, opPaletteElement);
         this._opPalette.loadOpPalette (toolset.operations);
-        this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'pg-object');
-        this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'pg-tool');
+        this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'wb-object');
+        this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'wb-tool');
         this._objectPropGrid.loadPageProperties ();
     }
     get toolSet () {
@@ -619,7 +619,7 @@ export class WBEditor {
         return this._toolPropGrid;
     }
     get whiteboard () {
-        return this._pg;
+        return this._wb;
     }
     get strokeColor () {
         return this._strokeColor;
@@ -651,7 +651,7 @@ export class WBEditor {
                 const value = cmd[name];
                 realCommand[name] = (typeof value === 'function') ? (value as Function) (this) : value;
             }
-            this._pg.executeCommand (realCommand);
+            this._wb.executeCommand (realCommand);
         }
     }
 }

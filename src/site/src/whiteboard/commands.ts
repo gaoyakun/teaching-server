@@ -1,12 +1,12 @@
-export interface IPGCommand {
+export interface IWBCommand {
     command: string;
     [prop: string]: any;
 }
 
 export class WBCommandParser {
-    public static parse(command: string): IPGCommand {
+    public static parse(command: string): IWBCommand {
         let s = WBCommandParser.trimLeft(command);
-        let result: IPGCommand = { command: '' };
+        let result: IWBCommand = { command: '' };
         let lexData = {
             str: s,
             token: ''

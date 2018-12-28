@@ -7,8 +7,8 @@ export class WBCreateTool extends wb.WBTool {
     public options: { [name: string]: any };
     private _factoryProperties: wb.IProperty[];
     private _creationParams: { [name:string]: { [name:string]: any } };
-    public constructor(pg: wb.WhiteBoard) {
-        super(WBCreateTool.toolname, pg);
+    public constructor(whiteboard: wb.WhiteBoard) {
+        super(WBCreateTool.toolname, whiteboard);
         this.options = {};
         this._factoryProperties = [];
         this._creationParams = {};
@@ -18,7 +18,7 @@ export class WBCreateTool extends wb.WBTool {
             this.options = options;
             if (this._creationParams[options.createType] === undefined) {
                 this._creationParams[options.createType] = {}
-                this._factoryProperties = this._pg.getFactory (options.createType).getCreationProperties();
+                this._factoryProperties = this._wb.getFactory (options.createType).getCreationProperties();
                 if (this._factoryProperties) {
                     this._factoryProperties.forEach (prop => {
                         this._creationParams[options.createType][prop.name] = prop.value;
@@ -27,7 +27,7 @@ export class WBCreateTool extends wb.WBTool {
             }
         }
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
-            const cmd: commands.IPGCommand  = {
+            const cmd: commands.IWBCommand  = {
                 command: 'CreateObject',
                 type: this.options.createType,
                 name: null,
@@ -40,7 +40,7 @@ export class WBCreateTool extends wb.WBTool {
             cmd.x = ev.x;
             cmd.y = ev.y;
             cmd.params = this._creationParams[this.options.createType];
-            this._pg.executeCommand (cmd);
+            this._wb.executeCommand (cmd);
         });
         this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
             if (ev.name in this._creationParams[this.options.createType]) {

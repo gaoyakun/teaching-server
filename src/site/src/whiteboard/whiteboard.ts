@@ -18,7 +18,7 @@ export interface IPropertyList {
 }
 
 export class WBComponent extends lib.Component {
-    static readonly type = 'PGComponent';
+    static readonly type = 'WBComponent';
     constructor() {
         super(WBComponent.type);
         this.on(WBToolActivateEvent.type, (ev: WBToolActivateEvent) => {
@@ -159,7 +159,7 @@ export abstract class WBFactory {
 }
 
 export class WBToolActivateEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGToolActivate';
+    static readonly type: string = '@WBToolActivate';
     tool: WBTool;
     constructor(tool: WBTool) {
         super(WBToolActivateEvent.type);
@@ -168,7 +168,7 @@ export class WBToolActivateEvent extends lib.BaseEvent {
 }
 
 export class WBToolDeactivateEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGToolDeactivate';
+    static readonly type: string = '@WBToolDeactivate';
     tool: WBTool;
     constructor(tool: WBTool) {
         super(WBToolDeactivateEvent.type);
@@ -177,7 +177,7 @@ export class WBToolDeactivateEvent extends lib.BaseEvent {
 }
 
 export class WBGetPropertyListEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGGetObjectPropertyList';
+    static readonly type: string = '@WBGetObjectPropertyList';
     properties?: IPropertyList;
     constructor () {
         super (WBGetPropertyListEvent.type);
@@ -185,7 +185,7 @@ export class WBGetPropertyListEvent extends lib.BaseEvent {
 }
 
 export class WBSetPropertyEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGSetObjectPropertyEvent';
+    static readonly type: string = '@WBSetObjectPropertyEvent';
     name: string;
     value: any;
     constructor (name: string, value: any) {
@@ -196,7 +196,7 @@ export class WBSetPropertyEvent extends lib.BaseEvent {
 }
 
 export class WBGetPropertyEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGGetObjectPropertyEvent';
+    static readonly type: string = '@WBGetObjectPropertyEvent';
     name: string;
     value?: any;
     constructor (name: string) {
@@ -206,7 +206,7 @@ export class WBGetPropertyEvent extends lib.BaseEvent {
 }
 
 export class WBGetObjectEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGGetObject';
+    static readonly type: string = '@WBGetObject';
     name: string;
     object?: lib.SceneObject;
     constructor (name: string) {
@@ -218,12 +218,12 @@ export class WBGetObjectEvent extends lib.BaseEvent {
 export class WBTool extends lib.EventObserver {
     public readonly name: string;
     public readonly desc: string;
-    protected readonly _pg: WhiteBoard;
-    constructor (name: string, pg: WhiteBoard, desc?: string) {
+    protected readonly _wb: WhiteBoard;
+    constructor (name: string, whiteboard: WhiteBoard, desc?: string) {
         super ();
         this.name = name;
         this.desc = desc || name;
-        this._pg = pg;
+        this._wb = whiteboard;
         this.on(WBGetPropertyEvent.type, (ev: WBGetPropertyEvent) => {
             switch (ev.name) {
                 case 'desc': {
@@ -246,7 +246,7 @@ export class WBTool extends lib.EventObserver {
     }
     public deactivateObject(object: lib.SceneObject) {
     }
-    public executeCommand(cmd: command.IPGCommand) {
+    public executeCommand(cmd: command.IWBCommand) {
     }
 }
 
@@ -391,7 +391,7 @@ export class WhiteBoard extends lib.EventObserver {
     public findEntity(name: string): lib.SceneObject {
         return this._entities[name] || null;
     }
-    public encodeCommand(cmd: command.IPGCommand) {
+    public encodeCommand(cmd: command.IWBCommand) {
         let str = cmd.command;
         for (const name in cmd) {
             if (name !== 'command') {
@@ -400,7 +400,7 @@ export class WhiteBoard extends lib.EventObserver {
         }
         return str;
     }
-    public executeCommand(cmd: command.IPGCommand) {
+    public executeCommand(cmd: command.IWBCommand) {
         console.log (`CMD: ${this.encodeCommand(cmd)}`);
         if (cmd.command === 'UseTool') {
             if (this._currentTool !== cmd.name) {

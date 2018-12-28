@@ -3,7 +3,7 @@ import * as select from './select';
 import * as wb from '../whiteboard';
 
 export class WBSwapComponent extends lib.Component {
-    static readonly type = 'PGSelect';
+    static readonly type = 'WBSwap';
     readonly tool: WBSwapTool;
     public selected: boolean;
     constructor(tool: WBSwapTool) {
@@ -37,8 +37,8 @@ export class WBSwapComponent extends lib.Component {
 export class WBSwapTool extends wb.WBTool {
     public static readonly toolname: string = 'Swap';
     private _curObject: lib.SceneObject|null;
-    public constructor(pg: wb.WhiteBoard) {
-        super(WBSwapTool.toolname, pg);
+    public constructor(whiteboard: wb.WhiteBoard) {
+        super(WBSwapTool.toolname, whiteboard);
         this._curObject = null;
     }
     get currentObject () {

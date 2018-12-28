@@ -40,14 +40,14 @@ export const WBDefaultToolSet = {
         Write: {
             iconClass: 'fas fa-pen fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'draw' } };
+                const cmd: commands.IWBCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'draw' } };
                 editor.whiteboard.executeCommand (cmd);
             }
         },
         Erase: {
             iconClass: 'fas fa-eraser fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'erase' } };
+                const cmd: commands.IWBCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'erase' } };
                 editor.whiteboard.executeCommand (cmd);
             }
         }
@@ -56,7 +56,7 @@ export const WBDefaultToolSet = {
         Delete: {
             iconClass: 'fas fa-trash-alt fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
                     editor.whiteboard.executeCommand ({
@@ -72,7 +72,7 @@ export const WBDefaultToolSet = {
         AlignLeft: {
             iconClass: 'fas fa-align-left fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
                     editor.whiteboard.executeCommand ({
@@ -85,7 +85,7 @@ export const WBDefaultToolSet = {
         AlignRight: {
             iconClass: 'fas fa-align-right fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
                     editor.whiteboard.executeCommand ({
@@ -98,7 +98,7 @@ export const WBDefaultToolSet = {
         AlignTop: {
             iconClass: 'fas fa-align-right fa-rotate-270 fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 1) {
                     editor.whiteboard.executeCommand ({
@@ -111,7 +111,7 @@ export const WBDefaultToolSet = {
         AlignBottom: {
             iconClass: 'fas fa-align-right fa-rotate-90 fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 1) {
                     editor.whiteboard.executeCommand ({
@@ -124,7 +124,7 @@ export const WBDefaultToolSet = {
         ArrangeH: {
             iconClass: 'fas fa-arrows-alt-h fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 2) {
                     editor.whiteboard.executeCommand ({
@@ -137,7 +137,7 @@ export const WBDefaultToolSet = {
         ArrangeV: {
             iconClass: 'fas fa-arrows-alt-v fa-fw',
             command: function(editor: editor.WBEditor) {
-                const cmd: commands.IPGCommand = { command: 'GetSelected' };
+                const cmd: commands.IWBCommand = { command: 'GetSelected' };
                 editor.whiteboard.executeCommand (cmd);
                 if (cmd.selectedObjects && cmd.selectedObjects.length > 2) {
                     editor.whiteboard.executeCommand ({

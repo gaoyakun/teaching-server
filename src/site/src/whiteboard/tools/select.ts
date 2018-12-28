@@ -3,7 +3,7 @@ import * as commands from '../commands';
 import * as wb from '../whiteboard';
 
 export class WBSelectEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGSelect';
+    static readonly type: string = '@WBSelect';
     public readonly selectIndex: number;
     constructor(selectIndex: number) {
         super(WBSelectEvent.type);
@@ -12,14 +12,14 @@ export class WBSelectEvent extends lib.BaseEvent {
 }
 
 export class WBDeselectEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGDeselect';
+    static readonly type: string = '@WBDeselect';
     constructor() {
         super(WBDeselectEvent.type);
     }
 }
 
 export class WBObjectSelectedEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGObjectSelected';
+    static readonly type: string = '@WBObjectSelected';
     readonly objects: lib.SceneObject[];
     constructor (objects: lib.SceneObject[]) {
         super (WBObjectSelectedEvent.type);
@@ -28,7 +28,7 @@ export class WBObjectSelectedEvent extends lib.BaseEvent {
 }
 
 export class WBObjectMovedEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGObjectMoved';
+    static readonly type: string = '@WBObjectMoved';
     readonly objects: lib.SceneObject[];
     constructor (objects: lib.SceneObject[]) {
         super (WBObjectMovedEvent.type);
@@ -37,7 +37,7 @@ export class WBObjectMovedEvent extends lib.BaseEvent {
 }
 
 export class WBObjectDeselectedEvent extends lib.BaseEvent {
-    static readonly type: string = '@PGObjectDeselected';
+    static readonly type: string = '@WBObjectDeselected';
     readonly object: lib.SceneObject;
     readonly objects: lib.SceneObject[];
     constructor (object: lib.SceneObject, objects: lib.SceneObject[]) {
@@ -47,7 +47,7 @@ export class WBObjectDeselectedEvent extends lib.BaseEvent {
     }
 }
 export class WBSelectComponent extends lib.Component {
-    static readonly type = 'PGSelect';
+    static readonly type = 'WBSelect';
     readonly tool: WBSelectTool;
     private _selected: boolean;
     constructor(tool: WBSelectTool) {
@@ -85,8 +85,8 @@ export class WBSelectTool extends wb.WBTool {
     private _mouseStartPosY: number;
     private _mouseCurrentPosX: number;
     private _mouseCurrentPosY: number;
-    constructor(pg: wb.WhiteBoard) {
-        super(WBSelectTool.toolname, pg);
+    constructor(whiteboard: wb.WhiteBoard) {
+        super(WBSelectTool.toolname, whiteboard);
         this._selectedObjects = [];
         this._moving = false;
         this._rangeSelecting = false;
@@ -119,7 +119,7 @@ export class WBSelectTool extends wb.WBTool {
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
             this._mouseStartPosX = ev.x;
             this._mouseStartPosY = ev.y;
-            const view = this._pg.view;
+            const view = this._wb.view;
             if (view) {
                 const hitObjects = view.hitObjects;
                 if (hitObjects.length > 1) {
@@ -146,7 +146,7 @@ export class WBSelectTool extends wb.WBTool {
                     obj.translation = { x: t.x + dx, y: t.y + dy };
                 });
             } else if (this._rangeSelecting) {
-                const view = this._pg.view;
+                const view = this._wb.view;
                 if (view && view.rootNode) {
                     this.rangeSelectR (view.rootNode, this._mouseStartPosX, this._mouseStartPosY, ev.x-this._mouseStartPosX, ev.y-this._mouseStartPosY);
                     this._mouseCurrentPosX = ev.x;
@@ -201,7 +201,7 @@ export class WBSelectTool extends wb.WBTool {
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
-    public executeCommand(cmd: commands.IPGCommand) {
+    public executeCommand(cmd: commands.IWBCommand) {
         if (cmd.command === 'GetSelected') {
             cmd.selectedObjects = this._selectedObjects;
         }

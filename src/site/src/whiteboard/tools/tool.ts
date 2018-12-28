@@ -5,10 +5,10 @@ import * as create from './create';
 import * as connect from './connect';
 import * as handwriting from './handwriting';
 
-export function installTools (pg: wb.WhiteBoard) {
-    pg.addTool (new select.WBSelectTool(pg));
-    pg.addTool (new swap.WBSwapTool(pg));
-    pg.addTool (new create.WBCreateTool(pg));
-    pg.addTool (new connect.WBConnectTool(pg));
-    pg.addTool (new handwriting.WBHandWritingTool(pg));
+export function installTools (whiteboard: wb.WhiteBoard) {
+    whiteboard.addTool (new select.WBSelectTool(whiteboard));
+    whiteboard.addTool (new swap.WBSwapTool(whiteboard));
+    whiteboard.addTool (new create.WBCreateTool(whiteboard));
+    whiteboard.addTool (new connect.WBConnectTool(whiteboard));
+    whiteboard.addTool (new handwriting.WBHandWritingTool(whiteboard));
 }

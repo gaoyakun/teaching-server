@@ -12,15 +12,15 @@ export interface IToolDef {
 export class WBEditorToolbox {
     private static uniqueId: number = 1;
     private _container: HTMLDivElement;
-    private _pg: wb.WhiteBoard;
+    private _wb: wb.WhiteBoard;
     private _tools: IToolDef[];
     private _curTool: IToolDef|null;
     private _direction: string;
     private _strokeColor: string;
     private _fillColor: string;
-    constructor (container: HTMLDivElement, pg: wb.WhiteBoard, direction: string) {
+    constructor (container: HTMLDivElement, whiteboard: wb.WhiteBoard, direction: string) {
         this._container = container;
-        this._pg = pg;
+        this._wb = whiteboard;
         this._tools = [];
         this._curTool = null;
         this._direction = direction;
@@ -91,7 +91,7 @@ export class WBEditorToolbox {
                             const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
                             curToolButton && curToolButton.classList.remove ('active');
                             if (this._curTool.deactiveCommand) {
-                                this._pg.executeCommand (commands.WBCommandParser.parse(this._curTool.deactiveCommand));
+                                this._wb.executeCommand (commands.WBCommandParser.parse(this._curTool.deactiveCommand));
                             }
                             this._curTool = null;
                         }
@@ -99,7 +99,7 @@ export class WBEditorToolbox {
                     if (tool) {
                         const button = document.querySelector(`#${tool.elementId}`);
                         button && button.classList.add ('active');
-                        this._pg.executeCommand (commands.WBCommandParser.parse(tool.activeCommand));
+                        this._wb.executeCommand (commands.WBCommandParser.parse(tool.activeCommand));
                         this._curTool = tool;
                     }
                 });
