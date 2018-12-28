@@ -78,4 +78,18 @@ exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {
         }
     });
 });
+exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => {
+    res.render('settings/sessions', {
+        user: {
+            name: req.session.loginUserAccount
+        },
+        sessions: [{
+                name: '算法导论',
+                detail: '算法导论讲座，主要讲解《算法导论》第四版内容，现已开放。'
+            }, {
+                name: '如何养猪',
+                detail: '讲解养猪经验，欢迎前来学习。'
+            }]
+    });
+});
 //# sourceMappingURL=index.js.map

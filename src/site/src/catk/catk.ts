@@ -1,6 +1,6 @@
-import { App } from './core';
+import { App } from './index';
 
-export * from './all';
+export * from '.';
 
 const readyFuncList: Array<() => void> = [];
 let isReady = false;

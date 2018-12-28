@@ -5,7 +5,10 @@ import * as boundingbox from './boundingbox';
 import * as boundingsegment from './boundingsegment';
 import * as boundingsphere from './boundingsphere';
 
-export function IntersectionTestShapeSegment(a: shape.BoundingShape, b: point.ISegment2d): point.IPoint2d[]|null {
+export function IntersectionTestShapeSegment(a: shape.BoundingShape|null, b: point.ISegment2d|null): point.IPoint2d[]|null {
+    if (!a || !b) {
+        return null;
+    }
     const box = a.getBoundingbox();
     if (box) {
         switch (a.type) {

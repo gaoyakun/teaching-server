@@ -2524,11 +2524,11 @@
 	            text: '白板管理',
 	            id: 'whiteboards',
 	        }, {
-	            text: '我加入的班级',
-	            id: 'joined',
+	            text: '会话管理',
+	            id: 'sessions',
 	        }, {
-	            text: '属于我的班级',
-	            id: 'owned',
+	            text: '我的收藏',
+	            id: 'favorites',
 	        }, {
 	            text: '退出登录',
 	            id: 'logout'
