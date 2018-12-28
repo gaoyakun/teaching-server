@@ -3,7 +3,34 @@ export interface IPGCommand {
     [prop: string]: any;
 }
 
-export class cwPGCommandParser {
+export class WBCommandParser {
+    public static parse(command: string): IPGCommand {
+        let s = WBCommandParser.trimLeft(command);
+        let result: IPGCommand = { command: '' };
+        let lexData = {
+            str: s,
+            token: ''
+        };
+        WBCommandParser.lexical(lexData);
+        result.command = lexData.token;
+        while (true) {
+            WBCommandParser.lexical(lexData);
+            if (lexData.token === '') {
+                break;
+            }
+            let arr = lexData.token.split('=');
+            if (arr.length === 1) {
+                result[arr[0]] = true;
+            } else {
+                let val:any = arr[1];
+                if (val.length > 1 && val.charAt(0) === '[' && val.charAt(val.length-1) === ']') {
+                    val = val.substr(1, val.length-2).split(',');
+                }
+                result[arr[0]] = val;
+            }
+        }
+        return result;
+    }
     private static trimLeft(s: string): string {
         const whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
         let pos = 0;
@@ -36,32 +63,5 @@ export class cwPGCommandParser {
         }
         lexData.token = lexData.str.substr(0, pos);
         lexData.str = lexData.str.substr(pos, lexData.str.length - pos);
-    }
-    public static parse(command: string): IPGCommand {
-        let s = cwPGCommandParser.trimLeft(command);
-        let result: IPGCommand = { command: '' };
-        let lexData = {
-            str: s,
-            token: ''
-        };
-        cwPGCommandParser.lexical(lexData);
-        result.command = lexData.token;
-        while (true) {
-            cwPGCommandParser.lexical(lexData);
-            if (lexData.token === '') {
-                break;
-            }
-            let arr = lexData.token.split('=');
-            if (arr.length == 1) {
-                result[arr[0]] = true;
-            } else {
-                let val:any = arr[1];
-                if (val.length > 1 && val.charAt(0) === '[' && val.charAt(val.length-1) === ']') {
-                    val = val.substr(1, val.length-2).split(',');
-                }
-                result[arr[0]] = val;
-            }
-        }
-        return result;
     }
 }

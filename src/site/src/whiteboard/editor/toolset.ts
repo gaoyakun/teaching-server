@@ -2,7 +2,7 @@ import * as lib from '../../catk';
 import * as editor from './editor';
 import * as commands from '../commands';
 
-export const cwPGDefaultToolSet = {
+export const WBDefaultToolSet = {
     tools: {
         CreateLabel: {
             iconClass: 'fas fa-font fa-fw',

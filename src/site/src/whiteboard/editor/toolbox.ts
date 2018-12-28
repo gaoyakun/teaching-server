@@ -91,7 +91,7 @@ export class WBEditorToolbox {
                             const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
                             curToolButton && curToolButton.classList.remove ('active');
                             if (this._curTool.deactiveCommand) {
-                                this._pg.executeCommand (commands.cwPGCommandParser.parse(this._curTool.deactiveCommand));
+                                this._pg.executeCommand (commands.WBCommandParser.parse(this._curTool.deactiveCommand));
                             }
                             this._curTool = null;
                         }
@@ -99,7 +99,7 @@ export class WBEditorToolbox {
                     if (tool) {
                         const button = document.querySelector(`#${tool.elementId}`);
                         button && button.classList.add ('active');
-                        this._pg.executeCommand (commands.cwPGCommandParser.parse(tool.activeCommand));
+                        this._pg.executeCommand (commands.WBCommandParser.parse(tool.activeCommand));
                         this._curTool = tool;
                     }
                 });
