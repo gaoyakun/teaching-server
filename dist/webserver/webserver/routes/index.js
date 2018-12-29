@@ -100,4 +100,7 @@ exports.indexRouter.get('/trust/settings/whiteboards', (req, res, next) => {
         whiteboards: []
     });
 });
+exports.indexRouter.get('/trust/create-whiteboard', (req, res, next) => {
+    res.render('create_whiteboard');
+});
 //# sourceMappingURL=index.js.map

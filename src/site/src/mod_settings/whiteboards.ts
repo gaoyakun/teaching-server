@@ -25,4 +25,7 @@ export async function whiteboards_setup() {
         });
     }
     $('#grid-view').gridView (whiteboardData);
+    $('#btn-new-whiteboard').on ('click', function(){
+        window.location.href = '/trust/create-whiteboard';
+    });
 };

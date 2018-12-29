@@ -99,3 +99,6 @@ indexRouter.get('/trust/settings/whiteboards', (req:express.Request, res:express
     });
 });
 
+indexRouter.get('/trust/create-whiteboard', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('create_whiteboard');
+});

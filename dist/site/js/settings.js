@@ -2567,6 +2567,9 @@
 	                        finally { if (e_1) throw e_1.error; }
 	                    }
 	                    jquery('#grid-view').gridView(whiteboardData);
+	                    jquery('#btn-new-whiteboard').on('click', function () {
+	                        window.location.href = '/trust/create-whiteboard';
+	                    });
 	                    return [2 /*return*/];
 	            }
 	        });
