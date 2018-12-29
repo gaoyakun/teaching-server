@@ -2,10 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { Engine } from './lib/engine';
+import { Utils } from '../common/utils';
 
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
+const defaultDataPath = path.join(configFileDir, 'data')
 const defaultSessionToken = 'ts_session_id';
+const MAX_USER_ID_LENGTH = 8;
 
 export class Config {
     private static _config: any = null;
@@ -34,8 +37,24 @@ export class Config {
             }
         }
     }
+    static getUserDataPathById (userId: number): string {
+        if (!Utils.isInt (userId)) {
+            throw new Error (`[Config.getUserDataPathById]: Invalid user id ${userId}`);
+        }
+        let strId = String(userId);
+        if (strId.length > MAX_USER_ID_LENGTH) {
+            throw new Error (`[Config.getUserDataPathById]: Invalid user id ${userId}`);
+        }
+        for (let i = 0; i < MAX_USER_ID_LENGTH; i++) {
+            strId = '0' + strId;
+        }
+        return path.join (this.dataPath, strId);
+    }
     static get sessionToken (): string {
         return this._config && this._config.sessionToken || defaultSessionToken;
+    }
+    static get dataPath (): string {
+        return this._config && this._config.dataPath || defaultDataPath;
     }
     static get storageType (): string {
         return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;

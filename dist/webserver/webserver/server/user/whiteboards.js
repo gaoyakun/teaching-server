@@ -14,12 +14,9 @@ const uid_1 = require("../../lib/uid");
 const config_1 = require("../../config");
 const fileutils = require("../../lib/fileutils");
 const THUMBNAIL_SIZE = 128;
-class AssetManager {
-    static isImageFile(filename) {
-        return this._imageExt.indexOf(path.extname(filename).toLowerCase()) >= 0;
-    }
+class WhiteboardManager {
     static getUserAssetPathById(userId) {
-        return path.join(config_1.Config.getUserDataPathById(userId), 'assets');
+        return path.join(config_1.Config.getUserDataPathById(userId), 'whiteboards');
     }
     static loadAssetList(userId, relPath) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -27,40 +24,38 @@ class AssetManager {
             return fileutils.loadFileList(dir);
         });
     }
-    static uploadAssetBase64(userId, relPath, contentBase64, filename) {
+    static uploadAssetBase64(userId, relPath, width, height, channels, boardData, contentBase64, filename) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.uploadAssetBuffer(userId, relPath, new Buffer(contentBase64, 'base64'), filename);
+            return yield this.uploadAssetBuffer(userId, relPath, width, height, channels, boardData, new Buffer(contentBase64, 'base64'), filename);
         });
     }
-    static uploadAssetBuffer(userId, relPath, buffer, filename) {
+    static uploadAssetBuffer(userId, relPath, width, height, channels, boardData, buffer, filename) {
         return __awaiter(this, void 0, void 0, function* () {
             const filePath = path.join(this.getUserAssetPathById(userId), relPath);
             yield fileutils.mkdirs(filePath);
             const u = uid_1.UID('FILE');
-            if (this.isImageFile(filename)) {
-                let ext = path.extname(filename).toLowerCase();
-                if (ext === '.jpeg') {
-                    ext = '.jpg';
+            const fullName = path.join(filePath, u + '.wb');
+            yield fileutils.writeFile(fullName, boardData);
+            const thumbFileName = path.join(filePath, `.${u}.jpg`);
+            yield sharp(buffer, {
+                raw: {
+                    width: width,
+                    height: height,
+                    channels: channels
                 }
-                const fullName = path.join(filePath, u + ext);
-                yield fileutils.writeFile(fullName, buffer);
-                const thumbFileName = path.join(filePath, `.${u}${ext}`);
-                yield sharp(buffer).resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
-                    fit: 'inside',
-                    background: { r: 0, g: 0, b: 0, alpha: 1 },
-                    withoutEnlargement: true
-                }).toFile(thumbFileName);
-            }
-            else {
-                throw new Error('Unknown file type');
-            }
+            }).resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
+                fit: 'contain',
+                background: { r: 0, g: 0, b: 0, alpha: 1 },
+                withoutEnlargement: true
+            }).toFile(thumbFileName);
         });
     }
     static readAssetContent(userId, relPath, filename, thumb) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (thumb) {
-                    filename = '.' + filename;
+                    const index = filename.lastIndexOf('.');
+                    filename = '.' + filename.substring(0, index) + '.jpg';
                 }
                 const filePath = path.join(this.getUserAssetPathById(userId), relPath, filename);
                 return yield fileutils.readFile(filePath);
@@ -71,6 +66,5 @@ class AssetManager {
         });
     }
 }
-AssetManager._imageExt = ['.jpg', '.jpeg', '.png', '.webp'];
-exports.AssetManager = AssetManager;
-//# sourceMappingURL=assets.js.map
+exports.WhiteboardManager = WhiteboardManager;
+//# sourceMappingURL=whiteboards.js.map

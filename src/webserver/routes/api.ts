@@ -3,6 +3,7 @@ import { ErrorCode } from '../../common/errcodes';
 import { Session } from '../lib/session';
 import { Config } from '../config';
 import { AssetManager } from '../server/user/assets';
+import { WhiteboardManager } from '../server/user/whiteboards';
 import * as fileUpload from 'express-fileupload';
 import * as express from 'express';
 import 'express-async-errors';
@@ -83,3 +84,11 @@ apiRouter.post('/trust/asset', async (req:express.Request, res:express.Response,
     }
     return res.json (Utils.httpResult(ErrorCode.kSuccess));
 });
+
+apiRouter.get('/trust/whiteboard', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const relPath = req.query.relPath || '/';
+    const result = Utils.httpResult(ErrorCode.kSuccess);
+    result.data = await WhiteboardManager.loadAssetList ((req.session as Session).loginUserId, relPath);
+    return res.json (result);
+});
+

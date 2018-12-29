@@ -90,3 +90,12 @@ indexRouter.get('/trust/settings/sessions', (req:express.Request, res:express.Re
     });
 });
 
+indexRouter.get('/trust/settings/whiteboards', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('settings/whiteboards', {
+        user: {
+            name: (req.session as Session).loginUserAccount,
+        },
+        whiteboards: []
+    });
+});
+

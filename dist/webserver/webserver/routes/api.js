@@ -12,6 +12,7 @@ const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const config_1 = require("../config");
 const assets_1 = require("../server/user/assets");
+const whiteboards_1 = require("../server/user/whiteboards");
 const express = require("express");
 require("express-async-errors");
 exports.apiRouter = express.Router();
@@ -90,5 +91,11 @@ exports.apiRouter.post('/trust/asset', (req, res, next) => __awaiter(this, void 
         yield assets_1.AssetManager.uploadAssetBuffer(req.session.loginUserId, '/', file.data, file.name);
     }
     return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
+}));
+exports.apiRouter.get('/trust/whiteboard', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const relPath = req.query.relPath || '/';
+    const result = utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess);
+    result.data = yield whiteboards_1.WhiteboardManager.loadAssetList(req.session.loginUserId, relPath);
+    return res.json(result);
 }));
 //# sourceMappingURL=api.js.map

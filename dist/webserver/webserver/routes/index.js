@@ -92,4 +92,12 @@ exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => {
             }]
     });
 });
+exports.indexRouter.get('/trust/settings/whiteboards', (req, res, next) => {
+    res.render('settings/whiteboards', {
+        user: {
+            name: req.session.loginUserAccount,
+        },
+        whiteboards: []
+    });
+});
 //# sourceMappingURL=index.js.map

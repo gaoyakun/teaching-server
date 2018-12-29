@@ -4,9 +4,12 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const engine_1 = require("./lib/engine");
+const utils_1 = require("../common/utils");
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
+const defaultDataPath = path.join(configFileDir, 'data');
 const defaultSessionToken = 'ts_session_id';
+const MAX_USER_ID_LENGTH = 8;
 class Config {
     static load() {
         try {
@@ -34,8 +37,24 @@ class Config {
             }
         }
     }
+    static getUserDataPathById(userId) {
+        if (!utils_1.Utils.isInt(userId)) {
+            throw new Error(`[Config.getUserDataPathById]: Invalid user id ${userId}`);
+        }
+        let strId = String(userId);
+        if (strId.length > MAX_USER_ID_LENGTH) {
+            throw new Error(`[Config.getUserDataPathById]: Invalid user id ${userId}`);
+        }
+        for (let i = 0; i < MAX_USER_ID_LENGTH; i++) {
+            strId = '0' + strId;
+        }
+        return path.join(this.dataPath, strId);
+    }
     static get sessionToken() {
         return this._config && this._config.sessionToken || defaultSessionToken;
+    }
+    static get dataPath() {
+        return this._config && this._config.dataPath || defaultDataPath;
     }
     static get storageType() {
         return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;
