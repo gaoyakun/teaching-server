@@ -5,6 +5,7 @@ import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
 import * as middlewares from './middlewares/middlewares';
 import { Config } from './config';
+import { CacheStore } from './lib/cache';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { installRouter } from './routes/install';
@@ -13,6 +14,12 @@ import { apiRouter } from './routes/api';
 import 'express-async-errors';
 
 Config.load ();
+
+const redisConfig = (Config.redisType && Config.redisType !== 'local') ? {
+    port: Config.redisPort,
+    host: Config.redisHost
+} : null;
+CacheStore.init (redisConfig);
 
 export const app = express ();
 app.set ('views', path.join(__dirname, 'views'));

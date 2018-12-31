@@ -11,7 +11,7 @@ interface RedisConfig {
 export class CacheStore {
     private static redisClient: Redis.RedisClient|null = null;
     private static readonly data: any = {};
-    static init (redisConfig?:RedisConfig) {
+    static init (redisConfig?:RedisConfig|null) {
         if (redisConfig) {
             this.redisClient = Redis.createClient (redisConfig.port, redisConfig.host, redisConfig.options||{});
             this.redisClient.on ('error', err => {
@@ -26,30 +26,28 @@ export class CacheStore {
             } else {
                 if (this.redisClient) {
                     const s = JSON.stringify(value);
-                    this.redisClient.set (key, s, (err, reply) => {
+                    this.redisClient.set (key, s, err => {
                         if (err) {
                             reject (err);
                         } else {
-                            resolve ('Ok');
+                            resolve ();
                         }
                     });
                 } else {
                     this.data[key] = Utils.deepCopy(value);
-                    resolve ('Ok');
+                    resolve ();
                 }
             }
         });
     }
     static get (key: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            if (!Utils.isString(key)) {
-                reject (new Error(ErrorCode[ErrorCode.kParamError]));
-            } else if (this.redisClient) {
+            if (this.redisClient) {
                 this.redisClient.get (key, (err, data)=>{
                     if (err) {
                         reject (err);
                     } else {
-                        resolve (Utils.isString(data) ? JSON.parse(data) : null);
+                        resolve (JSON.parse(data));
                     }
                 });
             } else {
@@ -57,45 +55,85 @@ export class CacheStore {
             }
         });
     }
-    static del (key: string): Promise<any> {
+    static del (key: string) {
         return new Promise<any> ((resolve, reject) => {
-            if (!Utils.isString(key)) {
-                reject (new Error(ErrorCode[ErrorCode.kParamError]));
-            } else if (this.redisClient) {
+            if (this.redisClient) {
                 this.redisClient.del (key, (err, reply)=>{
                     if (err) {
                         reject (err);
                     } else {
-                        resolve ('Ok');
+                        resolve ();
                     }
                 });
             } else {
                 if (this.data[key] !== undefined) {
                     delete this.data[key];
                 }
-                resolve ('Ok');
+                resolve ();
             }
         });
     }
-}
-/*
-cache_store.prototype.hset = function cache_hset (key, field, value, callback) {
-    if (this.data[key] === undefined) {
-        this.data[key] = {};
-    } else if (!utils.isObject(this.data[key])) {
-        return this.error(`object for key ${key} is not an object`, callback);
-    } else if (value === undefined) {
-        return this.error('Value cannot be undefined', callback);
+    static hdel (key: string, field: string) {
+        return new Promise<any> ((resolve, reject) => {
+            if (this.redisClient) {
+                this.redisClient.hdel (key, field, err => {
+                    if (err) {
+                        reject (err);
+                    } else {
+                        resolve ();
+                    }
+                });
+            } else {
+                const t = this.data[key];
+                if (t && Utils.isObject(t)) {
+                    delete t[field];
+                }
+                resolve ();
+            }
+        });
     }
-    this.data[key][field] = utils.deepCopy(value);
-    callback && callback (null);
-};
-
-cache_store.prototype.hget = function cache_hget (key, field, callback) {
-    let h = this.data[key] || {};
-    callback && callback (null, utils.deepCopy(h[field]));
-};
-
+    static hset (key: string, field: string, value: any) {
+        return new Promise<any> ((resolve, reject) => {
+            if (this.redisClient) {
+                const s = JSON.stringify (value);
+                this.redisClient.hset (key, field, s, err => {
+                    if (err) {
+                        reject (err);
+                    } else {
+                        resolve ();
+                    }
+                });
+            } else {
+                if (this.data[key] === undefined) {
+                    this.data[key] = {};
+                } else if (!Utils.isObject(this.data[key])) {
+                    reject (new Error(ErrorCode[ErrorCode.kValueError]));
+                } else if (value === undefined) {
+                    reject (new Error(ErrorCode[ErrorCode.kParamError]));
+                } else {
+                    this.data[key][field] = Utils.deepCopy(value);
+                    resolve ();
+                }
+            }
+        });
+    }
+    static hget (key: string, field: string) {
+        return new Promise<any> ((resolve, reject) => {
+            if (this.redisClient) {
+                this.redisClient.hget (key, field, (err, result) => {
+                    if (err) {
+                        reject (err);
+                    } else {
+                        resolve (JSON.parse(result));
+                    }
+                });
+            } else {
+                let h = this.data[key] || {};
+                resolve (Utils.deepCopy(h[field]));
+            }
+        });
+    }
+/*
 cache_store.prototype.llen = function cache_llen (key, callback) {
     if (!utils.isArray(this.data[key])) {
         return this.error (`object for key ${key} is not an array`, callback);
@@ -254,6 +292,7 @@ cache_store.prototype.ltrim = function cache_lrange (key, start, end, callback) 
         }
         callback && callback (null, result);
     }
-};
-*/
+    */
+}
+
 

@@ -4,6 +4,14 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
+const proto = require("../common/protocols/protocols");
+const protoutils_1 = require("../common/protoutils");
+(function () {
+    const packet = new protoutils_1.Packet(proto.test.TestMessage, {
+        testField: 'hello'
+    });
+    console.log(packet.decode());
+}());
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),

@@ -8,6 +8,7 @@ const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
 const defaultDataPath = path.join(configFileDir, 'data')
 const defaultSessionToken = 'ts_session_id';
+const defaultRedisSessionKey = 'session_list';
 const MAX_USER_ID_LENGTH = 8;
 
 export class Config {
@@ -53,8 +54,47 @@ export class Config {
     static get sessionToken (): string {
         return this._config && this._config.sessionToken || defaultSessionToken;
     }
+    static get redisSessionKey (): string {
+        return this._config && this._config.redisSessionKey || defaultRedisSessionKey;
+    }
     static get dataPath (): string {
         return this._config && this._config.dataPath || defaultDataPath;
+    }
+    static get redisType (): string {
+        return this._config && this._config.redisConfig ? (this._config.redisConfig.type || null): null;
+    }
+    static set redisType (type: string) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.redisConfig) {
+            this._config.redisConfig = {};
+        }
+        this._config.redisConfig.type = type;
+    }
+    static get redisHost (): string {
+        return this._config && this._config.redisConfig ? (this._config.redisConfig.host || null) : null;
+    }
+    static set redisHost (host: string) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.redisConfig) {
+            this._config.redisConfig = {};
+        }
+        this._config.redisConfig.host = host;
+    }
+    static get redisPort (): number {
+        return this._config && this._config.redisConfig ? (this._config.redisConfig.port || null) : null;
+    }
+    static set redisPort (port: number) {
+        if (!this._config) {
+            this._config = {};
+        }
+        if (!this._config.redisConfig) {
+            this._config.redisConfig = {};
+        }
+        this._config.redisConfig.port = port;
     }
     static get storageType (): string {
         return this._config && this._config.storageConfig ? (this._config.storageConfig.type || null) : null;

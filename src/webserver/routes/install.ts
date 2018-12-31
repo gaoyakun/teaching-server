@@ -132,6 +132,40 @@ installRouter.post('/setup_storage', (req:express.Request, res:express.Response,
     Config.storagePort = storagePort;
     Config.save ();
 
+    res.redirect ('/install/redis');
+});
+
+installRouter.get('/redis', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('install_redis', {
+        redis: {
+            external: (Config.redisType || 'local') !== 'local',
+            host: Config.redisHost || '',
+            port: Config.redisPort || ''
+        }
+    });
+});
+
+installRouter.post('/setup_redis', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let redisType = req.body.type;
+    let redisHost = '';
+    let redisPort = 0;
+    if (redisType !== 'local') {
+        const host = req.body.host;
+        const port = Utils.safeParseInt(req.body.port);
+        if (!host || !port) {
+            return res.json ({
+                err: ErrorCode.kParamError
+            });
+        } else {
+            redisHost = host;
+            redisPort = port;
+        }
+    }
+    Config.redisType = redisType;
+    Config.redisHost = redisHost;
+    Config.redisPort = redisPort;
+    Config.save ();
+
     res.redirect ('/');
 });
 

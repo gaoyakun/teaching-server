@@ -10,6 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const cache_1 = require("./cache");
 const uid_1 = require("./uid");
+const config_1 = require("../config");
+const redisSessionKey = config_1.Config.redisSessionKey;
 class Session {
     constructor(id) {
         this._id = id || uid_1.UID('sid');
@@ -17,7 +19,7 @@ class Session {
     }
     static loadSession(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield cache_1.CacheStore.get(id);
+            const data = yield cache_1.CacheStore.hget(redisSessionKey, id);
             if (data) {
                 const session = new Session(id);
                 session._data = data;
@@ -30,14 +32,14 @@ class Session {
     }
     save() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield cache_1.CacheStore.set(this._id, this._data);
+            yield cache_1.CacheStore.hset(redisSessionKey, this._id, this._data);
         });
     }
     ;
     load() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this._data = yield cache_1.CacheStore.get(this._id);
+                this._data = yield cache_1.CacheStore.hget(redisSessionKey, this._id);
                 if (this._data === undefined) {
                     this._data = {};
                 }
@@ -50,7 +52,7 @@ class Session {
     ;
     remove() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield cache_1.CacheStore.del(this._id);
+            yield cache_1.CacheStore.hdel(redisSessionKey, this._id);
         });
     }
     clear() {

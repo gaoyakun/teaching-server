@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowJs": true,
         "downlevelIteration": true,
         "moduleResolution": "node",
         "target": "es2015",
@@ -13,7 +14,8 @@
         "sourceMap": true
     },
     "include": [
-        "."
+        ".",
+        "../common/protocols"
     ],
     "exclude": [
         "node_modules",

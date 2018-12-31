@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowJs":true,
+        "downlevelIteration": true,
+        "moduleResolution": "node",
+        "target": "es2015",
+        "module": "commonjs",
+        "lib": [
+            "es2015",
+            "dom"
+        ],
+        "strict": true,
+        "outDir": "../../dist/roomserver",
+        "sourceMap": true
+    },
+    "include": [
+        ".",
+        "../common/protocols"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "**/*.d.ts"
+    ]
+}

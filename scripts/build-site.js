@@ -10,11 +10,19 @@ const cssnano = require('cssnano');
 const path = require('path');
 const fs = require('fs');
 
+const jsFiles = [
+    'install',
+    'login',
+    'ui',
+    'settings',
+    'create_whiteboard',
+    'prototest'
+];
+
 const rootDir = path.join(__dirname, '..');
 const staticDir = path.join(rootDir, 'src/site/static');
 const siteDir = path.join(rootDir, 'dist/site');
 const compiledDir = path.join(siteDir, 'compiled')
-const jsFiles = ['install','login','ui','settings','create_whiteboard'];
 
 async function build(inputOptions, outputOptions) {
     const bundle = await rollup.rollup(inputOptions);
@@ -36,7 +44,7 @@ const promises = jsFiles.map (name => {
             extensions: [ '.css', '.scss' ]
         }), commonjs(), resolve({
             moduleDirectory: path.join(rootDir, 'node_modules')
-        })/*, uglify.uglify()*/],
+        }), uglify.uglify()],
         external: ['jquery']
     }, {
         file: path.join(siteDir, 'js', name+'.js'),
