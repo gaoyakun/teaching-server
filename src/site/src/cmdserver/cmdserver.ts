@@ -1,5 +1,6 @@
 import { IWBCommand } from '../whiteboard/commands';
 import * as catk from '../catk';
+import * as io from 'socket.io-client';
 
 export class EvtPostCommand extends catk.BaseEvent {
     static readonly type:string = '@postCommand';
@@ -57,5 +58,45 @@ export class LocalCommandServer extends ICommandServer {
     protected _stop (): boolean {
         this.off (EvtPostCommand.type);
         return true;
+    }
+}
+
+export class SocketCommandServer extends ICommandServer {
+    private _host: string;
+    private _port: number;
+    private _socket: SocketIOClient.Socket|null;
+    constructor (host:string, port:number) {
+        super ();
+        this._host = host;
+        this._port = port;
+        this._socket = null;
+    }
+    protected _start (): boolean {
+        this._socket = io (`${this._host}:${this._port}`);
+        this._socket.on ('connect', () => {
+            this.onConnect ();
+        });
+        this._socket.on ('event', (data:any) => {
+            this.onEvent (data);
+        });
+        this._socket.on ('disconnect', () => {
+            this.onDisconnect ();
+        });
+        return true;
+    }
+    protected _stop (): boolean {
+        if (this._socket) {
+            this._socket.close ();
+        }
+        return true;
+    }
+    protected onConnect () {
+        console.log ('connected');
+    }
+    protected onEvent (data: any) {
+        console.log ('event');
+    }
+    protected onDisconnect () {
+        console.log ('disconnect');
     }
 }

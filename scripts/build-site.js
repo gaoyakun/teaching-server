@@ -45,13 +45,13 @@ const promises = jsFiles.map (name => {
         }), commonjs(), resolve({
             moduleDirectory: path.join(rootDir, 'node_modules')
         }), uglify.uglify()],
-        external: ['jquery']
+        external: ['jquery', 'socket.io-client']
     }, {
         file: path.join(siteDir, 'js', name+'.js'),
         name: name,
         exports: 'named',
         format: 'umd',
-        globals: { jquery:'jQuery' }
+        globals: { jquery:'jQuery', 'socket.io-client':'io' }
     });
 });
 
