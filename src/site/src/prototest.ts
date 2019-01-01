@@ -1,9 +1,10 @@
-import * as proto from '../../common/protocols/protocols';
+import * as proto from '../../common/protocols/protolist';
 import { Packet } from '../../common/protoutils';
 
 (function () {
-    const packet = new Packet(proto.test.TestMessage, {
+    const packet = Packet.create(proto.MsgType.test_TestMessage, {
         testField: 'hello'
     });
-    console.log (packet.decode ());
+    const data: any = packet.getMsgData ();
+    console.log (`type: ${data.type} data: ${data.data}`);
 }());

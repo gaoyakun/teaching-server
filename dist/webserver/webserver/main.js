@@ -4,13 +4,14 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const proto = require("../common/protocols/protocols");
+const proto = require("../common/protocols/protolist");
 const protoutils_1 = require("../common/protoutils");
 (function () {
-    const packet = new protoutils_1.Packet(proto.test.TestMessage, {
+    const packet = protoutils_1.Packet.create(proto.MsgType.test_TestMessage, {
         testField: 'hello'
     });
-    console.log(packet.decode());
+    const data = packet.getMsgData();
+    console.log(`type: ${data.type} data: ${data.data}`);
 }());
 const useHttps = false;
 const options = useHttps ? {

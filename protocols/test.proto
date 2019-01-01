@@ -1,8 +1,7 @@
-
 // awesome.proto
 package test;
 syntax = "proto3";
- 
+
 message TestMessage {
     string test_field = 1; // becomes testField
-}
+};
