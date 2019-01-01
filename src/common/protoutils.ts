@@ -45,7 +45,7 @@ export class Packet {
         const msgData: IMsgData = { type: msgId };
         if (this._buffer.byteLength > 8) {
             const cls: any = msgMap[msgId];
-            const content = cls.decode (this._buffer.subarray(8, length - 4));
+            const content = cls.decode (this._buffer.subarray(8, length + 4));
             if (content) {
                 msgData.data = cls.toObject (content);
             }
@@ -117,7 +117,7 @@ export class MessageAssembler {
         if (this._length < packetLen) {
             return null;
         }
-        const packetData = this._buffer.subarray (this._offset, packetLen);
+        const packetData = this._buffer.subarray (this._offset, this._offset + packetLen);
         this._offset += packetLen; 
         this._length -= packetLen;
         return new Packet (packetData).getMsgData ();

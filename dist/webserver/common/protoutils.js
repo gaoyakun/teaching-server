@@ -38,7 +38,7 @@ class Packet {
         const msgData = { type: msgId };
         if (this._buffer.byteLength > 8) {
             const cls = protolist_1.msgMap[msgId];
-            const content = cls.decode(this._buffer.subarray(8, length - 4));
+            const content = cls.decode(this._buffer.subarray(8, length + 4));
             if (content) {
                 msgData.data = cls.toObject(content);
             }
@@ -63,27 +63,27 @@ class MessageAssembler {
         this._length = 0;
         this._messages = [];
     }
-    put(fragment) {
-        if (this._buffer.byteLength - this._offset - this._length >= fragment.byteLength) {
-            this._buffer.set(fragment, this._offset + this._length);
+    put(data) {
+        if (this._buffer.byteLength - this._offset - this._length >= data.byteLength) {
+            this._buffer.set(data, this._offset + this._length);
         }
-        else if (this._buffer.byteLength - this._length >= fragment.byteLength) {
+        else if (this._buffer.byteLength - this._length >= data.byteLength) {
             this._buffer.copyWithin(0, this._offset, this._offset + this._length);
             this._offset = 0;
-            this._buffer.set(fragment, this._length);
+            this._buffer.set(data, this._length);
         }
         else {
             let len = this._buffer.byteLength;
-            while (len - this._length < fragment.byteLength) {
+            while (len - this._length < data.byteLength) {
                 len += this.BUFFER_INCR_SIZE;
             }
             const newBuffer = new Uint8Array(len);
             newBuffer.set(this._buffer.subarray(this._offset, this._offset + this._length), 0);
-            newBuffer.set(fragment, this._length);
+            newBuffer.set(data, this._length);
             this._buffer = newBuffer;
             this._offset = 0;
         }
-        this._length += fragment.byteLength;
+        this._length += data.byteLength;
         while (true) {
             const message = this._get();
             if (!message) {
@@ -91,6 +91,9 @@ class MessageAssembler {
             }
             this._messages.push(message);
         }
+    }
+    getMessage() {
+        return this._messages.shift() || null;
     }
     _get() {
         if (this._length < 4) {
@@ -104,7 +107,7 @@ class MessageAssembler {
         if (this._length < packetLen) {
             return null;
         }
-        const packetData = this._buffer.subarray(this._offset, packetLen);
+        const packetData = this._buffer.subarray(this._offset, this._offset + packetLen);
         this._offset += packetLen;
         this._length -= packetLen;
         return new Packet(packetData).getMsgData();

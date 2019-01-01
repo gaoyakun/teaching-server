@@ -10,8 +10,14 @@ const protoutils_1 = require("../common/protoutils");
     const packet = protoutils_1.Packet.create(proto.MsgType.test_TestMessage, {
         testField: 'hello'
     });
-    const data = packet.getMsgData();
-    console.log(`type: ${data.type} data: ${data.data}`);
+    const packet2 = protoutils_1.Packet.create(proto.MsgType.test2_Test2Message, {
+        test2Field: 'hello2'
+    });
+    const msgAssembler = new protoutils_1.MessageAssembler();
+    msgAssembler.put(packet.buffer);
+    msgAssembler.put(packet2.buffer);
+    console.log(msgAssembler.getMessage());
+    console.log(msgAssembler.getMessage());
 }());
 const useHttps = false;
 const options = useHttps ? {
