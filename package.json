@@ -30,10 +30,16 @@
     "make-proto-js": "pbjs -t static-module -w commonjs -o src/common/protocols/protocols.js protocols/*.proto",
     "make-proto-ts": "pbts -o src/common/protocols/protocols.d.ts src/common/protocols/protocols.js",
     "make-proto": "npm run make-proto-js && npm run make-proto-ts && npm run make-proto-list",
-    "build": "npm run clean && npm run make-proto && tsc -p src/webserver && tsc -p src/roomserver && tsc -p src/site && node scripts/build-site.js && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver",
+    "build-webserver": "tsc -p src/webserver && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver",
+    "build-roomserver": "tsc -p src/roomserver",
+    "build-centerserver": "tsc -p src/centerserver && shx cp -R src/centerserver/views dist/centerserver/centerserver",
+    "build-site": "tsc -p src/site && node scripts/build-site",
+    "build": "npm run clean && npm run make-proto && npm run build-webserver && npm run build-roomserver && npm run build-centerserver && npm run build-site",
     "commit": "git-cz",
     "semantic-release": "semantic-release",
-    "start-server": "npm run build && node dist/webserver/webserver/main.js"
+    "start-centerserver": "node dist/centerserver/centerserver/main.js",
+    "start-roomserver": "node dist/roomserver/roomserver/main.js",
+    "start-webserver": "node dist/webserver/webserver/main.js"
   },
   "husky": {
     "hooks": {

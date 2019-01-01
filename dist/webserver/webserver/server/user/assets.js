@@ -10,16 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
 const sharp = require("sharp");
-const uid_1 = require("../../lib/uid");
-const config_1 = require("../../config");
-const fileutils = require("../../lib/fileutils");
+const uid_1 = require("../../../lib/uid");
+const config_1 = require("../../../lib/config");
+const fileutils = require("../../../lib/fileutils");
 const THUMBNAIL_SIZE = 128;
 class AssetManager {
     static isImageFile(filename) {
         return this._imageExt.indexOf(path.extname(filename).toLowerCase()) >= 0;
     }
     static getUserAssetPathById(userId) {
-        return path.join(config_1.Config.getUserDataPathById(userId), 'assets');
+        return path.join(config_1.GetConfig.getUserDataPathById(userId), 'assets');
     }
     static loadAssetList(userId, relPath) {
         return __awaiter(this, void 0, void 0, function* () {

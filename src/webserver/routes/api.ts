@@ -1,7 +1,7 @@
+import { GetConfig } from '../../lib/config';
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
-import { Session } from '../lib/session';
-import { Config } from '../config';
+import { Session } from '../../lib/session';
 import { AssetManager } from '../server/user/assets';
 import { WhiteboardManager } from '../server/user/whiteboards';
 import * as fileUpload from 'express-fileupload';
@@ -27,14 +27,14 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         if (!account || !password) {
             res.json (Utils.httpResult(ErrorCode.kParamError));
         } else {
-            const rows = await Config.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
+            const rows = await GetConfig.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
             if (rows.length === 1) {
                 session.set ({
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
                 let remember = Utils.safeParseInt(req.body.remember);
-                res.cookie(Config.sessionToken, session.id, {
+                res.cookie(GetConfig.sessionToken, session.id, {
                     expires: remember ? new Date(Date.now() + 1000*3600*24*7) : undefined
                 });
                 res.json (Utils.httpResult(ErrorCode.kSuccess));
@@ -58,7 +58,7 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     if (!account || !email || !password) {
         res.json (Utils.httpResult(ErrorCode.kParamError));
     } else {
-        const rows = await Config.engine.query({
+        const rows = await GetConfig.engine.query({
             sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
             param:[account, email, password, account, account, email]
         });

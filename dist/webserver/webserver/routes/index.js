@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
@@ -16,21 +15,16 @@ const express = require("express");
 require("express-async-errors");
 exports.indexRouter = express.Router();
 exports.indexRouter.get('/', (req, res, next) => {
-    if (!config_1.Config.test()) {
-        res.redirect('/install/database');
+    const session = req.session;
+    const data = {};
+    if (session.loginUserId) {
+        data.user = {
+            name: session.loginUserAccount
+        };
+        res.render('index', data);
     }
     else {
-        const session = req.session;
-        const data = {};
-        if (session.loginUserId) {
-            data.user = {
-                name: session.loginUserAccount
-            };
-            res.render('index', data);
-        }
-        else {
-            res.render('login');
-        }
+        res.render('login');
     }
 });
 exports.indexRouter.get('/login', (req, res, next) => {

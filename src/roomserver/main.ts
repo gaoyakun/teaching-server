@@ -1,7 +1,7 @@
+import { app } from './app';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
-import * as socketio from 'socket.io';
 
 const useHttps = false;
 
@@ -14,24 +14,13 @@ const options = useHttps ? {
  * Get port from environment and store in Express.
  */
 const httpPort = normalizePort(8900);
-const httpsPort = normalizePort(8443);
+const httpsPort = normalizePort(443);
 
 /**
  * Create HTTP server.
  */
-const server = http.createServer();
-const serverHttps = useHttps ? https.createServer(options) : null;
-const io = socketio(server);
-
-io.on ('connection', socket => {
-    console.log ('Client connected');
-    socket.on ('disconnect', () => {
-        console.log ('Client disconnected');
-    });
-    socket.on ('message', obj => {
-        io.emit ('message', obj);
-    });
-});
+const server = http.createServer(app);
+const serverHttps = useHttps ? https.createServer(options, app) : null;
 
 /**
  * Listen on provided port, on all network interfaces.

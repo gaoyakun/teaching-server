@@ -15,7 +15,8 @@
     },
     "include": [
         ".",
-        "../common/protocols"
+        "../common",
+        "../lib"
     ],
     "exclude": [
         "node_modules",

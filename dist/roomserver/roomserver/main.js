@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const socketio = require("socket.io");
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -13,22 +13,12 @@ const options = useHttps ? {
  * Get port from environment and store in Express.
  */
 const httpPort = normalizePort(8900);
-const httpsPort = normalizePort(8443);
+const httpsPort = normalizePort(443);
 /**
  * Create HTTP server.
  */
-const server = http.createServer();
-const serverHttps = useHttps ? https.createServer(options) : null;
-const io = socketio(server);
-io.on('connection', socket => {
-    console.log('Client connected');
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-    socket.on('message', obj => {
-        io.emit('message', obj);
-    });
-});
+const server = http.createServer(app_1.app);
+const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
 /**
  * Listen on provided port, on all network interfaces.
  */

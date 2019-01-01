@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as sharp from 'sharp';
-import { UID } from '../../lib/uid';
-import { Config } from '../../config';
-import * as fileutils from '../../lib/fileutils';
+import { UID } from '../../../lib/uid';
+import { GetConfig } from '../../../lib/config';
+import * as fileutils from '../../../lib/fileutils';
 
 const THUMBNAIL_SIZE:number = 128;
 
@@ -12,7 +12,7 @@ export class AssetManager {
         return this._imageExt.indexOf(path.extname(filename).toLowerCase()) >= 0;
     }
     static getUserAssetPathById (userId: number): string {
-        return path.join(Config.getUserDataPathById(userId), 'assets');
+        return path.join(GetConfig.getUserDataPathById(userId), 'assets');
     }
     static async loadAssetList (userId: number, relPath: string) {
         const dir = path.join (this.getUserAssetPathById(userId), relPath);

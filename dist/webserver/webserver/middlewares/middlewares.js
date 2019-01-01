@@ -10,21 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const errcodes_1 = require("../../common/errcodes");
 const utils_1 = require("../../common/utils");
-const session_1 = require("../lib/session");
-const config_1 = require("../config");
+const session_1 = require("../../lib/session");
+const config_1 = require("../../lib/config");
 exports.middlewareSession = function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (req.session) {
             return next();
         }
-        const sessionId = req.cookies[config_1.Config.sessionToken];
+        const sessionId = req.cookies[config_1.GetConfig.sessionToken];
         if (sessionId) {
             req.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
         }
         if (!req.session) {
             req.session = new session_1.Session();
             yield req.session.save();
-            res.cookie(config_1.Config.sessionToken, req.session.id, {
+            res.cookie(config_1.GetConfig.sessionToken, req.session.id, {
                 expires: new Date(Date.now() + 1000 * 3600 * 24 * 7)
             });
         }

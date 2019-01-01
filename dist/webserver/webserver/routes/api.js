@@ -8,9 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../../lib/config");
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
-const config_1 = require("../config");
 const assets_1 = require("../server/user/assets");
 const whiteboards_1 = require("../server/user/whiteboards");
 const express = require("express");
@@ -34,14 +34,14 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
             res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
         }
         else {
-            const rows = yield config_1.Config.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
+            const rows = yield config_1.GetConfig.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
             if (rows.length === 1) {
                 session.set({
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
                 let remember = utils_1.Utils.safeParseInt(req.body.remember);
-                res.cookie(config_1.Config.sessionToken, session.id, {
+                res.cookie(config_1.GetConfig.sessionToken, session.id, {
                     expires: remember ? new Date(Date.now() + 1000 * 3600 * 24 * 7) : undefined
                 });
                 res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
@@ -67,7 +67,7 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
     }
     else {
-        const rows = yield config_1.Config.engine.query({
+        const rows = yield config_1.GetConfig.engine.query({
             sql: 'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
             param: [account, email, password, account, account, email]
         });
