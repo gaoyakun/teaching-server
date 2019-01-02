@@ -6,6 +6,7 @@ export enum ErrorCode {
     kParamError,
     kValueError,
     kServerError,
-    kFileNotFound
+    kFileNotFound,
+    kNotImplemented
 }
 

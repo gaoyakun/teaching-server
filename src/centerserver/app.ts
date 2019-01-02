@@ -4,7 +4,9 @@ import * as cookieParser from 'cookie-parser';
 import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
 import { Config } from './config';
-import { CacheStore } from '../lib/cache';
+import { CENTERSERVER_HOST, CENTERSERVER_PORT } from '../lib/config';
+import { Server } from '../lib/servermgr';
+import { ServerType } from '../lib/constants';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { installRouter } from './routes/install';
@@ -13,12 +15,7 @@ import { apiRouter } from './routes/api';
 import 'express-async-errors';
 
 Config.load ();
-
-const redisConfig = (Config.redisType && Config.redisType !== 'local') ? {
-    port: Config.redisPort,
-    host: Config.redisHost
-} : null;
-CacheStore.init (redisConfig);
+Server.init ( ServerType.Center, CENTERSERVER_HOST, CENTERSERVER_PORT, Config);
 
 export const app = express ();
 app.set ('views', path.join(__dirname, 'views'));

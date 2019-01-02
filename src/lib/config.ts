@@ -3,8 +3,11 @@ import * as path from 'path';
 import { Engine } from './engine';
 import { Utils } from '../common/utils';
 
-const REDIS_SESSION_KEY: string = 'session_list';
+const REDIS_SESSION_KEY = 'session_list';
+const REDIS_ROOMSERVER_KEY = 'roomserver_list';
 const MAX_USER_ID_LENGTH = 8;
+const CENTERSERVER_HOST = 'http://localhost';
+const CENTERSERVER_PORT = 9999;
 
 interface Config {
     sessionToken: string;
@@ -30,7 +33,7 @@ class GetConfig {
         return new Promise<Config>((resolve, reject) => {
             const options = {
                 hostname: 'localhost',
-                port: 9000,
+                port: CENTERSERVER_PORT,
                 path: '/api/config',
                 method: 'GET'
             };
@@ -120,4 +123,4 @@ class GetConfig {
         return this._engine;
     }
 }
-export { REDIS_SESSION_KEY, Config, GetConfig };
+export { REDIS_SESSION_KEY, REDIS_ROOMSERVER_KEY, CENTERSERVER_HOST, CENTERSERVER_PORT, Config, GetConfig };

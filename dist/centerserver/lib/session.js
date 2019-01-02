@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cache_1 = require("./cache");
 const uid_1 = require("./uid");
+const servermgr_1 = require("./servermgr");
 const config_1 = require("../lib/config");
 const redisSessionKey = config_1.REDIS_SESSION_KEY;
 class Session {
@@ -19,10 +19,10 @@ class Session {
     }
     static loadSession(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield cache_1.CacheStore.hget(redisSessionKey, id);
+            const data = yield servermgr_1.Server.redis.hget(redisSessionKey, id);
             if (data) {
                 const session = new Session(id);
-                session._data = data;
+                session._data = JSON.parse(data);
                 return session;
             }
             else {
@@ -32,16 +32,19 @@ class Session {
     }
     save() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield cache_1.CacheStore.hset(redisSessionKey, this._id, this._data);
+            yield servermgr_1.Server.redis.hset(redisSessionKey, this._id, JSON.stringify(this._data));
         });
     }
     ;
     load() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this._data = yield cache_1.CacheStore.hget(redisSessionKey, this._id);
-                if (this._data === undefined) {
+                const data = yield servermgr_1.Server.redis.hget(redisSessionKey, this._id);
+                if (!data) {
                     this._data = {};
+                }
+                else {
+                    this._data = JSON.parse(data);
                 }
             }
             catch (e) {
@@ -52,7 +55,7 @@ class Session {
     ;
     remove() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield cache_1.CacheStore.hdel(redisSessionKey, this._id);
+            yield servermgr_1.Server.redis.hdel(redisSessionKey, this._id);
         });
     }
     clear() {

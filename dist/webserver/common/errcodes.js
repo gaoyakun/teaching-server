@@ -10,5 +10,6 @@ var ErrorCode;
     ErrorCode[ErrorCode["kValueError"] = 5] = "kValueError";
     ErrorCode[ErrorCode["kServerError"] = 6] = "kServerError";
     ErrorCode[ErrorCode["kFileNotFound"] = 7] = "kFileNotFound";
+    ErrorCode[ErrorCode["kNotImplemented"] = 8] = "kNotImplemented";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
 //# sourceMappingURL=errcodes.js.map

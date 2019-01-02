@@ -31,4 +31,6 @@ exports.apiRouter.get('/config', (req, res, next) => __awaiter(this, void 0, voi
     };
     return res.json(cfg);
 }));
+exports.apiRouter.get('/roomservers', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+}));
 //# sourceMappingURL=api.js.map

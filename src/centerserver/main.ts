@@ -2,6 +2,7 @@ import { app } from './app';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
+import * as config from '../lib/config';
 const useHttps = false;
 
 const options = useHttps ? {
@@ -12,7 +13,7 @@ const options = useHttps ? {
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(9000);
+const httpPort = normalizePort(config.CENTERSERVER_PORT);
 const httpsPort = normalizePort(443);
 
 /**

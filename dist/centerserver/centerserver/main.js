@@ -4,6 +4,7 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
+const config = require("../lib/config");
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -12,7 +13,7 @@ const options = useHttps ? {
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(9000);
+const httpPort = normalizePort(config.CENTERSERVER_PORT);
 const httpsPort = normalizePort(443);
 /**
  * Create HTTP server.

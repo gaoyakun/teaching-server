@@ -1,6 +1,7 @@
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { Config } from '../config';
+import { Server } from '../../lib/servermgr';
 import * as config from '../../lib/config';
 import * as express from 'express';
 import 'express-async-errors';
@@ -25,5 +26,9 @@ apiRouter.get('/config', async (req:express.Request, res:express.Response, next:
         databaseName: Config.databaseName
     }
     return res.json (cfg);
+});
+
+apiRouter.get('/roomservers', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+
 });
 

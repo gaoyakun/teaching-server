@@ -5,7 +5,8 @@ import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
 import * as middlewares from './middlewares/middlewares';
 import { GetConfig } from '../lib/config';
-import { CacheStore } from '../lib/cache';
+import { Server } from '../lib/servermgr';
+import { ServerType } from '../lib/constants';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { indexRouter } from './routes/index';
@@ -15,11 +16,7 @@ import 'express-async-errors';
 const app = express ();
 
 GetConfig.load ().then (cfg => {
-    const redisConfig = (GetConfig.redisType && GetConfig.redisType !== 'local') ? {
-        port: GetConfig.redisPort,
-        host: GetConfig.redisHost
-    } : null;
-    CacheStore.init (redisConfig);
+    Server.init (ServerType.Web, 'localhost', 8888, GetConfig);
 
     app.set ('views', path.join(__dirname, 'views'));
     app.set ('view engine', 'ejs');

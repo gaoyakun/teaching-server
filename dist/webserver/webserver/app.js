@@ -7,7 +7,8 @@ const fileUpload = require("express-fileupload");
 const logger = require("morgan");
 const middlewares = require("./middlewares/middlewares");
 const config_1 = require("../lib/config");
-const cache_1 = require("../lib/cache");
+const servermgr_1 = require("../lib/servermgr");
+const constants_1 = require("../lib/constants");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
 const index_1 = require("./routes/index");
@@ -16,11 +17,7 @@ require("express-async-errors");
 const app = express();
 exports.app = app;
 config_1.GetConfig.load().then(cfg => {
-    const redisConfig = (config_1.GetConfig.redisType && config_1.GetConfig.redisType !== 'local') ? {
-        port: config_1.GetConfig.redisPort,
-        host: config_1.GetConfig.redisHost
-    } : null;
-    cache_1.CacheStore.init(redisConfig);
+    servermgr_1.Server.init(constants_1.ServerType.Web, 'localhost', 8888, config_1.GetConfig);
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     app.use(logger('dev'));

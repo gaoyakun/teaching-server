@@ -6,7 +6,9 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const logger = require("morgan");
 const config_1 = require("./config");
-const cache_1 = require("../lib/cache");
+const config_2 = require("../lib/config");
+const servermgr_1 = require("../lib/servermgr");
+const constants_1 = require("../lib/constants");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
 const install_1 = require("./routes/install");
@@ -14,11 +16,7 @@ const index_1 = require("./routes/index");
 const api_1 = require("./routes/api");
 require("express-async-errors");
 config_1.Config.load();
-const redisConfig = (config_1.Config.redisType && config_1.Config.redisType !== 'local') ? {
-    port: config_1.Config.redisPort,
-    host: config_1.Config.redisHost
-} : null;
-cache_1.CacheStore.init(redisConfig);
+servermgr_1.Server.init(constants_1.ServerType.Center, config_2.CENTERSERVER_HOST, config_2.CENTERSERVER_PORT, config_1.Config);
 exports.app = express();
 exports.app.set('views', path.join(__dirname, 'views'));
 exports.app.set('view engine', 'ejs');

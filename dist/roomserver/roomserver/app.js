@@ -4,11 +4,12 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const cache_1 = require("../lib/cache");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
 const config_1 = require("../lib/config");
+const constants_1 = require("../lib/constants");
 require("express-async-errors");
+const servermgr_1 = require("../lib/servermgr");
 const app = express();
 exports.app = app;
 config_1.GetConfig.load().then(cfg => {
@@ -16,7 +17,7 @@ config_1.GetConfig.load().then(cfg => {
         port: cfg.redisPort,
         host: cfg.redisHost
     } : null;
-    cache_1.CacheStore.init(redisConfig);
+    servermgr_1.Server.init(constants_1.ServerType.Room, 'localhost', 8900, config_1.GetConfig);
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     app.use(logger('dev'));

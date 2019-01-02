@@ -14,14 +14,20 @@ const engine_1 = require("./engine");
 const utils_1 = require("../common/utils");
 const REDIS_SESSION_KEY = 'session_list';
 exports.REDIS_SESSION_KEY = REDIS_SESSION_KEY;
+const REDIS_ROOMSERVER_KEY = 'roomserver_list';
+exports.REDIS_ROOMSERVER_KEY = REDIS_ROOMSERVER_KEY;
 const MAX_USER_ID_LENGTH = 8;
+const CENTERSERVER_HOST = 'http://localhost';
+exports.CENTERSERVER_HOST = CENTERSERVER_HOST;
+const CENTERSERVER_PORT = 9999;
+exports.CENTERSERVER_PORT = CENTERSERVER_PORT;
 class GetConfig {
     static load() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 const options = {
                     hostname: 'localhost',
-                    port: 9000,
+                    port: CENTERSERVER_PORT,
                     path: '/api/config',
                     method: 'GET'
                 };

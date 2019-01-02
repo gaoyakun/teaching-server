@@ -2,11 +2,12 @@ import * as path from 'path';
 import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
-import { CacheStore } from '../lib/cache';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { GetConfig } from '../lib/config';
+import { ServerType } from '../lib/constants';
 import 'express-async-errors';
+import { Server } from '../lib/servermgr';
 
 const app = express ();
 
@@ -15,7 +16,7 @@ GetConfig.load ().then (cfg => {
         port: cfg.redisPort,
         host: cfg.redisHost
     } : null;
-    CacheStore.init (redisConfig);
+    Server.init (ServerType.Room, 'localhost', 8900, GetConfig);
 
     app.set ('views', path.join(__dirname, 'views'));
     app.set ('view engine', 'ejs');

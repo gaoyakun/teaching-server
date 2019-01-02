@@ -1,5 +1,5 @@
-import { CacheStore } from './cache';
 import { UID } from './uid';
+import { Server } from './servermgr';
 import { REDIS_SESSION_KEY, Config } from '../lib/config';
 
 const redisSessionKey = REDIS_SESSION_KEY;
@@ -12,30 +12,32 @@ export class Session {
         this._data = {};
     }
     static async loadSession (id: string) {
-        const data = await CacheStore.hget (redisSessionKey, id);
+        const data = await Server.redis.hget (redisSessionKey, id);
         if (data) {
             const session = new Session (id);
-            session._data = data;
+            session._data = JSON.parse(data);
             return session;
         } else {
             return null;
         }
     }
     async save () {
-        await CacheStore.hset(redisSessionKey, this._id, this._data);
+        await Server.redis.hset(redisSessionKey, this._id, JSON.stringify(this._data));
     };
     async load () {
         try {
-            this._data = await CacheStore.hget(redisSessionKey, this._id);
-            if (this._data === undefined) {
+            const data = await Server.redis.hget(redisSessionKey, this._id);
+            if (!data) {
                 this._data = {};
+            } else {
+                this._data = JSON.parse (data)
             }
         } catch (e) {
             this._data = null;
         }
     };
     async remove () {
-        await CacheStore.hdel (redisSessionKey, this._id);
+        await Server.redis.hdel (redisSessionKey, this._id);
     }
     async clear () {
         this._data = {};
