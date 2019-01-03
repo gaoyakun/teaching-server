@@ -12,8 +12,9 @@ export class Engine {
     private static onlyFullGroupBy: boolean = false;
     private options: any;
     private pool: mysql.Pool;
-    constructor (options: mysql.PoolConfig|null) {
+    constructor (options: mysql.PoolConfig) {
         this.options = options;
+        options.debug = true;
         this.pool = mysql.createPool(this.options);
     }
     static getInstance (name: string) {

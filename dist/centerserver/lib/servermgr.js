@@ -24,7 +24,7 @@ class Server {
         this._redis = new Redis(config.redisPort, config.redisHost);
         this._postTimer = setInterval(() => {
             this._post();
-        }, this._ackInterval);
+        }, this._ackInterval * 1000);
     }
     static shutdown() {
         return __awaiter(this, void 0, void 0, function* () {

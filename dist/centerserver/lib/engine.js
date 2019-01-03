@@ -14,6 +14,7 @@ const errcodes_1 = require("../common/errcodes");
 class Engine {
     constructor(options) {
         this.options = options;
+        options.debug = true;
         this.pool = mysql.createPool(this.options);
     }
     static getInstance(name) {
