@@ -7,6 +7,7 @@ export enum ErrorCode {
     kValueError,
     kServerError,
     kFileNotFound,
-    kNotImplemented
+    kNotImplemented,
+    kInvalidContent
 }
 

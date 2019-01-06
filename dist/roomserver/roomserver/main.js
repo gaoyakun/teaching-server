@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = require("./app");
+const servermgr_1 = require("../lib/servermgr");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
+const socketio = require("socket.io");
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -19,6 +21,11 @@ const httpsPort = normalizePort(443);
  */
 const server = http.createServer(app_1.app);
 const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
+const io = socketio(server);
+io.on('connection', socket => {
+    console.log('client connected');
+    socket.emit('hello', { hello: 'world' });
+});
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -102,6 +109,11 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
+    setTimeout(() => {
+        servermgr_1.Server.startCli((cmd, args) => {
+            console.log(`${cmd}(${args.join(',')})`);
+        });
+    }, 1000);
 }
 function onListeningHttps() {
     if (serverHttps) {

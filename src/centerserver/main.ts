@@ -1,9 +1,17 @@
 import { app } from './app';
+import * as path from 'path';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as config from '../lib/config';
+import { Config } from './config';
+import { Server } from '../lib/servermgr';
+import { ServerType } from '../lib/constants';
+import { CENTERSERVER_HOST, CENTERSERVER_PORT } from '../lib/config';
 const useHttps = false;
+
+Config.load ();
+Server.init ( ServerType.Center, CENTERSERVER_HOST, CENTERSERVER_PORT, Config, path.join(__dirname, 'conf', 'config.json'));
 
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -119,6 +127,12 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
+
+    setTimeout (() => {
+        Server.startCli ((cmd:string, args: string[]) => {
+            console.log (`${cmd}(${args.join(',')})`);
+        });
+    }, 1000);
 }
 
 function onListeningHttps() {
@@ -130,3 +144,4 @@ function onListeningHttps() {
         console.log('Listening on ' + bind);
     }
 }
+

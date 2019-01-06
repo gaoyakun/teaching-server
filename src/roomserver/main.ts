@@ -1,7 +1,9 @@
 import { app } from './app';
+import { Server } from '../lib/servermgr';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
+import * as socketio from 'socket.io';
 
 const useHttps = false;
 
@@ -21,6 +23,11 @@ const httpsPort = normalizePort(443);
  */
 const server = http.createServer(app);
 const serverHttps = useHttps ? https.createServer(options, app) : null;
+const io = socketio(server);
+io.on('connection', socket => {
+    console.log ('client connected');
+    socket.emit ('hello', { hello: 'world' });
+});
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -119,6 +126,11 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
+    setTimeout (() => {
+        Server.startCli ((cmd:string, args: string[]) => {
+            console.log (`${cmd}(${args.join(',')})`);
+        });
+    }, 1000);
 }
 
 function onListeningHttps() {

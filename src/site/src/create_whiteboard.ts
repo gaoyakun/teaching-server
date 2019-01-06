@@ -1,11 +1,7 @@
 import * as wb from './whiteboard';
 import * as lib from './catk';
-import { SocketCommandServer } from './cmdserver/cmdserver';
 
 export function init () {
-    const server = new SocketCommandServer ('http://localhost', 8900);
-    server.start ();
-
     const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);

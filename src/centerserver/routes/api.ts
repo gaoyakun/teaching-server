@@ -1,15 +1,12 @@
 import { Utils} from '../../common/utils';
-import { ErrorCode } from '../../common/errcodes';
 import { Config } from '../config';
-import { Server } from '../../lib/servermgr';
-import * as config from '../../lib/config';
 import * as express from 'express';
 import 'express-async-errors';
 
 export const apiRouter = express.Router();
 
 apiRouter.get('/config', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    const cfg: config.Config = {
+    const cfg = {
         sessionToken: Config.sessionToken,
         redisSessionKey: Config.redisSessionKey,
         dataPath: Config.dataPath,

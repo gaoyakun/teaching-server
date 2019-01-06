@@ -17,7 +17,7 @@ require("express-async-errors");
 const app = express();
 exports.app = app;
 config_1.GetConfig.load().then(cfg => {
-    servermgr_1.Server.init(constants_1.ServerType.Web, 'localhost', 8888, config_1.GetConfig);
+    servermgr_1.Server.init(constants_1.ServerType.Web, 'localhost', 8888, config_1.GetConfig, path.join(__dirname, 'conf', 'config.json'));
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     app.use(logger('dev'));

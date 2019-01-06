@@ -5,19 +5,35 @@ const path = require("path");
 const os = require("os");
 const engine_1 = require("../lib/engine");
 const utils_1 = require("../common/utils");
+const Redis = require("ioredis");
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
 const defaultDataPath = path.join(configFileDir, 'data');
 const defaultSessionToken = 'ts_session_id';
 const defaultRedisSessionKey = 'session_list';
 const MAX_USER_ID_LENGTH = 8;
+const svrconfig = require('./conf/config.json');
 class Config {
+    static get redis() {
+        if (!this._redis) {
+            this._redis = new Redis(svrconfig.redis.port, svrconfig.redis.host);
+        }
+        return this._redis;
+    }
     static load() {
         try {
             if (fs.existsSync(jsonConfigFileName)) {
                 const content = fs.readFileSync(jsonConfigFileName, 'utf-8');
                 this._config = JSON.parse(content);
             }
+            else {
+                this._config = {};
+            }
+            this._config.redisConfig = {
+                type: 'local',
+                host: svrconfig.redis.host,
+                port: svrconfig.redis.port
+            };
         }
         catch (err) {
             console.log('load configurations failed: ' + err);
@@ -232,5 +248,6 @@ class Config {
 }
 Config._config = null;
 Config._engine = null;
+Config._redis = null;
 exports.Config = Config;
 //# sourceMappingURL=config.js.map

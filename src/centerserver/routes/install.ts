@@ -54,6 +54,18 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`role\` tinyint not null default 0,
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
+            // create room table
+            await session.query (`create table \`room\` (
+                \`id\` int auto_increment,
+                \`owner\` int not null,
+                \`creation_time\` int not null,
+                \`close_time\` int not null default 0,
+                \`type\` int not null default 0,
+                \`state\` int not null default 0,
+                \`name\` varchar(64) not null default '',
+                \`desc\` varchar(256) not null default '',
+                primary key (\`id\`)
+            ) engine=InnoDB default charset=utf8mb4`);
             Config.databaseHost = opt.host;
             Config.databasePort = opt.port;
             Config.databaseUser = opt.user;
@@ -130,40 +142,6 @@ installRouter.post('/setup_storage', (req:express.Request, res:express.Response,
     Config.storageType = storageType;
     Config.storageHost = storageHost;
     Config.storagePort = storagePort;
-    Config.save ();
-
-    res.redirect ('/install/redis');
-});
-
-installRouter.get('/redis', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    res.render ('install_redis', {
-        redis: {
-            external: (Config.redisType || 'local') !== 'local',
-            host: Config.redisHost || '',
-            port: Config.redisPort || ''
-        }
-    });
-});
-
-installRouter.post('/setup_redis', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    let redisType = req.body.type;
-    let redisHost = '';
-    let redisPort = 0;
-    if (redisType !== 'local') {
-        const host = req.body.host;
-        const port = Utils.safeParseInt(req.body.port);
-        if (!host || !port) {
-            return res.json ({
-                err: ErrorCode.kParamError
-            });
-        } else {
-            redisHost = host;
-            redisPort = port;
-        }
-    }
-    Config.redisType = redisType;
-    Config.redisHost = redisHost;
-    Config.redisPort = redisPort;
     Config.save ();
 
     res.redirect ('/');

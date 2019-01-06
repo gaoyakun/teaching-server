@@ -1,32 +1,75 @@
-import { UID } from './uid';
 import { Config } from './config';
+import { Utils } from '../common/utils';
+import * as readline from 'readline';
 import * as constants from './constants';
 import * as Redis from 'ioredis';
 
 export class Server {
     private static readonly _expireTime = 5;
     private static readonly _ackInterval = 3;
-    private static _redis: Redis.Redis;
     private static _type: constants.ServerType;
     private static _id: string;
     private static _ip: string;
     private static _port: number;
     private static _rank: number;
     private static _postTimer: NodeJS.Timer|null;
+    private static _config: any;
+    private static _redis: Redis.Redis;
     static get redis () {
         return this._redis;
     }
-    static init (type: constants.ServerType, ip:string, port:number, config:Config) {
+    static async pickServer (type: constants.ServerType) {
+        const rankKey = `server_rank:${type as number}`;
+        while (true) {
+            const serverId: string[] = await this._redis.zrange (rankKey, 0, 0);
+            if (serverId && serverId.length === 1) {
+                const info = await this._redis.hmget (serverId[0], 'ip', 'port');
+                if (info && info[0] !== null && info[1] !== null) {
+                    return { ip: info[0], port: info[1], id: serverId };
+                } else {
+                    await this._redis.zrem (rankKey, serverId);
+                    continue;
+                }
+            } else {
+                break;
+            }
+        }
+        return null;
+    }
+    static init (type: constants.ServerType, ip:string, port:number, config:Config, serverConfigJson:string) {
         this._type = type;
-        this._id = '';
         this._ip = ip;
         this._port = port;
         this._rank = 0;
         this._postTimer = null;
-        this._redis = new Redis (config.redisPort, config.redisHost);
+        this._redis = config.redis;
+        this._config = require (serverConfigJson);
+        this._id = `svr:${type as number}:${this._config.id}`;
         this._postTimer = setInterval (() => {
             this._post ();
         }, this._ackInterval * 1000);
+    }
+    static startCli (callback: (cmd:string, args:string[]) => void) {
+        const rl = readline.createInterface ({
+            input: process.stdin,
+            output: process.stdout,
+            prompt: '>'
+        });
+        rl.prompt();
+        rl.on ('line', line => {
+            if (Utils.isString (line)) {
+                const cmdline: string[] = (line as string).trim().split(/\s+/);
+                const command = cmdline.shift ();
+                if (command === 'exit' || command === 'quit') {
+                    process.exit (0);
+                } else {
+                    command && callback && callback (command, cmdline);
+                }
+            }
+            rl.prompt();
+        }).on ('close', ()=>{
+            process.exit (0);
+        });
     }
     static async shutdown () {
         if (this._postTimer) {
@@ -39,10 +82,6 @@ export class Server {
     }
     private static _post () {
         (async () => {
-            if (this._id === '') {
-                const serverId = await this._redis.incr (`server_id:${this._type as number}`);
-                this._id = UID ('SVR', serverId);
-            }
             await this._redis.multi().hmset(this._id, {
                 ip: this._ip,
                 port: this._port,

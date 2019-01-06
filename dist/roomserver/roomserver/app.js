@@ -13,11 +13,7 @@ const servermgr_1 = require("../lib/servermgr");
 const app = express();
 exports.app = app;
 config_1.GetConfig.load().then(cfg => {
-    const redisConfig = (cfg.redisType && cfg.redisType !== 'local') ? {
-        port: cfg.redisPort,
-        host: cfg.redisHost
-    } : null;
-    servermgr_1.Server.init(constants_1.ServerType.Room, 'localhost', 8900, config_1.GetConfig);
+    servermgr_1.Server.init(constants_1.ServerType.Room, 'http://localhost', 8900, config_1.GetConfig, path.join(__dirname, 'conf', 'config.json'));
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     app.use(logger('dev'));

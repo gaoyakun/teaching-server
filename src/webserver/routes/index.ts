@@ -2,6 +2,7 @@ import { Session } from '../../lib/session';
 import { Utils } from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { AssetManager } from '../server/user/assets';
+import { GetConfig } from '../../lib/config';
 import * as express from 'express';
 import 'express-async-errors';
 
@@ -70,18 +71,21 @@ indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Resp
     });
 });
 
-indexRouter.get('/trust/settings/sessions', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const session = req.session as Session;
+    const sessionList:any = await GetConfig.engine.objects('room').filter(['owner', session.loginUserId]).all();
+    const sessionArray: any[] = [];
+    for (let i = 0; i < sessionList.length; i++) {
+        sessionArray.push ({
+            name: sessionList[i].name,
+            detail: sessionList[i].desc
+        });
+    }
     res.render ('settings/sessions', {
         user: {
             name: (req.session as Session).loginUserAccount
         },
-        sessions: [{
-            name: '算法导论',
-            detail: '算法导论讲座，主要讲解《算法导论》第四版内容，现已开放。'
-        }, {
-            name: '如何养猪',
-            detail: '讲解养猪经验，欢迎前来学习。'
-        }]
+        sessions: sessionArray
     });
 });
 
@@ -97,3 +101,4 @@ indexRouter.get('/trust/settings/whiteboards', (req:express.Request, res:express
 indexRouter.get('/trust/create-whiteboard', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     res.render ('create_whiteboard');
 });
+

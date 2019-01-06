@@ -12,6 +12,7 @@ const http = require("http");
 const path = require("path");
 const engine_1 = require("./engine");
 const utils_1 = require("../common/utils");
+const Redis = require("ioredis");
 const REDIS_SESSION_KEY = 'session_list';
 exports.REDIS_SESSION_KEY = REDIS_SESSION_KEY;
 const REDIS_ROOMSERVER_KEY = 'roomserver_list';
@@ -22,6 +23,15 @@ exports.CENTERSERVER_HOST = CENTERSERVER_HOST;
 const CENTERSERVER_PORT = 9999;
 exports.CENTERSERVER_PORT = CENTERSERVER_PORT;
 class GetConfig {
+    static get redis() {
+        if (!this._redis && this._config) {
+            this._redis = new Redis(this._config.redisPort, this._config.redisHost);
+        }
+        if (!this._redis) {
+            throw new Error('Redis not initialized');
+        }
+        return this._redis;
+    }
     static load() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -120,5 +130,6 @@ class GetConfig {
 }
 GetConfig._config = null;
 GetConfig._engine = null;
+GetConfig._redis = null;
 exports.GetConfig = GetConfig;
 //# sourceMappingURL=config.js.map

@@ -6,6 +6,7 @@ import { AssetManager } from '../server/user/assets';
 import { WhiteboardManager } from '../server/user/whiteboards';
 import * as fileUpload from 'express-fileupload';
 import * as express from 'express';
+import * as xss from 'xss';
 import 'express-async-errors';
 
 export const apiRouter = express.Router();
@@ -25,7 +26,9 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         let account = req.body.account;
         let password = req.body.md5password;
         if (!account || !password) {
-            res.json (Utils.httpResult(ErrorCode.kParamError));
+            return res.json (Utils.httpResult(ErrorCode.kParamError));
+        } else if (account !== xss(account) || password !== xss(password)) {
+            return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
         } else {
             const rows = await GetConfig.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
             if (rows.length === 1) {
@@ -37,13 +40,13 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
                 res.cookie(GetConfig.sessionToken, session.id, {
                     expires: remember ? new Date(Date.now() + 1000*3600*24*7) : undefined
                 });
-                res.json (Utils.httpResult(ErrorCode.kSuccess));
+                return res.json (Utils.httpResult(ErrorCode.kSuccess));
             } else {
-                res.json (Utils.httpResult(ErrorCode.kAuthError));
+                return res.json (Utils.httpResult(ErrorCode.kAuthError));
             }
         }
     } else {
-        res.json (Utils.httpResult(ErrorCode.kSuccess));
+        return res.json (Utils.httpResult(ErrorCode.kSuccess));
     }
 });
 
@@ -56,7 +59,9 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     let email = req.body.email;
     let password = req.body.md5password;
     if (!account || !email || !password) {
-        res.json (Utils.httpResult(ErrorCode.kParamError));
+        return res.json (Utils.httpResult(ErrorCode.kParamError));
+    } else if (account !== xss(account) || email !== xss(email) || password !== xss(password)) {
+        return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
     } else {
         const rows = await GetConfig.engine.query({
             sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
@@ -72,6 +77,9 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
 
 apiRouter.get('/trust/asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const relPath = req.query.relPath || '/';
+    if (relPath !== xss(relPath)) {
+        return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
+    }
     const result = Utils.httpResult(ErrorCode.kSuccess);
     result.data = await AssetManager.loadAssetList ((req.session as Session).loginUserId, relPath);
     return res.json (result);
@@ -87,8 +95,34 @@ apiRouter.post('/trust/asset', async (req:express.Request, res:express.Response,
 
 apiRouter.get('/trust/whiteboard', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const relPath = req.query.relPath || '/';
+    if (relPath !== xss(relPath)) {
+        return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
+    }
     const result = Utils.httpResult(ErrorCode.kSuccess);
     result.data = await WhiteboardManager.loadAssetList ((req.session as Session).loginUserId, relPath);
     return res.json (result);
 });
 
+apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const roomName = req.body.name;
+    const roomDesc = req.body.desc || '';
+    if (roomName !== xss(roomName) || roomDesc !== xss(roomDesc) || roomDesc.length > 250) {
+        return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
+    }
+    const roomType = Utils.safeParseInt(req.body.type);
+    const session = req.session as Session;
+    const lastInsertId = (await GetConfig.engine.objects('room').add ({
+        owner: session.loginUserId,
+        creation_time: Math.round(Date.now()/1000),
+        close_time: 0,
+        type: roomType||0,
+        state: 0,
+        name: roomName,
+        desc: roomDesc
+    })).insertId;
+    const result = Utils.httpResult (ErrorCode.kSuccess);
+    result.data = {
+        room_id: Number(lastInsertId)
+    };
+    return res.json (result)
+});

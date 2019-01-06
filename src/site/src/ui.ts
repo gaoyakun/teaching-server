@@ -22,6 +22,7 @@ declare global {
     interface JQuery {
         folderTree: IFolderTree;
         gridView: IGridView;
+        modal: any;
     }
 }
 

@@ -8,23 +8,69 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const uid_1 = require("./uid");
-const Redis = require("ioredis");
+const utils_1 = require("../common/utils");
+const readline = require("readline");
 class Server {
     static get redis() {
         return this._redis;
     }
-    static init(type, ip, port, config) {
+    static pickServer(type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const rankKey = `server_rank:${type}`;
+            while (true) {
+                const serverId = yield this._redis.zrange(rankKey, 0, 0);
+                if (serverId && serverId.length === 1) {
+                    const info = yield this._redis.hmget(serverId[0], 'ip', 'port');
+                    if (info && info[0] !== null && info[1] !== null) {
+                        return { ip: info[0], port: info[1], id: serverId };
+                    }
+                    else {
+                        yield this._redis.zrem(rankKey, serverId);
+                        continue;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+            return null;
+        });
+    }
+    static init(type, ip, port, config, serverConfigJson) {
         this._type = type;
-        this._id = '';
         this._ip = ip;
         this._port = port;
         this._rank = 0;
         this._postTimer = null;
-        this._redis = new Redis(config.redisPort, config.redisHost);
+        this._redis = config.redis;
+        this._config = require(serverConfigJson);
+        this._id = `svr:${type}:${this._config.id}`;
         this._postTimer = setInterval(() => {
             this._post();
         }, this._ackInterval * 1000);
+    }
+    static startCli(callback) {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            prompt: '>'
+        });
+        rl.prompt();
+        rl.on('line', line => {
+            if (utils_1.Utils.isString(line)) {
+                const cmdline = line.trim().split(/\s+/);
+                const command = cmdline.shift();
+                if (command === 'exit' || command === 'quit') {
+                    process.exit(0);
+                }
+                else {
+                    command && callback && callback(command, cmdline);
+                }
+            }
+            rl.prompt();
+        }).on('close', () => {
+            process.exit(0);
+        });
     }
     static shutdown() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,10 +85,6 @@ class Server {
     }
     static _post() {
         (() => __awaiter(this, void 0, void 0, function* () {
-            if (this._id === '') {
-                const serverId = yield this._redis.incr(`server_id:${this._type}`);
-                this._id = uid_1.UID('SVR', serverId);
-            }
             yield this._redis.multi().hmset(this._id, {
                 ip: this._ip,
                 port: this._port,

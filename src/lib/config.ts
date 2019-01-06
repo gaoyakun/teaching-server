@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as path from 'path';
 import { Engine } from './engine';
 import { Utils } from '../common/utils';
+import * as Redis from 'ioredis';
 
 const REDIS_SESSION_KEY = 'session_list';
 const REDIS_ROOMSERVER_KEY = 'roomserver_list';
@@ -24,11 +25,22 @@ interface Config {
     databaseUser: string;
     databasePassword: string;
     databaseName: string;
+    redis: Redis.Redis;
 }
 
 class GetConfig {
     private static _config: Config|null = null;
     private static _engine: Engine|null = null;
+    private static _redis: Redis.Redis|null = null;
+    static get redis (): Redis.Redis {
+        if (!this._redis && this._config) {
+            this._redis = new Redis (this._config.redisPort, this._config.redisHost);
+        }
+        if (!this._redis) {
+            throw new Error ('Redis not initialized');
+        }
+        return this._redis;
+    }
     static async load () {
         return new Promise<Config>((resolve, reject) => {
             const options = {

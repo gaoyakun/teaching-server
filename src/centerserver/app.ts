@@ -3,10 +3,6 @@ import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
-import { Config } from './config';
-import { CENTERSERVER_HOST, CENTERSERVER_PORT } from '../lib/config';
-import { Server } from '../lib/servermgr';
-import { ServerType } from '../lib/constants';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { installRouter } from './routes/install';
@@ -14,8 +10,6 @@ import { indexRouter } from './routes/index';
 import { apiRouter } from './routes/api';
 import 'express-async-errors';
 
-Config.load ();
-Server.init ( ServerType.Center, CENTERSERVER_HOST, CENTERSERVER_PORT, Config);
 
 export const app = express ();
 app.set ('views', path.join(__dirname, 'views'));

@@ -30,9 +30,9 @@
     "make-proto-js": "pbjs -t static-module -w commonjs -o src/common/protocols/protocols.js protocols/*.proto",
     "make-proto-ts": "pbts -o src/common/protocols/protocols.d.ts src/common/protocols/protocols.js",
     "make-proto": "npm run make-proto-js && npm run make-proto-ts && npm run make-proto-list",
-    "build-webserver": "tsc -p src/webserver && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver",
-    "build-roomserver": "tsc -p src/roomserver",
-    "build-centerserver": "tsc -p src/centerserver && shx cp -R src/centerserver/views dist/centerserver/centerserver",
+    "build-webserver": "tsc -p src/webserver && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver && cp -R src/webserver/conf dist/webserver/webserver",
+    "build-roomserver": "tsc -p src/roomserver && shx cp -R src/roomserver/views dist/roomserver/roomserver && shx cp -R src/roomserver/conf dist/roomserver/roomserver",
+    "build-centerserver": "tsc -p src/centerserver && shx cp -R src/centerserver/views dist/centerserver/centerserver && shx cp -R src/centerserver/conf dist/centerserver/centerserver",
     "build-site": "tsc -p src/site && node scripts/build-site",
     "build": "npm run clean && npm run make-proto && npm run build-webserver && npm run build-roomserver && npm run build-centerserver && npm run build-site",
     "commit": "git-cz",
@@ -147,6 +147,7 @@
     "postcss-nested": "^4.1.0",
     "postcss-simple-vars": "^5.0.1",
     "protobufjs": "^6.8.8",
+    "readline": "^1.3.0",
     "redis": "^2.8.0",
     "rollup": "^0.67.4",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -155,6 +156,7 @@
     "rollup-plugin-uglify": "^6.0.0",
     "sharp": "^0.21.1",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0"
+    "socket.io-client": "^2.2.0",
+    "xss": "^1.0.3"
   }
 }

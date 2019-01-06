@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
+const config_1 = require("../../lib/config");
 const express = require("express");
 require("express-async-errors");
 exports.indexRouter = express.Router();
@@ -72,20 +73,23 @@ exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {
         }
     });
 });
-exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => {
+exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const session = req.session;
+    const sessionList = yield config_1.GetConfig.engine.objects('room').filter(['owner', session.loginUserId]).all();
+    const sessionArray = [];
+    for (let i = 0; i < sessionList.length; i++) {
+        sessionArray.push({
+            name: sessionList[i].name,
+            detail: sessionList[i].desc
+        });
+    }
     res.render('settings/sessions', {
         user: {
             name: req.session.loginUserAccount
         },
-        sessions: [{
-                name: '算法导论',
-                detail: '算法导论讲座，主要讲解《算法导论》第四版内容，现已开放。'
-            }, {
-                name: '如何养猪',
-                detail: '讲解养猪经验，欢迎前来学习。'
-            }]
+        sessions: sessionArray
     });
-});
+}));
 exports.indexRouter.get('/trust/settings/whiteboards', (req, res, next) => {
     res.render('settings/whiteboards', {
         user: {

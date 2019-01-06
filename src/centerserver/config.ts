@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { Engine } from '../lib/engine';
 import { Utils } from '../common/utils';
+import * as Redis from 'ioredis';
 
 const configFileDir = path.join(os.homedir(), '.open_teaching');
 const jsonConfigFileName = path.join(configFileDir, 'server_config.json');
@@ -11,14 +12,30 @@ const defaultSessionToken = 'ts_session_id';
 const defaultRedisSessionKey = 'session_list';
 const MAX_USER_ID_LENGTH = 8;
 
+const svrconfig:any = require ('./conf/config.json');
+
 export class Config {
     private static _config: any = null;
     private static _engine: Engine|null = null;
+    private static _redis: Redis.Redis|null = null;
+    static get redis (): Redis.Redis {
+        if (!this._redis) {
+            this._redis = new Redis (svrconfig.redis.port, svrconfig.redis.host);
+        }
+        return this._redis;
+    }
     static load () {
         try {
             if (fs.existsSync (jsonConfigFileName)) {
                 const content = fs.readFileSync (jsonConfigFileName, 'utf-8');
                 this._config = JSON.parse (content);
+            } else {
+                this._config = {};
+            }
+            this._config.redisConfig = {
+                type: 'local',
+                host: svrconfig.redis.host,
+                port: svrconfig.redis.port
             }
         } catch (err) {
             console.log ('load configurations failed: ' + err);

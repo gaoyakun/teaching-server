@@ -2,6 +2,7 @@ import './ui';
 import { ITreeData, ITreeNode } from './ui';
 import { Utils } from '../../common/utils';
 import { asset_setup } from './mod_settings/assets';
+import { sessions_setup } from './mod_settings/sessions';
 import { whiteboards_setup } from './mod_settings/whiteboards';
 
 
@@ -99,6 +100,9 @@ export class Settings {
             break;
         case 'whiteboards':
             whiteboards_setup ();
+            break;
+        case 'sessions':
+            sessions_setup ();
             break;
         }
     }
