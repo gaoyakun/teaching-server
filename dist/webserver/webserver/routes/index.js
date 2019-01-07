@@ -12,6 +12,8 @@ const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
 const config_1 = require("../../lib/config");
+const servermgr_1 = require("../../lib/servermgr");
+const constants_1 = require("../../lib/constants");
 const express = require("express");
 require("express-async-errors");
 exports.indexRouter = express.Router();
@@ -79,8 +81,11 @@ exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => __awaite
     const sessionArray = [];
     for (let i = 0; i < sessionList.length; i++) {
         sessionArray.push({
+            id: sessionList[i].id,
             name: sessionList[i].name,
-            detail: sessionList[i].desc
+            detail: sessionList[i].desc,
+            type: sessionList[i].type,
+            state: sessionList[i].state
         });
     }
     res.render('settings/sessions', {
@@ -88,6 +93,32 @@ exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => __awaite
             name: req.session.loginUserAccount
         },
         sessions: sessionArray
+    });
+}));
+exports.indexRouter.get('/trust/enter_room', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const roomId = utils_1.Utils.safeParseInt(req.query.room_id);
+    if (roomId === null) {
+        throw new Error('参数错误');
+    }
+    const rooms = yield config_1.GetConfig.engine.objects('room').filter(['id', roomId]).all();
+    if (rooms.length !== 1) {
+        throw new Error('参数错误');
+    }
+    let serverInfo = null;
+    if (rooms[0].server === 0) {
+        serverInfo = yield servermgr_1.Server.pickServer(constants_1.ServerType.Room);
+    }
+    else {
+        serverInfo = yield servermgr_1.Server.getServerInfo(constants_1.ServerType.Room, Number(rooms[0].server));
+    }
+    if (!serverInfo) {
+        throw new Error('服务器维护中，目前无法进入房间');
+    }
+    res.render('room.ejs', {
+        serverinfo: {
+            host: serverInfo.host,
+            port: serverInfo.port
+        }
     });
 }));
 exports.indexRouter.get('/trust/settings/whiteboards', (req, res, next) => {

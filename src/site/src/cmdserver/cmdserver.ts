@@ -72,7 +72,9 @@ export class SocketCommandServer extends ICommandServer {
         this._socket = null;
     }
     protected _start (): boolean {
-        this._socket = io (`${this._host}:${this._port}`);
+        this._socket = io (`${this._host}:${this._port}`, {
+            transports: ['websocket']
+        });
         this._socket.on ('connect', () => {
             this.onConnect ();
         });

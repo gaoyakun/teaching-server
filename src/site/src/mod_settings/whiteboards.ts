@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import * as UI from '../ui';
 import { uploadFileAjax, ajaxRequest } from '../mod_tools';
 
-export async function whiteboards_setup() {
+export async function whiteboards_setup(arg?: any) {
     const whiteboardData: UI.IGridViewData = {
         itemMinWidth: '100px',
         itemMaxWidth: '100px',

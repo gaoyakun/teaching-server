@@ -36,6 +36,15 @@ export class Server {
         }
         return null;
     }
+    static async getServerInfo (type: constants.ServerType, serverId: number) {
+        const id = `svr:${type as number}:${serverId}`
+        const info = await this._redis.hmget (id, 'ip', 'port');
+        if (info && info[0] !== null && info[1] !== null) {
+            return { ip: info[0], port: info[1], id: serverId };
+        } else {
+            return null;
+        }
+    }
     static init (type: constants.ServerType, ip:string, port:number, config:Config, serverConfigJson:string) {
         this._type = type;
         this._ip = ip;

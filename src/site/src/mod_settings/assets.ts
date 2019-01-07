@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import * as UI from '../ui';
 import { uploadFileAjax, ajaxRequest } from '../mod_tools';
 
-export async function asset_setup() {
+export async function asset_setup(arg?: any) {
     function checkConfig (el: HTMLInputElement) {
         let ok = true;
         if (!el.files || el.files.length === 0) {

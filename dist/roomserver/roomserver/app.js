@@ -4,6 +4,7 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const middlewares = require("../lib/middlewares");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
 const config_1 = require("../lib/config");
@@ -21,6 +22,7 @@ config_1.GetConfig.load().then(cfg => {
     app.use(express.json());
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, '../../site')));
+    app.use(middlewares.middlewareSession);
     app.use((req, res, next) => {
         res.render('error', {
             error: {

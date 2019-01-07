@@ -84,7 +84,7 @@ const getSettingsMenuData = (id: string):ITreeData => {
 }
 
 export class Settings {
-    constructor (step: string) {
+    constructor (step: string, arg?: any) {
         $("#treeview").folderTree (getSettingsMenuData(step));
         $("#treeview").folderTree ('selectNodes', step);
         $("#treeview").on('itemclick', function(evt, node:ITreeNode){
@@ -96,13 +96,13 @@ export class Settings {
         });
         switch (step) {
         case 'assets':
-            asset_setup ();
+            asset_setup (arg);
             break;
         case 'whiteboards':
-            whiteboards_setup ();
+            whiteboards_setup (arg);
             break;
         case 'sessions':
-            sessions_setup ();
+            sessions_setup (arg);
             break;
         }
     }

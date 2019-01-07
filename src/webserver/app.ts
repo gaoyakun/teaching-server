@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
-import * as middlewares from './middlewares/middlewares';
+import * as middlewares from '../lib/middlewares';
 import { GetConfig } from '../lib/config';
 import { Server } from '../lib/servermgr';
 import { ServerType } from '../lib/constants';

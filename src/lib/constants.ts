@@ -3,3 +3,4 @@ export enum ServerType {
     Room,
     Center
 }
+

@@ -30,7 +30,7 @@
     "make-proto-js": "pbjs -t static-module -w commonjs -o src/common/protocols/protocols.js protocols/*.proto",
     "make-proto-ts": "pbts -o src/common/protocols/protocols.d.ts src/common/protocols/protocols.js",
     "make-proto": "npm run make-proto-js && npm run make-proto-ts && npm run make-proto-list",
-    "build-webserver": "tsc -p src/webserver && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver && cp -R src/webserver/conf dist/webserver/webserver",
+    "build-webserver": "tsc -p src/webserver && shx cp -R src/webserver/install dist/webserver/webserver && shx cp -R src/webserver/views dist/webserver/webserver && shx cp -R src/webserver/conf dist/webserver/webserver",
     "build-roomserver": "tsc -p src/roomserver && shx cp -R src/roomserver/views dist/roomserver/roomserver && shx cp -R src/roomserver/conf dist/roomserver/roomserver",
     "build-centerserver": "tsc -p src/centerserver && shx cp -R src/centerserver/views dist/centerserver/centerserver && shx cp -R src/centerserver/conf dist/centerserver/centerserver",
     "build-site": "tsc -p src/site && node scripts/build-site",
@@ -107,6 +107,7 @@
   },
   "dependencies": {
     "@types/body-parser": "^1.17.0",
+    "@types/cookie": "^0.3.2",
     "@types/cookie-parser": "^1.4.1",
     "@types/express": "^4.16.0",
     "@types/express-fileupload": "^0.4.0",

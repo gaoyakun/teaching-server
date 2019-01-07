@@ -16,6 +16,7 @@ const jsFiles = [
     'ui',
     'settings',
     'create_whiteboard',
+    'create_room',
     'prototest'
 ];
 

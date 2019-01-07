@@ -3,6 +3,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as proto from '../common/protocols/protolist';
+import { Server } from '../lib/servermgr';
 import { Packet, MessageAssembler } from '../common/protoutils';
 
 (function () {
@@ -135,6 +136,11 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
+    setTimeout (() => {
+        Server.startCli ((cmd:string, args: string[]) => {
+            console.log (`${cmd}(${args.join(',')})`);
+        });
+    }, 1000);
 }
 
 function onListeningHttps() {

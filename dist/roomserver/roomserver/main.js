@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = require("./app");
 const servermgr_1 = require("../lib/servermgr");
@@ -6,6 +14,9 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const socketio = require("socket.io");
+const cookie = require("cookie");
+const session_1 = require("../lib/session");
+const config_1 = require("../lib/config");
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -21,7 +32,33 @@ const httpsPort = normalizePort(443);
  */
 const server = http.createServer(app_1.app);
 const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
-const io = socketio(server);
+const io = socketio(server, {
+    transports: ['websocket']
+});
+config_1.GetConfig.load().then(cfg => {
+    io.use((socket, next) => __awaiter(this, void 0, void 0, function* () {
+        const data = socket.handshake || socket.request;
+        if (data.headers.cookie) {
+            const cookies = cookie.parse(data.headers.cookie);
+            const sessionId = cookies[cfg.sessionToken];
+            if (!sessionId) {
+                return next(new Error('无法加入房间：未知用户'));
+            }
+            socket.request.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
+            if (!socket.request.session) {
+                return next(new Error('无法加入房间：未知用户'));
+            }
+            console.log(`Join room:${socket.request.session.loginUserAccount}`);
+            return next();
+        }
+        else {
+            return next(new Error('无法加入房间：无效请求'));
+        }
+    }));
+}).catch(err => {
+    console.error(err);
+    process.exit(-1);
+});
 io.on('connection', socket => {
     console.log('client connected');
     socket.emit('hello', { hello: 'world' });

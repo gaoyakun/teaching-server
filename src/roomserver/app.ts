@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 import * as logger from 'morgan';
+import * as middlewares from '../lib/middlewares';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
 import { GetConfig } from '../lib/config';
@@ -22,6 +23,7 @@ GetConfig.load ().then (cfg => {
     app.use (express.json());
     app.use (cookieParser());
     app.use (express.static(path.join(__dirname, '../../site')));
+    app.use (middlewares.middlewareSession);
 
     app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
         res.render ('error', {

@@ -52,6 +52,7 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`name\` varchar(64) not null default '',
                 \`state\` tinyint not null default 0,
                 \`role\` tinyint not null default 0,
+                \`server\` varchar(32) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
             // create room table
@@ -62,6 +63,7 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`close_time\` int not null default 0,
                 \`type\` int not null default 0,
                 \`state\` int not null default 0,
+                \`server\` int not null default 0,
                 \`name\` varchar(64) not null default '',
                 \`desc\` varchar(256) not null default '',
                 primary key (\`id\`)

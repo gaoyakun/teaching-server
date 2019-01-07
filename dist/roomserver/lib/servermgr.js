@@ -36,6 +36,18 @@ class Server {
             return null;
         });
     }
+    static getServerInfo(type, serverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const id = `svr:${type}:${serverId}`;
+            const info = yield this._redis.hmget(id, 'ip', 'port');
+            if (info && info[0] !== null && info[1] !== null) {
+                return { ip: info[0], port: info[1], id: serverId };
+            }
+            else {
+                return null;
+            }
+        });
+    }
     static init(type, ip, port, config, serverConfigJson) {
         this._type = type;
         this._ip = ip;

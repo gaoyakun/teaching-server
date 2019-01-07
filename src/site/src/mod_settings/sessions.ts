@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import { Utils } from '../../../common/utils';
 import { ajaxRequest } from '../mod_tools';
 
-export async function sessions_setup() {
+export async function sessions_setup(arg?: any) {
     function checkConfig () {
         let ok = true;
         const sessionName = $('#session-name').val();
@@ -14,6 +14,20 @@ export async function sessions_setup() {
     }
     $('input').on ('input', function () {
         checkConfig ();
+    });
+    $('button#btn-start').on ('click', function(this:Element){
+        const sessionId = $(this).attr('sid');
+        if (sessionId) {
+            const id = parseInt(sessionId, 10);
+            if (Utils.isInt (id)) {
+                console.log (`Start session ${id}`);
+                window.location.href = `/trust/enter_room?room_id=${id}`;
+            }
+        }
+    });
+    $('button#btn-delete').on ('click', function(this:Element){
+        const sessionId = $(this).attr('sid');
+        console.log (`Delete session ${sessionId}`);
     });
     $('#submit').on ('click', async function(){
         if (checkConfig ()) {

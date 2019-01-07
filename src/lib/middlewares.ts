@@ -1,7 +1,7 @@
-import { ErrorCode } from '../../common/errcodes';
-import { Utils } from '../../common/utils';
-import { Session } from '../../lib/session';
-import { GetConfig } from '../../lib/config';
+import { ErrorCode } from '../common/errcodes';
+import { Utils } from '../common/utils';
+import { Session } from './session';
+import { GetConfig } from './config';
 
 declare global {
     namespace Express {

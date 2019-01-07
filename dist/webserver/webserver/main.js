@@ -5,6 +5,7 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const proto = require("../common/protocols/protolist");
+const servermgr_1 = require("../lib/servermgr");
 const protoutils_1 = require("../common/protoutils");
 (function () {
     const packet = protoutils_1.Packet.create(proto.MsgType.test_TestMessage, {
@@ -117,6 +118,11 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
+    setTimeout(() => {
+        servermgr_1.Server.startCli((cmd, args) => {
+            console.log(`${cmd}(${args.join(',')})`);
+        });
+    }, 1000);
 }
 function onListeningHttps() {
     if (serverHttps) {

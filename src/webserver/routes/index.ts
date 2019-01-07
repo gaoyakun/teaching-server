@@ -3,6 +3,8 @@ import { Utils } from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { AssetManager } from '../server/user/assets';
 import { GetConfig } from '../../lib/config';
+import { Server } from '../../lib/servermgr';
+import { ServerType } from '../../lib/constants';
 import * as express from 'express';
 import 'express-async-errors';
 
@@ -77,8 +79,11 @@ indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:expr
     const sessionArray: any[] = [];
     for (let i = 0; i < sessionList.length; i++) {
         sessionArray.push ({
+            id: sessionList[i].id,
             name: sessionList[i].name,
-            detail: sessionList[i].desc
+            detail: sessionList[i].desc,
+            type: sessionList[i].type,
+            state: sessionList[i].state
         });
     }
     res.render ('settings/sessions', {
@@ -86,6 +91,32 @@ indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:expr
             name: (req.session as Session).loginUserAccount
         },
         sessions: sessionArray
+    });
+});
+
+indexRouter.get('/trust/enter_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const roomId = Utils.safeParseInt (req.query.room_id);
+    if (roomId === null) {
+        throw new Error ('参数错误');
+    }
+    const rooms:any = await GetConfig.engine.objects('room').filter(['id', roomId]).all();
+    if (rooms.length !== 1) {
+        throw new Error ('参数错误');
+    }
+    let serverInfo: any = null;
+    if (rooms[0].server === 0) {
+        serverInfo = await Server.pickServer (ServerType.Room);
+    } else {
+        serverInfo = await Server.getServerInfo (ServerType.Room, Number(rooms[0].server));
+    }
+    if (!serverInfo) {
+        throw new Error ('服务器维护中，目前无法进入房间');
+    }
+    res.render ('room.ejs', {
+        serverinfo: {
+            host: serverInfo.host,
+            port: serverInfo.port
+        }
     });
 });
 

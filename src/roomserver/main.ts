@@ -4,6 +4,9 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as socketio from 'socket.io';
+import * as cookie from 'cookie';
+import { Session } from '../lib/session';
+import { GetConfig } from '../lib/config';
 
 const useHttps = false;
 
@@ -23,7 +26,33 @@ const httpsPort = normalizePort(443);
  */
 const server = http.createServer(app);
 const serverHttps = useHttps ? https.createServer(options, app) : null;
-const io = socketio(server);
+const io = socketio(server, {
+    transports: ['websocket']
+});
+GetConfig.load ().then(cfg => {
+    io.use(async (socket, next) => {
+        const data:any = socket.handshake || socket.request;
+        if (data.headers.cookie) {
+            const cookies:any = cookie.parse(data.headers.cookie);
+            const sessionId = cookies[cfg.sessionToken];
+            if (!sessionId) {
+                return next (new Error('无法加入房间：未知用户'));
+            }
+            socket.request.session = await Session.loadSession(sessionId) || undefined;
+            if (!socket.request.session) {
+                return next (new Error('无法加入房间：未知用户'));
+            }
+            console.log (`Join room:${socket.request.session.loginUserAccount}`);
+            return next();
+        } else {
+            return next (new Error('无法加入房间：无效请求'));
+        }
+    });
+}).catch (err => {
+    console.error (err);
+    process.exit (-1);
+});
+
 io.on('connection', socket => {
     console.log ('client connected');
     socket.emit ('hello', { hello: 'world' });
