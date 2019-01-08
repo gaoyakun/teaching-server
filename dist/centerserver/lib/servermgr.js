@@ -14,6 +14,9 @@ class Server {
     static get redis() {
         return this._redis;
     }
+    static get id() {
+        return Number(this._config.id);
+    }
     static pickServer(type) {
         return __awaiter(this, void 0, void 0, function* () {
             const rankKey = `server_rank:${type}`;
@@ -22,7 +25,7 @@ class Server {
                 if (serverId && serverId.length === 1) {
                     const info = yield this._redis.hmget(serverId[0], 'ip', 'port');
                     if (info && info[0] !== null && info[1] !== null) {
-                        return { ip: info[0], port: info[1], id: serverId };
+                        return { ip: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2], 10) };
                     }
                     else {
                         yield this._redis.zrem(rankKey, serverId);

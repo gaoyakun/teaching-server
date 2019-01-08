@@ -127,6 +127,3 @@ apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Res
     return res.json (result)
 });
 
-apiRouter.post('/trust/enter_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    
-});

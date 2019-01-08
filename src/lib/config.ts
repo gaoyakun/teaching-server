@@ -1,7 +1,7 @@
-import * as http from 'http';
-import * as path from 'path';
 import { Engine } from './engine';
 import { Utils } from '../common/utils';
+import { requestWrapper } from './requestwrapper';
+import * as path from 'path';
 import * as Redis from 'ioredis';
 
 const REDIS_SESSION_KEY = 'session_list';
@@ -42,29 +42,7 @@ class GetConfig {
         return this._redis;
     }
     static async load () {
-        return new Promise<Config>((resolve, reject) => {
-            const options = {
-                hostname: 'localhost',
-                port: CENTERSERVER_PORT,
-                path: '/api/config',
-                method: 'GET'
-            };
-            let response = '';
-            const req = http.request (options, res => {
-                res.setEncoding ('utf8');
-                res.on ('data', trunk => {
-                    response += trunk;
-                });
-                res.on ('end', () => {
-                    this._config = JSON.parse (response) as Config;
-                    resolve (this._config);
-                });
-            });
-            req.on ('error', err => {
-                reject (err);
-            });
-            req.end ();
-        });
+        return this._config = JSON.parse(await requestWrapper(`${CENTERSERVER_HOST}:${CENTERSERVER_PORT}/api/config`, 'GET'));
     }
     static getUserDataPathById (userId: number): string {
         if (!Utils.isInt (userId)) {

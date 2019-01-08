@@ -8,10 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const http = require("http");
-const path = require("path");
 const engine_1 = require("./engine");
 const utils_1 = require("../common/utils");
+const requestwrapper_1 = require("./requestwrapper");
+const path = require("path");
 const Redis = require("ioredis");
 const REDIS_SESSION_KEY = 'session_list';
 exports.REDIS_SESSION_KEY = REDIS_SESSION_KEY;
@@ -34,29 +34,7 @@ class GetConfig {
     }
     static load() {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                const options = {
-                    hostname: 'localhost',
-                    port: CENTERSERVER_PORT,
-                    path: '/api/config',
-                    method: 'GET'
-                };
-                let response = '';
-                const req = http.request(options, res => {
-                    res.setEncoding('utf8');
-                    res.on('data', trunk => {
-                        response += trunk;
-                    });
-                    res.on('end', () => {
-                        this._config = JSON.parse(response);
-                        resolve(this._config);
-                    });
-                });
-                req.on('error', err => {
-                    reject(err);
-                });
-                req.end();
-            });
+            return this._config = JSON.parse(yield requestwrapper_1.requestWrapper(`${CENTERSERVER_HOST}:${CENTERSERVER_PORT}/api/config`, 'GET'));
         });
     }
     static getUserDataPathById(userId) {

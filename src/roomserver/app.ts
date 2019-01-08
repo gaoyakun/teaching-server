@@ -9,6 +9,7 @@ import { GetConfig } from '../lib/config';
 import { ServerType } from '../lib/constants';
 import 'express-async-errors';
 import { Server } from '../lib/servermgr';
+import { indexRouter } from './routes/index';
 
 const app = express ();
 

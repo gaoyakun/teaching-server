@@ -21,7 +21,7 @@ export async function sessions_setup(arg?: any) {
             const id = parseInt(sessionId, 10);
             if (Utils.isInt (id)) {
                 console.log (`Start session ${id}`);
-                window.location.href = `/trust/enter_room?room_id=${id}`;
+                window.location.href = `/trust/publish_room?room_id=${id}`;
             }
         }
     });

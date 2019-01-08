@@ -1,12 +1,15 @@
-import { app } from './app';
-import { Server } from '../lib/servermgr';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as socketio from 'socket.io';
 import * as cookie from 'cookie';
+import { app } from './app';
+import { Server } from '../lib/servermgr';
 import { Session } from '../lib/session';
 import { GetConfig } from '../lib/config';
+import { Utils } from '../common/utils';
+import { Client, Room, RoomManager } from './roommgr';
+import { doCommand } from './commands';
 
 const useHttps = false;
 
@@ -54,8 +57,26 @@ GetConfig.load ().then(cfg => {
 });
 
 io.on('connection', socket => {
-    console.log ('client connected');
-    socket.emit ('hello', { hello: 'world' });
+    const data:any = socket.handshake || socket.request;
+    if (!data || !data.query) {
+        socket.disconnect ();
+    }
+    const roomId = Utils.safeParseInt(data.query.room);
+    if (roomId === null) {
+        socket.disconnect (true);
+    } else {
+        const client = new Client;
+        client.init (socket).then (() => {
+            const room = RoomManager.instance().findOrCreateRoom (roomId);
+            room.addClient (client);
+            socket.on ('disconnect', () => {
+                room.removeClient (client);
+            });
+        }).catch (err => {
+            console.log (err);
+            socket.disconnect ();
+        });
+    }
 });
 
 /**
@@ -155,11 +176,7 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
-    setTimeout (() => {
-        Server.startCli ((cmd:string, args: string[]) => {
-            console.log (`${cmd}(${args.join(',')})`);
-        });
-    }, 1000);
+    Server.startCli ( doCommand );
 }
 
 function onListeningHttps() {

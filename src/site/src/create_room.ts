@@ -2,8 +2,8 @@ import * as wb from './whiteboard';
 import * as lib from './catk';
 import { SocketCommandServer } from './cmdserver/cmdserver';
 
-export function init (host:string, port: number) {
-    const server = new SocketCommandServer (host, port);
+export function init (uri:string) {
+    const server = new SocketCommandServer (uri);
     server.start ();
 
     const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);

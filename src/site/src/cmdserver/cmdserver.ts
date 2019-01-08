@@ -62,18 +62,17 @@ export class LocalCommandServer extends ICommandServer {
 }
 
 export class SocketCommandServer extends ICommandServer {
-    private _host: string;
-    private _port: number;
+    private _uri: string;
     private _socket: SocketIOClient.Socket|null;
-    constructor (host:string, port:number) {
+    constructor (uri: string) {
         super ();
-        this._host = host;
-        this._port = port;
+        this._uri = uri;
         this._socket = null;
     }
     protected _start (): boolean {
-        this._socket = io (`${this._host}:${this._port}`, {
-            transports: ['websocket']
+        this._socket = io (this._uri, {
+            transports: ['websocket'],
+            reconnection: false
         });
         this._socket.on ('connect', () => {
             this.onConnect ();

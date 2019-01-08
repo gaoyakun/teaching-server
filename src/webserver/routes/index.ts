@@ -5,6 +5,9 @@ import { AssetManager } from '../server/user/assets';
 import { GetConfig } from '../../lib/config';
 import { Server } from '../../lib/servermgr';
 import { ServerType } from '../../lib/constants';
+import { requestWrapper } from '../../lib/requestwrapper';
+import { RoomState, RoomType } from '../../common/defines';
+import * as request from 'request';
 import * as express from 'express';
 import 'express-async-errors';
 
@@ -94,28 +97,40 @@ indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:expr
     });
 });
 
-indexRouter.get('/trust/enter_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const session = req.session as Session;
     const roomId = Utils.safeParseInt (req.query.room_id);
     if (roomId === null) {
         throw new Error ('参数错误');
     }
+    // Query room information
     const rooms:any = await GetConfig.engine.objects('room').filter(['id', roomId]).all();
     if (rooms.length !== 1) {
-        throw new Error ('参数错误');
+        throw new Error ('没有可以进入的房间');
     }
     let serverInfo: any = null;
     if (rooms[0].server === 0) {
+        // room has not been published
+        if (Number(rooms[0].owner) !== session.loginUserId) {
+            throw new Error ('房间已关闭');
+        }
         serverInfo = await Server.pickServer (ServerType.Room);
+        if (!serverInfo) {
+            throw new Error ('服务器维护中，目前无法进入房间');
+        }
+        await requestWrapper (`${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
+            room: roomId
+        });
     } else {
+        // room has been published
         serverInfo = await Server.getServerInfo (ServerType.Room, Number(rooms[0].server));
-    }
-    if (!serverInfo) {
-        throw new Error ('服务器维护中，目前无法进入房间');
+        if (!serverInfo) {
+            throw new Error ('服务器维护中，目前无法进入房间');
+        }
     }
     res.render ('room.ejs', {
         serverinfo: {
-            host: serverInfo.host,
-            port: serverInfo.port
+            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}`
         }
     });
 });

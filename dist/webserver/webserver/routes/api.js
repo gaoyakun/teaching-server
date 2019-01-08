@@ -134,6 +134,4 @@ exports.apiRouter.post('/trust/create_room', (req, res, next) => __awaiter(this,
     };
     return res.json(result);
 }));
-exports.apiRouter.post('/trust/enter_room', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-}));
 //# sourceMappingURL=api.js.map

@@ -18,6 +18,9 @@ export class Server {
     static get redis () {
         return this._redis;
     }
+    static get id () {
+        return Number(this._config.id);
+    }
     static async pickServer (type: constants.ServerType) {
         const rankKey = `server_rank:${type as number}`;
         while (true) {
@@ -25,7 +28,7 @@ export class Server {
             if (serverId && serverId.length === 1) {
                 const info = await this._redis.hmget (serverId[0], 'ip', 'port');
                 if (info && info[0] !== null && info[1] !== null) {
-                    return { ip: info[0], port: info[1], id: serverId };
+                    return { ip: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2],10) };
                 } else {
                     await this._redis.zrem (rankKey, serverId);
                     continue;

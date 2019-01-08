@@ -8,15 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const app_1 = require("./app");
-const servermgr_1 = require("../lib/servermgr");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const socketio = require("socket.io");
 const cookie = require("cookie");
+const app_1 = require("./app");
+const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
 const config_1 = require("../lib/config");
+const utils_1 = require("../common/utils");
+const roommgr_1 = require("./roommgr");
+const commands_1 = require("./commands");
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -60,8 +63,27 @@ config_1.GetConfig.load().then(cfg => {
     process.exit(-1);
 });
 io.on('connection', socket => {
-    console.log('client connected');
-    socket.emit('hello', { hello: 'world' });
+    const data = socket.handshake || socket.request;
+    if (!data || !data.query) {
+        socket.disconnect();
+    }
+    const roomId = utils_1.Utils.safeParseInt(data.query.room);
+    if (roomId === null) {
+        socket.disconnect(true);
+    }
+    else {
+        const client = new roommgr_1.Client;
+        client.init(socket).then(() => {
+            const room = roommgr_1.RoomManager.instance().findOrCreateRoom(roomId);
+            room.addClient(client);
+            socket.on('disconnect', () => {
+                room.removeClient(client);
+            });
+        }).catch(err => {
+            console.log(err);
+            socket.disconnect();
+        });
+    }
 });
 /**
  * Listen on provided port, on all network interfaces.
@@ -146,11 +168,7 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('Listening on ' + bind);
-    setTimeout(() => {
-        servermgr_1.Server.startCli((cmd, args) => {
-            console.log(`${cmd}(${args.join(',')})`);
-        });
-    }, 1000);
+    servermgr_1.Server.startCli(commands_1.doCommand);
 }
 function onListeningHttps() {
     if (serverHttps) {
