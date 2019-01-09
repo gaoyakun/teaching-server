@@ -4,6 +4,7 @@ import { ErrorCode } from '../../common/errcodes';
 import { Session } from '../../lib/session';
 import { AssetManager } from '../server/user/assets';
 import { WhiteboardManager } from '../server/user/whiteboards';
+import { RoomState } from '../../common/defines';
 import * as fileUpload from 'express-fileupload';
 import * as express from 'express';
 import * as xss from 'xss';
@@ -118,7 +119,7 @@ apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Res
         type: roomType||0,
         state: 0,
         name: roomName,
-        desc: roomDesc
+        detail: roomDesc
     })).insertId;
     const result = Utils.httpResult (ErrorCode.kSuccess);
     result.data = {
@@ -127,3 +128,21 @@ apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Res
     return res.json (result)
 });
 
+apiRouter.get('/trust/public_rooms', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const rooms:any = await GetConfig.engine.query ({
+        sql: 'select a.id as id, a.name as name, a.detail as detail, b.account as account from room a inner join user b on a.owner=b.id where a.state=?',
+        param: [ RoomState.Active ]
+    });
+    const roomlist = [];
+    for (let i = 0; i < rooms.length; i++) {
+        roomlist.push ({
+            id: rooms[i].id,
+            name: rooms[i].name,
+            detail: rooms[i].detail,
+            account: rooms[i].account
+        });
+    }
+    const result = Utils.httpResult(ErrorCode.kSuccess);
+    result.data = roomlist;
+    res.json (result);
+});

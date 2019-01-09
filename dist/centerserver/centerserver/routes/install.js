@@ -73,7 +73,7 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
                 \`state\` int not null default 0,
                 \`server\` int not null default 0,
                 \`name\` varchar(64) not null default '',
-                \`desc\` varchar(256) not null default '',
+                \`detail\` varchar(256) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
             config_1.Config.databaseHost = opt.host;

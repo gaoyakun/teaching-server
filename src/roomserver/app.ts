@@ -26,6 +26,8 @@ GetConfig.load ().then (cfg => {
     app.use (express.static(path.join(__dirname, '../../site')));
     app.use (middlewares.middlewareSession);
 
+    app.use ('/', indexRouter);
+    
     app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
         res.render ('error', {
             error: {

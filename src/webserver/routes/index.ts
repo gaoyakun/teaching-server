@@ -84,7 +84,7 @@ indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:expr
         sessionArray.push ({
             id: sessionList[i].id,
             name: sessionList[i].name,
-            detail: sessionList[i].desc,
+            detail: sessionList[i].detail,
             type: sessionList[i].type,
             state: sessionList[i].state
         });

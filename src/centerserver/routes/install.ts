@@ -65,7 +65,7 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`state\` int not null default 0,
                 \`server\` int not null default 0,
                 \`name\` varchar(64) not null default '',
-                \`desc\` varchar(256) not null default '',
+                \`detail\` varchar(256) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
             Config.databaseHost = opt.host;

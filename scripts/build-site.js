@@ -11,6 +11,7 @@ const path = require('path');
 const fs = require('fs');
 
 const jsFiles = [
+    'landing',
     'install',
     'login',
     'ui',

@@ -11,6 +11,7 @@ const config_1 = require("../lib/config");
 const constants_1 = require("../lib/constants");
 require("express-async-errors");
 const servermgr_1 = require("../lib/servermgr");
+const index_1 = require("./routes/index");
 const app = express();
 exports.app = app;
 config_1.GetConfig.load().then(cfg => {
@@ -23,6 +24,7 @@ config_1.GetConfig.load().then(cfg => {
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, '../../site')));
     app.use(middlewares.middlewareSession);
+    app.use('/', index_1.indexRouter);
     app.use((req, res, next) => {
         res.render('error', {
             error: {

@@ -13,6 +13,7 @@ const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
 const whiteboards_1 = require("../server/user/whiteboards");
+const defines_1 = require("../../common/defines");
 const express = require("express");
 const xss = require("xss");
 require("express-async-errors");
@@ -126,12 +127,30 @@ exports.apiRouter.post('/trust/create_room', (req, res, next) => __awaiter(this,
         type: roomType || 0,
         state: 0,
         name: roomName,
-        desc: roomDesc
+        detail: roomDesc
     })).insertId;
     const result = utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess);
     result.data = {
         room_id: Number(lastInsertId)
     };
     return res.json(result);
+}));
+exports.apiRouter.get('/trust/public_rooms', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const rooms = yield config_1.GetConfig.engine.query({
+        sql: 'select a.id as id, a.name as name, a.detail as detail, b.account as account from room a inner join user b on a.owner=b.id where a.state=?',
+        param: [defines_1.RoomState.Active]
+    });
+    const roomlist = [];
+    for (let i = 0; i < rooms.length; i++) {
+        roomlist.push({
+            id: rooms[i].id,
+            name: rooms[i].name,
+            detail: rooms[i].detail,
+            account: rooms[i].account
+        });
+    }
+    const result = utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess);
+    result.data = roomlist;
+    res.json(result);
 }));
 //# sourceMappingURL=api.js.map
