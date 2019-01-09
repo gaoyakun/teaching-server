@@ -129,6 +129,9 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
         }
     }
     res.render ('room.ejs', {
+        user: {
+            name: (req.session as Session).loginUserAccount
+        },
         serverinfo: {
             host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}`
         }
