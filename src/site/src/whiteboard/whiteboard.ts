@@ -1,5 +1,6 @@
 import * as lib from '../catk';
 import * as command from './commands';
+import { CommandServer } from '../cmdserver/cmdserver';
 
 export interface IProperty {
     name: string;
@@ -255,9 +256,11 @@ export class WhiteBoard extends lib.EventObserver {
     private _factories: { [name: string]: WBFactory };
     private _tools: { [name: string]: WBTool };
     private _currentTool: string;
+    private _cmdServer: CommandServer;
     private _entities: { [name: string]: lib.SceneObject };
-    constructor(canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
+    constructor(cmdServer:CommandServer, canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
         super ();
+        this._cmdServer = cmdServer;
         this.view = lib.App.addCanvas(canvas, doubleBuffer);
         this._factories = {};
         this._tools = {};
@@ -401,7 +404,11 @@ export class WhiteBoard extends lib.EventObserver {
         return str;
     }
     public executeCommand(cmd: command.IWBCommand) {
-        console.log (`CMD: ${this.encodeCommand(cmd)}`);
+        const encodedCommand = this.encodeCommand (cmd);
+        console.log (`CMD: ${encodedCommand}`);
+        if (this._cmdServer) {
+            this._cmdServer.sendBoardMessage (encodedCommand);
+        }
         if (cmd.command === 'UseTool') {
             if (this._currentTool !== cmd.name) {
                 if (this._currentTool !== '') {

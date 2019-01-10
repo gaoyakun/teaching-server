@@ -10,8 +10,10 @@ import { GetConfig } from '../lib/config';
 import { Utils } from '../common/utils';
 import { Client, Room, RoomManager } from './roommgr';
 import { doCommand } from './commands';
+import { MessageAssembler } from '../common/protoutils';
 
 const useHttps = false;
+const messageAssembler = new MessageAssembler ();
 
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -83,6 +85,17 @@ io.on('connection', socket => {
         }).catch (err => {
             console.log (err);
             socket.disconnect ();
+        });
+        socket.on ('message', (data:any) => {
+            console.log (`Message received: ${typeof data}`);
+            const buf = data as Buffer;
+            const u8arr = new Uint8Array(buf);
+            messageAssembler.put (u8arr);
+            const msg = messageAssembler.getMessage ();
+            if (msg) {
+                console.log (`Got message ${msg.type}`);
+            }
+            socket.broadcast.emit ('message', data);
         });
     }
 });

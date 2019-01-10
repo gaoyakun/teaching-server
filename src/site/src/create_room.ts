@@ -6,7 +6,7 @@ export function init (uri:string) {
     const server = new SocketCommandServer (uri);
     server.start ();
 
-    const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
+    const WB = new wb.WhiteBoard (server, document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);
 

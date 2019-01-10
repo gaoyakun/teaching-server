@@ -20,7 +20,9 @@ const config_1 = require("../lib/config");
 const utils_1 = require("../common/utils");
 const roommgr_1 = require("./roommgr");
 const commands_1 = require("./commands");
+const protoutils_1 = require("../common/protoutils");
 const useHttps = false;
+const messageAssembler = new protoutils_1.MessageAssembler();
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
     cert: fs.readFileSync('cert/1531277059027.pem')
@@ -91,6 +93,17 @@ io.on('connection', socket => {
         })).catch(err => {
             console.log(err);
             socket.disconnect();
+        });
+        socket.on('message', (data) => {
+            console.log(`Message received: ${typeof data}`);
+            const buf = data;
+            const u8arr = new Uint8Array(buf);
+            messageAssembler.put(u8arr);
+            const msg = messageAssembler.getMessage();
+            if (msg) {
+                console.log(`Got message ${msg.type}`);
+            }
+            socket.broadcast.emit('message', data);
         });
     }
 });

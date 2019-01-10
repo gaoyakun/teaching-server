@@ -32,6 +32,7 @@ export class Packet {
     }
     get buffer () {
         return this._buffer;
+        // return this._buffer ? this._buffer.buffer.slice (this._buffer.byteOffset, this._buffer.byteOffset + this._buffer.byteLength) : null;
     }
     getMsgData (): IMsgData|null {
         if ((!this._buffer)||this._buffer.byteLength < 8) {
@@ -74,7 +75,8 @@ export class MessageAssembler {
         this._length = 0;
         this._messages = [];
     }
-    put (data: Uint8Array) {
+    put (data: Uint8Array|Buffer) {
+        
         if (this._buffer.byteLength - this._offset - this._length >= data.byteLength) {
             this._buffer.set (data, this._offset + this._length);
         } else if (this._buffer.byteLength - this._length >= data.byteLength) {

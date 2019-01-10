@@ -39,137 +39,74 @@ export const WBDefaultToolSet = {
         },
         Write: {
             iconClass: 'fas fa-pen fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'draw' } };
-                editor.whiteboard.executeCommand (cmd);
+            command: 'UseTool',
+            args: {
+                name: 'HandWriting',
+                args: {
+                    mode: 'draw'
+                }
             }
         },
         Erase: {
             iconClass: 'fas fa-eraser fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'UseTool', name: 'HandWriting', args: { mode: 'erase' } };
-                editor.whiteboard.executeCommand (cmd);
+            command: 'UseTool',
+            args: {
+                name: 'HandWriting',
+                args: {
+                    mode: 'erase'
+                }
             }
         }
     },
     operations: {
         Delete: {
             iconClass: 'fas fa-trash-alt fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'DeleteObjects',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
-            }
+            command: 'DeleteSelected'
         },
         Clone: {
             iconClass: 'fas fa-clone fa-fw'
         },
         AlignLeft: {
             iconClass: 'fas fa-align-left fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'AlignObjectsLeft',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'AlignSelected',
+            args: {
+                mode: 'Left'
             }
         },
         AlignRight: {
             iconClass: 'fas fa-align-right fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 0) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'AlignObjectsRight',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'AlignSelected',
+            args: {
+                mode: 'Right'
             }
         },
         AlignTop: {
             iconClass: 'fas fa-align-right fa-rotate-270 fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 1) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'AlignObjectsTop',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'AlignSelected',
+            args: {
+                mode: 'Top'
             }
         },
         AlignBottom: {
             iconClass: 'fas fa-align-right fa-rotate-90 fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 1) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'AlignObjectsBottom',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'AlignSelected',
+            args: {
+                mode: 'Bottom'
             }
         },
         ArrangeH: {
             iconClass: 'fas fa-arrows-alt-h fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 2) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'ArrangeObjectsHorizontal',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'ArrangeSelected',
+            args: {
+                mode: 'Horizontal'
             }
         },
         ArrangeV: {
             iconClass: 'fas fa-arrows-alt-v fa-fw',
-            command: function(editor: editor.WBEditor) {
-                const cmd: commands.IWBCommand = { command: 'GetSelected' };
-                editor.whiteboard.executeCommand (cmd);
-                if (cmd.selectedObjects && cmd.selectedObjects.length > 2) {
-                    editor.whiteboard.executeCommand ({
-                        command: 'ArrangeObjectsVertical',
-                        objects: cmd.selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                    });
-                }
+            command: 'ArrangeSelected',
+            args: {
+                mode: 'Vertical'
             }
         },
-        $StrokeColor: {
-            iconClass: function (editor: editor.WBEditor) {
-                const inputBox: HTMLInputElement = document.createElement ('input');
-                inputBox.type = 'color';
-                inputBox.value = editor.strokeColor;
-                inputBox.style.padding = '0px';
-                inputBox.onchange = () => {
-                    editor.strokeColor = inputBox.value;
-                }
-                return inputBox;
-            }
-        },
-        $FillColor: {
-            iconClass: function (editor: editor.WBEditor) {
-                const inputBox: HTMLInputElement = document.createElement ('input');
-                inputBox.type = 'color';
-                inputBox.value = editor.fillColor;
-                inputBox.style.padding = '0px';
-                inputBox.onchange = () => {
-                    editor.fillColor = inputBox.value;
-                }
-                return inputBox;
-            }
-        }
     }
 };

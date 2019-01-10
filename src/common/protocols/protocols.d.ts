@@ -186,3 +186,97 @@ export namespace test2 {
         public toJSON(): { [k: string]: any };
     }
 }
+
+/** Namespace whiteboard. */
+export namespace whiteboard {
+
+    /** Properties of a CommandMessage. */
+    interface ICommandMessage {
+
+        /** CommandMessage command */
+        command?: (string|null);
+    }
+
+    /** Represents a CommandMessage. */
+    class CommandMessage implements ICommandMessage {
+
+        /**
+         * Constructs a new CommandMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.ICommandMessage);
+
+        /** CommandMessage command. */
+        public command: string;
+
+        /**
+         * Creates a new CommandMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns CommandMessage instance
+         */
+        public static create(properties?: whiteboard.ICommandMessage): whiteboard.CommandMessage;
+
+        /**
+         * Encodes the specified CommandMessage message. Does not implicitly {@link whiteboard.CommandMessage.verify|verify} messages.
+         * @param message CommandMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.ICommandMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified CommandMessage message, length delimited. Does not implicitly {@link whiteboard.CommandMessage.verify|verify} messages.
+         * @param message CommandMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.ICommandMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a CommandMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns CommandMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.CommandMessage;
+
+        /**
+         * Decodes a CommandMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns CommandMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.CommandMessage;
+
+        /**
+         * Verifies a CommandMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a CommandMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns CommandMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.CommandMessage;
+
+        /**
+         * Creates a plain object from a CommandMessage message. Also converts values to other types if specified.
+         * @param message CommandMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.CommandMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this CommandMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+}

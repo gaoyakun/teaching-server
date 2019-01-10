@@ -23,6 +23,18 @@
           }
         }
       }
+    },
+    "whiteboard": {
+      "nested": {
+        "CommandMessage": {
+          "fields": {
+            "command": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -369,5 +369,187 @@ $root.test2 = (function () {
     })();
     return test2;
 })();
+$root.whiteboard = (function () {
+    /**
+     * Namespace whiteboard.
+     * @exports whiteboard
+     * @namespace
+     */
+    var whiteboard = {};
+    whiteboard.CommandMessage = (function () {
+        /**
+         * Properties of a CommandMessage.
+         * @memberof whiteboard
+         * @interface ICommandMessage
+         * @property {string|null} [command] CommandMessage command
+         */
+        /**
+         * Constructs a new CommandMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a CommandMessage.
+         * @implements ICommandMessage
+         * @constructor
+         * @param {whiteboard.ICommandMessage=} [properties] Properties to set
+         */
+        function CommandMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+        /**
+         * CommandMessage command.
+         * @member {string} command
+         * @memberof whiteboard.CommandMessage
+         * @instance
+         */
+        CommandMessage.prototype.command = "";
+        /**
+         * Creates a new CommandMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {whiteboard.ICommandMessage=} [properties] Properties to set
+         * @returns {whiteboard.CommandMessage} CommandMessage instance
+         */
+        CommandMessage.create = function create(properties) {
+            return new CommandMessage(properties);
+        };
+        /**
+         * Encodes the specified CommandMessage message. Does not implicitly {@link whiteboard.CommandMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {whiteboard.ICommandMessage} message CommandMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CommandMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.command != null && message.hasOwnProperty("command"))
+                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.command);
+            return writer;
+        };
+        /**
+         * Encodes the specified CommandMessage message, length delimited. Does not implicitly {@link whiteboard.CommandMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {whiteboard.ICommandMessage} message CommandMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        CommandMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+        /**
+         * Decodes a CommandMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.CommandMessage} CommandMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CommandMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.CommandMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                    case 1:
+                        message.command = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                }
+            }
+            return message;
+        };
+        /**
+         * Decodes a CommandMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.CommandMessage} CommandMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        CommandMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+        /**
+         * Verifies a CommandMessage message.
+         * @function verify
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        CommandMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.command != null && message.hasOwnProperty("command"))
+                if (!$util.isString(message.command))
+                    return "command: string expected";
+            return null;
+        };
+        /**
+         * Creates a CommandMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.CommandMessage} CommandMessage
+         */
+        CommandMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.CommandMessage)
+                return object;
+            var message = new $root.whiteboard.CommandMessage();
+            if (object.command != null)
+                message.command = String(object.command);
+            return message;
+        };
+        /**
+         * Creates a plain object from a CommandMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.CommandMessage
+         * @static
+         * @param {whiteboard.CommandMessage} message CommandMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        CommandMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.command = "";
+            if (message.command != null && message.hasOwnProperty("command"))
+                object.command = message.command;
+            return object;
+        };
+        /**
+         * Converts this CommandMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.CommandMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        CommandMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+        return CommandMessage;
+    })();
+    return whiteboard;
+})();
 module.exports = $root;
 //# sourceMappingURL=protocols.js.map

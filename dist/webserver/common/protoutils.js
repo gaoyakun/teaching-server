@@ -25,6 +25,7 @@ class Packet {
     }
     get buffer() {
         return this._buffer;
+        // return this._buffer ? this._buffer.buffer.slice (this._buffer.byteOffset, this._buffer.byteOffset + this._buffer.byteLength) : null;
     }
     getMsgData() {
         if ((!this._buffer) || this._buffer.byteLength < 8) {

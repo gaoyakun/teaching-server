@@ -4,7 +4,7 @@ import * as commands from '../commands';
 
 interface ITool {
     command: {
-        command: string|Function;
+        command: string;
         [prop: string]: any;
     }
     iconClass: string|Function;
@@ -13,8 +13,8 @@ interface ITool {
 
 interface IToolPalette {
     [name: string]: {
-        iconClass: string|Function;
-        command?: string|Function;
+        iconClass: string;
+        command?: string;
         args?: {
             [name: string]: any;
         }
@@ -640,12 +640,10 @@ export class WBEditor {
         this._toolFontSize = value;
     }
     executeCommand (cmd: {
-        command: string|Function,
+        command: string,
         [prop: string]: any
     }) {
-        if (typeof cmd.command === 'function') {
-            (cmd.command as Function) (this);
-        } else if (cmd.command.length > 0 && cmd.command.charAt(0) !== '$') {
+            if (cmd.command.length > 0) {
             const realCommand: any = {};
             for (const name in cmd) {
                 const value = cmd[name];

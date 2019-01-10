@@ -1,8 +1,9 @@
 import * as wb from './whiteboard';
 import * as lib from './catk';
+import { LocalCommandServer } from './cmdserver/cmdserver';
 
 export function init () {
-    const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
+    const WB = new wb.WhiteBoard (new LocalCommandServer(), document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);
 

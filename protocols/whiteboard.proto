@@ -1,0 +1,6 @@
+package whiteboard;
+syntax = "proto3";
+
+message CommandMessage {
+    string command = 1;
+}

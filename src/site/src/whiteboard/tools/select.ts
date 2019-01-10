@@ -204,6 +204,29 @@ export class WBSelectTool extends wb.WBTool {
     public executeCommand(cmd: commands.IWBCommand) {
         if (cmd.command === 'GetSelected') {
             cmd.selectedObjects = this._selectedObjects;
+        } else if (cmd.command === 'DeleteSelected') {
+            if (this._selectedObjects.length > 0) {
+                this._wb.executeCommand ({
+                    command: 'DeleteObjects',
+                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                });
+            }
+        } else if (cmd.command === 'AlignSelected') {
+            const mode = cmd.mode;
+            if (this._selectedObjects.length > 0) {
+                this._wb.executeCommand ({
+                    command: `AlignObjects${mode}`,
+                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                });
+            }
+        } else if (cmd.command === 'ArrangeSelected') {
+            const mode = cmd.mode;
+            if (this._selectedObjects.length > 0) {
+                this._wb.executeCommand ({
+                    command: `ArrangeObjects${mode}`,
+                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                })
+            }
         }
     }
     public selectObject(object: lib.SceneObject, ev: lib.EvtMouse|null) {
