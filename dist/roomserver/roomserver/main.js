@@ -63,23 +63,32 @@ config_1.GetConfig.load().then(cfg => {
     process.exit(-1);
 });
 io.on('connection', socket => {
+    console.log('Client connected');
     const data = socket.handshake || socket.request;
     if (!data || !data.query) {
+        console.log('Invalid handshake data');
         socket.disconnect();
     }
     const roomId = utils_1.Utils.safeParseInt(data.query.room);
     if (roomId === null) {
+        console.log('Invalid roomId parameter');
         socket.disconnect(true);
     }
     else {
         const client = new roommgr_1.Client;
-        client.init(socket).then(() => {
-            const room = roommgr_1.RoomManager.instance().findOrCreateRoom(roomId);
-            room.addClient(client);
-            socket.on('disconnect', () => {
-                room.removeClient(client);
-            });
-        }).catch(err => {
+        client.init(socket).then(() => __awaiter(this, void 0, void 0, function* () {
+            const room = yield roommgr_1.RoomManager.instance().findOrCreateRoom(roomId);
+            if (!room) {
+                console.log('findOrCreateRoom failed');
+                socket.disconnect(true);
+            }
+            else {
+                room.addClient(client);
+                socket.on('disconnect', () => {
+                    room.removeClient(client);
+                });
+            }
+        })).catch(err => {
             console.log(err);
             socket.disconnect();
         });

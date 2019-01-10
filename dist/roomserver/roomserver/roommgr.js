@@ -106,7 +106,7 @@ class RoomManager {
     }
     createRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = [['id', id], ['state', defines_1.RoomState.Normal], ['server', 0]];
+            const filter = ['id', id];
             const result = yield config_1.GetConfig.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Active, servermgr_1.Server.id]);
             if (!result || result.affectedRows === 0) {
                 throw new Error('Publish room failed');
@@ -117,12 +117,14 @@ class RoomManager {
         });
     }
     findOrCreateRoom(id) {
-        return this.findRoom(id) || (this._rooms[id] = new Room(id));
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.findRoom(id) || (yield this.createRoom(id));
+        });
     }
     closeRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const filter = [['id', id], ['state', defines_1.RoomState.Active], ['server', servermgr_1.Server.id]];
-            const result = yield config_1.GetConfig.engine.objects('room').filter(filter).update(['state'], [defines_1.RoomState.Normal]);
+            const result = yield config_1.GetConfig.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Normal, 0]);
             if (!result || result.affectedRows === 0) {
                 throw new Error('Publish room failed');
             }

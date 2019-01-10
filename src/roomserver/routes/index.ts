@@ -36,9 +36,6 @@ indexRouter.post('/close_room', async (req:express.Request, res:express.Response
     if (!roomId) {
         return res.json (Utils.httpResult(ErrorCode.kParamError));
     }
-    if (!RoomManager.instance().findRoom (roomId)) {
-        return res.json (Utils.httpResult(ErrorCode.kInvalidOperation));
-    }
     await RoomManager.instance().closeRoom (roomId);
     return res.json (Utils.httpResult(ErrorCode.kSuccess));
 });

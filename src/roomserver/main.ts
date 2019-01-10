@@ -57,21 +57,29 @@ GetConfig.load ().then(cfg => {
 });
 
 io.on('connection', socket => {
+    console.log ('Client connected');
     const data:any = socket.handshake || socket.request;
     if (!data || !data.query) {
+        console.log ('Invalid handshake data');
         socket.disconnect ();
     }
     const roomId = Utils.safeParseInt(data.query.room);
     if (roomId === null) {
+        console.log ('Invalid roomId parameter');
         socket.disconnect (true);
     } else {
         const client = new Client;
-        client.init (socket).then (() => {
-            const room = RoomManager.instance().findOrCreateRoom (roomId);
-            room.addClient (client);
-            socket.on ('disconnect', () => {
-                room.removeClient (client);
-            });
+        client.init (socket).then (async () => {
+            const room = await RoomManager.instance().findOrCreateRoom (roomId);
+            if (!room) {
+                console.log ('findOrCreateRoom failed');
+                socket.disconnect (true);
+            } else {
+                room.addClient (client);
+                socket.on ('disconnect', () => {
+                    room.removeClient (client);
+                });
+            }
         }).catch (err => {
             console.log (err);
             socket.disconnect ();

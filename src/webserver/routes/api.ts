@@ -5,6 +5,9 @@ import { Session } from '../../lib/session';
 import { AssetManager } from '../server/user/assets';
 import { WhiteboardManager } from '../server/user/whiteboards';
 import { RoomState } from '../../common/defines';
+import { ServerType } from '../../lib/constants';
+import { Server } from '../../lib/servermgr';
+import { requestWrapper } from '../../lib/requestwrapper';
 import * as fileUpload from 'express-fileupload';
 import * as express from 'express';
 import * as xss from 'xss';
@@ -145,4 +148,25 @@ apiRouter.get('/trust/public_rooms', async (req:express.Request, res:express.Res
     const result = Utils.httpResult(ErrorCode.kSuccess);
     result.data = roomlist;
     res.json (result);
+});
+
+apiRouter.post('/trust/close_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const session = req.session as Session;
+    const roomId = Utils.safeParseInt (req.body.room_id);
+    if (roomId === null) {
+        throw new Error ('参数错误');
+    }
+    const rooms:any = await GetConfig.engine.objects('room').filter([['id', roomId],['owner',session.loginUserId]]).all();
+    if (rooms.length !== 1) {
+        throw new Error ('没有可以结束的房间');
+    }
+    const serverInfo: any = await Server.getServerInfo (ServerType.Room, Number(rooms[0].server));
+    if (!serverInfo) {
+        throw new Error ('没有可以结束的房间');
+    }
+    const result = await requestWrapper (`${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+        room: roomId
+    });
+    console.log (JSON.stringify(result));
+    return res.json (Utils.httpResult(ErrorCode.kSuccess));
 });

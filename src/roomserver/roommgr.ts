@@ -104,7 +104,7 @@ export class RoomManager {
         return this._rooms[id];
     }
     async createRoom (id: number) {
-        const filter = [['id',id], ['state',RoomState.Normal], ['server',0]];
+        const filter = ['id',id];
         const result = await GetConfig.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Active, Server.id]);
         if (!result || result.affectedRows === 0) {
             throw new Error ('Publish room failed');
@@ -113,12 +113,12 @@ export class RoomManager {
             return this._rooms[id] = new Room(id);
         }
     }
-    findOrCreateRoom (id: number): Room {
-        return this.findRoom (id) || (this._rooms[id] = new Room(id));
+    async findOrCreateRoom (id: number) {
+        return this.findRoom (id) || await this.createRoom(id);
     }
     async closeRoom (id: number) {
         const filter = [['id',id], ['state',RoomState.Active], ['server',Server.id]];
-        const result = await GetConfig.engine.objects('room').filter(filter).update(['state'], [RoomState.Normal]);
+        const result = await GetConfig.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Normal,0]);
         if (!result || result.affectedRows === 0) {
             throw new Error ('Publish room failed');
         }    

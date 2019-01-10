@@ -25,6 +25,17 @@ export async function sessions_setup(arg?: any) {
             }
         }
     });
+    $('button#btn-stop').on ('click', async function(this:Element){
+        const sessionId = $(this).attr('sid');
+        const ret = await ajaxRequest ({
+            url: '/api/trust/close_room',
+            type: 'post',
+            data: {
+                room_id: sessionId
+            }
+        });
+        window.location.reload ();
+    });
     $('button#btn-delete').on ('click', function(this:Element){
         const sessionId = $(this).attr('sid');
         console.log (`Delete session ${sessionId}`);

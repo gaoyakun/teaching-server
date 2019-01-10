@@ -14,6 +14,9 @@ const errcodes_1 = require("../../common/errcodes");
 const assets_1 = require("../server/user/assets");
 const whiteboards_1 = require("../server/user/whiteboards");
 const defines_1 = require("../../common/defines");
+const constants_1 = require("../../lib/constants");
+const servermgr_1 = require("../../lib/servermgr");
+const requestwrapper_1 = require("../../lib/requestwrapper");
 const express = require("express");
 const xss = require("xss");
 require("express-async-errors");
@@ -152,5 +155,25 @@ exports.apiRouter.get('/trust/public_rooms', (req, res, next) => __awaiter(this,
     const result = utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess);
     result.data = roomlist;
     res.json(result);
+}));
+exports.apiRouter.post('/trust/close_room', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const session = req.session;
+    const roomId = utils_1.Utils.safeParseInt(req.body.room_id);
+    if (roomId === null) {
+        throw new Error('参数错误');
+    }
+    const rooms = yield config_1.GetConfig.engine.objects('room').filter([['id', roomId], ['owner', session.loginUserId]]).all();
+    if (rooms.length !== 1) {
+        throw new Error('没有可以结束的房间');
+    }
+    const serverInfo = yield servermgr_1.Server.getServerInfo(constants_1.ServerType.Room, Number(rooms[0].server));
+    if (!serverInfo) {
+        throw new Error('没有可以结束的房间');
+    }
+    const result = yield requestwrapper_1.requestWrapper(`${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+        room: roomId
+    });
+    console.log(JSON.stringify(result));
+    return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
 }));
 //# sourceMappingURL=api.js.map

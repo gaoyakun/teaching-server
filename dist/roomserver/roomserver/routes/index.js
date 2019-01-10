@@ -43,9 +43,6 @@ exports.indexRouter.post('/close_room', (req, res, next) => __awaiter(this, void
     if (!roomId) {
         return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
     }
-    if (!roommgr_1.RoomManager.instance().findRoom(roomId)) {
-        return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidOperation));
-    }
     yield roommgr_1.RoomManager.instance().closeRoom(roomId);
     return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
 }));
