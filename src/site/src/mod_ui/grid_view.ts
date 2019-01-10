@@ -16,6 +16,7 @@ export interface IGridViewNode {
     propsSelected?: IGridViewNodeProps;
     thumbUrl?: string;
     element?: JQuery;
+    [prop:string]: any;
 }
 
 export interface IGridViewData {

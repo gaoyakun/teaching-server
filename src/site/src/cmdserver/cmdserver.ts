@@ -95,7 +95,9 @@ export class SocketCommandServer extends CommandServer {
             this.onConnect ();
         });
         this._socket.on ('message', (data:any) => {
-            this._assembler.put (data);
+            const buf = data as Buffer;
+            const u8arr = new Uint8Array(buf);
+            this._assembler.put (u8arr);
             const msg = this._assembler.getMessage ();
             if (msg) {
                 console.log (`Got message ${msg.type}`);

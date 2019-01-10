@@ -95,7 +95,7 @@ io.on('connection', socket => {
             if (msg) {
                 console.log (`Got message ${msg.type}`);
             }
-            socket.broadcast.emit ('message', data);
+            (socket as any).binary(true).broadcast.emit ('message', data);
         });
     }
 });

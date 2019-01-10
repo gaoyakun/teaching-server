@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import './ui';
-import { IGridViewData } from './ui';
+import { IGridViewData, IGridViewNode } from './ui';
 import { uploadFileAjax, ajaxRequest } from './mod_tools';
 
 export function landing_setup () {
@@ -19,10 +19,14 @@ export function landing_setup () {
             roomData.nodes.push ({
                 text: room.name,
                 id: `room-${room.id}`,
+                roomId: room.id,
                 thumbUrl: '/images/default.jpg'
             });
         }
         $('#room-grid-view').gridView (roomData);
+        $('#room-grid-view').on ('itemclick', async function(this:Element, evt, node:IGridViewNode) {
+            window.location.href = `/trust/publish_room?room_id=${node.roomId}`;
+        });
     })();
 }
 
