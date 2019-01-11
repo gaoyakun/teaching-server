@@ -4,11 +4,29 @@ import { GetConfig } from '../lib/config';
 import { Server } from '../lib/servermgr';
 import { Session } from '../lib/session';
 import { RoomState } from '../common/defines';
+import { Packet } from '../common/protoutils';
+import { MsgType } from '../common/protocols/protolist';
+import { MessageAssembler } from '../common/protoutils';
+
+const messageAssembler = new MessageAssembler ();
 
 export class Client {
     private _userId: number;
     private _userAccount: string;
     private _socket: socketio.Socket|null;
+    private _room: Room|null;
+    constructor () {
+        this._userId = 0;
+        this._userAccount = ''
+        this._socket = null;
+        this._room = null;
+    }
+    get room () {
+        return this._room;
+    }
+    set room (val: Room|null) {
+        this._room = val;
+    }
     get userId () {
         return this._userId;
     }
@@ -17,11 +35,6 @@ export class Client {
     }
     get socket () {
         return this._socket;
-    }
-    constructor () {
-        this._userId = 0;
-        this._userAccount = ''
-        this._socket = null;
     }
     async init (socket: socketio.Socket) {
         const session = socket.request.session as Session;
@@ -35,6 +48,78 @@ export class Client {
         this._userId = session.loginUserId;
         this._userAccount = users[0].account;
         this._socket = socket;
+    }
+    sendMessage (event:string, type:MsgType, data:object) {
+        const pkg = Packet.create(type, data);
+        if (pkg.buffer) {
+            this.sendBuffer (event, new Buffer(pkg.buffer));
+        }
+    }
+    sendBuffer (event:string, data:Buffer) {
+        if (this._socket) {
+            const socket: any = this._socket;
+            socket.binary(true).emit (event, data);
+        }
+    }
+    sendText (event:string, data:string) {
+        if (this._socket) {
+            this._socket.emit (event, data);
+        }
+    }
+    broadCastMessage (event:string, type:MsgType, data:object, withSelf?: boolean) {
+        const pkg = Packet.create(type, data);
+        if (pkg.buffer) {
+            this.broadCastBuffer (event, new Buffer(pkg.buffer), withSelf);
+        }
+    }
+    broadCastBuffer (event:string, data:Buffer, withSelf?: boolean) {
+        if (this._room) {
+            for (const key in this._room.clients) {
+                const client = this._room.clients[key];
+                if (withSelf || client !== this) {
+                    client.sendBuffer (event, data);
+                }
+            }
+        }
+    }
+    broadCastText (event:string, data:string, withSelf?: boolean) {
+        if (this._room) {
+            for (const key in this._room.clients) {
+                const client = this._room.clients[key];
+                if (withSelf || client !== this) {
+                    client.sendText (event, data);
+                }
+            }
+        }
+    }
+    disconnect () {
+        if (this._socket && this._socket.connected) {
+            this._socket.disconnect (true);
+        }
+    }
+    async enterRoom (roomId: number) {
+        const room = await RoomManager.instance().findOrCreateRoom (roomId);
+        if (!room) {
+            throw new Error ('findOrCreateRoom failed');
+        } else {
+            if (!room.addClient (this)) {
+                throw new Error ('addClient failed');
+            }
+        }
+    }
+    leaveRoom () {
+        if (this._room) {
+            this._room.removeClient (this);
+        }
+    }
+    handleMessage (data:Buffer) {
+        const u8arr = new Uint8Array(data);
+        messageAssembler.put (u8arr);
+        const msg = messageAssembler.getMessage ();
+        if (msg) {
+            console.log (`Got message ${msg.type}`);
+        }
+        this.broadCastBuffer ('message', data);
     }
 }
 
@@ -61,27 +146,48 @@ export class Room {
             return this._clients[id as number];
         }
     }
-    addClient (client: Client) {
+    addClient (client: Client): boolean {
         if (client && client.socket) {
             const oldClient = this.findClient (client.userId)
-            if (oldClient) {
-                // kick off the previous connected client
-                oldClient.socket && oldClient.socket.disconnect (true);
+            if (oldClient !== client) {
+                if (oldClient && oldClient.socket) {
+                    // broadcast leave message
+                    oldClient.broadCastMessage ('message', MsgType.room_LeaveRoomMessage, {
+                        account: oldClient.userAccount,
+                        userId: oldClient.userId
+                    }, true);
+                    // kick off the previous connected client
+                    oldClient.disconnect ();
+                    oldClient.room = null;
+                    delete this._clients[client.userId];
+                }
+                this._clients[client.userId] = client;
+                client.room = this;
+                client.broadCastMessage ('message', MsgType.room_JoinRoomMessage, {
+                    account: client.userAccount,
+                    userId: client.userId
+                }, true);
             }
-            this._clients[client.userId] = client;
+            return true;
         }
+        return false;
     }
     removeClient (client: Client) {
-        if (this.findClient(client.userId) === client) {
+        if (client && this.findClient(client.userId) === client) {
+            // broadcast leave message
+            client.broadCastMessage ('message', MsgType.room_LeaveRoomMessage, {
+                account: client.userAccount,
+                userId: client.userId
+            }, true);
+            client.disconnect ();
+            client.room = null;
             delete this._clients[client.userId];
         }
     }
     clear () {
-        for (const clientId in this._clients) {
-            const client = this._clients[clientId];
-            client.socket && client.socket.disconnect ();
+        for (const key in this._clients) {
+            this.removeClient(this._clients[key]);
         }
-        this._clients = {};
     }
 }
 
@@ -126,6 +232,26 @@ export class RoomManager {
         if (room) {
             room.clear ();
             delete this._rooms[id];
+        }
+    }
+    async newClient (socket: socketio.Socket) {
+        const data:any = socket.handshake || socket.request;
+        if (!data || !data.query) {
+            throw new Error ('Invalid handshake data');
+        }
+        const roomId = Utils.safeParseInt(data.query.room);
+        if (roomId === null) {
+            throw new Error ('Invalid roomId parameter');
+        } else {
+            let client = new Client;
+            await client.init (socket);
+            await client.enterRoom (roomId);
+            socket.once ('disconnect', () => {
+                client.leaveRoom ();
+            });
+            socket.on ('message', (data:Buffer)=>{
+                client.handleMessage (data);
+            });
         }
     }
 }

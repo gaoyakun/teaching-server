@@ -17,12 +17,9 @@ const app_1 = require("./app");
 const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
 const config_1 = require("../lib/config");
-const utils_1 = require("../common/utils");
 const roommgr_1 = require("./roommgr");
 const commands_1 = require("./commands");
-const protoutils_1 = require("../common/protoutils");
 const useHttps = false;
-const messageAssembler = new protoutils_1.MessageAssembler();
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
     cert: fs.readFileSync('cert/1531277059027.pem')
@@ -66,46 +63,10 @@ config_1.GetConfig.load().then(cfg => {
 });
 io.on('connection', socket => {
     console.log('Client connected');
-    const data = socket.handshake || socket.request;
-    if (!data || !data.query) {
-        console.log('Invalid handshake data');
+    roommgr_1.RoomManager.instance().newClient(socket).catch(err => {
+        console.log(err);
         socket.disconnect();
-    }
-    const roomId = utils_1.Utils.safeParseInt(data.query.room);
-    if (roomId === null) {
-        console.log('Invalid roomId parameter');
-        socket.disconnect(true);
-    }
-    else {
-        const client = new roommgr_1.Client;
-        client.init(socket).then(() => __awaiter(this, void 0, void 0, function* () {
-            const room = yield roommgr_1.RoomManager.instance().findOrCreateRoom(roomId);
-            if (!room) {
-                console.log('findOrCreateRoom failed');
-                socket.disconnect(true);
-            }
-            else {
-                room.addClient(client);
-                socket.on('disconnect', () => {
-                    room.removeClient(client);
-                });
-            }
-        })).catch(err => {
-            console.log(err);
-            socket.disconnect();
-        });
-        socket.on('message', (data) => {
-            console.log(`Message received: ${typeof data}`);
-            const buf = data;
-            const u8arr = new Uint8Array(buf);
-            messageAssembler.put(u8arr);
-            const msg = messageAssembler.getMessage();
-            if (msg) {
-                console.log(`Got message ${msg.type}`);
-            }
-            socket.binary(true).broadcast.emit('message', data);
-        });
-    }
+    });
 });
 /**
  * Listen on provided port, on all network interfaces.

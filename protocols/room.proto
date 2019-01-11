@@ -1,0 +1,12 @@
+package room;
+syntax = "proto3";
+
+message JoinRoomMessage {
+    string account = 1;
+    uint32 userId = 2;
+}
+
+message LeaveRoomMessage {
+    string account = 1;
+    uint32 userId = 2;
+}

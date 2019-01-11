@@ -1,10 +1,38 @@
 {
   "nested": {
+    "room": {
+      "nested": {
+        "JoinRoomMessage": {
+          "fields": {
+            "account": {
+              "type": "string",
+              "id": 1
+            },
+            "userId": {
+              "type": "uint32",
+              "id": 2
+            }
+          }
+        },
+        "LeaveRoomMessage": {
+          "fields": {
+            "account": {
+              "type": "string",
+              "id": 1
+            },
+            "userId": {
+              "type": "uint32",
+              "id": 2
+            }
+          }
+        }
+      }
+    },
     "test": {
       "nested": {
         "TestMessage": {
           "fields": {
-            "testField": {
+            "test_field": {
               "type": "string",
               "id": 1
             }
@@ -16,7 +44,7 @@
       "nested": {
         "Test2Message": {
           "fields": {
-            "test2Field": {
+            "test2_field": {
               "type": "string",
               "id": 1
             }

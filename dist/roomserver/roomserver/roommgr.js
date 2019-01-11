@@ -12,7 +12,23 @@ const utils_1 = require("../common/utils");
 const config_1 = require("../lib/config");
 const servermgr_1 = require("../lib/servermgr");
 const defines_1 = require("../common/defines");
+const protoutils_1 = require("../common/protoutils");
+const protolist_1 = require("../common/protocols/protolist");
+const protoutils_2 = require("../common/protoutils");
+const messageAssembler = new protoutils_2.MessageAssembler();
 class Client {
+    constructor() {
+        this._userId = 0;
+        this._userAccount = '';
+        this._socket = null;
+        this._room = null;
+    }
+    get room() {
+        return this._room;
+    }
+    set room(val) {
+        this._room = val;
+    }
     get userId() {
         return this._userId;
     }
@@ -21,11 +37,6 @@ class Client {
     }
     get socket() {
         return this._socket;
-    }
-    constructor() {
-        this._userId = 0;
-        this._userAccount = '';
-        this._socket = null;
     }
     init(socket) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -41,6 +52,81 @@ class Client {
             this._userAccount = users[0].account;
             this._socket = socket;
         });
+    }
+    sendMessage(event, type, data) {
+        const pkg = protoutils_1.Packet.create(type, data);
+        if (pkg.buffer) {
+            this.sendBuffer(event, new Buffer(pkg.buffer));
+        }
+    }
+    sendBuffer(event, data) {
+        if (this._socket) {
+            const socket = this._socket;
+            socket.binary(true).emit(event, data);
+        }
+    }
+    sendText(event, data) {
+        if (this._socket) {
+            this._socket.emit(event, data);
+        }
+    }
+    broadCastMessage(event, type, data, withSelf) {
+        const pkg = protoutils_1.Packet.create(type, data);
+        if (pkg.buffer) {
+            this.broadCastBuffer(event, new Buffer(pkg.buffer), withSelf);
+        }
+    }
+    broadCastBuffer(event, data, withSelf) {
+        if (this._room) {
+            for (const key in this._room.clients) {
+                const client = this._room.clients[key];
+                if (withSelf || client !== this) {
+                    client.sendBuffer(event, data);
+                }
+            }
+        }
+    }
+    broadCastText(event, data, withSelf) {
+        if (this._room) {
+            for (const key in this._room.clients) {
+                const client = this._room.clients[key];
+                if (withSelf || client !== this) {
+                    client.sendText(event, data);
+                }
+            }
+        }
+    }
+    disconnect() {
+        if (this._socket && this._socket.connected) {
+            this._socket.disconnect(true);
+        }
+    }
+    enterRoom(roomId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield RoomManager.instance().findOrCreateRoom(roomId);
+            if (!room) {
+                throw new Error('findOrCreateRoom failed');
+            }
+            else {
+                if (!room.addClient(this)) {
+                    throw new Error('addClient failed');
+                }
+            }
+        });
+    }
+    leaveRoom() {
+        if (this._room) {
+            this._room.removeClient(this);
+        }
+    }
+    handleMessage(data) {
+        const u8arr = new Uint8Array(data);
+        messageAssembler.put(u8arr);
+        const msg = messageAssembler.getMessage();
+        if (msg) {
+            console.log(`Got message ${msg.type}`);
+        }
+        this.broadCastBuffer('message', data);
     }
 }
 exports.Client = Client;
@@ -67,24 +153,45 @@ class Room {
     addClient(client) {
         if (client && client.socket) {
             const oldClient = this.findClient(client.userId);
-            if (oldClient) {
-                // kick off the previous connected client
-                oldClient.socket && oldClient.socket.disconnect(true);
+            if (oldClient !== client) {
+                if (oldClient && oldClient.socket) {
+                    // broadcast leave message
+                    oldClient.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
+                        account: oldClient.userAccount,
+                        userId: oldClient.userId
+                    }, true);
+                    // kick off the previous connected client
+                    oldClient.disconnect();
+                    oldClient.room = null;
+                    delete this._clients[client.userId];
+                }
+                this._clients[client.userId] = client;
+                client.room = this;
+                client.broadCastMessage('message', protolist_1.MsgType.room_JoinRoomMessage, {
+                    account: client.userAccount,
+                    userId: client.userId
+                }, true);
             }
-            this._clients[client.userId] = client;
+            return true;
         }
+        return false;
     }
     removeClient(client) {
-        if (this.findClient(client.userId) === client) {
+        if (client && this.findClient(client.userId) === client) {
+            // broadcast leave message
+            client.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
+                account: client.userAccount,
+                userId: client.userId
+            }, true);
+            client.disconnect();
+            client.room = null;
             delete this._clients[client.userId];
         }
     }
     clear() {
-        for (const clientId in this._clients) {
-            const client = this._clients[clientId];
-            client.socket && client.socket.disconnect();
+        for (const key in this._clients) {
+            this.removeClient(this._clients[key]);
         }
-        this._clients = {};
     }
 }
 exports.Room = Room;
@@ -132,6 +239,29 @@ class RoomManager {
             if (room) {
                 room.clear();
                 delete this._rooms[id];
+            }
+        });
+    }
+    newClient(socket) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = socket.handshake || socket.request;
+            if (!data || !data.query) {
+                throw new Error('Invalid handshake data');
+            }
+            const roomId = utils_1.Utils.safeParseInt(data.query.room);
+            if (roomId === null) {
+                throw new Error('Invalid roomId parameter');
+            }
+            else {
+                let client = new Client;
+                yield client.init(socket);
+                yield client.enterRoom(roomId);
+                socket.once('disconnect', () => {
+                    client.leaveRoom();
+                });
+                socket.on('message', (data) => {
+                    client.handleMessage(data);
+                });
             }
         });
     }

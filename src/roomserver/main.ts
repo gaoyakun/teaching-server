@@ -10,10 +10,8 @@ import { GetConfig } from '../lib/config';
 import { Utils } from '../common/utils';
 import { Client, Room, RoomManager } from './roommgr';
 import { doCommand } from './commands';
-import { MessageAssembler } from '../common/protoutils';
 
 const useHttps = false;
-const messageAssembler = new MessageAssembler ();
 
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -60,44 +58,10 @@ GetConfig.load ().then(cfg => {
 
 io.on('connection', socket => {
     console.log ('Client connected');
-    const data:any = socket.handshake || socket.request;
-    if (!data || !data.query) {
-        console.log ('Invalid handshake data');
+    RoomManager.instance().newClient (socket).catch (err => {
+        console.log (err);
         socket.disconnect ();
-    }
-    const roomId = Utils.safeParseInt(data.query.room);
-    if (roomId === null) {
-        console.log ('Invalid roomId parameter');
-        socket.disconnect (true);
-    } else {
-        const client = new Client;
-        client.init (socket).then (async () => {
-            const room = await RoomManager.instance().findOrCreateRoom (roomId);
-            if (!room) {
-                console.log ('findOrCreateRoom failed');
-                socket.disconnect (true);
-            } else {
-                room.addClient (client);
-                socket.on ('disconnect', () => {
-                    room.removeClient (client);
-                });
-            }
-        }).catch (err => {
-            console.log (err);
-            socket.disconnect ();
-        });
-        socket.on ('message', (data:any) => {
-            console.log (`Message received: ${typeof data}`);
-            const buf = data as Buffer;
-            const u8arr = new Uint8Array(buf);
-            messageAssembler.put (u8arr);
-            const msg = messageAssembler.getMessage ();
-            if (msg) {
-                console.log (`Got message ${msg.type}`);
-            }
-            (socket as any).binary(true).broadcast.emit ('message', data);
-        });
-    }
+    });
 });
 
 /**

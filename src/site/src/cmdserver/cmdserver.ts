@@ -4,7 +4,6 @@ import * as proto from '../../../common/protocols/protolist';
 
 import * as catk from '../catk';
 import * as io from 'socket.io-client';
-import { Message } from 'protobufjs';
 
 export class EvtPostCommand extends catk.BaseEvent {
     static readonly type:string = '@postCommand';
@@ -100,7 +99,8 @@ export class SocketCommandServer extends CommandServer {
             this._assembler.put (u8arr);
             const msg = this._assembler.getMessage ();
             if (msg) {
-                console.log (`Got message ${msg.type}`);
+                console.log (`Got message ${proto.MsgType[msg.type]}`);
+                console.log (JSON.stringify(msg.data));
             }
         });
         this._socket.on ('disconnect', () => {
