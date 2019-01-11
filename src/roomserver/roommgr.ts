@@ -52,7 +52,7 @@ export class Client {
     sendMessage (event:string, type:MsgType, data:object) {
         const pkg = Packet.create(type, data);
         if (pkg.buffer) {
-            this.sendBuffer (event, new Buffer(pkg.buffer));
+            this.sendBuffer (event, Buffer.from(pkg.buffer.buffer));
         }
     }
     sendBuffer (event:string, data:Buffer) {
@@ -69,7 +69,7 @@ export class Client {
     broadCastMessage (event:string, type:MsgType, data:object, withSelf?: boolean) {
         const pkg = Packet.create(type, data);
         if (pkg.buffer) {
-            this.broadCastBuffer (event, new Buffer(pkg.buffer), withSelf);
+            this.broadCastBuffer (event, Buffer.from(pkg.buffer.buffer), withSelf);
         }
     }
     broadCastBuffer (event:string, data:Buffer, withSelf?: boolean) {
@@ -117,7 +117,8 @@ export class Client {
         messageAssembler.put (u8arr);
         const msg = messageAssembler.getMessage ();
         if (msg) {
-            console.log (`Got message ${msg.type}`);
+            console.log (`Got message ${MsgType[msg.type]}`);
+            console.log (JSON.stringify(msg.data));
         }
         this.broadCastBuffer ('message', data);
     }

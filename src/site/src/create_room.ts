@@ -3,10 +3,9 @@ import * as lib from './catk';
 import { SocketCommandServer } from './cmdserver/cmdserver';
 
 export function init (uri:string) {
-    const server = new SocketCommandServer (uri);
+    const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
+    const server = new SocketCommandServer (WB, uri);
     server.start ();
-
-    const WB = new wb.WhiteBoard (server, document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);
 
@@ -14,7 +13,7 @@ export function init (uri:string) {
     const opToolboxDiv: HTMLDivElement = document.querySelector('#op-toolbox') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-propgrid') as HTMLDivElement;
     const toolPropGridDiv: HTMLDivElement = document.querySelector('#tool-propgrid') as HTMLDivElement;
-    const editor = new wb.WBEditor (WB, wb.WBDefaultToolSet, toolToolboxDiv, opToolboxDiv, objPropGridDiv, toolPropGridDiv);
+    const editor = new wb.WBEditor (server, wb.WBDefaultToolSet, toolToolboxDiv, opToolboxDiv, objPropGridDiv, toolPropGridDiv);
 
     WB.on (wb.WBObjectSelectedEvent.type, (ev: wb.WBObjectSelectedEvent) => {
         if (ev.objects.length === 1) {

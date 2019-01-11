@@ -28,30 +28,6 @@
         }
       }
     },
-    "test": {
-      "nested": {
-        "TestMessage": {
-          "fields": {
-            "test_field": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        }
-      }
-    },
-    "test2": {
-      "nested": {
-        "Test2Message": {
-          "fields": {
-            "test2_field": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        }
-      }
-    },
     "whiteboard": {
       "nested": {
         "CommandMessage": {

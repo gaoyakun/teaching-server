@@ -1,5 +1,6 @@
 import * as lib from '../catk';
 import * as command from './commands';
+import { MsgType } from '../../../common/protocols/protolist';
 import { CommandServer } from '../cmdserver/cmdserver';
 
 export interface IProperty {
@@ -15,6 +16,17 @@ export interface IPropertyList {
     [group: string]: {  
         desc: string;
         properties: IProperty[] 
+    }
+}
+
+export class EvtSocketMessage extends lib.BaseEvent {
+    static readonly type: string = '@socketMessage';
+    readonly messageType: MsgType;
+    readonly messageData: any;
+    constructor(messageType: MsgType, messageData: any) {
+        super(EvtSocketMessage.type);
+        this.messageType = messageType;
+        this.messageData = messageData;
     }
 }
 
@@ -256,14 +268,14 @@ export class WhiteBoard extends lib.EventObserver {
     private _factories: { [name: string]: WBFactory };
     private _tools: { [name: string]: WBTool };
     private _currentTool: string;
-    private _cmdServer: CommandServer;
     private _entities: { [name: string]: lib.SceneObject };
-    constructor(cmdServer:CommandServer, canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
+    private _cmdServer: CommandServer|null;
+    constructor(canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
         super ();
-        this._cmdServer = cmdServer;
         this.view = lib.App.addCanvas(canvas, doubleBuffer);
         this._factories = {};
         this._tools = {};
+        this._cmdServer = null;
 
         this._currentTool = '';
         this._entities = {};
@@ -339,6 +351,12 @@ export class WhiteBoard extends lib.EventObserver {
             }, lib.EventListenerOrder.LAST);
         }
     }
+    get commandServer () {
+        return this._cmdServer;
+    }
+    set commandServer (cmdServer:CommandServer|null) {
+        this._cmdServer = cmdServer;
+    }
     public addTool (tool: WBTool): void {
         this._tools[tool.name] = tool;
     }
@@ -395,6 +413,8 @@ export class WhiteBoard extends lib.EventObserver {
         return this._entities[name] || null;
     }
     public encodeCommand(cmd: command.IWBCommand) {
+        return JSON.stringify (cmd);
+        /*
         let str = cmd.command;
         for (const name in cmd) {
             if (name !== 'command') {
@@ -402,13 +422,11 @@ export class WhiteBoard extends lib.EventObserver {
             }
         }
         return str;
+        */
     }
     public executeCommand(cmd: command.IWBCommand) {
         const encodedCommand = this.encodeCommand (cmd);
         console.log (`CMD: ${encodedCommand}`);
-        if (this._cmdServer) {
-            this._cmdServer.sendBoardMessage (encodedCommand);
-        }
         if (cmd.command === 'UseTool') {
             if (this._currentTool !== cmd.name) {
                 if (this._currentTool !== '') {
@@ -566,6 +584,11 @@ export class WhiteBoard extends lib.EventObserver {
             this.view && this.view.currentPage && this.view.renamePage (this.view.currentPage, cmd.newName);
         } else if (this._currentTool) {
             this._tools[this._currentTool].executeCommand (cmd);
+        } else {
+            return;
+        }
+        if (this._cmdServer) {
+            this._cmdServer.executeCommand (cmd);
         }
     }
 }

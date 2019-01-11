@@ -2,7 +2,7 @@ import { MsgType, msgMap } from './protocols/protolist';
 
 interface IMsgData {
     type: MsgType;
-    data?: object;
+    data?: any;
 }
 
 function getUint32 (array: Uint8Array, offset: number): number|null {

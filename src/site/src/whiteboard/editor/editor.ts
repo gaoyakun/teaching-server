@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
 import * as commands from '../commands';
+import { CommandServer } from '../../cmdserver/cmdserver';
 
 interface ITool {
     command: {
@@ -345,13 +346,13 @@ export class WBPropertyGrid {
                 objectName: (this._object as lib.SceneObject).entityName,
                 propName: name
             }
-            this._editor.whiteboard.executeCommand (cmd);
+            this._editor.commandServer.whiteboard.executeCommand (cmd);
             return cmd.propValue;
         }
     }
     setObjectProperty (name: string, value: any): void {
         if (this._object) {
-            this._editor.whiteboard.executeCommand ({
+            this._editor.commandServer.executeCommand ({
                 command: 'SetObjectProperty',
                 objectName: (this._object as lib.SceneObject).entityName,
                 propName: name,
@@ -475,9 +476,9 @@ export class WBPropertyGrid {
     loadPageProperties () {
         this.clear ();
         const pageList: any[] = [];
-        const view = this._editor.whiteboard.view;
+        const view = this._editor.commandServer.whiteboard.view;
         if (view) {
-            view.forEachPage (page => {
+            view.forEachPage ((page:any) => {
                 pageList.push ({
                     value: page.name,
                     desc: page.name
@@ -490,7 +491,7 @@ export class WBPropertyGrid {
             });
             this.addTextAttribute ('页面名称', view.currentPage, false, (value:string) => {
                 if (value !== view.currentPage) {
-                    this._editor.whiteboard.executeCommand ({
+                    this._editor.commandServer.executeCommand ({
                         command: 'RenamePage',
                         newName: value
                     });
@@ -531,13 +532,13 @@ export class WBPropertyGrid {
                 return value;
             });
             this.addButton ('新建页面', () => {
-                this._editor.whiteboard.executeCommand ({
+                this._editor.commandServer.executeCommand ({
                     command: 'AddPage'
                 });
                 this.loadPageProperties ();
             });
             this.addButton ('删除页面', () => {
-                this._editor.whiteboard.executeCommand ({
+                this._editor.commandServer.executeCommand ({
                     command: 'DeletePage'
                 });
                 this.loadPageProperties ();
@@ -583,17 +584,17 @@ export class WBEditor {
     private _strokeColor: string;
     private _fillColor: string;
     private _toolFontSize: number;
-    private _wb: wb.WhiteBoard;
+    private _cmdServer: CommandServer;
     private _toolset: IToolSet;
     private _toolPalette: WBToolPalette;
     private _opPalette: WBToolPalette;
     private _objectPropGrid: WBPropertyGrid;
     private _toolPropGrid: WBPropertyGrid;
-    constructor (whiteboard: wb.WhiteBoard, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
+    constructor (cmdServer: CommandServer, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
         this._strokeColor = '#00000000';
         this._fillColor = 'red';
         this._toolFontSize = 14;
-        this._wb = whiteboard;
+        this._cmdServer = cmdServer;
         this._toolset = toolset;
         this._toolPalette = new WBToolPalette (this, toolPaletteElement);
         this._toolPalette.loadToolPalette (toolset.tools);
@@ -618,8 +619,8 @@ export class WBEditor {
     get toolPropertyGrid () {
         return this._toolPropGrid;
     }
-    get whiteboard () {
-        return this._wb;
+    get commandServer () {
+        return this._cmdServer;
     }
     get strokeColor () {
         return this._strokeColor;
@@ -649,7 +650,7 @@ export class WBEditor {
                 const value = cmd[name];
                 realCommand[name] = (typeof value === 'function') ? (value as Function) (this) : value;
             }
-            this._wb.executeCommand (realCommand);
+            this._cmdServer.executeCommand (realCommand);
         }
     }
 }

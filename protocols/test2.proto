@@ -1,6 +1,0 @@
-package test2;
-syntax = "proto3";
-
-message Test2Message {
-    string test2_field = 1; // becomes test2Field
-};

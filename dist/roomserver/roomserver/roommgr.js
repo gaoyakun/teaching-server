@@ -56,7 +56,7 @@ class Client {
     sendMessage(event, type, data) {
         const pkg = protoutils_1.Packet.create(type, data);
         if (pkg.buffer) {
-            this.sendBuffer(event, new Buffer(pkg.buffer));
+            this.sendBuffer(event, Buffer.from(pkg.buffer.buffer));
         }
     }
     sendBuffer(event, data) {
@@ -73,7 +73,7 @@ class Client {
     broadCastMessage(event, type, data, withSelf) {
         const pkg = protoutils_1.Packet.create(type, data);
         if (pkg.buffer) {
-            this.broadCastBuffer(event, new Buffer(pkg.buffer), withSelf);
+            this.broadCastBuffer(event, Buffer.from(pkg.buffer.buffer), withSelf);
         }
     }
     broadCastBuffer(event, data, withSelf) {
@@ -124,7 +124,8 @@ class Client {
         messageAssembler.put(u8arr);
         const msg = messageAssembler.getMessage();
         if (msg) {
-            console.log(`Got message ${msg.type}`);
+            console.log(`Got message ${protolist_1.MsgType[msg.type]}`);
+            console.log(JSON.stringify(msg.data));
         }
         this.broadCastBuffer('message', data);
     }

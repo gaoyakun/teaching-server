@@ -4,22 +4,7 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const proto = require("../common/protocols/protolist");
 const servermgr_1 = require("../lib/servermgr");
-const protoutils_1 = require("../common/protoutils");
-(function () {
-    const packet = protoutils_1.Packet.create(proto.MsgType.test_TestMessage, {
-        testField: 'hello'
-    });
-    const packet2 = protoutils_1.Packet.create(proto.MsgType.test2_Test2Message, {
-        test2Field: 'hello2'
-    });
-    const msgAssembler = new protoutils_1.MessageAssembler();
-    msgAssembler.put(packet.buffer);
-    msgAssembler.put(packet2.buffer);
-    console.log(msgAssembler.getMessage());
-    console.log(msgAssembler.getMessage());
-}());
 const useHttps = false;
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),

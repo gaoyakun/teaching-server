@@ -1,33 +1,21 @@
 import { IWBCommand } from '../whiteboard/commands';
+import { EvtSocketMessage, WhiteBoard } from '../whiteboard/whiteboard';
 import { Packet, MessageAssembler } from '../../../common/protoutils';
-import * as proto from '../../../common/protocols/protolist';
+import { MsgType } from '../../../common/protocols/protolist';
 
 import * as catk from '../catk';
 import * as io from 'socket.io-client';
 
-export class EvtPostCommand extends catk.BaseEvent {
-    static readonly type:string = '@postCommand';
-    readonly cmd: IWBCommand;
-    constructor (cmd: IWBCommand) {
-        super (EvtPostCommand.type);
-        this.cmd = cmd;
-    }
-}
-
-export class EvtReceiveCommand extends catk.BaseEvent {
-    static readonly type:string = '@receiveCommand';
-    readonly cmd: IWBCommand;
-    constructor (cmd: IWBCommand) {
-        super (EvtReceiveCommand.type);
-        this.cmd = cmd;
-    }
-}
-
 export abstract class CommandServer extends catk.EventObserver {
+    protected _wb: WhiteBoard;
     private _started: boolean;
-    constructor () {
+    constructor (wb: WhiteBoard) {
         super ();
         this._started = false;
+        this._wb = wb;
+    }
+    get whiteboard () {
+        return this._wb;
     }
     start (): void {
         if (!this._started && this._start ()) {
@@ -44,24 +32,25 @@ export abstract class CommandServer extends catk.EventObserver {
     }
     sendBoardMessage (msg: string) {
     }
+    executeCommand(cmd: IWBCommand) {
+        this._executeCommand (cmd);
+    }
+    protected abstract _executeCommand (cmd: IWBCommand):void;
     protected abstract _start (): boolean;
     protected abstract _stop (): boolean;
 }
 
 export class LocalCommandServer extends CommandServer {
-    constructor () {
-        super ();
+    constructor (wb: WhiteBoard) {
+        super (wb);
+    }
+    protected _executeCommand (cmd: IWBCommand): void {
+        this._wb.executeCommand (cmd);
     }
     protected _start (): boolean {
-        this.on (EvtPostCommand.type, (evt: EvtPostCommand) => {
-            if (evt.cmd) {
-                catk.App.triggerEvent (null, new EvtReceiveCommand(evt.cmd));
-            }
-        });
         return true;
     }
     protected _stop (): boolean {
-        this.off (EvtPostCommand.type);
         return true;
     }
 }
@@ -70,17 +59,17 @@ export class SocketCommandServer extends CommandServer {
     private _uri: string;
     private _socket: SocketIOClient.Socket|null;
     private _assembler: MessageAssembler;
-    constructor (uri: string) {
-        super ();
+    constructor (wb:WhiteBoard, uri: string) {
+        super (wb);
         this._uri = uri;
         this._socket = null;
         this._assembler = new MessageAssembler ();
     }
-    sendBoardMessage (msg: string) {
+    protected _executeCommand(cmd: IWBCommand) {
+        this._wb.executeCommand (cmd);
         if (this._socket && this._socket.connected) {
-            console.log (`Send message: ${msg}`);
-            const pkg = Packet.create(proto.MsgType.whiteboard_CommandMessage, {
-                command: msg
+            const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
+                command: JSON.stringify(cmd)
             });
             (this._socket as any).binary(true).emit ('message', pkg.buffer);
         }
@@ -97,10 +86,18 @@ export class SocketCommandServer extends CommandServer {
             const buf = data as Buffer;
             const u8arr = new Uint8Array(buf);
             this._assembler.put (u8arr);
-            const msg = this._assembler.getMessage ();
-            if (msg) {
-                console.log (`Got message ${proto.MsgType[msg.type]}`);
-                console.log (JSON.stringify(msg.data));
+            while (true) {
+                const msg = this._assembler.getMessage ();
+                if (msg) {
+                    if (msg.type === MsgType.whiteboard_CommandMessage) {
+                        const cmd = JSON.parse (msg.data.command) as IWBCommand;
+                        this._wb.executeCommand (cmd);
+                    } else {
+                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
+                    }
+                } else {
+                    break;
+                }
             }
         });
         this._socket.on ('disconnect', () => {
