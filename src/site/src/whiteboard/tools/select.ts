@@ -206,21 +206,21 @@ export class WBSelectTool extends wb.WBTool {
             args.selectedObjects = this._selectedObjects;
         } else if (command === 'DeleteSelected') {
             if (this._selectedObjects.length > 0) {
-                this._wb.triggerEx (new wb.WBCommandEvent('DeleteObjects', {
+                lib.App.triggerEvent (null, new wb.WBCommandEvent('DeleteObjects', {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
         } else if (command === 'AlignSelected') {
             const mode = args.mode;
             if (this._selectedObjects.length > 0) {
-                this._wb.triggerEx (new wb.WBCommandEvent(`AlignObjects${mode}`, {
+                lib.App.triggerEvent (null, new wb.WBCommandEvent(`AlignObjects${mode}`, {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
         } else if (command === 'ArrangeSelected') {
             const mode = args.mode;
             if (this._selectedObjects.length > 0) {
-                this._wb.triggerEx (new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
+                lib.App.triggerEvent (null, new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }

@@ -39,7 +39,7 @@ export class WBCreateTool extends wb.WBTool {
             args.x = ev.x;
             args.y = ev.y;
             args.params = this._creationParams[this.options.createType];
-            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', args));
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args));
         });
         this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
             if (ev.name in this._creationParams[this.options.createType]) {

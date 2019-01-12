@@ -45,7 +45,7 @@ const promises = jsFiles.map (name => {
             extensions: [ '.css', '.scss' ]
         }), commonjs(), resolve({
             moduleDirectory: path.join(rootDir, 'node_modules')
-        }), uglify.uglify()],
+        })/*, uglify.uglify()*/],
         external: ['jquery', 'socket.io-client']
     }, {
         file: path.join(siteDir, 'js', name+'.js'),

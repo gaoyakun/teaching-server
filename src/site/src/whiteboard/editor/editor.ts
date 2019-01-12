@@ -1,7 +1,5 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
-import * as commands from '../commands';
-import { CommandServer } from '../../cmdserver/cmdserver';
 
 interface ITool {
     command: string,
@@ -327,12 +325,9 @@ export class WBPropertyGrid {
     }
     getObjectProperty (name: string): any {
         if (this._object) {
-            const args: any = {
-                objectName: (this._object as lib.SceneObject).entityName,
-                propName: name
-            };
-            this._editor.executeCommand ('GetObjectProperty', args);
-            return args.propValue;
+            const ev = new wb.WBGetPropertyEvent (name);
+            this._object.triggerEx (ev);
+            return ev.value;
         }
     }
     setObjectProperty (name: string, value: any): void {
@@ -620,6 +615,6 @@ export class WBEditor {
         this._toolFontSize = value;
     }
     executeCommand (command:string, args?: any) {
-        this._wb.triggerEx (new wb.WBCommandEvent(command, args));
+        lib.App.triggerEvent(null, new wb.WBCommandEvent(command, args));
     }
 }

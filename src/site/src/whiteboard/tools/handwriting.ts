@@ -103,8 +103,9 @@ export class WBHandWritingTool extends wb.WBTool {
                 x: 0,
                 y: 0
             };
-            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', args));
-            this._freedrawNode = args.objectCreated;
+            const results:any = {};
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args, results));
+            this._freedrawNode = results.objectCreated;
         }
         if (this._freedrawNode) {
             this._freedrawNode.mode = this._mode;

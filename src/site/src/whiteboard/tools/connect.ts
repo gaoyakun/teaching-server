@@ -135,7 +135,7 @@ export class WBConnectTool extends wb.WBTool {
                 this._createParams.positionFromX = 0;
                 this._createParams.positionFromY = 0;
             }
-            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', {
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', {
                 type: 'Arrow',
                 name: null,
                 x: x,

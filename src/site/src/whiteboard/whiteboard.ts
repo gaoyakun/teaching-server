@@ -1,7 +1,6 @@
 import * as lib from '../catk';
 import * as command from './commands';
 import { MsgType } from '../../../common/protocols/protolist';
-import { CommandServer } from '../cmdserver/cmdserver';
 
 export interface IProperty {
     name: string;
@@ -232,10 +231,12 @@ export class WBCommandEvent extends lib.BaseEvent {
     static readonly type: string = '@WBCommand';
     command: string;
     args?: any;
-    constructor (command: string, args?: any) {
+    results?: any;
+    constructor (command: string, args?: any, results?: any) {
         super (WBCommandEvent.type);
         this.command = command;
         this.args = args;
+        this.results = results;
     }
 }
 
@@ -304,7 +305,7 @@ export class WhiteBoard extends lib.EventObserver {
             }
         });
         this.on(WBCommandEvent.type, (ev: WBCommandEvent) => {
-            this._executeCommand (ev.command, ev.args);
+            this._executeCommand (ev.command, ev.args, ev.results);
         });
         if (this.view) {
             this.view.on (lib.EvtKeyDown.type, (ev: lib.EvtKeyDown) => {
@@ -430,7 +431,7 @@ export class WhiteBoard extends lib.EventObserver {
         return str;
         */
     }
-    public _executeCommand(command: string, args?: any) {
+    public _executeCommand(command: string, args?: any, results?: any) {
         const cmd = args||{};
         if (command === 'UseTool') {
             if (this._currentTool !== cmd.name) {
@@ -453,7 +454,9 @@ export class WhiteBoard extends lib.EventObserver {
             const failOnExists = !!cmd.failOnExists;
             const params = cmd.params||{};
             const obj = this.createEntity (type, name, failOnExists, cmd.x, cmd.y, params);
-            cmd.objectCreated = obj;
+            if (results) {
+                results.objectCreated = obj;
+            }
         } else if (command === 'DeleteObject') {
             this.deleteEntity (cmd.name);
         } else if (command === 'DeleteObjects') {
@@ -575,13 +578,6 @@ export class WhiteBoard extends lib.EventObserver {
                         this._entities[obj.entityName] = obj;
                     }
                 }
-            }
-        } else if (command === 'GetObjectProperty') {
-            const obj = this.findEntity (cmd.objectName);
-            if (obj) {
-                const ev = new WBGetPropertyEvent (cmd.propName);
-                obj.triggerEx (ev);
-                cmd.propValue = ev.value;
             }
         } else if (command === 'AddPage') {
             this.view && this.view.addPage ();

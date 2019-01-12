@@ -1,4 +1,4 @@
-import { IWBCommand } from '../whiteboard/commands';
+import { WBCommandEvent } from '../whiteboard/whiteboard';
 import { EvtSocketMessage, WhiteBoard } from '../whiteboard/whiteboard';
 import { Packet, MessageAssembler } from '../../../common/protoutils';
 import { MsgType } from '../../../common/protocols/protolist';
@@ -6,75 +6,19 @@ import { MsgType } from '../../../common/protocols/protolist';
 import * as catk from '../catk';
 import * as io from 'socket.io-client';
 
-export abstract class CommandServer extends catk.EventObserver {
-    protected _wb: WhiteBoard;
-    private _started: boolean;
-    constructor (wb: WhiteBoard) {
-        super ();
-        this._started = false;
-        this._wb = wb;
-    }
-    get whiteboard () {
-        return this._wb;
-    }
-    start (): void {
-        if (!this._started && this._start ()) {
-            this._started = true;
-        }
-    }
-    stop (): void {
-        if (this._started && this._stop ()) {
-            this._started = false;
-        }
-    }
-    get started (): boolean {
-        return this._started;
-    }
-    sendBoardMessage (msg: string) {
-    }
-    executeCommand(cmd: IWBCommand) {
-        this._executeCommand (cmd);
-    }
-    protected abstract _executeCommand (cmd: IWBCommand):void;
-    protected abstract _start (): boolean;
-    protected abstract _stop (): boolean;
-}
-
-export class LocalCommandServer extends CommandServer {
-    constructor (wb: WhiteBoard) {
-        super (wb);
-    }
-    protected _executeCommand (cmd: IWBCommand): void {
-        //this._wb.executeCommand (cmd);
-    }
-    protected _start (): boolean {
-        return true;
-    }
-    protected _stop (): boolean {
-        return true;
-    }
-}
-
-export class SocketCommandServer extends CommandServer {
+export class SocketCommandServer extends catk.EventObserver {
     private _uri: string;
+    private _wb: WhiteBoard;
     private _socket: SocketIOClient.Socket|null;
     private _assembler: MessageAssembler;
     constructor (wb:WhiteBoard, uri: string) {
-        super (wb);
+        super ();
         this._uri = uri;
+        this._wb = wb;
         this._socket = null;
         this._assembler = new MessageAssembler ();
     }
-    protected _executeCommand(cmd: IWBCommand) {
-        //this._wb.executeCommand (cmd);
-        if (this._socket && this._socket.connected) {
-            const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
-                command: JSON.stringify(cmd)
-            });
-            (this._socket as any).binary(true).emit ('message', pkg.buffer);
-        }
-    }
-    protected _start (): boolean {
+    start (): boolean {
         this._socket = io (this._uri, {
             transports: ['websocket'],
             reconnection: false
@@ -90,8 +34,8 @@ export class SocketCommandServer extends CommandServer {
                 const msg = this._assembler.getMessage ();
                 if (msg) {
                     if (msg.type === MsgType.whiteboard_CommandMessage) {
-                        const cmd = JSON.parse (msg.data.command) as IWBCommand;
-                        //this._wb.executeCommand (cmd);
+                        const cmd:any = JSON.parse (msg.data.command);
+                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args));
                     } else {
                         catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
                     }
@@ -103,9 +47,22 @@ export class SocketCommandServer extends CommandServer {
         this._socket.on ('disconnect', () => {
             this.onDisconnect ();
         });
+        this.on (WBCommandEvent.type, (ev: WBCommandEvent) => {
+            if (this._socket && this._socket.connected) {
+                const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
+                    command: JSON.stringify({
+                        command: ev.command,
+                        args: ev.args
+                    }).replace (/[\u007F-\uFFFF]/g, function(chr) {
+                        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
+                    })
+                });
+                (this._socket as any).binary(true).emit ('message', pkg.buffer);
+            }    
+        });
         return true;
     }
-    protected _stop (): boolean {
+    stop (): boolean {
         if (this._socket) {
             this._socket.close ();
         }
