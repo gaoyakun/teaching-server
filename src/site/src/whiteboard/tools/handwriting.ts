@@ -97,15 +97,14 @@ export class WBHandWritingTool extends wb.WBTool {
         }
         this._freedrawNode = this.findFreedrawNode ();
         if (!this._freedrawNode) {
-            const cmd: commands.IWBCommand = {
-                command: 'CreateObject',
+            const args: any = {
                 type: 'FreeDraw',
                 name: null,
                 x: 0,
                 y: 0
             };
-            this._wb.executeCommand (cmd);
-            this._freedrawNode = cmd.objectCreated;
+            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', args));
+            this._freedrawNode = args.objectCreated;
         }
         if (this._freedrawNode) {
             this._freedrawNode.mode = this._mode;

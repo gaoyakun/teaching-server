@@ -135,15 +135,13 @@ export class WBConnectTool extends wb.WBTool {
                 this._createParams.positionFromX = 0;
                 this._createParams.positionFromY = 0;
             }
-            const cmd: commands.IWBCommand  = {
-                command: 'CreateObject',
+            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', {
                 type: 'Arrow',
                 name: null,
                 x: x,
                 y: y,
                 params: this._createParams
-            };
-            this._wb.executeCommand (cmd);
+            }));
         });
         this.on (lib.EvtDraw.type, (ev: lib.EvtDraw) => {
             if (this._moving) {
@@ -181,7 +179,5 @@ export class WBConnectTool extends wb.WBTool {
     }
     public deactivateObject(object: lib.SceneObject) {
         super.deactivateObject (object);
-    }
-    public executeCommand(cmd: commands.IWBCommand) {
     }
 }

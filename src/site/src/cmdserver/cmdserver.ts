@@ -45,7 +45,7 @@ export class LocalCommandServer extends CommandServer {
         super (wb);
     }
     protected _executeCommand (cmd: IWBCommand): void {
-        this._wb.executeCommand (cmd);
+        //this._wb.executeCommand (cmd);
     }
     protected _start (): boolean {
         return true;
@@ -66,7 +66,7 @@ export class SocketCommandServer extends CommandServer {
         this._assembler = new MessageAssembler ();
     }
     protected _executeCommand(cmd: IWBCommand) {
-        this._wb.executeCommand (cmd);
+        //this._wb.executeCommand (cmd);
         if (this._socket && this._socket.connected) {
             const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
                 command: JSON.stringify(cmd)
@@ -91,7 +91,7 @@ export class SocketCommandServer extends CommandServer {
                 if (msg) {
                     if (msg.type === MsgType.whiteboard_CommandMessage) {
                         const cmd = JSON.parse (msg.data.command) as IWBCommand;
-                        this._wb.executeCommand (cmd);
+                        //this._wb.executeCommand (cmd);
                     } else {
                         catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
                     }

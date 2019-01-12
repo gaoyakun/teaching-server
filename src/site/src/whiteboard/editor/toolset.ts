@@ -64,7 +64,8 @@ export const WBDefaultToolSet = {
             command: 'DeleteSelected'
         },
         Clone: {
-            iconClass: 'fas fa-clone fa-fw'
+            iconClass: 'fas fa-clone fa-fw',
+            command: 'CloneSelected'
         },
         AlignLeft: {
             iconClass: 'fas fa-align-left fa-fw',

@@ -27,20 +27,19 @@ export class WBCreateTool extends wb.WBTool {
             }
         }
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
-            const cmd: commands.IWBCommand  = {
-                command: 'CreateObject',
+            const args: any  = {
                 type: this.options.createType,
                 name: null,
             };
             for (const arg in this.options) {
                 if (arg !== 'command' && arg !== 'createType' && arg !== 'type') {
-                    cmd[arg] = this.options[arg];
+                    args[arg] = this.options[arg];
                 }
             }
-            cmd.x = ev.x;
-            cmd.y = ev.y;
-            cmd.params = this._creationParams[this.options.createType];
-            this._wb.executeCommand (cmd);
+            args.x = ev.x;
+            args.y = ev.y;
+            args.params = this._creationParams[this.options.createType];
+            this._wb.triggerEx (new wb.WBCommandEvent('CreateObject', args));
         });
         this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
             if (ev.name in this._creationParams[this.options.createType]) {

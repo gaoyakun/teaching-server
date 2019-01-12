@@ -4,10 +4,8 @@ import * as commands from '../commands';
 import { CommandServer } from '../../cmdserver/cmdserver';
 
 interface ITool {
-    command: {
-        command: string;
-        [prop: string]: any;
-    }
+    command: string,
+    args?: any,
     iconClass: string|Function;
     elementId?: string;
 }
@@ -15,7 +13,7 @@ interface ITool {
 interface IToolPalette {
     [name: string]: {
         iconClass: string;
-        command?: string;
+        command: string;
         args?: {
             [name: string]: any;
         }
@@ -57,14 +55,14 @@ export class WBToolPalette {
                         if (this._curTool) {
                             const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
                             curToolButton && curToolButton.classList.remove ('active');
-                            this._editor.executeCommand ({ command: 'UseTool' });
+                            this._editor.executeCommand ('UseTool');
                             this._curTool = null;
                         }
                     }
                     if (tool) {
                         const button = document.querySelector(`#${tool.elementId}`);
                         button && button.classList.add ('active');
-                        this._editor.executeCommand (tool.command);
+                        this._editor.executeCommand (tool.command, tool.args);
                         this._curTool = tool;
                     }
                 });
@@ -79,29 +77,17 @@ export class WBToolPalette {
                 toolButton.addEventListener ('click', () => {
                     const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
                     const tool = this._tools[toolIndex];
-                    this._editor.executeCommand (tool.command);
+                    this._editor.executeCommand (tool.command, tool.args);
                 });
             }
         }
     }
     private getOpTool (tool: IToolPalette, name: string): ITool {
-        const tooldef: ITool = {
-            command: {
-                command: name
-            },
+        return {
+            command: tool[name].command,
+            args: tool[name].args,
             iconClass: tool[name].iconClass
         }
-        const cmd = tool[name].command;
-        if (cmd) {
-            tooldef.command.command = cmd;
-        }
-        const args = tool[name].args;
-        if (args) {
-            for (const argname in args) {
-                tooldef.command[argname] = args[argname];
-            }
-        }
-        return tooldef;
     }
     private createToolButton (tooldef: ITool): HTMLElement|null {
         this._tools.push (tooldef);
@@ -341,19 +327,17 @@ export class WBPropertyGrid {
     }
     getObjectProperty (name: string): any {
         if (this._object) {
-            const cmd: commands.IWBCommand = {
-                command: 'GetObjectProperty',
+            const args: any = {
                 objectName: (this._object as lib.SceneObject).entityName,
                 propName: name
-            }
-            this._editor.commandServer.whiteboard.executeCommand (cmd);
-            return cmd.propValue;
+            };
+            this._editor.executeCommand ('GetObjectProperty', args);
+            return args.propValue;
         }
     }
     setObjectProperty (name: string, value: any): void {
         if (this._object) {
-            this._editor.commandServer.executeCommand ({
-                command: 'SetObjectProperty',
+            this._editor.executeCommand ('SetObjectProperty', {
                 objectName: (this._object as lib.SceneObject).entityName,
                 propName: name,
                 propValue: value
@@ -476,7 +460,7 @@ export class WBPropertyGrid {
     loadPageProperties () {
         this.clear ();
         const pageList: any[] = [];
-        const view = this._editor.commandServer.whiteboard.view;
+        const view = this._editor.whiteboard.view;
         if (view) {
             view.forEachPage ((page:any) => {
                 pageList.push ({
@@ -491,8 +475,7 @@ export class WBPropertyGrid {
             });
             this.addTextAttribute ('页面名称', view.currentPage, false, (value:string) => {
                 if (value !== view.currentPage) {
-                    this._editor.commandServer.executeCommand ({
-                        command: 'RenamePage',
+                    this._editor.executeCommand ('RenamePage', {
                         newName: value
                     });
                     this.loadPageProperties ();
@@ -532,15 +515,11 @@ export class WBPropertyGrid {
                 return value;
             });
             this.addButton ('新建页面', () => {
-                this._editor.commandServer.executeCommand ({
-                    command: 'AddPage'
-                });
+                this._editor.executeCommand ('AddPage');
                 this.loadPageProperties ();
             });
             this.addButton ('删除页面', () => {
-                this._editor.commandServer.executeCommand ({
-                    command: 'DeletePage'
-                });
+                this._editor.executeCommand ('DeletePage');
                 this.loadPageProperties ();
             })
         }
@@ -584,17 +563,17 @@ export class WBEditor {
     private _strokeColor: string;
     private _fillColor: string;
     private _toolFontSize: number;
-    private _cmdServer: CommandServer;
+    private _wb: wb.WhiteBoard;
     private _toolset: IToolSet;
     private _toolPalette: WBToolPalette;
     private _opPalette: WBToolPalette;
     private _objectPropGrid: WBPropertyGrid;
     private _toolPropGrid: WBPropertyGrid;
-    constructor (cmdServer: CommandServer, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
+    constructor (WB: wb.WhiteBoard, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
         this._strokeColor = '#00000000';
         this._fillColor = 'red';
         this._toolFontSize = 14;
-        this._cmdServer = cmdServer;
+        this._wb = WB;
         this._toolset = toolset;
         this._toolPalette = new WBToolPalette (this, toolPaletteElement);
         this._toolPalette.loadToolPalette (toolset.tools);
@@ -603,6 +582,9 @@ export class WBEditor {
         this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'wb-object');
         this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'wb-tool');
         this._objectPropGrid.loadPageProperties ();
+    }
+    get whiteboard () {
+        return this._wb;
     }
     get toolSet () {
         return this._toolset;
@@ -618,9 +600,6 @@ export class WBEditor {
     }
     get toolPropertyGrid () {
         return this._toolPropGrid;
-    }
-    get commandServer () {
-        return this._cmdServer;
     }
     get strokeColor () {
         return this._strokeColor;
@@ -640,17 +619,7 @@ export class WBEditor {
     set toolFontSize (value: number) {
         this._toolFontSize = value;
     }
-    executeCommand (cmd: {
-        command: string,
-        [prop: string]: any
-    }) {
-            if (cmd.command.length > 0) {
-            const realCommand: any = {};
-            for (const name in cmd) {
-                const value = cmd[name];
-                realCommand[name] = (typeof value === 'function') ? (value as Function) (this) : value;
-            }
-            this._cmdServer.executeCommand (realCommand);
-        }
+    executeCommand (command:string, args?: any) {
+        this._wb.triggerEx (new wb.WBCommandEvent(command, args));
     }
 }

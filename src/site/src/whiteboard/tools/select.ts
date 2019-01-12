@@ -201,31 +201,28 @@ export class WBSelectTool extends wb.WBTool {
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
-    public executeCommand(cmd: commands.IWBCommand) {
-        if (cmd.command === 'GetSelected') {
-            cmd.selectedObjects = this._selectedObjects;
-        } else if (cmd.command === 'DeleteSelected') {
+    public executeCommand(command:string, args?: any) {
+        if (command === 'GetSelected') {
+            args.selectedObjects = this._selectedObjects;
+        } else if (command === 'DeleteSelected') {
             if (this._selectedObjects.length > 0) {
-                this._wb.executeCommand ({
-                    command: 'DeleteObjects',
+                this._wb.triggerEx (new wb.WBCommandEvent('DeleteObjects', {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                });
+                }));
             }
-        } else if (cmd.command === 'AlignSelected') {
-            const mode = cmd.mode;
+        } else if (command === 'AlignSelected') {
+            const mode = args.mode;
             if (this._selectedObjects.length > 0) {
-                this._wb.executeCommand ({
-                    command: `AlignObjects${mode}`,
+                this._wb.triggerEx (new wb.WBCommandEvent(`AlignObjects${mode}`, {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                });
+                }));
             }
-        } else if (cmd.command === 'ArrangeSelected') {
-            const mode = cmd.mode;
+        } else if (command === 'ArrangeSelected') {
+            const mode = args.mode;
             if (this._selectedObjects.length > 0) {
-                this._wb.executeCommand ({
-                    command: `ArrangeObjects${mode}`,
+                this._wb.triggerEx (new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                })
+                }));
             }
         }
     }

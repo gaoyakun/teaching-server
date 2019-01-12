@@ -2,8 +2,6 @@ import * as wb from '../whiteboard';
 import * as commands from '../commands';
 
 export interface IToolDef {
-    activeCommand: string;
-    deactiveCommand?: string;
     iconClass?: string;
     fontSize: string;
     elementId?: string;
@@ -41,69 +39,41 @@ export class WBEditorToolbox {
         tools.forEach ((tool: IToolDef) => {
             this._tools.push (tool);
             const buttonSize = parseInt(tool.fontSize||'60', 10) + 10; 
-            if (tool.activeCommand === '$StrokeColor') {
-                const inputBox: HTMLInputElement = document.createElement ('input');
-                inputBox.type = 'color';
-                inputBox.value = this._strokeColor;
-                inputBox.style.width = `${buttonSize}px`;
-                inputBox.style.height = `${buttonSize}px`;
-                inputBox.style.margin = '2px';
-                inputBox.onchange = () => {
-                    this._strokeColor = inputBox.value;
-                }
-                this._container.appendChild (inputBox);
-            } else if (tool.activeCommand === '$FillColor') {
-                const inputBox: HTMLInputElement = document.createElement ('input');
-                inputBox.type = 'color';
-                inputBox.value = this._fillColor;
-                inputBox.style.width = `${buttonSize}px`;
-                inputBox.style.height = `${buttonSize}px`;
-                inputBox.style.margin = '2px';
-                inputBox.onchange = () => {
-                    this._fillColor = inputBox.value;
-                }
-                this._container.appendChild (inputBox);
-            } else {
-                const toolButton: HTMLElement = document.createElement ('div');
-                toolButton.classList.add ('flex-h', 'flex-align-x-center', 'flex-align-y-center');
-                tool.elementId = `toolbutton-${WBEditorToolbox.uniqueId++}`;
-                toolButton.classList.add ('toolbutton');
-                toolButton.id = tool.elementId;
-                toolButton.style.width = `${buttonSize}px`;
-                toolButton.style.height = `${buttonSize}px`;
-                toolButton.setAttribute ('toolIndex', String(this._tools.length-1));
-                const toolIcon: HTMLElement = document.createElement ('i');
-                toolIcon.style.fontSize = tool.fontSize || '60px';
-                toolIcon.style.color = '#fff';
-                toolIcon.style.lineHeight = tool.fontSize || '60px';
-                tool.iconClass && tool.iconClass.split (' ').forEach ((cls: string) => {
-                    toolIcon.classList.add (cls);
-                });
+            const toolButton: HTMLElement = document.createElement ('div');
+            toolButton.classList.add ('flex-h', 'flex-align-x-center', 'flex-align-y-center');
+            tool.elementId = `toolbutton-${WBEditorToolbox.uniqueId++}`;
+            toolButton.classList.add ('toolbutton');
+            toolButton.id = tool.elementId;
+            toolButton.style.width = `${buttonSize}px`;
+            toolButton.style.height = `${buttonSize}px`;
+            toolButton.setAttribute ('toolIndex', String(this._tools.length-1));
+            const toolIcon: HTMLElement = document.createElement ('i');
+            toolIcon.style.fontSize = tool.fontSize || '60px';
+            toolIcon.style.color = '#fff';
+            toolIcon.style.lineHeight = tool.fontSize || '60px';
+            tool.iconClass && tool.iconClass.split (' ').forEach ((cls: string) => {
+                toolIcon.classList.add (cls);
+            });
 
-                toolButton.appendChild (toolIcon);
-                this._container.appendChild (toolButton);
+            toolButton.appendChild (toolIcon);
+            this._container.appendChild (toolButton);
 
-                toolButton.addEventListener ('click', () => {
-                    const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
-                    const tool = this._tools[toolIndex];
-                    if (tool !== this._curTool) {
-                        if (this._curTool) {
-                            const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
-                            curToolButton && curToolButton.classList.remove ('active');
-                            if (this._curTool.deactiveCommand) {
-                                this._wb.executeCommand (commands.WBCommandParser.parse(this._curTool.deactiveCommand));
-                            }
-                            this._curTool = null;
-                        }
+            toolButton.addEventListener ('click', () => {
+                const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
+                const tool = this._tools[toolIndex];
+                if (tool !== this._curTool) {
+                    if (this._curTool) {
+                        const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
+                        curToolButton && curToolButton.classList.remove ('active');
+                        this._curTool = null;
                     }
-                    if (tool) {
-                        const button = document.querySelector(`#${tool.elementId}`);
-                        button && button.classList.add ('active');
-                        this._wb.executeCommand (commands.WBCommandParser.parse(tool.activeCommand));
-                        this._curTool = tool;
-                    }
-                });
-            }
+                }
+                if (tool) {
+                    const button = document.querySelector(`#${tool.elementId}`);
+                    button && button.classList.add ('active');
+                    this._curTool = tool;
+                }
+            });
         });
     }
     unloadTools () {
