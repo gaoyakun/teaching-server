@@ -4356,11 +4356,12 @@
 	exports.WBGetObjectEvent = WBGetObjectEvent;
 	var WBCommandEvent = /** @class */ (function (_super) {
 	    __extends(WBCommandEvent, _super);
-	    function WBCommandEvent(command, args, results) {
+	    function WBCommandEvent(command, args, results, object) {
 	        var _this = _super.call(this, WBCommandEvent.type) || this;
 	        _this.command = command;
 	        _this.args = args;
 	        _this.results = results;
+	        _this.object = object;
 	        return _this;
 	    }
 	    WBCommandEvent.type = '@WBCommand';
@@ -4429,7 +4430,7 @@
 	            }
 	        });
 	        _this.on(WBCommandEvent.type, function (ev) {
-	            _this._executeCommand(ev.command, ev.args, ev.results);
+	            _this._executeCommand(ev.command, ev.args, ev.results, ev.object);
 	        });
 	        if (_this.view) {
 	            _this.view.on(catk.EvtKeyDown.type, function (ev) {
@@ -4545,6 +4546,25 @@
 	    WhiteBoard.prototype.findEntity = function (name) {
 	        return this._entities[name] || null;
 	    };
+	    WhiteBoard.prototype.findEntityByType = function (type, rootNode) {
+	        if (this.view) {
+	            var root = rootNode || this.view.rootNode;
+	            if (root) {
+	                if (root.entityType === type) {
+	                    return root;
+	                }
+	                else {
+	                    for (var i = 0; i < root.numChildren; i++) {
+	                        var result = this.findEntityByType(type, root.childAt(i));
+	                        if (result) {
+	                            return result;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        return null;
+	    };
 	    WhiteBoard.prototype.encodeCommand = function (cmd) {
 	        return JSON.stringify(cmd);
 	        /*
@@ -4557,10 +4577,16 @@
 	        return str;
 	        */
 	    };
-	    WhiteBoard.prototype._executeCommand = function (command, args, results) {
+	    WhiteBoard.prototype._executeCommand = function (command, args, results, object) {
 	        var _this = this;
 	        var cmd = args || {};
-	        if (command === 'UseTool') {
+	        if (object) {
+	            var obj = this.findEntity(object);
+	            if (obj) {
+	                obj.triggerEx(new WBCommandEvent(command, args, results, object));
+	            }
+	        }
+	        else if (command === 'UseTool') {
 	            if (this._currentTool !== cmd.name) {
 	                if (this._currentTool !== '') {
 	                    var prevTool = this._tools[this._currentTool];
@@ -6510,28 +6536,91 @@
 	                }
 	            }
 	        });
-	        _this.on(catk.EvtMouseDown.type, function (ev) {
-	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	        _this.on(whiteboard.WBCommandEvent.type, function (ev) {
 	            if (_this.canvas) {
-	                if (_this._mode === 'draw') {
-	                    var context = _this.canvas.getContext('2d');
-	                    if (context) {
+	                var context = _this.canvas.getContext('2d');
+	                if (context) {
+	                    if (ev.command === 'StartDraw') {
 	                        context.lineWidth = _this._lineWidth;
 	                        context.strokeStyle = _this._color;
 	                        context.lineCap = 'round';
 	                        context.lineJoin = 'round';
 	                        context.beginPath();
-	                        context.moveTo(pt.x + 0.5, pt.y + 0.5);
-	                        _this._cp.length = 0;
-	                        _this._action = true;
+	                        context.moveTo(ev.args.x + 0.5, ev.args.y + 0.5);
+	                    }
+	                    else if (ev.command === 'Drawing') {
+	                        if (ev.args.curveMode === 0) {
+	                            context.lineTo(ev.args.x + 0.5, ev.args.y + 0.5);
+	                            context.stroke();
+	                        }
+	                        else if (ev.args.curveMode === 1) {
+	                            if (ev.args.cp.length === 1) {
+	                                context.quadraticCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
+	                                context.stroke();
+	                            }
+	                        }
+	                        else if (ev.args.curveMode === 2) {
+	                            if (ev.args.cp.length === 2) {
+	                                context.bezierCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
+	                                context.stroke();
+	                            }
+	                        }
+	                    }
+	                    else if (ev.command === 'EndDraw') {
+	                        if (ev.args.cp.length > 0) {
+	                            if (ev.args.cp.length === 1) {
+	                                context.lineTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5);
+	                            }
+	                            else if (ev.args.cp.length) {
+	                                context.quadraticCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5);
+	                            }
+	                            context.stroke();
+	                        }
+	                    }
+	                    else if (ev.command === 'Erase') {
+	                        context.clearRect(ev.args.x - ev.args.size / 2, ev.args.y - ev.args.size / 2, ev.args.size, ev.args.size);
 	                    }
 	                }
-	                else if (_this._mode === 'erase') {
-	                    var context = _this.canvas.getContext('2d');
+	            }
+	        });
+	        _this.on(catk.EvtMouseDown.type, function (ev) {
+	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	            if (_this.canvas) {
+	                if (_this._mode === 'draw') {
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('StartDraw', {
+	                        x: pt.x,
+	                        y: pt.y
+	                    }, undefined, _this.entityName));
+	                    _this._cp.length = 0;
+	                    _this._action = true;
+	                    /*
+	                    const context = this.canvas.getContext('2d');
 	                    if (context) {
-	                        context.clearRect(pt.x - _this._eraseSize / 2, pt.y - _this._eraseSize / 2, _this._eraseSize, _this._eraseSize);
-	                        _this._action = true;
+	                        context.lineWidth = this._lineWidth;
+	                        context.strokeStyle = this._color;
+	                        context.lineCap = 'round';
+	                        context.lineJoin = 'round';
+	                        context.beginPath ();
+	                        context.moveTo (pt.x + 0.5, pt.y + 0.5);
+	                        this._cp.length = 0;
+	                        this._action = true;
 	                    }
+	                    */
+	                }
+	                else if (_this._mode === 'erase') {
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Erase', {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: _this._eraseSize
+	                    }, undefined, _this.entityName));
+	                    _this._action = true;
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    if (context) {
+	                        context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
+	                        this._action = true;
+	                    }
+	                    */
 	                }
 	            }
 	        });
@@ -6541,39 +6630,68 @@
 	            if (_this._action && _this.canvas) {
 	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
 	                if (_this._mode === 'draw') {
-	                    var context = _this.canvas.getContext('2d');
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Drawing', {
+	                        curveMode: _this._curveMode,
+	                        x: pt.x,
+	                        y: pt.y,
+	                        cp: _this._cp,
+	                    }, undefined, _this.entityName));
+	                    if (_this._curveMode === 1) {
+	                        if (_this._cp.length === 1) {
+	                            _this._cp.length = 0;
+	                        }
+	                        else {
+	                            _this._cp.push({ x: pt.x, y: pt.y });
+	                            _this._lastMoveTime = Date.now();
+	                        }
+	                    }
+	                    else if (_this._curveMode === 2) {
+	                        if (_this._cp.length === 2) {
+	                            _this._cp.length = 0;
+	                        }
+	                        else {
+	                            _this._cp.push({ x: pt.x, y: pt.y });
+	                            _this._lastMoveTime = Date.now();
+	                        }
+	                    }
+	                    /*
+	                    const context = this.canvas.getContext('2d');
 	                    if (context) {
-	                        if (_this._curveMode === 0) {
-	                            context.lineTo(pt.x + 0.5, pt.y + 0.5);
-	                            context.stroke();
-	                        }
-	                        else if (_this._curveMode === 1) {
-	                            if (_this._cp.length === 1) {
-	                                context.quadraticCurveTo(_this._cp[0].x + 0.5, _this._cp[0].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-	                                context.stroke();
-	                                _this._cp.length = 0;
+	                        if (this._curveMode === 0) {
+	                            context.lineTo (pt.x + 0.5, pt.y + 0.5);
+	                            context.stroke ();
+	                        } else if (this._curveMode === 1) {
+	                            if (this._cp.length === 1) {
+	                                context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, pt.x + 0.5, pt.y + 0.5);
+	                                context.stroke ();
+	                                this._cp.length = 0;
+	                            } else {
+	                                this._cp.push ({x: pt.x, y: pt.y});
+	                                this._lastMoveTime = Date.now();
 	                            }
-	                            else {
-	                                _this._cp.push({ x: pt.x, y: pt.y });
-	                                _this._lastMoveTime = Date.now();
-	                            }
-	                        }
-	                        else if (_this._curveMode === 2) {
-	                            if (_this._cp.length === 2) {
-	                                context.bezierCurveTo(_this._cp[0].x + 0.5, _this._cp[0].y + 0.5, _this._cp[1].x + 0.5, _this._cp[1].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-	                                context.stroke();
-	                                _this._cp.length = 0;
-	                            }
-	                            else {
-	                                _this._cp.push({ x: pt.x, y: pt.y });
-	                                _this._lastMoveTime = Date.now();
+	                        } else if (this._curveMode === 2) {
+	                            if (this._cp.length === 2) {
+	                                context.bezierCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5, pt.x + 0.5, pt.y + 0.5);
+	                                context.stroke ();
+	                                this._cp.length = 0;
+	                            } else {
+	                                this._cp.push ({x: pt.x, y: pt.y});
+	                                this._lastMoveTime = Date.now();
 	                            }
 	                        }
 	                    }
+	                    */
 	                }
 	                else if (_this._mode === 'erase') {
-	                    var context = _this.canvas.getContext('2d');
-	                    context && context.clearRect(pt.x - _this._eraseSize / 2, pt.y - _this._eraseSize / 2, _this._eraseSize, _this._eraseSize);
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Erase', {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: _this._eraseSize
+	                    }, undefined, _this.entityName));
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
+	                    */
 	                }
 	            }
 	        });
@@ -6609,6 +6727,10 @@
 	                    ev.value = _this._eraseSize;
 	                    break;
 	                }
+	                case 'mode': {
+	                    ev.value = _this._mode;
+	                    break;
+	                }
 	            }
 	        });
 	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
@@ -6627,6 +6749,10 @@
 	                }
 	                case 'eraseSize': {
 	                    _this._eraseSize = Number(ev.value);
+	                    break;
+	                }
+	                case 'mode': {
+	                    _this._mode = String(ev.value);
 	                    break;
 	                }
 	            }
@@ -6672,6 +6798,23 @@
 	                type: 'number',
 	                value: _this._eraseSize
 	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'mode',
+	                desc: '操作模式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._mode,
+	                enum: [{
+	                        value: 'draw',
+	                        desc: '绘制'
+	                    }, {
+	                        value: 'erase',
+	                        desc: '擦除'
+	                    }, {
+	                        value: 'none',
+	                        desc: '无'
+	                    }]
+	            });
 	        });
 	        return _this;
 	    }
@@ -6709,17 +6852,22 @@
 	    });
 	    WBFreeDraw.prototype.finishDraw = function () {
 	        if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
-	            var context = this.canvas.getContext('2d');
+	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('EndDraw', {
+	                cp: this._cp
+	            }, undefined, this.entityName));
+	            this._cp.length = 0;
+	            /*
+	            const context = this.canvas.getContext('2d');
 	            if (context) {
 	                if (this._cp.length === 1) {
-	                    context.lineTo(this._cp[0].x + 0.5, this._cp[0].y + 0.5);
+	                    context.lineTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5);
+	                } else if (this._cp.length) {
+	                    context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5);
 	                }
-	                else if (this._cp.length) {
-	                    context.quadraticCurveTo(this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5);
-	                }
-	                context.stroke();
+	                context.stroke ();
 	                this._cp.length = 0;
 	            }
+	            */
 	        }
 	    };
 	    return WBFreeDraw;
@@ -6977,7 +7125,17 @@
 	                _this._mouseStartPosY = ev.y;
 	                _this._selectedObjects.forEach(function (obj) {
 	                    var t = obj.translation;
-	                    obj.translation = { x: t.x + dx_1, y: t.y + dy_1 };
+	                    //obj.translation = { x: t.x + dx, y: t.y + dy };
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                        objectName: obj.entityName,
+	                        propName: 'localx',
+	                        propValue: t.x + dx_1
+	                    }));
+	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                        objectName: obj.entityName,
+	                        propName: 'localy',
+	                        propValue: t.y + dy_1
+	                    }));
 	                });
 	            }
 	            else if (_this._rangeSelecting) {
@@ -7679,7 +7837,12 @@
 	            this._freedrawNode = results.objectCreated;
 	        }
 	        if (this._freedrawNode) {
-	            this._freedrawNode.mode = this._mode;
+	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValue: this._mode
+	            }));
+	            //this._freedrawNode.mode = this._mode;
 	            this._freedrawNode.setCapture();
 	            this.applyProperties(this._paramsDraw);
 	            this.applyProperties(this._paramsErase);
@@ -7689,7 +7852,12 @@
 	    WBHandWritingTool.prototype.deactivate = function () {
 	        if (this._freedrawNode) {
 	            this._freedrawNode.releaseCapture();
-	            this._freedrawNode.mode = 'none';
+	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValue: 'none'
+	            }));
+	            //this._freedrawNode.mode = 'none';
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);
@@ -7710,25 +7878,9 @@
 	            this.applyProperty(prop, props[prop]);
 	        }
 	    };
-	    WBHandWritingTool.prototype.findFreedrawNode = function (rootNode) {
-	        var view = this._wb.view;
-	        if (view) {
-	            var root = rootNode || view.rootNode;
-	            if (root) {
-	                if (root.entityType === 'FreeDraw') {
-	                    return root;
-	                }
-	                else {
-	                    for (var i = 0; i < root.numChildren; i++) {
-	                        var result = this.findFreedrawNode(root.childAt(i));
-	                        if (result) {
-	                            return result;
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        return null;
+	    WBHandWritingTool.prototype.findFreedrawNode = function () {
+	        var node = this._wb.findEntityByType('FreeDraw');
+	        return node ? node : null;
 	    };
 	    WBHandWritingTool.toolname = 'HandWriting';
 	    return WBHandWritingTool;

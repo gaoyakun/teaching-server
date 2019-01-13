@@ -108,7 +108,12 @@ export class WBHandWritingTool extends wb.WBTool {
             this._freedrawNode = results.objectCreated;
         }
         if (this._freedrawNode) {
-            this._freedrawNode.mode = this._mode;
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
+                objectName: this._freedrawNode.entityName,
+                propName: 'mode',
+                propValue: this._mode
+            }));
+            //this._freedrawNode.mode = this._mode;
             this._freedrawNode.setCapture ();
             this.applyProperties (this._paramsDraw);
             this.applyProperties (this._paramsErase);
@@ -118,7 +123,12 @@ export class WBHandWritingTool extends wb.WBTool {
     public deactivate() {
         if (this._freedrawNode) {
             this._freedrawNode.releaseCapture();
-            this._freedrawNode.mode = 'none';
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
+                objectName: this._freedrawNode.entityName,
+                propName: 'mode',
+                propValue: 'none'
+            }));
+            //this._freedrawNode.mode = 'none';
             this._freedrawNode = null;
         }
         super.deactivate ();
@@ -139,23 +149,8 @@ export class WBHandWritingTool extends wb.WBTool {
             this.applyProperty (prop, props[prop]);
         }
     }
-    private findFreedrawNode (rootNode?: lib.SceneObject): objects.WBFreeDraw|null {
-        const view = this._wb.view;
-        if (view) {
-            const root = rootNode || view.rootNode;
-            if (root) {
-                if (root.entityType === 'FreeDraw') {
-                    return root as objects.WBFreeDraw;
-                } else {
-                    for (let i = 0; i < root.numChildren; i++) {
-                        const result = this.findFreedrawNode (root.childAt (i));
-                        if (result) {
-                            return result;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+    private findFreedrawNode (): objects.WBFreeDraw|null {
+        const node = this._wb.findEntityByType ('FreeDraw');
+        return node ? node as objects.WBFreeDraw : null;
     }
 }

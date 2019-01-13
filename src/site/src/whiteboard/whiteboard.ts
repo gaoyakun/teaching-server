@@ -232,11 +232,13 @@ export class WBCommandEvent extends lib.BaseEvent {
     command: string;
     args?: any;
     results?: any;
-    constructor (command: string, args?: any, results?: any) {
+    object?: string;
+    constructor (command: string, args?: any, results?: any, object?: string) {
         super (WBCommandEvent.type);
         this.command = command;
         this.args = args;
         this.results = results;
+        this.object = object;
     }
 }
 
@@ -305,7 +307,7 @@ export class WhiteBoard extends lib.EventObserver {
             }
         });
         this.on(WBCommandEvent.type, (ev: WBCommandEvent) => {
-            this._executeCommand (ev.command, ev.args, ev.results);
+            this._executeCommand (ev.command, ev.args, ev.results, ev.object);
         });
         if (this.view) {
             this.view.on (lib.EvtKeyDown.type, (ev: lib.EvtKeyDown) => {
@@ -419,6 +421,24 @@ export class WhiteBoard extends lib.EventObserver {
     public findEntity(name: string): lib.SceneObject {
         return this._entities[name] || null;
     }
+    public findEntityByType (type: string, rootNode?: lib.SceneObject): lib.SceneObject|null {
+        if (this.view) {
+            const root = rootNode || this.view.rootNode;
+            if (root) {
+                if (root.entityType === type) {
+                    return root;
+                } else {
+                    for (let i = 0; i < root.numChildren; i++) {
+                        const result = this.findEntityByType (type, root.childAt (i));
+                        if (result) {
+                            return result;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     public encodeCommand(cmd: command.IWBCommand) {
         return JSON.stringify (cmd);
         /*
@@ -431,9 +451,14 @@ export class WhiteBoard extends lib.EventObserver {
         return str;
         */
     }
-    public _executeCommand(command: string, args?: any, results?: any) {
+    public _executeCommand(command: string, args?: any, results?: any, object?: string) {
         const cmd = args||{};
-        if (command === 'UseTool') {
+        if (object) {
+            const obj = this.findEntity (object);
+            if (obj) {
+                obj.triggerEx (new WBCommandEvent(command, args, results, object));
+            }
+        } else if (command === 'UseTool') {
             if (this._currentTool !== cmd.name) {
                 if (this._currentTool !== '') {
                     const prevTool = this._tools[this._currentTool];

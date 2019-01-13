@@ -143,7 +143,17 @@ export class WBSelectTool extends wb.WBTool {
                 this._mouseStartPosY = ev.y;
                 this._selectedObjects.forEach ((obj: lib.SceneObject) => {
                     const t = obj.translation;
-                    obj.translation = { x: t.x + dx, y: t.y + dy };
+                    //obj.translation = { x: t.x + dx, y: t.y + dy };
+                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+                        objectName: obj.entityName,
+                        propName: 'localx',
+                        propValue: t.x + dx
+                    }));
+                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+                        objectName: obj.entityName,
+                        propName: 'localy',
+                        propValue: t.y + dy
+                    }));
                 });
             } else if (this._rangeSelecting) {
                 const view = this._wb.view;

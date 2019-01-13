@@ -244,7 +244,8 @@ export class RoomManager {
             let client = new Client;
             await client.init (socket);
             await client.enterRoom (roomId);
-            socket.once ('disconnect', () => {
+            socket.once ('disconnect', reason => {
+                console.log(`Disconnected:${client.userAccount} - ${reason}`);
                 client.leaveRoom ();
             });
             socket.on ('message', (data:Buffer)=>{

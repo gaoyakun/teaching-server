@@ -71,10 +71,58 @@ export class WBFreeDraw extends lib.SceneObject {
                 }
             }
         });
+        this.on (wb.WBCommandEvent.type, (ev: wb.WBCommandEvent) => {
+            if (this.canvas) {
+                const context = this.canvas.getContext('2d');
+                if (context) {
+                    if (ev.command === 'StartDraw') {
+                        context.lineWidth = this._lineWidth;
+                        context.strokeStyle = this._color;
+                        context.lineCap = 'round';
+                        context.lineJoin = 'round';
+                        context.beginPath ();
+                        context.moveTo (ev.args.x + 0.5, ev.args.y + 0.5);
+                    } else if (ev.command === 'Drawing') {
+                        if (ev.args.curveMode === 0) {
+                            context.lineTo (ev.args.x + 0.5, ev.args.y + 0.5);
+                            context.stroke ();
+                        } else if (ev.args.curveMode === 1) {
+                            if (ev.args.cp.length === 1) {
+                                context.quadraticCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
+                                context.stroke ();
+                            }
+                        } else if (ev.args.curveMode === 2) {
+                            if (ev.args.cp.length === 2) {
+                                context.bezierCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
+                                context.stroke ();
+                            }
+                        }
+                    } else if (ev.command === 'EndDraw') {
+                        if (ev.args.cp.length > 0) {
+                            if (ev.args.cp.length === 1) {
+                                context.lineTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5);
+                            } else if (ev.args.cp.length) {
+                                context.quadraticCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5);
+                            }
+                            context.stroke ();
+                        }
+                    } else if (ev.command === 'Erase') {
+                        context.clearRect (ev.args.x - ev.args.size / 2, ev.args.y - ev.args.size / 2, ev.args.size, ev.args.size);
+                    }
+                }
+            }
+        });
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
             const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
             if (this.canvas) {
                 if (this._mode === 'draw') {
+                    lib.App.triggerEvent (null, new wb.WBCommandEvent('StartDraw', {
+                        x: pt.x,
+                        y: pt.y
+                    }, undefined, this.entityName));
+                    this._cp.length = 0;
+                    this._action = true;
+                    /*
                     const context = this.canvas.getContext('2d');
                     if (context) {
                         context.lineWidth = this._lineWidth;
@@ -86,12 +134,21 @@ export class WBFreeDraw extends lib.SceneObject {
                         this._cp.length = 0;
                         this._action = true;
                     }
+                    */
                 } else if (this._mode === 'erase') {
+                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
+                        x: pt.x,
+                        y: pt.y,
+                        size: this._eraseSize
+                    }, undefined, this.entityName));
+                    this._action = true;
+                    /*
                     const context = this.canvas.getContext('2d');
                     if (context) {
                         context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
                         this._action = true;
                     }
+                    */
                 }
             }
         });
@@ -101,6 +158,28 @@ export class WBFreeDraw extends lib.SceneObject {
             if (this._action && this.canvas) {
                 const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
                 if (this._mode === 'draw') {
+                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Drawing', {
+                        curveMode: this._curveMode,
+                        x: pt.x,
+                        y: pt.y,
+                        cp: this._cp,
+                    }, undefined, this.entityName));
+                    if (this._curveMode === 1) {
+                        if (this._cp.length === 1) {
+                            this._cp.length = 0;
+                        } else {
+                            this._cp.push ({ x: pt.x, y: pt.y});
+                            this._lastMoveTime = Date.now();
+                        }
+                    } else if (this._curveMode === 2) {
+                        if (this._cp.length === 2) {
+                            this._cp.length = 0;
+                        } else {
+                            this._cp.push ({x: pt.x, y: pt.y});
+                            this._lastMoveTime = Date.now();
+                        }
+                    }
+                    /*
                     const context = this.canvas.getContext('2d');
                     if (context) {
                         if (this._curveMode === 0) {
@@ -126,9 +205,17 @@ export class WBFreeDraw extends lib.SceneObject {
                             }
                         }
                     }
+                    */
                 } else if (this._mode === 'erase') {
+                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
+                        x: pt.x,
+                        y: pt.y,
+                        size: this._eraseSize
+                    }, undefined, this.entityName));
+                    /*
                     const context = this.canvas.getContext('2d');
                     context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
+                    */
                 }
             }
         });
@@ -164,6 +251,10 @@ export class WBFreeDraw extends lib.SceneObject {
                     ev.value = this._eraseSize;
                     break;
                 }
+                case 'mode': {
+                    ev.value = this._mode;
+                    break;
+                }
             }
         });
         this.on(wb.WBSetPropertyEvent.type, (ev: wb.WBSetPropertyEvent) => {
@@ -182,6 +273,10 @@ export class WBFreeDraw extends lib.SceneObject {
                 }
                 case 'eraseSize': {
                     this._eraseSize = Number(ev.value);
+                    break;
+                }
+                case 'mode': {
+                    this._mode = String(ev.value);
                     break;
                 }
             }
@@ -226,7 +321,24 @@ export class WBFreeDraw extends lib.SceneObject {
                 readonly: false,
                 type: 'number',
                 value: this._eraseSize
-            })
+            });
+            ev.properties[this.entityType].properties.push ({
+                name: 'mode',
+                desc: '操作模式',
+                readonly: false,
+                type: 'string',
+                value: this._mode,
+                enum: [{
+                    value: 'draw',
+                    desc: '绘制'
+                }, {
+                    value: 'erase',
+                    desc: '擦除'
+                }, {
+                    value: 'none',
+                    desc: '无'
+                }]
+            });
         });
     }
     get mode () {
@@ -255,6 +367,11 @@ export class WBFreeDraw extends lib.SceneObject {
     }
     private finishDraw () {
         if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
+            lib.App.triggerEvent (null, new wb.WBCommandEvent('EndDraw', {
+                cp: this._cp
+            }, undefined, this.entityName));
+            this._cp.length = 0;
+            /*
             const context = this.canvas.getContext('2d');
             if (context) {
                 if (this._cp.length === 1) {
@@ -265,6 +382,7 @@ export class WBFreeDraw extends lib.SceneObject {
                 context.stroke ();
                 this._cp.length = 0;
             }
+            */
         }
     }
 }

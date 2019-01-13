@@ -45,7 +45,7 @@ export class SocketCommandServer extends catk.EventObserver {
                 if (msg) {
                     if (msg.type === MsgType.whiteboard_CommandMessage) {
                         const cmd:any = JSON.parse (msg.data.command);
-                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args));
+                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
                     } else {
                         catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
                     }
@@ -54,7 +54,8 @@ export class SocketCommandServer extends catk.EventObserver {
                 }
             }
         });
-        this._socket.on ('disconnect', () => {
+        this._socket.on ('disconnect', (reason:any) => {
+            console.log (`Disconnected: ${reason}`);
             this.onDisconnect ();
         });
         this.on (WBCommandEvent.type, (ev: WBCommandEvent) => {
@@ -62,7 +63,9 @@ export class SocketCommandServer extends catk.EventObserver {
                 const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
                     command: JSON.stringify({
                         command: ev.command,
-                        args: ev.args
+                        args: ev.args,
+                        results: {},
+                        object: ev.object
                     }).replace (/[\u007F-\uFFFF]/g, function(chr) {
                         return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
                     })
