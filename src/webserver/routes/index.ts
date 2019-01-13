@@ -133,7 +133,7 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
             name: (req.session as Session).loginUserAccount
         },
         serverinfo: {
-            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}`
+            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}&token=${(req.session as Session).id}`
         }
     });
 });

@@ -46,7 +46,7 @@ class Client {
             }
             const users = yield config_1.GetConfig.engine.objects('user').filter(['id', session.loginUserId]).all();
             if (!users || users.length !== 1) {
-                throw new Error('Invalid user');
+                throw new Error(`Invalid user: ${JSON.stringify(session)}`);
             }
             this._userId = session.loginUserId;
             this._userAccount = users[0].account;
@@ -246,9 +246,6 @@ class RoomManager {
     newClient(socket) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = socket.handshake || socket.request;
-            if (!data || !data.query) {
-                throw new Error('Invalid handshake data');
-            }
             const roomId = utils_1.Utils.safeParseInt(data.query.room);
             if (roomId === null) {
                 throw new Error('Invalid roomId parameter');

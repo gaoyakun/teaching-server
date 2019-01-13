@@ -3,15 +3,13 @@ import * as path from 'path';
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
-import * as config from '../lib/config';
 import { Config } from './config';
 import { Server } from '../lib/servermgr';
 import { ServerType } from '../lib/constants';
-import { CENTERSERVER_HOST, CENTERSERVER_PORT } from '../lib/config';
 const useHttps = false;
 
 Config.load ();
-Server.init ( ServerType.Center, CENTERSERVER_HOST, CENTERSERVER_PORT, Config, path.join(__dirname, 'conf', 'config.json'));
+Server.init ( ServerType.Center, Config, path.join(__dirname, 'conf', 'config.json'));
 
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
@@ -21,7 +19,7 @@ const options = useHttps ? {
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(config.CENTERSERVER_PORT);
+const httpPort = normalizePort(Server.port);
 const httpsPort = normalizePort(443);
 
 /**

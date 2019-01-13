@@ -133,7 +133,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
             name: req.session.loginUserAccount
         },
         serverinfo: {
-            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}`
+            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}&token=${req.session.id}`
         }
     });
 }));

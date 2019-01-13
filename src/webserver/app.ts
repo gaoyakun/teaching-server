@@ -15,8 +15,9 @@ import 'express-async-errors';
 
 const app = express ();
 
-GetConfig.load ().then (cfg => {
-    Server.init (ServerType.Web, 'localhost', 8888, GetConfig, path.join(__dirname, 'conf', 'config.json'));
+async function initializeApp () {
+    await GetConfig.load ();
+    Server.init (ServerType.Web, GetConfig, path.join(__dirname, 'conf', 'config.json'));
 
     app.set ('views', path.join(__dirname, 'views'));
     app.set ('view engine', 'ejs');
@@ -60,10 +61,7 @@ GetConfig.load ().then (cfg => {
             });
         }
     });
-}).catch (err => {
-    console.log (`Load configuration failed: ${err}`);
-    process.exit (1);
-});
+}
 
-export { app };
+export { app, initializeApp };
 

@@ -6,6 +6,15 @@ import { MsgType } from '../../../common/protocols/protolist';
 import * as catk from '../catk';
 import * as io from 'socket.io-client';
 
+export class SocketStateEvent extends catk.BaseEvent {
+    static readonly type: string = '@SocketState';
+    readonly state: string;
+    constructor (state: string) {
+        super (SocketStateEvent.type);
+        this.state = state;
+    }
+}
+
 export class SocketCommandServer extends catk.EventObserver {
     private _uri: string;
     private _wb: WhiteBoard;
@@ -19,6 +28,7 @@ export class SocketCommandServer extends catk.EventObserver {
         this._assembler = new MessageAssembler ();
     }
     start (): boolean {
+        console.log (`Trying connect to ${this._uri}`);
         this._socket = io (this._uri, {
             transports: ['websocket'],
             reconnection: false
@@ -69,12 +79,12 @@ export class SocketCommandServer extends catk.EventObserver {
         return true;
     }
     protected onConnect () {
-        console.log ('connected');
+        catk.App.triggerEvent (null, new SocketStateEvent('connected'));
     }
     protected onEvent (data: any) {
-        console.log ('event');
+        catk.App.triggerEvent (null, new SocketStateEvent('event'));
     }
     protected onDisconnect () {
-        console.log ('disconnect');
+        catk.App.triggerEvent (null, new SocketStateEvent('disconnected'));
     }
 }

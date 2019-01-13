@@ -14,7 +14,7 @@ export class Engine {
     private pool: mysql.Pool;
     constructor (options: mysql.PoolConfig) {
         this.options = options;
-        options.debug = true;
+        //options.debug = true;
         this.pool = mysql.createPool(this.options);
     }
     static getInstance (name: string) {

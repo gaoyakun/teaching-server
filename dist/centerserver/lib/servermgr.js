@@ -17,6 +17,12 @@ class Server {
     static get id() {
         return Number(this._config.id);
     }
+    static get address() {
+        return this._ip;
+    }
+    static get port() {
+        return this._port;
+    }
     static pickServer(type) {
         return __awaiter(this, void 0, void 0, function* () {
             const rankKey = `server_rank:${type}`;
@@ -51,15 +57,15 @@ class Server {
             }
         });
     }
-    static init(type, ip, port, config, serverConfigJson) {
+    static init(type, config, serverConfigJson) {
         this._type = type;
-        this._ip = ip;
-        this._port = port;
         this._rank = 0;
         this._postTimer = null;
         this._redis = config.redis;
         this._config = require(serverConfigJson);
         this._id = `svr:${type}:${this._config.id}`;
+        this._ip = this._config.address;
+        this._port = this._config.port;
         this._postTimer = setInterval(() => {
             this._post();
         }, this._ackInterval * 1000);

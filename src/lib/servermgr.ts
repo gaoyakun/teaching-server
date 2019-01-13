@@ -21,6 +21,12 @@ export class Server {
     static get id () {
         return Number(this._config.id);
     }
+    static get address () {
+        return this._ip;
+    }
+    static get port () {
+        return this._port;
+    }
     static async pickServer (type: constants.ServerType) {
         const rankKey = `server_rank:${type as number}`;
         while (true) {
@@ -48,15 +54,15 @@ export class Server {
             return null;
         }
     }
-    static init (type: constants.ServerType, ip:string, port:number, config:Config, serverConfigJson:string) {
+    static init (type: constants.ServerType, config:Config, serverConfigJson:string) {
         this._type = type;
-        this._ip = ip;
-        this._port = port;
         this._rank = 0;
         this._postTimer = null;
         this._redis = config.redis;
         this._config = require (serverConfigJson);
         this._id = `svr:${type as number}:${this._config.id}`;
+        this._ip = this._config.address;
+        this._port = this._config.port;
         this._postTimer = setInterval (() => {
             this._post ();
         }, this._ackInterval * 1000);

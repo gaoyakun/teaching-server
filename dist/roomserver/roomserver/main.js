@@ -12,154 +12,149 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const socketio = require("socket.io");
-const cookie = require("cookie");
 const app_1 = require("./app");
 const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
-const config_1 = require("../lib/config");
 const roommgr_1 = require("./roommgr");
 const commands_1 = require("./commands");
 const useHttps = false;
-const options = useHttps ? {
-    key: fs.readFileSync('cert/1531277059027.key'),
-    cert: fs.readFileSync('cert/1531277059027.pem')
-} : {};
-/**
- * Get port from environment and store in Express.
- */
-const httpPort = normalizePort(8900);
-const httpsPort = normalizePort(443);
-/**
- * Create HTTP server.
- */
-const server = http.createServer(app_1.app);
-const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
-const io = socketio(server, {
-    transports: ['websocket']
-});
-config_1.GetConfig.load().then(cfg => {
+app_1.initializeApp().then(() => {
+    const options = useHttps ? {
+        key: fs.readFileSync('cert/1531277059027.key'),
+        cert: fs.readFileSync('cert/1531277059027.pem')
+    } : {};
+    /**
+     * Get port from environment and store in Express.
+     */
+    const httpPort = normalizePort(servermgr_1.Server.port);
+    const httpsPort = normalizePort(443);
+    /**
+     * Create HTTP server.
+     */
+    const server = http.createServer(app_1.app);
+    const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
+    const io = socketio(server, {
+        transports: ['websocket']
+    });
     io.use((socket, next) => __awaiter(this, void 0, void 0, function* () {
         const data = socket.handshake || socket.request;
-        if (data.headers.cookie) {
-            const cookies = cookie.parse(data.headers.cookie);
-            const sessionId = cookies[cfg.sessionToken];
-            if (!sessionId) {
-                return next(new Error('无法加入房间：未知用户'));
-            }
-            socket.request.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
-            if (!socket.request.session) {
-                return next(new Error('无法加入房间：未知用户'));
-            }
-            console.log(`Join room:${socket.request.session.loginUserAccount}`);
-            return next();
+        if (!data || !data.query || !data.headers) {
+            return next(new Error('无法加入房间：无效的请求'));
         }
-        else {
-            return next(new Error('无法加入房间：无效请求'));
+        const token = data.query.token;
+        if (!token) {
+            return next(new Error('无法加入房间：未知用户'));
         }
+        socket.request.session = (yield session_1.Session.loadSession(token)) || undefined;
+        if (!socket.request.session) {
+            return next(new Error('无法加入房间：未知用户'));
+        }
+        console.log(`Join room:${socket.request.session.loginUserAccount}`);
+        return next();
     }));
-}).catch(err => {
-    console.error(err);
-    process.exit(-1);
-});
-io.on('connection', socket => {
-    console.log('Client connected');
-    roommgr_1.RoomManager.instance().newClient(socket).catch(err => {
-        console.log(err);
-        socket.disconnect();
+    io.on('connection', socket => {
+        console.log('Client connected');
+        roommgr_1.RoomManager.instance().newClient(socket).catch(err => {
+            console.log(err);
+            socket.disconnect();
+        });
     });
-});
-/**
- * Listen on provided port, on all network interfaces.
- */
-server.listen(httpPort);
-server.on('error', onError);
-server.on('listening', onListening);
-if (useHttps && serverHttps) {
-    serverHttps.listen(httpsPort);
-    serverHttps.on('error', onErrorHttps);
-    serverHttps.on('listening', onListeningHttps);
-}
-/**
- * Normalize a port into a number, string, or false.
- */
-function normalizePort(val) {
-    const port = parseInt(val, 10);
-    if (isNaN(port)) {
-        // named pipe
-        return val;
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+    server.listen(httpPort);
+    server.on('error', onError);
+    server.on('listening', onListening);
+    if (useHttps && serverHttps) {
+        serverHttps.listen(httpsPort);
+        serverHttps.on('error', onErrorHttps);
+        serverHttps.on('listening', onListeningHttps);
     }
-    if (port >= 0) {
-        // port number
-        return port;
+    /**
+     * Normalize a port into a number, string, or false.
+     */
+    function normalizePort(val) {
+        const port = parseInt(val, 10);
+        if (isNaN(port)) {
+            // named pipe
+            return val;
+        }
+        if (port >= 0) {
+            // port number
+            return port;
+        }
+        return false;
     }
-    return false;
-}
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-    const bind = typeof httpPort === 'string'
-        ? 'Pipe ' + httpPort
-        : 'Port ' + httpPort;
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
+    /**
+     * Event listener for HTTP server "error" event.
+     */
+    function onError(error) {
+        if (error.syscall !== 'listen') {
             throw error;
+        }
+        const bind = typeof httpPort === 'string'
+            ? 'Pipe ' + httpPort
+            : 'Port ' + httpPort;
+        // handle specific listen errors with friendly messages
+        switch (error.code) {
+            case 'EACCES':
+                console.error(bind + ' requires elevated privileges');
+                process.exit(1);
+                break;
+            case 'EADDRINUSE':
+                console.error(bind + ' is already in use');
+                process.exit(1);
+                break;
+            default:
+                throw error;
+        }
     }
-}
-/**
- * Event listener for HTTP server "error" event.
- */
-function onErrorHttps(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-    const bind = typeof httpsPort === 'string'
-        ? 'Pipe ' + httpsPort
-        : 'Port ' + httpsPort;
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
+    /**
+     * Event listener for HTTP server "error" event.
+     */
+    function onErrorHttps(error) {
+        if (error.syscall !== 'listen') {
             throw error;
+        }
+        const bind = typeof httpsPort === 'string'
+            ? 'Pipe ' + httpsPort
+            : 'Port ' + httpsPort;
+        // handle specific listen errors with friendly messages
+        switch (error.code) {
+            case 'EACCES':
+                console.error(bind + ' requires elevated privileges');
+                process.exit(1);
+                break;
+            case 'EADDRINUSE':
+                console.error(bind + ' is already in use');
+                process.exit(1);
+                break;
+            default:
+                throw error;
+        }
     }
-}
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-    const addr = server.address();
-    const bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    console.log('Listening on ' + bind);
-    servermgr_1.Server.startCli(commands_1.doCommand);
-}
-function onListeningHttps() {
-    if (serverHttps) {
-        const addr = serverHttps.address();
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+    function onListening() {
+        const addr = server.address();
         const bind = typeof addr === 'string'
             ? 'pipe ' + addr
             : 'port ' + addr.port;
         console.log('Listening on ' + bind);
+        servermgr_1.Server.startCli(commands_1.doCommand);
     }
-}
+    function onListeningHttps() {
+        if (serverHttps) {
+            const addr = serverHttps.address();
+            const bind = typeof addr === 'string'
+                ? 'pipe ' + addr
+                : 'port ' + addr.port;
+            console.log('Listening on ' + bind);
+        }
+    }
+}).catch(err => {
+    console.log(`Load configuration failed: ${err}`);
+    process.exit(1);
+});
 //# sourceMappingURL=main.js.map

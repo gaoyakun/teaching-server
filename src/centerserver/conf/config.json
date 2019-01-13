@@ -1,5 +1,7 @@
 {
     "id": "1",
+    "address": "http://10.0.0.15",
+    "port": 9999,
     "redis": {
         "host": "localhost",
         "port": 6379

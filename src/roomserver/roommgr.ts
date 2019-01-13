@@ -43,7 +43,7 @@ export class Client {
         }
         const users = await GetConfig.engine.objects('user').filter(['id', session.loginUserId]).all();
         if (!users || users.length !== 1) {
-            throw new Error('Invalid user');
+            throw new Error(`Invalid user: ${JSON.stringify(session)}`);
         }
         this._userId = session.loginUserId;
         this._userAccount = users[0].account;
@@ -237,9 +237,6 @@ export class RoomManager {
     }
     async newClient (socket: socketio.Socket) {
         const data:any = socket.handshake || socket.request;
-        if (!data || !data.query) {
-            throw new Error ('Invalid handshake data');
-        }
         const roomId = Utils.safeParseInt(data.query.room);
         if (roomId === null) {
             throw new Error ('Invalid roomId parameter');

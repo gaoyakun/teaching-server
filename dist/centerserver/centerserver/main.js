@@ -5,14 +5,12 @@ const path = require("path");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const config = require("../lib/config");
 const config_1 = require("./config");
 const servermgr_1 = require("../lib/servermgr");
 const constants_1 = require("../lib/constants");
-const config_2 = require("../lib/config");
 const useHttps = false;
 config_1.Config.load();
-servermgr_1.Server.init(constants_1.ServerType.Center, config_2.CENTERSERVER_HOST, config_2.CENTERSERVER_PORT, config_1.Config, path.join(__dirname, 'conf', 'config.json'));
+servermgr_1.Server.init(constants_1.ServerType.Center, config_1.Config, path.join(__dirname, 'conf', 'config.json'));
 const options = useHttps ? {
     key: fs.readFileSync('cert/1531277059027.key'),
     cert: fs.readFileSync('cert/1531277059027.pem')
@@ -20,7 +18,7 @@ const options = useHttps ? {
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(config.CENTERSERVER_PORT);
+const httpPort = normalizePort(servermgr_1.Server.port);
 const httpsPort = normalizePort(443);
 /**
  * Create HTTP server.
