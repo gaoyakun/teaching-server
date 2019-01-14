@@ -1,6 +1,6 @@
 import { MsgType, msgMap } from './protocols/protolist';
 
-interface IMsgData {
+export interface IMsgData {
     type: MsgType;
     data?: any;
 }
@@ -56,8 +56,6 @@ export class Packet {
     private encode (msgId: number, data: object) {
         const cls: any = msgMap[msgId];
         const tmpBuffer = cls.encode (cls.create(data)).finish ();
-        const tmp = cls.decode (tmpBuffer);
-        console.log (tmp);
         this._buffer = new Uint8Array (4 + 4 + tmpBuffer.length);
         setUint32 (this._buffer, 0, tmpBuffer.length + 4);
         setUint32 (this._buffer, 4, msgId);

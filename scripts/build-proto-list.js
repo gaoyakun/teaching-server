@@ -1,13 +1,16 @@
 const fs = require('fs');
 
-function dfs (obj, names, callback) {
+function dfs (obj, names, callback, startId) {
     if (obj.nested === undefined) {
-        callback (names);
+        callback (names, startId);
     } else {
+        let startId = obj.nested.MessageID ? obj.nested.MessageID.values.Start : 0;
         Object.keys (obj.nested).forEach (field => {
-            names.push (field);
-            dfs (obj.nested[field], names, callback);
-            names.pop ();
+            if (field !== 'MessageID') {
+                names.push (field);
+                dfs (obj.nested[field], names, callback, startId++);
+                names.pop ();
+            }
         });
     }
 }
@@ -42,14 +45,11 @@ const msgTypeMapFoot = `};
 
 export { msgMap };
 `
-let msgIdStart = 10000;
-
-dfs (protoDesc, names, function(namelist){
+dfs (protoDesc, names, function(namelist, msgId){
     const typeEnum = namelist.join('_');
     const type = namelist.join('.');
-    msgTypeContent += `\t${typeEnum} = ${msgIdStart},\n`;
-    msgTypeMapContent += `\t${msgIdStart}: proto.${type},\n`;
-    msgIdStart++;
+    msgTypeContent += `\t${typeEnum} = ${msgId},\n`;
+    msgTypeMapContent += `\t${msgId}: proto.${type},\n`;
 });
 
 fs.writeFileSync (args[1], `${contentHead}${msgTypeHead}${msgTypeContent}${msgTypeFoot}${msgTypeMapHead}${msgTypeMapContent}${msgTypeMapFoot}`);

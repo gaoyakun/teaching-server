@@ -1,7 +1,30 @@
 {
   "nested": {
+    "base": {
+      "nested": {
+        "MessageID": {
+          "values": {
+            "Start": 10000
+          }
+        },
+        "UberMessage": {
+          "fields": {
+            "subMessages": {
+              "rule": "repeated",
+              "type": "bytes",
+              "id": 1
+            }
+          }
+        }
+      }
+    },
     "room": {
       "nested": {
+        "MessageID": {
+          "values": {
+            "Start": 20000
+          }
+        },
         "JoinRoomMessage": {
           "fields": {
             "account": {
@@ -30,6 +53,11 @@
     },
     "whiteboard": {
       "nested": {
+        "MessageID": {
+          "values": {
+            "Start": 30000
+          }
+        },
         "CommandMessage": {
           "fields": {
             "command": {

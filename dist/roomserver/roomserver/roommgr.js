@@ -134,6 +134,7 @@ exports.Client = Client;
 class Room {
     constructor(id) {
         this._clients = {};
+        this._commandList = [];
         this._id = id;
         this._channel = `room-${id}`;
     }
@@ -145,6 +146,9 @@ class Room {
     }
     get clients() {
         return this._clients;
+    }
+    get commandList() {
+        return this._commandList;
     }
     findClient(id) {
         if (utils_1.Utils.isInt(id)) {

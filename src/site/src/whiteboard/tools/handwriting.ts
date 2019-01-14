@@ -1,5 +1,4 @@
 import * as lib from '../../catk';
-import * as commands from '../commands';
 import * as wb from '../whiteboard';
 import * as objects from '../objects';
 
@@ -113,7 +112,7 @@ export class WBHandWritingTool extends wb.WBTool {
                 propName: 'mode',
                 propValue: this._mode
             }));
-            //this._freedrawNode.mode = this._mode;
+            // this._freedrawNode.mode = this._mode;
             this._freedrawNode.setCapture ();
             this.applyProperties (this._paramsDraw);
             this.applyProperties (this._paramsErase);
@@ -128,7 +127,7 @@ export class WBHandWritingTool extends wb.WBTool {
                 propName: 'mode',
                 propValue: 'none'
             }));
-            //this._freedrawNode.mode = 'none';
+            // this._freedrawNode.mode = 'none';
             this._freedrawNode = null;
         }
         super.deactivate ();
@@ -141,7 +140,12 @@ export class WBHandWritingTool extends wb.WBTool {
     }
     private applyProperty (name:string, value:any) {
         if (this._freedrawNode) {
-            this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
+            lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+                objectName: this._freedrawNode.entityName,
+                propName: name,
+                propValue: value
+            }));
+            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
         }
     }
     private applyProperties (props: any) {

@@ -126,10 +126,12 @@ export class Client {
 
 export class Room {
     private _clients: { [id:number]: Client };
+    private _commandList: Uint8Array[];
     private _id: number;
     private _channel: string;
     constructor (id: number) {
         this._clients = {};
+        this._commandList = [];
         this._id = id;
         this._channel = `room-${id}`;
     }
@@ -141,6 +143,9 @@ export class Room {
     }
     get clients () {
         return this._clients;
+    }
+    get commandList () {
+        return this._commandList;
     }
     findClient (id: number): Client|undefined {
         if (Utils.isInt(id)) {

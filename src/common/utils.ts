@@ -79,6 +79,16 @@ export class Utils {
     static mergeBlank = function(str: string) {
         return str.replace(/\s+/g, ' ');
     }
+    static toUnicode (str:string): string {
+        return str.replace (/[\u007F-\uFFFF]/g, function(chr) {
+            return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
+        })
+    }
+    static fromUnicode (str:string): string {
+        return str.replace (/\\u[0-9|a-f|A-F]{4}/g, function (s) {
+            return String.fromCharCode(parseInt(s.slice(2), 16));
+        });
+    }
     static safeParseNumber (value: any) {
         return isNaN(value) ? null : parseFloat(value);
     }

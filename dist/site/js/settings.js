@@ -2166,6 +2166,16 @@
 	    Utils.trim = function (str) {
 	        return str.replace(/(^\s*)|(\s*$)/g, '');
 	    };
+	    Utils.toUnicode = function (str) {
+	        return str.replace(/[\u007F-\uFFFF]/g, function (chr) {
+	            return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4);
+	        });
+	    };
+	    Utils.fromUnicode = function (str) {
+	        return str.replace(/\\u[0-9|a-f|A-F]{4}/g, function (s) {
+	            return String.fromCharCode(parseInt(s.slice(2), 16));
+	        });
+	    };
 	    Utils.safeParseNumber = function (value) {
 	        return isNaN(value) ? null : parseFloat(value);
 	    };

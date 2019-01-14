@@ -7842,7 +7842,7 @@
 	                propName: 'mode',
 	                propValue: this._mode
 	            }));
-	            //this._freedrawNode.mode = this._mode;
+	            // this._freedrawNode.mode = this._mode;
 	            this._freedrawNode.setCapture();
 	            this.applyProperties(this._paramsDraw);
 	            this.applyProperties(this._paramsErase);
@@ -7857,7 +7857,7 @@
 	                propName: 'mode',
 	                propValue: 'none'
 	            }));
-	            //this._freedrawNode.mode = 'none';
+	            // this._freedrawNode.mode = 'none';
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);
@@ -7870,7 +7870,12 @@
 	    };
 	    WBHandWritingTool.prototype.applyProperty = function (name, value) {
 	        if (this._freedrawNode) {
-	            this._freedrawNode.triggerEx(new whiteboard.WBSetPropertyEvent(name, value));
+	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: name,
+	                propValue: value
+	            }));
+	            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
 	        }
 	    };
 	    WBHandWritingTool.prototype.applyProperties = function (props) {

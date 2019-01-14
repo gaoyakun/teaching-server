@@ -1,6 +1,6 @@
 import { WBCommandEvent } from '../whiteboard/whiteboard';
 import { EvtSocketMessage, WhiteBoard } from '../whiteboard/whiteboard';
-import { Packet, MessageAssembler } from '../../../common/protoutils';
+import { IMsgData, Packet, MessageAssembler } from '../../../common/protoutils';
 import { MsgType } from '../../../common/protocols/protolist';
 
 import * as catk from '../catk';
@@ -66,13 +66,29 @@ export class SocketCommandServer extends catk.EventObserver {
                         args: ev.args,
                         results: {},
                         object: ev.object
-                    }).replace (/[\u007F-\uFFFF]/g, function(chr) {
+                    })/*.replace (/[\u007F-\uFFFF]/g, function(chr) {
                         return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
-                    })
+                    })*/
                 });
                 (this._socket as any).binary(true).emit ('message', pkg.buffer);
             }    
         });
+        (function(){
+            const tmp1:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
+                command: '你好'
+            });
+            const tmp2:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
+                command: 'World'
+            });
+            const uber:Packet = Packet.create(MsgType.base_UberMessage, {
+                subMessages: [tmp1.buffer, tmp2.buffer]
+            });
+            const verify = uber.getMsgData () as IMsgData;
+            const t1 = new Packet(verify.data.subMessages[0]).getMsgData ();
+            const t2 = new Packet(verify.data.subMessages[1]).getMsgData ();
+            console.log (t1);
+            console.log (t2);
+        }());
         return true;
     }
     stop (): boolean {

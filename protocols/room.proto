@@ -1,6 +1,10 @@
 package room;
 syntax = "proto3";
 
+enum MessageID {
+    Start = 20000;
+}
+
 message JoinRoomMessage {
     string account = 1;
     uint32 userId = 2;

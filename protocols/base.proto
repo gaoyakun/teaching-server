@@ -1,0 +1,11 @@
+package base;
+syntax = "proto3";
+
+enum MessageID {
+    Start = 10000;
+}
+
+message UberMessage {
+    repeated bytes subMessages = 1;
+}
+

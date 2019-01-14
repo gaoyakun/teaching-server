@@ -80,6 +80,16 @@ class Utils {
     static trim(str) {
         return str.replace(/(^\s*)|(\s*$)/g, '');
     }
+    static toUnicode(str) {
+        return str.replace(/[\u007F-\uFFFF]/g, function (chr) {
+            return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4);
+        });
+    }
+    static fromUnicode(str) {
+        return str.replace(/\\u[0-9|a-f|A-F]{4}/g, function (s) {
+            return String.fromCharCode(parseInt(s.slice(2), 16));
+        });
+    }
     static safeParseNumber(value) {
         return isNaN(value) ? null : parseFloat(value);
     }

@@ -7845,7 +7845,7 @@
 	                propName: 'mode',
 	                propValue: this._mode
 	            }));
-	            //this._freedrawNode.mode = this._mode;
+	            // this._freedrawNode.mode = this._mode;
 	            this._freedrawNode.setCapture();
 	            this.applyProperties(this._paramsDraw);
 	            this.applyProperties(this._paramsErase);
@@ -7860,7 +7860,7 @@
 	                propName: 'mode',
 	                propValue: 'none'
 	            }));
-	            //this._freedrawNode.mode = 'none';
+	            // this._freedrawNode.mode = 'none';
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);
@@ -7873,7 +7873,12 @@
 	    };
 	    WBHandWritingTool.prototype.applyProperty = function (name, value) {
 	        if (this._freedrawNode) {
-	            this._freedrawNode.triggerEx(new whiteboard.WBSetPropertyEvent(name, value));
+	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: name,
+	                propValue: value
+	            }));
+	            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
 	        }
 	    };
 	    WBHandWritingTool.prototype.applyProperties = function (props) {
@@ -10613,6 +10618,218 @@
 	var $Reader = minimal$1.Reader, $Writer = minimal$1.Writer, $util = minimal$1.util;
 	// Exported root namespace
 	var $root = minimal$1.roots["default"] || (minimal$1.roots["default"] = {});
+	$root.base = (function () {
+	    /**
+	     * Namespace base.
+	     * @exports base
+	     * @namespace
+	     */
+	    var base = {};
+	    /**
+	     * MessageID enum.
+	     * @name base.MessageID
+	     * @enum {string}
+	     * @property {number} Start=10000 Start value
+	     */
+	    base.MessageID = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[10000] = "Start"] = 10000;
+	        return values;
+	    })();
+	    base.UberMessage = (function () {
+	        /**
+	         * Properties of an UberMessage.
+	         * @memberof base
+	         * @interface IUberMessage
+	         * @property {Array.<Uint8Array>|null} [subMessages] UberMessage subMessages
+	         */
+	        /**
+	         * Constructs a new UberMessage.
+	         * @memberof base
+	         * @classdesc Represents an UberMessage.
+	         * @implements IUberMessage
+	         * @constructor
+	         * @param {base.IUberMessage=} [properties] Properties to set
+	         */
+	        function UberMessage(properties) {
+	            this.subMessages = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * UberMessage subMessages.
+	         * @member {Array.<Uint8Array>} subMessages
+	         * @memberof base.UberMessage
+	         * @instance
+	         */
+	        UberMessage.prototype.subMessages = $util.emptyArray;
+	        /**
+	         * Creates a new UberMessage instance using the specified properties.
+	         * @function create
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {base.IUberMessage=} [properties] Properties to set
+	         * @returns {base.UberMessage} UberMessage instance
+	         */
+	        UberMessage.create = function create(properties) {
+	            return new UberMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified UberMessage message. Does not implicitly {@link base.UberMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {base.IUberMessage} message UberMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        UberMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.subMessages != null && message.subMessages.length)
+	                for (var i = 0; i < message.subMessages.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).bytes(message.subMessages[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified UberMessage message, length delimited. Does not implicitly {@link base.UberMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {base.IUberMessage} message UberMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        UberMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an UberMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {base.UberMessage} UberMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        UberMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.base.UberMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.subMessages && message.subMessages.length))
+	                            message.subMessages = [];
+	                        message.subMessages.push(reader.bytes());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an UberMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {base.UberMessage} UberMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        UberMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an UberMessage message.
+	         * @function verify
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        UberMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.subMessages != null && message.hasOwnProperty("subMessages")) {
+	                if (!Array.isArray(message.subMessages))
+	                    return "subMessages: array expected";
+	                for (var i = 0; i < message.subMessages.length; ++i)
+	                    if (!(message.subMessages[i] && typeof message.subMessages[i].length === "number" || $util.isString(message.subMessages[i])))
+	                        return "subMessages: buffer[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an UberMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {base.UberMessage} UberMessage
+	         */
+	        UberMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.base.UberMessage)
+	                return object;
+	            var message = new $root.base.UberMessage();
+	            if (object.subMessages) {
+	                if (!Array.isArray(object.subMessages))
+	                    throw TypeError(".base.UberMessage.subMessages: array expected");
+	                message.subMessages = [];
+	                for (var i = 0; i < object.subMessages.length; ++i)
+	                    if (typeof object.subMessages[i] === "string")
+	                        $util.base64.decode(object.subMessages[i], message.subMessages[i] = $util.newBuffer($util.base64.length(object.subMessages[i])), 0);
+	                    else if (object.subMessages[i].length)
+	                        message.subMessages[i] = object.subMessages[i];
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an UberMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof base.UberMessage
+	         * @static
+	         * @param {base.UberMessage} message UberMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        UberMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.subMessages = [];
+	            if (message.subMessages && message.subMessages.length) {
+	                object.subMessages = [];
+	                for (var j = 0; j < message.subMessages.length; ++j)
+	                    object.subMessages[j] = options.bytes === String ? $util.base64.encode(message.subMessages[j], 0, message.subMessages[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.subMessages[j]) : message.subMessages[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this UberMessage to JSON.
+	         * @function toJSON
+	         * @memberof base.UberMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        UberMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return UberMessage;
+	    })();
+	    return base;
+	})();
 	$root.room = (function () {
 	    /**
 	     * Namespace room.
@@ -10620,6 +10837,17 @@
 	     * @namespace
 	     */
 	    var room = {};
+	    /**
+	     * MessageID enum.
+	     * @name room.MessageID
+	     * @enum {string}
+	     * @property {number} Start=20000 Start value
+	     */
+	    room.MessageID = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[20000] = "Start"] = 20000;
+	        return values;
+	    })();
 	    room.JoinRoomMessage = (function () {
 	        /**
 	         * Properties of a JoinRoomMessage.
@@ -11019,6 +11247,17 @@
 	     * @namespace
 	     */
 	    var whiteboard = {};
+	    /**
+	     * MessageID enum.
+	     * @name whiteboard.MessageID
+	     * @enum {string}
+	     * @property {number} Start=30000 Start value
+	     */
+	    whiteboard.MessageID = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[30000] = "Start"] = 30000;
+	        return values;
+	    })();
 	    whiteboard.CommandMessage = (function () {
 	        /**
 	         * Properties of a CommandMessage.
@@ -11201,14 +11440,16 @@
 
 	var MsgType;
 	(function (MsgType) {
-	    MsgType[MsgType["room_JoinRoomMessage"] = 10000] = "room_JoinRoomMessage";
-	    MsgType[MsgType["room_LeaveRoomMessage"] = 10001] = "room_LeaveRoomMessage";
-	    MsgType[MsgType["whiteboard_CommandMessage"] = 10002] = "whiteboard_CommandMessage";
+	    MsgType[MsgType["base_UberMessage"] = 10000] = "base_UberMessage";
+	    MsgType[MsgType["room_JoinRoomMessage"] = 20000] = "room_JoinRoomMessage";
+	    MsgType[MsgType["room_LeaveRoomMessage"] = 20001] = "room_LeaveRoomMessage";
+	    MsgType[MsgType["whiteboard_CommandMessage"] = 30000] = "whiteboard_CommandMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
-	    10000: protocols.room.JoinRoomMessage,
-	    10001: protocols.room.LeaveRoomMessage,
-	    10002: protocols.whiteboard.CommandMessage,
+	    10000: protocols.base.UberMessage,
+	    20000: protocols.room.JoinRoomMessage,
+	    20001: protocols.room.LeaveRoomMessage,
+	    30000: protocols.whiteboard.CommandMessage,
 	};
 	exports.msgMap = msgMap;
 
@@ -11273,8 +11514,6 @@
 	    Packet.prototype.encode = function (msgId, data) {
 	        var cls = protolist.msgMap[msgId];
 	        var tmpBuffer = cls.encode(cls.create(data)).finish();
-	        var tmp = cls.decode(tmpBuffer);
-	        console.log(tmp);
 	        this._buffer = new Uint8Array(4 + 4 + tmpBuffer.length);
 	        setUint32(this._buffer, 0, tmpBuffer.length + 4);
 	        setUint32(this._buffer, 4, msgId);
@@ -11431,13 +11670,29 @@
 	                        args: ev.args,
 	                        results: {},
 	                        object: ev.object
-	                    }).replace(/[\u007F-\uFFFF]/g, function (chr) {
-	                        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4);
-	                    })
+	                    }) /*.replace (/[\u007F-\uFFFF]/g, function(chr) {
+	                        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
+	                    })*/
 	                });
 	                _this._socket.binary(true).emit('message', pkg.buffer);
 	            }
 	        });
+	        (function () {
+	            var tmp1 = protoutils.Packet.create(protolist.MsgType.whiteboard_CommandMessage, {
+	                command: '你好'
+	            });
+	            var tmp2 = protoutils.Packet.create(protolist.MsgType.whiteboard_CommandMessage, {
+	                command: 'World'
+	            });
+	            var uber = protoutils.Packet.create(protolist.MsgType.base_UberMessage, {
+	                subMessages: [tmp1.buffer, tmp2.buffer]
+	            });
+	            var verify = uber.getMsgData();
+	            var t1 = new protoutils.Packet(verify.data.subMessages[0]).getMsgData();
+	            var t2 = new protoutils.Packet(verify.data.subMessages[1]).getMsgData();
+	            console.log(t1);
+	            console.log(t2);
+	        }());
 	        return true;
 	    };
 	    SocketCommandServer.prototype.stop = function () {
