@@ -332,6 +332,17 @@
               "id": 3
             }
           }
+        },
+        "ClearPageMessage": {
+          "fields": {
+            "pageName": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "ClearBoardMessage": {
+          "fields": {}
         }
       }
     }

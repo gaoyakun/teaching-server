@@ -1245,6 +1245,16 @@ export class SceneView extends BaseObject {
             }
         }
     }
+    clearPage(pageName: string) {
+        const page = this._pages[pageName];
+        if (page) {
+            page.rootNode && page.rootNode.unrefChildren ();
+            if (pageName === this._currentPage) {
+                this._captureObject = null;
+                this._hitObjects.length = 0;
+            }
+        }
+    }
     get currentPage() {
         return this._currentPage;
     }

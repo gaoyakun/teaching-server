@@ -34,6 +34,8 @@ var MsgType;
     MsgType[MsgType["whiteboard_EndDrawMessage"] = 30022] = "whiteboard_EndDrawMessage";
     MsgType[MsgType["whiteboard_EraseMessage"] = 30023] = "whiteboard_EraseMessage";
     MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30024] = "whiteboard_SwapObjectMessage";
+    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30025] = "whiteboard_ClearPageMessage";
+    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30026] = "whiteboard_ClearBoardMessage";
 })(MsgType = exports.MsgType || (exports.MsgType = {}));
 const msgMap = {
     10000: proto.base.UberMessage,
@@ -64,6 +66,8 @@ const msgMap = {
     30022: proto.whiteboard.EndDrawMessage,
     30023: proto.whiteboard.EraseMessage,
     30024: proto.whiteboard.SwapObjectMessage,
+    30025: proto.whiteboard.ClearPageMessage,
+    30026: proto.whiteboard.ClearBoardMessage,
 };
 exports.msgMap = msgMap;
 __export(require("./protocols"));

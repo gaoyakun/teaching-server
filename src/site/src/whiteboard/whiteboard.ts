@@ -583,6 +583,12 @@ export class WhiteBoard extends lib.EventObserver {
             this.view && this.view.addPage ();
         } else if (type === MsgType.whiteboard_RenamePageMessage) {
             this.view && this.view.currentPage && this.view.renamePage (this.view.currentPage, cmd.newName);
+        } else if (type === MsgType.whiteboard_ClearPageMessage) {
+            this.view && this.view.clearPage (cmd.pageName||this.view.currentPage);
+        } else if (type === MsgType.whiteboard_ClearBoardMessage) {
+            this.view && this.view.forEachPage (page => {
+                this.view && page && page.name && this.view.clearPage (page.name);
+            })
         } else if (this._currentTool) {
             this._tools[this._currentTool].handleMessage (type, cmd);
         } else {

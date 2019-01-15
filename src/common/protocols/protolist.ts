@@ -30,6 +30,8 @@ export enum MsgType {
 	whiteboard_EndDrawMessage = 30022,
 	whiteboard_EraseMessage = 30023,
 	whiteboard_SwapObjectMessage = 30024,
+	whiteboard_ClearPageMessage = 30025,
+	whiteboard_ClearBoardMessage = 30026,
 }
 
 const msgMap: any = {
@@ -61,6 +63,8 @@ const msgMap: any = {
 	30022: proto.whiteboard.EndDrawMessage,
 	30023: proto.whiteboard.EraseMessage,
 	30024: proto.whiteboard.SwapObjectMessage,
+	30025: proto.whiteboard.ClearPageMessage,
+	30026: proto.whiteboard.ClearBoardMessage,
 };
 
 export { msgMap };

@@ -5458,6 +5458,326 @@ $root.whiteboard = (function () {
         };
         return SwapObjectMessage;
     })();
+    whiteboard.ClearPageMessage = (function () {
+        /**
+         * Properties of a ClearPageMessage.
+         * @memberof whiteboard
+         * @interface IClearPageMessage
+         * @property {string|null} [pageName] ClearPageMessage pageName
+         */
+        /**
+         * Constructs a new ClearPageMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a ClearPageMessage.
+         * @implements IClearPageMessage
+         * @constructor
+         * @param {whiteboard.IClearPageMessage=} [properties] Properties to set
+         */
+        function ClearPageMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+        /**
+         * ClearPageMessage pageName.
+         * @member {string} pageName
+         * @memberof whiteboard.ClearPageMessage
+         * @instance
+         */
+        ClearPageMessage.prototype.pageName = "";
+        /**
+         * Creates a new ClearPageMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {whiteboard.IClearPageMessage=} [properties] Properties to set
+         * @returns {whiteboard.ClearPageMessage} ClearPageMessage instance
+         */
+        ClearPageMessage.create = function create(properties) {
+            return new ClearPageMessage(properties);
+        };
+        /**
+         * Encodes the specified ClearPageMessage message. Does not implicitly {@link whiteboard.ClearPageMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {whiteboard.IClearPageMessage} message ClearPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ClearPageMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.pageName != null && message.hasOwnProperty("pageName"))
+                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.pageName);
+            return writer;
+        };
+        /**
+         * Encodes the specified ClearPageMessage message, length delimited. Does not implicitly {@link whiteboard.ClearPageMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {whiteboard.IClearPageMessage} message ClearPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ClearPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+        /**
+         * Decodes a ClearPageMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.ClearPageMessage} ClearPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ClearPageMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ClearPageMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                    case 1:
+                        message.pageName = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                }
+            }
+            return message;
+        };
+        /**
+         * Decodes a ClearPageMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.ClearPageMessage} ClearPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ClearPageMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+        /**
+         * Verifies a ClearPageMessage message.
+         * @function verify
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ClearPageMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.pageName != null && message.hasOwnProperty("pageName"))
+                if (!$util.isString(message.pageName))
+                    return "pageName: string expected";
+            return null;
+        };
+        /**
+         * Creates a ClearPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.ClearPageMessage} ClearPageMessage
+         */
+        ClearPageMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.ClearPageMessage)
+                return object;
+            var message = new $root.whiteboard.ClearPageMessage();
+            if (object.pageName != null)
+                message.pageName = String(object.pageName);
+            return message;
+        };
+        /**
+         * Creates a plain object from a ClearPageMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.ClearPageMessage
+         * @static
+         * @param {whiteboard.ClearPageMessage} message ClearPageMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ClearPageMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.pageName = "";
+            if (message.pageName != null && message.hasOwnProperty("pageName"))
+                object.pageName = message.pageName;
+            return object;
+        };
+        /**
+         * Converts this ClearPageMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.ClearPageMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ClearPageMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+        return ClearPageMessage;
+    })();
+    whiteboard.ClearBoardMessage = (function () {
+        /**
+         * Properties of a ClearBoardMessage.
+         * @memberof whiteboard
+         * @interface IClearBoardMessage
+         */
+        /**
+         * Constructs a new ClearBoardMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a ClearBoardMessage.
+         * @implements IClearBoardMessage
+         * @constructor
+         * @param {whiteboard.IClearBoardMessage=} [properties] Properties to set
+         */
+        function ClearBoardMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+        /**
+         * Creates a new ClearBoardMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {whiteboard.IClearBoardMessage=} [properties] Properties to set
+         * @returns {whiteboard.ClearBoardMessage} ClearBoardMessage instance
+         */
+        ClearBoardMessage.create = function create(properties) {
+            return new ClearBoardMessage(properties);
+        };
+        /**
+         * Encodes the specified ClearBoardMessage message. Does not implicitly {@link whiteboard.ClearBoardMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {whiteboard.IClearBoardMessage} message ClearBoardMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ClearBoardMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+        /**
+         * Encodes the specified ClearBoardMessage message, length delimited. Does not implicitly {@link whiteboard.ClearBoardMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {whiteboard.IClearBoardMessage} message ClearBoardMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ClearBoardMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+        /**
+         * Decodes a ClearBoardMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.ClearBoardMessage} ClearBoardMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ClearBoardMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ClearBoardMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                }
+            }
+            return message;
+        };
+        /**
+         * Decodes a ClearBoardMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.ClearBoardMessage} ClearBoardMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ClearBoardMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+        /**
+         * Verifies a ClearBoardMessage message.
+         * @function verify
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ClearBoardMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+        /**
+         * Creates a ClearBoardMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.ClearBoardMessage} ClearBoardMessage
+         */
+        ClearBoardMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.ClearBoardMessage)
+                return object;
+            return new $root.whiteboard.ClearBoardMessage();
+        };
+        /**
+         * Creates a plain object from a ClearBoardMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.ClearBoardMessage
+         * @static
+         * @param {whiteboard.ClearBoardMessage} message ClearBoardMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ClearBoardMessage.toObject = function toObject() {
+            return {};
+        };
+        /**
+         * Converts this ClearBoardMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.ClearBoardMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ClearBoardMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+        return ClearBoardMessage;
+    })();
     return whiteboard;
 })();
 module.exports = $root;

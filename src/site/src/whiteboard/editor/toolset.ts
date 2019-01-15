@@ -110,5 +110,9 @@ export const WBDefaultToolSet = {
                 mode: 'Vertical'
             }
         },
+        ClearPage: {
+            iconClass: 'fas fa-minus-circle fa-fw',
+            command: MsgType.whiteboard_ClearBoardMessage
+        }
     }
 };
