@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
 import * as commands from '../commands';
+import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBCreateTool extends wb.WBTool {
     public static readonly toolname: string = 'Create';
@@ -27,6 +28,7 @@ export class WBCreateTool extends wb.WBTool {
             }
         }
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
+            /*
             const args: any  = {
                 type: this.options.createType,
                 name: null,
@@ -40,6 +42,14 @@ export class WBCreateTool extends wb.WBTool {
             args.y = ev.y;
             args.params = this._creationParams[this.options.createType];
             lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args));
+            */
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
+                type: this.options.createType,
+                name: null,
+                x: ev.x,
+                y: ev.y,
+                paramsJson: JSON.stringify(this._creationParams[this.options.createType])
+            }));
         });
         this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
             if (ev.name in this._creationParams[this.options.createType]) {

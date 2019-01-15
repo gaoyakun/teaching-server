@@ -65,6 +65,273 @@
               "id": 1
             }
           }
+        },
+        "EventMessage": {
+          "fields": {
+            "message": {
+              "type": "bytes",
+              "id": 1
+            },
+            "object": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        },
+        "UseToolMessage": {
+          "fields": {
+            "name": {
+              "type": "string",
+              "id": 1
+            },
+            "paramsJson": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        },
+        "CreateObjectMessage": {
+          "fields": {
+            "type": {
+              "type": "string",
+              "id": 1
+            },
+            "x": {
+              "type": "uint32",
+              "id": 2
+            },
+            "y": {
+              "type": "uint32",
+              "id": 3
+            },
+            "name": {
+              "type": "string",
+              "id": 4
+            },
+            "failOnExists": {
+              "type": "bool",
+              "id": 5
+            },
+            "paramsJson": {
+              "type": "string",
+              "id": 6
+            }
+          }
+        },
+        "DeleteSelected": {
+          "fields": {}
+        },
+        "CloneSelected": {
+          "fields": {}
+        },
+        "AlignSelected": {
+          "fields": {
+            "mode": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "ArrangeSelected": {
+          "fields": {
+            "mode": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "DeleteObjectMessage": {
+          "fields": {
+            "name": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "DeleteObjectsMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "AlignObjectsLeftMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "AlignObjectsRightMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "AlignObjectsTopMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "AlignObjectsBottomMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "ArrangeObjectsHorizontalMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "ArrangeObjectsVerticalMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "SetObjectPropertyMessage": {
+          "fields": {
+            "name": {
+              "type": "string",
+              "id": 1
+            },
+            "propName": {
+              "type": "string",
+              "id": 2
+            },
+            "propValueJson": {
+              "type": "string",
+              "id": 3
+            }
+          }
+        },
+        "AddPageMessage": {
+          "fields": {}
+        },
+        "RenamePageMessage": {
+          "fields": {
+            "newName": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "DeletePageMessage": {
+          "fields": {}
+        },
+        "StartDrawMessage": {
+          "fields": {
+            "x": {
+              "type": "uint32",
+              "id": 1
+            },
+            "y": {
+              "type": "uint32",
+              "id": 2
+            }
+          }
+        },
+        "DrawingMessage": {
+          "fields": {
+            "x": {
+              "type": "uint32",
+              "id": 1
+            },
+            "y": {
+              "type": "uint32",
+              "id": 2
+            },
+            "cpX1": {
+              "type": "uint32",
+              "id": 3
+            },
+            "cpY1": {
+              "type": "uint32",
+              "id": 4
+            },
+            "cpX2": {
+              "type": "uint32",
+              "id": 5
+            },
+            "cpY2": {
+              "type": "uint32",
+              "id": 6
+            }
+          }
+        },
+        "EndDrawMessage": {
+          "fields": {
+            "cpX1": {
+              "type": "uint32",
+              "id": 1
+            },
+            "cpY1": {
+              "type": "uint32",
+              "id": 2
+            },
+            "cpX2": {
+              "type": "uint32",
+              "id": 3
+            },
+            "cpY2": {
+              "type": "uint32",
+              "id": 4
+            }
+          }
+        },
+        "EraseMessage": {
+          "fields": {
+            "x": {
+              "type": "uint32",
+              "id": 1
+            },
+            "y": {
+              "type": "uint32",
+              "id": 2
+            },
+            "size": {
+              "type": "uint32",
+              "id": 3
+            }
+          }
+        },
+        "SwapObjectMessage": {
+          "fields": {
+            "name1": {
+              "type": "string",
+              "id": 1
+            },
+            "name2": {
+              "type": "string",
+              "id": 2
+            },
+            "duration": {
+              "type": "uint32",
+              "id": 3
+            }
+          }
         }
       }
     }

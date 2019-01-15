@@ -44,6 +44,7 @@ let msgTypeMapContent = '';
 const msgTypeMapFoot = `};
 
 export { msgMap };
+export * from './protocols';
 `
 dfs (protoDesc, names, function(namelist, msgId){
     const typeEnum = namelist.join('_');

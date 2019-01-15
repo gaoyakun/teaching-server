@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
 import * as objects from '../objects';
+import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBHandWritingTool extends wb.WBTool {
     public static readonly toolname: string = 'HandWriting';
@@ -96,21 +97,36 @@ export class WBHandWritingTool extends wb.WBTool {
         }
         this._freedrawNode = this.findFreedrawNode ();
         if (!this._freedrawNode) {
+            const results:any = {};
+            /*
             const args: any = {
                 type: 'FreeDraw',
                 name: null,
                 x: 0,
                 y: 0
             };
-            const results:any = {};
             lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args, results));
+            */
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
+                type: 'FreeDraw',
+                name: null,
+                x: 0,
+                y: 0
+            }, results));
             this._freedrawNode = results.objectCreated;
         }
         if (this._freedrawNode) {
+            /*
             lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
                 objectName: this._freedrawNode.entityName,
                 propName: 'mode',
                 propValue: this._mode
+            }));
+            */
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
+                name: this._freedrawNode.entityName,
+                propName: 'mode',
+                propValueJson: JSON.stringify(this._mode)
             }));
             // this._freedrawNode.mode = this._mode;
             this._freedrawNode.setCapture ();
@@ -122,10 +138,17 @@ export class WBHandWritingTool extends wb.WBTool {
     public deactivate() {
         if (this._freedrawNode) {
             this._freedrawNode.releaseCapture();
+            /*
             lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
                 objectName: this._freedrawNode.entityName,
                 propName: 'mode',
                 propValue: 'none'
+            }));
+            */
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
+                name: this._freedrawNode.entityName,
+                propName: 'mode',
+                propValueJson: JSON.stringify('none')
             }));
             // this._freedrawNode.mode = 'none';
             this._freedrawNode = null;
@@ -140,11 +163,18 @@ export class WBHandWritingTool extends wb.WBTool {
     }
     private applyProperty (name:string, value:any) {
         if (this._freedrawNode) {
+            /*
             lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
                 objectName: this._freedrawNode.entityName,
                 propName: name,
                 propValue: value
             }));
+            */
+           lib.App.triggerEvent(null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
+               name: this._freedrawNode.entityName,
+               propName: name,
+               propValueJson: JSON.stringify(value)
+           }));
             // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
         }
     }

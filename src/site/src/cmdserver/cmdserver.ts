@@ -1,6 +1,6 @@
-import { WBCommandEvent } from '../whiteboard/whiteboard';
+import { WBMessageEvent } from '../whiteboard/whiteboard';
 import { EvtSocketMessage, WhiteBoard } from '../whiteboard/whiteboard';
-import { IMsgData, Packet, MessageAssembler } from '../../../common/protoutils';
+import { Packet, MessageAssembler } from '../../../common/protoutils';
 import { MsgType } from '../../../common/protocols/protolist';
 
 import * as catk from '../catk';
@@ -43,12 +43,22 @@ export class SocketCommandServer extends catk.EventObserver {
             while (true) {
                 const msg = this._assembler.getMessage ();
                 if (msg) {
+                    if (msg.type === MsgType.whiteboard_EventMessage) {
+                        const msgData = new Packet(msg.data.message).getMsgData();
+                        if (msgData) {
+                            this._wb.triggerEx (new WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object));
+                        }
+                    } else {
+                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
+                    }
+                    /*
                     if (msg.type === MsgType.whiteboard_CommandMessage) {
                         const cmd:any = JSON.parse (msg.data.command);
                         this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
                     } else {
                         catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
                     }
+                    */
                 } else {
                     break;
                 }
@@ -58,37 +68,43 @@ export class SocketCommandServer extends catk.EventObserver {
             console.log (`Disconnected: ${reason}`);
             this.onDisconnect ();
         });
-        this.on (WBCommandEvent.type, (ev: WBCommandEvent) => {
+        this.on (WBMessageEvent.type, (ev:WBMessageEvent) => {
             if (this._socket && this._socket.connected) {
-                const pkg = Packet.create(MsgType.whiteboard_CommandMessage, {
-                    command: JSON.stringify({
-                        command: ev.command,
-                        args: ev.args,
-                        results: {},
-                        object: ev.object
-                    })/*.replace (/[\u007F-\uFFFF]/g, function(chr) {
-                        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
-                    })*/
-                });
-                (this._socket as any).binary(true).emit ('message', pkg.buffer);
+                const data: any = {
+                    message: Packet.create(ev.messageType, ev.messageData).buffer
+                };
+                if (ev.object) {
+                    data.object = ev.object;
+                }
+                const wrapPacket = Packet.create(MsgType.whiteboard_EventMessage, data);
+                (this._socket as any).binary(true).emit ('message', wrapPacket.buffer);
             }    
         });
-        (function(){
-            const tmp1:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
-                command: '你好'
-            });
-            const tmp2:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
-                command: 'World'
-            });
-            const uber:Packet = Packet.create(MsgType.base_UberMessage, {
-                subMessages: [tmp1.buffer, tmp2.buffer]
-            });
-            const verify = uber.getMsgData () as IMsgData;
-            const t1 = new Packet(verify.data.subMessages[0]).getMsgData ();
-            const t2 = new Packet(verify.data.subMessages[1]).getMsgData ();
-            console.log (t1);
-            console.log (t2);
-        }());
+        // (function(){
+        //     const tmp1:Packet = Packet.create(MsgType.whiteboard_UseToolMessage, {
+        //         name: 'Test',
+        //         paramsJson: google.protobuf.Any.fromObject({
+        //             value: {
+        //                 a: 'hello',
+        //                 b: {
+        //                     c: 'hello',
+        //                     d: 'world'
+        //                 }
+        //             }
+        //         })
+        //     });
+        //     const tmp2:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
+        //         command: 'World'
+        //     });
+        //     const uber:Packet = Packet.create(MsgType.base_UberMessage, {
+        //         subMessages: [tmp1.buffer, tmp2.buffer]
+        //     });
+        //     const verify = uber.getMsgData () as IMsgData;
+        //     const t1 = new Packet(verify.data.subMessages[0]).getMsgData ();
+        //     const t2 = new Packet(verify.data.subMessages[1]).getMsgData ();
+        //     console.log (t1);
+        //     console.log (t2);
+        // }());
         return true;
     }
     stop (): boolean {

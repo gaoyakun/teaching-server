@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as commands from '../commands';
 import * as wb from '../whiteboard';
+import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBSelectEvent extends lib.BaseEvent {
     static readonly type: string = '@WBSelect';
@@ -143,7 +144,8 @@ export class WBSelectTool extends wb.WBTool {
                 this._mouseStartPosY = ev.y;
                 this._selectedObjects.forEach ((obj: lib.SceneObject) => {
                     const t = obj.translation;
-                    //obj.translation = { x: t.x + dx, y: t.y + dy };
+                    // obj.translation = { x: t.x + dx, y: t.y + dy };
+                    /*
                     lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
                         objectName: obj.entityName,
                         propName: 'localx',
@@ -153,6 +155,17 @@ export class WBSelectTool extends wb.WBTool {
                         objectName: obj.entityName,
                         propName: 'localy',
                         propValue: t.y + dy
+                    }));
+                    */
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
+                        name: obj.entityName,
+                        propName: 'localx',
+                        propValueJson: JSON.stringify(t.x + dx)
+                    }));
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
+                        name: obj.entityName,
+                        propName: 'localy',
+                        propValueJson: JSON.stringify(t.y + dy)
                     }));
                 });
             } else if (this._rangeSelecting) {
@@ -211,27 +224,50 @@ export class WBSelectTool extends wb.WBTool {
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
-    public executeCommand(command:string, args?: any) {
-        if (command === 'GetSelected') {
-            args.selectedObjects = this._selectedObjects;
-        } else if (command === 'DeleteSelected') {
+    public handleMessage(type:MsgType, args?:any) {
+        if (type === MsgType.whiteboard_DeleteSelected) {
             if (this._selectedObjects.length > 0) {
-                lib.App.triggerEvent (null, new wb.WBCommandEvent('DeleteObjects', {
-                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_DeleteObjectsMessage, {
+                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
-        } else if (command === 'AlignSelected') {
+        } else if (type === MsgType.whiteboard_AlignSelected) {
             const mode = args.mode;
             if (this._selectedObjects.length > 0) {
-                lib.App.triggerEvent (null, new wb.WBCommandEvent(`AlignObjects${mode}`, {
-                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                let msgType: MsgType;
+                if (mode === 'Left') {
+                    msgType = MsgType.whiteboard_AlignObjectsLeftMessage;
+                } else if (mode === 'Right') {
+                    msgType = MsgType.whiteboard_AlignObjectsRightMessage;
+                } else if (mode === 'Top') {
+                    msgType = MsgType.whiteboard_AlignObjectsTopMessage;
+                } else if (mode === 'Bottom') {
+                    msgType = MsgType.whiteboard_AlignObjectsBottomMessage;
+                } else {
+                    return;
+                }
+                lib.App.triggerEvent (null, new wb.WBMessageEvent(msgType, {
+                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
-        } else if (command === 'ArrangeSelected') {
+        } else if (type === MsgType.whiteboard_ArrangeSelected) {
             const mode = args.mode;
             if (this._selectedObjects.length > 0) {
+                /*
                 lib.App.triggerEvent (null, new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
                     objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+                }));
+                */
+                let msgType: MsgType;
+                if (mode === 'Horizontal') {
+                    msgType = MsgType.whiteboard_ArrangeObjectsHorizontalMessage;
+                } else if (mode === 'Vertical') {
+                    msgType = MsgType.whiteboard_ArrangeObjectsVerticalMessage;
+                } else {
+                    return;
+                }
+                lib.App.triggerEvent (null, new wb.WBMessageEvent(msgType, {
+                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
         }

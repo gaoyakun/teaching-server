@@ -4124,3909 +4124,6 @@
 
 	unwrapExports(catk);
 
-	var whiteboard = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-	var EvtSocketMessage = /** @class */ (function (_super) {
-	    __extends(EvtSocketMessage, _super);
-	    function EvtSocketMessage(messageType, messageData) {
-	        var _this = _super.call(this, EvtSocketMessage.type) || this;
-	        _this.messageType = messageType;
-	        _this.messageData = messageData;
-	        return _this;
-	    }
-	    EvtSocketMessage.type = '@socketMessage';
-	    return EvtSocketMessage;
-	}(catk.BaseEvent));
-	exports.EvtSocketMessage = EvtSocketMessage;
-	var WBComponent = /** @class */ (function (_super) {
-	    __extends(WBComponent, _super);
-	    function WBComponent() {
-	        var _this = _super.call(this, WBComponent.type) || this;
-	        _this.on(WBToolActivateEvent.type, function (ev) {
-	            ev.tool.activateObject(_this.object);
-	        });
-	        _this.on(WBToolDeactivateEvent.type, function (ev) {
-	            ev.tool.deactivateObject(_this.object);
-	        });
-	        _this.on(WBSetPropertyEvent.type, function (ev) {
-	            var object = _this.object;
-	            switch (ev.name) {
-	                case 'localx': {
-	                    var t = object.translation;
-	                    t.x = Number(ev.value);
-	                    object.translation = t;
-	                    break;
-	                }
-	                case 'localy': {
-	                    var t = object.translation;
-	                    t.y = Number(ev.value);
-	                    object.translation = t;
-	                    break;
-	                }
-	                case 'anchorx': {
-	                    var t = object.anchorPoint;
-	                    t.x = Number(ev.value);
-	                    object.anchorPoint = t;
-	                    break;
-	                }
-	                case 'anchory': {
-	                    var t = object.anchorPoint;
-	                    t.y = Number(ev.value);
-	                    object.anchorPoint = t;
-	                    break;
-	                }
-	                case 'entityName': {
-	                    object.entityName = ev.value;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(WBGetPropertyEvent.type, function (ev) {
-	            var object = _this.object;
-	            switch (ev.name) {
-	                case 'localx': {
-	                    ev.value = object.translation.x;
-	                    break;
-	                }
-	                case 'localy': {
-	                    ev.value = object.translation.y;
-	                    break;
-	                }
-	                case 'anchorx': {
-	                    ev.value = object.anchorPoint.x;
-	                    break;
-	                }
-	                case 'anchory': {
-	                    ev.value = object.anchorPoint.y;
-	                    break;
-	                }
-	                case 'entityName': {
-	                    ev.value = object.entityName;
-	                    break;
-	                }
-	                case 'entityType': {
-	                    ev.value = object.entityType;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties.general = ev.properties.general || { desc: '通用', properties: [] };
-	            ev.properties.general.properties.push({
-	                name: 'entityType',
-	                desc: '类型',
-	                readonly: true,
-	                type: 'string',
-	                value: _this.object ? _this.object.entityType : null
-	            });
-	            ev.properties.general.properties.push({
-	                name: 'entityName',
-	                desc: '名称',
-	                readonly: false,
-	                type: 'string',
-	                value: _this.object ? _this.object.entityName : null
-	            });
-	            ev.properties.general.properties.push({
-	                name: 'localx',
-	                desc: '位置X',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.object ? _this.object.translation.x : null
-	            });
-	            ev.properties.general.properties.push({
-	                name: 'localy',
-	                desc: '位置Y',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.object ? _this.object.translation.y : null
-	            });
-	            ev.properties.general.properties.push({
-	                name: 'anchorx',
-	                desc: '锚点X',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.object ? _this.object.anchorPoint.x : null
-	            });
-	            ev.properties.general.properties.push({
-	                name: 'anchory',
-	                desc: '锚点Y',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.object ? _this.object.anchorPoint.y : null
-	            });
-	        });
-	        return _this;
-	    }
-	    WBComponent.type = 'WBComponent';
-	    return WBComponent;
-	}(catk.Component));
-	exports.WBComponent = WBComponent;
-	var WBFactory = /** @class */ (function () {
-	    function WBFactory(name) {
-	        this.name = name;
-	    }
-	    WBFactory.prototype.createEntity = function (x, y, options) {
-	        var entity = this._createEntity(options);
-	        if (entity === null) {
-	            return null;
-	        }
-	        entity.addComponent(new WBComponent());
-	        entity.translation = { x: x, y: y };
-	        return entity;
-	    };
-	    WBFactory.prototype.getCreationProperties = function () {
-	        return [];
-	    };
-	    return WBFactory;
-	}());
-	exports.WBFactory = WBFactory;
-	var WBToolActivateEvent = /** @class */ (function (_super) {
-	    __extends(WBToolActivateEvent, _super);
-	    function WBToolActivateEvent(tool) {
-	        var _this = _super.call(this, WBToolActivateEvent.type) || this;
-	        _this.tool = tool;
-	        return _this;
-	    }
-	    WBToolActivateEvent.type = '@WBToolActivate';
-	    return WBToolActivateEvent;
-	}(catk.BaseEvent));
-	exports.WBToolActivateEvent = WBToolActivateEvent;
-	var WBToolDeactivateEvent = /** @class */ (function (_super) {
-	    __extends(WBToolDeactivateEvent, _super);
-	    function WBToolDeactivateEvent(tool) {
-	        var _this = _super.call(this, WBToolDeactivateEvent.type) || this;
-	        _this.tool = tool;
-	        return _this;
-	    }
-	    WBToolDeactivateEvent.type = '@WBToolDeactivate';
-	    return WBToolDeactivateEvent;
-	}(catk.BaseEvent));
-	exports.WBToolDeactivateEvent = WBToolDeactivateEvent;
-	var WBGetPropertyListEvent = /** @class */ (function (_super) {
-	    __extends(WBGetPropertyListEvent, _super);
-	    function WBGetPropertyListEvent() {
-	        return _super.call(this, WBGetPropertyListEvent.type) || this;
-	    }
-	    WBGetPropertyListEvent.type = '@WBGetObjectPropertyList';
-	    return WBGetPropertyListEvent;
-	}(catk.BaseEvent));
-	exports.WBGetPropertyListEvent = WBGetPropertyListEvent;
-	var WBSetPropertyEvent = /** @class */ (function (_super) {
-	    __extends(WBSetPropertyEvent, _super);
-	    function WBSetPropertyEvent(name, value) {
-	        var _this = _super.call(this, WBSetPropertyEvent.type) || this;
-	        _this.name = name;
-	        _this.value = value;
-	        return _this;
-	    }
-	    WBSetPropertyEvent.type = '@WBSetObjectPropertyEvent';
-	    return WBSetPropertyEvent;
-	}(catk.BaseEvent));
-	exports.WBSetPropertyEvent = WBSetPropertyEvent;
-	var WBGetPropertyEvent = /** @class */ (function (_super) {
-	    __extends(WBGetPropertyEvent, _super);
-	    function WBGetPropertyEvent(name) {
-	        var _this = _super.call(this, WBGetPropertyEvent.type) || this;
-	        _this.name = name;
-	        return _this;
-	    }
-	    WBGetPropertyEvent.type = '@WBGetObjectPropertyEvent';
-	    return WBGetPropertyEvent;
-	}(catk.BaseEvent));
-	exports.WBGetPropertyEvent = WBGetPropertyEvent;
-	var WBGetObjectEvent = /** @class */ (function (_super) {
-	    __extends(WBGetObjectEvent, _super);
-	    function WBGetObjectEvent(name) {
-	        var _this = _super.call(this, WBGetObjectEvent.type) || this;
-	        _this.name = name;
-	        return _this;
-	    }
-	    WBGetObjectEvent.type = '@WBGetObject';
-	    return WBGetObjectEvent;
-	}(catk.BaseEvent));
-	exports.WBGetObjectEvent = WBGetObjectEvent;
-	var WBCommandEvent = /** @class */ (function (_super) {
-	    __extends(WBCommandEvent, _super);
-	    function WBCommandEvent(command, args, results, object) {
-	        var _this = _super.call(this, WBCommandEvent.type) || this;
-	        _this.command = command;
-	        _this.args = args;
-	        _this.results = results;
-	        _this.object = object;
-	        return _this;
-	    }
-	    WBCommandEvent.type = '@WBCommand';
-	    return WBCommandEvent;
-	}(catk.BaseEvent));
-	exports.WBCommandEvent = WBCommandEvent;
-	var WBTool = /** @class */ (function (_super) {
-	    __extends(WBTool, _super);
-	    function WBTool(name, whiteboard, desc) {
-	        var _this = _super.call(this) || this;
-	        _this.name = name;
-	        _this.desc = desc || name;
-	        _this._wb = whiteboard;
-	        _this.on(WBGetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'desc': {
-	                    ev.value = _this.desc;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	        });
-	        return _this;
-	    }
-	    WBTool.prototype.activate = function (options) {
-	        catk.App.triggerEvent(null, new WBToolActivateEvent(this));
-	    };
-	    WBTool.prototype.deactivate = function () {
-	        catk.App.triggerEvent(null, new WBToolDeactivateEvent(this));
-	    };
-	    WBTool.prototype.activateObject = function (object) {
-	    };
-	    WBTool.prototype.deactivateObject = function (object) {
-	    };
-	    WBTool.prototype.executeCommand = function (command, args) {
-	    };
-	    return WBTool;
-	}(catk.EventObserver));
-	exports.WBTool = WBTool;
-	var WhiteBoard = /** @class */ (function (_super) {
-	    __extends(WhiteBoard, _super);
-	    function WhiteBoard(canvas, doubleBuffer) {
-	        if (doubleBuffer === void 0) { doubleBuffer = false; }
-	        var _this = _super.call(this) || this;
-	        _this.view = null;
-	        _this.view = catk.App.addCanvas(canvas, doubleBuffer);
-	        _this._factories = {};
-	        _this._tools = {};
-	        _this._currentTool = '';
-	        _this._entities = {};
-	        _this.on(WBGetObjectEvent.type, function (ev) {
-	            ev.object = _this.findEntity(ev.name);
-	        });
-	        _this.on(catk.EvtSceneViewPageWillChange.type, function (ev) {
-	            var tool = _this._tools[_this._currentTool];
-	            if (tool) {
-	                tool.deactivate();
-	            }
-	        });
-	        _this.on(catk.EvtSceneViewPageChanged.type, function (ev) {
-	            var tool = _this._tools[_this._currentTool];
-	            if (tool) {
-	                tool.activate();
-	            }
-	        });
-	        _this.on(WBCommandEvent.type, function (ev) {
-	            _this._executeCommand(ev.command, ev.args, ev.results, ev.object);
-	        });
-	        if (_this.view) {
-	            _this.view.on(catk.EvtKeyDown.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtKeyUp.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtKeyPress.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtMouseDown.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtMouseUp.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtMouseMove.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtClick.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtDblClick.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            });
-	            _this.view.on(catk.EvtDraw.type, function (ev) {
-	                if (_this._currentTool !== '') {
-	                    var tool = _this._tools[_this._currentTool];
-	                    tool.trigger(ev);
-	                }
-	            }, catk.EventListenerOrder.LAST);
-	        }
-	        return _this;
-	    }
-	    WhiteBoard.prototype.addTool = function (tool) {
-	        this._tools[tool.name] = tool;
-	    };
-	    WhiteBoard.prototype.addFactory = function (factory) {
-	        this._factories[factory.name] = factory;
-	    };
-	    WhiteBoard.prototype.getFactory = function (name) {
-	        return this._factories[name] || null;
-	    };
-	    WhiteBoard.prototype.createEntity = function (type, name, failOnExists, x, y, options) {
-	        var entity = null;
-	        if (name === null) {
-	            var id = 1;
-	            while (true) {
-	                name = "" + type.toLowerCase() + id++;
-	                if (this.findEntity(name) === null) {
-	                    break;
-	                }
-	            }
-	        }
-	        else {
-	            entity = this.findEntity(name);
-	            if (entity !== null) {
-	                return failOnExists ? null : entity;
-	            }
-	        }
-	        var factory = this._factories[type];
-	        if (factory) {
-	            entity = factory.createEntity(x, y, options);
-	            if (entity) {
-	                entity.entityName = name;
-	                entity.entityType = type;
-	                if (this.view && this.view.rootNode) {
-	                    this.view.rootNode.addChild(entity);
-	                }
-	                this._entities[name] = entity;
-	                if (this._currentTool !== '') {
-	                    var curTool = this._tools[this._currentTool];
-	                    if (curTool) {
-	                        entity.triggerEx(new WBToolActivateEvent(curTool));
-	                    }
-	                }
-	            }
-	        }
-	        return entity;
-	    };
-	    WhiteBoard.prototype.deleteEntity = function (name) {
-	        var entity = this.findEntity(name);
-	        if (entity) {
-	            entity.remove();
-	            delete this._entities[name];
-	        }
-	    };
-	    WhiteBoard.prototype.findEntity = function (name) {
-	        return this._entities[name] || null;
-	    };
-	    WhiteBoard.prototype.findEntityByType = function (type, rootNode) {
-	        if (this.view) {
-	            var root = rootNode || this.view.rootNode;
-	            if (root) {
-	                if (root.entityType === type) {
-	                    return root;
-	                }
-	                else {
-	                    for (var i = 0; i < root.numChildren; i++) {
-	                        var result = this.findEntityByType(type, root.childAt(i));
-	                        if (result) {
-	                            return result;
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        return null;
-	    };
-	    WhiteBoard.prototype.encodeCommand = function (cmd) {
-	        return JSON.stringify(cmd);
-	        /*
-	        let str = command;
-	        for (const name in cmd) {
-	            if (name !== 'command') {
-	                str += ` ${name}=${cmd[name]}`;
-	            }
-	        }
-	        return str;
-	        */
-	    };
-	    WhiteBoard.prototype._executeCommand = function (command, args, results, object) {
-	        var _this = this;
-	        var cmd = args || {};
-	        if (object) {
-	            var obj = this.findEntity(object);
-	            if (obj) {
-	                obj.triggerEx(new WBCommandEvent(command, args, results, object));
-	            }
-	        }
-	        else if (command === 'UseTool') {
-	            if (this._currentTool !== cmd.name) {
-	                if (this._currentTool !== '') {
-	                    var prevTool = this._tools[this._currentTool];
-	                    prevTool.deactivate();
-	                }
-	                this._currentTool = '';
-	                if (cmd.name) {
-	                    var newTool = this._tools[cmd.name];
-	                    if (newTool) {
-	                        this._currentTool = cmd.name;
-	                        newTool.activate(cmd.args || {});
-	                    }
-	                }
-	            }
-	        }
-	        else if (command === 'CreateObject') {
-	            var type = cmd.type;
-	            var name_1 = cmd.name || null;
-	            var failOnExists = !!cmd.failOnExists;
-	            var params = cmd.params || {};
-	            var obj = this.createEntity(type, name_1, failOnExists, cmd.x, cmd.y, params);
-	            if (results) {
-	                results.objectCreated = obj;
-	            }
-	        }
-	        else if (command === 'DeleteObject') {
-	            this.deleteEntity(cmd.name);
-	        }
-	        else if (command === 'DeleteObjects') {
-	            if (cmd.objects) {
-	                cmd.objects.forEach(function (name) {
-	                    _this.deleteEntity(name);
-	                });
-	            }
-	        }
-	        else if (command === 'AlignObjectsLeft') {
-	            if (cmd.objects && cmd.objects.length > 1) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                var minx_1 = objects[0].worldTransform.e;
-	                for (var i = 1; i < objects.length; i++) {
-	                    var x = objects[i].worldTransform.e;
-	                    if (x < minx_1) {
-	                        minx_1 = x;
-	                    }
-	                }
-	                objects.forEach(function (obj) {
-	                    obj.worldTranslation = { x: minx_1, y: obj.worldTransform.f };
-	                    obj.collapseTransform();
-	                });
-	            }
-	        }
-	        else if (command === 'AlignObjectsRight') {
-	            if (cmd.objects && cmd.objects.length > 1) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                var maxx_1 = objects[0].worldTransform.e;
-	                for (var i = 1; i < objects.length; i++) {
-	                    var x = objects[i].worldTransform.e;
-	                    if (x > maxx_1) {
-	                        maxx_1 = x;
-	                    }
-	                }
-	                objects.forEach(function (obj) {
-	                    obj.worldTranslation = { x: maxx_1, y: obj.worldTransform.f };
-	                    obj.collapseTransform();
-	                });
-	            }
-	        }
-	        else if (command === 'AlignObjectsTop') {
-	            if (cmd.objects && cmd.objects.length > 1) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                var miny_1 = objects[0].worldTransform.f;
-	                for (var i = 1; i < objects.length; i++) {
-	                    var y = objects[i].worldTransform.f;
-	                    if (y < miny_1) {
-	                        miny_1 = y;
-	                    }
-	                }
-	                objects.forEach(function (obj) {
-	                    obj.worldTranslation = { x: obj.worldTransform.e, y: miny_1 };
-	                    obj.collapseTransform();
-	                });
-	            }
-	        }
-	        else if (command === 'AlignObjectsBottom') {
-	            if (cmd.objects && cmd.objects.length > 1) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                var maxy_1 = objects[0].worldTransform.f;
-	                for (var i = 1; i < objects.length; i++) {
-	                    var y = objects[i].worldTransform.f;
-	                    if (y > maxy_1) {
-	                        maxy_1 = y;
-	                    }
-	                }
-	                objects.forEach(function (obj) {
-	                    obj.worldTranslation = { x: obj.worldTransform.e, y: maxy_1 };
-	                    obj.collapseTransform();
-	                });
-	            }
-	        }
-	        else if (command === 'AlignObjectsHorizontal') {
-	            if (cmd.objects && cmd.objects.length > 1) {
-	                var firstObject = this.findEntity(cmd.objects[0]);
-	                if (firstObject) {
-	                    var y = firstObject.worldTransform.f;
-	                    for (var i = 1; i < cmd.objects.length; i++) {
-	                        var obj = this.findEntity(cmd.objects[i]);
-	                        if (obj) {
-	                            obj.worldTranslation = { x: obj.worldTransform.e, y: y };
-	                            obj.collapseTransform();
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        else if (command === 'ArrangeObjectsHorizontal') {
-	            if (cmd.objects && cmd.objects.length > 2) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                objects.sort(function (a, b) {
-	                    return a.worldTransform.e - b.worldTransform.e;
-	                });
-	                var posStart = objects[0].worldTransform.e;
-	                var gap = (objects[objects.length - 1].worldTransform.e - posStart) / (objects.length - 1);
-	                for (var i = 1; i < objects.length - 1; i++) {
-	                    objects[i].worldTranslation = { x: posStart + i * gap, y: objects[i].worldTransform.f };
-	                    objects[i].collapseTransform();
-	                }
-	            }
-	        }
-	        else if (command === 'ArrangeObjectsVertical') {
-	            if (cmd.objects && cmd.objects.length > 2) {
-	                var objects = cmd.objects.map(function (name) { return _this.findEntity(name); });
-	                objects.sort(function (a, b) {
-	                    return a.worldTransform.f - b.worldTransform.f;
-	                });
-	                var posStart = objects[0].worldTransform.f;
-	                var gap = (objects[objects.length - 1].worldTransform.f - posStart) / (objects.length - 1);
-	                for (var i = 1; i < objects.length - 1; i++) {
-	                    objects[i].worldTranslation = { x: objects[i].worldTransform.e, y: posStart + i * gap };
-	                    objects[i].collapseTransform();
-	                }
-	            }
-	        }
-	        else if (command === 'SetObjectProperty') {
-	            var obj = this.findEntity(cmd.objectName);
-	            if (obj) {
-	                var ev = new WBSetPropertyEvent(cmd.propName, cmd.propValue);
-	                obj.triggerEx(ev);
-	                if (obj.entityName !== cmd.objectName) {
-	                    if (this.findEntity(obj.entityName)) {
-	                        obj.entityName = cmd.objectName;
-	                    }
-	                    else {
-	                        delete this._entities[cmd.objectName];
-	                        this._entities[obj.entityName] = obj;
-	                    }
-	                }
-	            }
-	        }
-	        else if (command === 'AddPage') {
-	            this.view && this.view.addPage();
-	        }
-	        else if (command === 'RenamePage') {
-	            this.view && this.view.currentPage && this.view.renamePage(this.view.currentPage, cmd.newName);
-	        }
-	        else if (this._currentTool) {
-	            this._tools[this._currentTool].executeCommand(command, cmd);
-	        }
-	        else {
-	            return;
-	        }
-	    };
-	    return WhiteBoard;
-	}(catk.EventObserver));
-	exports.WhiteBoard = WhiteBoard;
-
-	});
-
-	unwrapExports(whiteboard);
-	var whiteboard_1 = whiteboard.EvtSocketMessage;
-	var whiteboard_2 = whiteboard.WBComponent;
-	var whiteboard_3 = whiteboard.WBFactory;
-	var whiteboard_4 = whiteboard.WBToolActivateEvent;
-	var whiteboard_5 = whiteboard.WBToolDeactivateEvent;
-	var whiteboard_6 = whiteboard.WBGetPropertyListEvent;
-	var whiteboard_7 = whiteboard.WBSetPropertyEvent;
-	var whiteboard_8 = whiteboard.WBGetPropertyEvent;
-	var whiteboard_9 = whiteboard.WBGetObjectEvent;
-	var whiteboard_10 = whiteboard.WBCommandEvent;
-	var whiteboard_11 = whiteboard.WBTool;
-	var whiteboard_12 = whiteboard.WhiteBoard;
-
-	var editor = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBToolPalette = /** @class */ (function () {
-	    function WBToolPalette(editor, container) {
-	        this._editor = editor;
-	        this._container = container;
-	        this._tools = [];
-	        this._curTool = null;
-	    }
-	    WBToolPalette.prototype.unload = function () {
-	        while (this._container.hasChildNodes()) {
-	            this._container.removeChild(this._container.firstChild);
-	        }
-	        this._tools = [];
-	    };
-	    WBToolPalette.prototype.loadToolPalette = function (toolPalette) {
-	        var _this = this;
-	        var _loop_1 = function (toolname) {
-	            var tooldef = this_1.getOpTool(toolPalette, toolname);
-	            var toolButton = this_1.createToolButton(tooldef);
-	            if (toolButton) {
-	                toolButton.addEventListener('click', function () {
-	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
-	                    var tool = _this._tools[toolIndex];
-	                    if (tool !== _this._curTool) {
-	                        if (_this._curTool) {
-	                            var curToolButton = document.querySelector("#" + _this._curTool.elementId);
-	                            curToolButton && curToolButton.classList.remove('active');
-	                            _this._editor.executeCommand('UseTool');
-	                            _this._curTool = null;
-	                        }
-	                    }
-	                    if (tool) {
-	                        var button = document.querySelector("#" + tool.elementId);
-	                        button && button.classList.add('active');
-	                        _this._editor.executeCommand(tool.command, tool.args);
-	                        _this._curTool = tool;
-	                    }
-	                });
-	            }
-	        };
-	        var this_1 = this;
-	        for (var toolname in toolPalette) {
-	            _loop_1(toolname);
-	        }
-	    };
-	    WBToolPalette.prototype.loadOpPalette = function (opPalette) {
-	        var _this = this;
-	        var _loop_2 = function (op) {
-	            var tooldef = this_2.getOpTool(opPalette, op);
-	            var toolButton = this_2.createToolButton(tooldef);
-	            if (toolButton) {
-	                toolButton.addEventListener('click', function () {
-	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
-	                    var tool = _this._tools[toolIndex];
-	                    _this._editor.executeCommand(tool.command, tool.args);
-	                });
-	            }
-	        };
-	        var this_2 = this;
-	        for (var op in opPalette) {
-	            _loop_2(op);
-	        }
-	    };
-	    WBToolPalette.prototype.getOpTool = function (tool, name) {
-	        return {
-	            command: tool[name].command,
-	            args: tool[name].args,
-	            iconClass: tool[name].iconClass
-	        };
-	    };
-	    WBToolPalette.prototype.createToolButton = function (tooldef) {
-	        this._tools.push(tooldef);
-	        var buttonSize = this._editor.toolFontSize + 6;
-	        var toolButton = null;
-	        if (typeof tooldef.iconClass === 'function') {
-	            toolButton = tooldef.iconClass(this._editor);
-	            toolButton && toolButton.classList.add('toolbutton');
-	        }
-	        else {
-	            toolButton = document.createElement('div');
-	            toolButton.classList.add('flex-h', 'flex-align-x-center', 'flex-align-y-center');
-	            toolButton.classList.add('toolbutton');
-	            var toolIcon_1 = document.createElement('i');
-	            toolIcon_1.style.fontSize = this._editor.toolFontSize + "px";
-	            toolIcon_1.style.color = '#fff';
-	            tooldef.iconClass.split(' ').forEach(function (cls) {
-	                toolIcon_1.classList.add(cls);
-	            });
-	            toolButton.appendChild(toolIcon_1);
-	        }
-	        if (toolButton) {
-	            tooldef.elementId = "toolbutton-" + WBToolPalette.uniqueId++;
-	            toolButton.setAttribute('id', tooldef.elementId);
-	            toolButton.style.width = buttonSize + "px";
-	            toolButton.style.height = buttonSize + "px";
-	            toolButton.setAttribute('toolIndex', String(this._tools.length - 1));
-	            this._container.appendChild(toolButton);
-	        }
-	        return toolButton;
-	    };
-	    WBToolPalette.uniqueId = 1;
-	    return WBToolPalette;
-	}());
-	exports.WBToolPalette = WBToolPalette;
-	var WBPropertyGrid = /** @class */ (function () {
-	    function WBPropertyGrid(editor, container, id) {
-	        this._editor = editor;
-	        this._container = container;
-	        this._tableId = id;
-	        this._object = null;
-	        var table = document.createElement('table');
-	        table.style.border = 'solid 1px #95B8E7';
-	        table.style.borderSpacing = '0px';
-	        table.style.margin = '0px';
-	        table.style.fontSize = '12px';
-	        table.style.fontFamily = 'verdana';
-	        table.style.width = '100%';
-	        table.style.tableLayout = 'fixed';
-	        table.style.backgroundColor = '#fff';
-	        table.setAttribute('id', this._tableId);
-	        var tbody = document.createElement('tbody');
-	        table.appendChild(tbody);
-	        this._container.appendChild(table);
-	    }
-	    WBPropertyGrid.prototype.addGroup = function (name) {
-	        var tr = this.createRow();
-	        tr.style.backgroundColor = '#E0ECFF';
-	        tr.style.fontWeight = 'bold';
-	        this.createGroupCell(tr, name);
-	    };
-	    WBPropertyGrid.prototype.addButton = function (text, callback) {
-	        var tr = this.createRow();
-	        var td = this.createCell(tr);
-	        td.style.padding = '5px';
-	        td.style.textAlign = 'center';
-	        td.setAttribute('colspan', '2');
-	        var btn = document.createElement('button');
-	        btn.innerText = text;
-	        btn.style.width = '100%';
-	        btn.style.padding = '5px';
-	        btn.onclick = function () {
-	            callback && callback();
-	        };
-	        td.appendChild(btn);
-	    };
-	    WBPropertyGrid.prototype.addTextAttribute = function (name, value, readonly, changeCallback, laterChange) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
-	        var input = document.createElement('input');
-	        input.type = 'text';
-	        if (value) {
-	            input.value = value;
-	        }
-	        input.style.width = '100%';
-	        input.style.boxSizing = 'border-box';
-	        input.readOnly = readonly;
-	        input.disabled = readonly;
-	        if (changeCallback) {
-	            if (laterChange) {
-	                input.onchange = input.onblur = function () {
-	                    input.value = String(changeCallback(input.value));
-	                };
-	            }
-	            else {
-	                input.oninput = function () {
-	                    input.value = String(changeCallback(input.value));
-	                };
-	            }
-	        }
-	        this.createPropCell(tr).appendChild(input);
-	    };
-	    WBPropertyGrid.prototype.addToggleAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
-	        var input = document.createElement('input');
-	        input.type = 'checkbox';
-	        input.checked = value;
-	        input.readOnly = readonly;
-	        input.disabled = readonly;
-	        if (changeCallback) {
-	            input.onchange = function () {
-	                input.checked = Boolean(changeCallback(input.checked));
-	            };
-	        }
-	        this.createPropCell(tr).appendChild(input);
-	    };
-	    WBPropertyGrid.prototype.addNumberAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
-	        var input = document.createElement('input');
-	        input.type = 'number';
-	        input.value = String(value);
-	        input.readOnly = readonly;
-	        input.disabled = readonly;
-	        input.style.width = '100%';
-	        input.style.boxSizing = 'border-box';
-	        if (changeCallback) {
-	            input.oninput = function () {
-	                input.value = String(changeCallback(Number(input.value)));
-	            };
-	        }
-	        this.createPropCell(tr).appendChild(input);
-	    };
-	    WBPropertyGrid.prototype.addChoiceAttribute = function (name, values, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
-	        var input = document.createElement('select');
-	        values.forEach(function (opt) {
-	            var option = document.createElement('option');
-	            option.value = String(opt.value);
-	            option.innerText = String(opt.desc);
-	            input.add(option);
-	        });
-	        if (value) {
-	            input.value = String(value);
-	        }
-	        input.disabled = readonly;
-	        input.style.width = '100%';
-	        input.style.boxSizing = 'border-box';
-	        if (changeCallback) {
-	            input.onchange = function () {
-	                input.value = String(changeCallback(input.value));
-	            };
-	        }
-	        this.createPropCell(tr).appendChild(input);
-	    };
-	    WBPropertyGrid.prototype.addColorAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
-	        var input = document.createElement('input');
-	        input.type = 'color';
-	        input.value = value;
-	        input.readOnly = readonly;
-	        input.disabled = readonly;
-	        input.style.width = '100%';
-	        input.style.boxSizing = 'border-box';
-	        if (changeCallback) {
-	            input.onchange = function () {
-	                input.value = String(changeCallback(input.value));
-	            };
-	        }
-	        this.createPropCell(tr).appendChild(input);
-	    };
-	    WBPropertyGrid.prototype.getToolProperty = function (name) {
-	        if (this._object) {
-	            var ev = new whiteboard.WBGetPropertyEvent(name);
-	            this._object.triggerEx(ev);
-	            return ev.value;
-	        }
-	    };
-	    WBPropertyGrid.prototype.setToolProperty = function (name, value) {
-	        if (this._object) {
-	            var ev = new whiteboard.WBSetPropertyEvent(name, value);
-	            this._object.triggerEx(ev);
-	        }
-	    };
-	    WBPropertyGrid.prototype.addToolProperty = function (prop) {
-	        var _this = this;
-	        var propName = prop.name;
-	        var propType = prop.type;
-	        var propReadonly = prop.readonly;
-	        if (prop.enum) {
-	            this.addChoiceAttribute(prop.desc, prop.enum, this.getToolProperty(propName), propReadonly, function (value) {
-	                switch (propType) {
-	                    case 'string':
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                    case 'number':
-	                        _this.setToolProperty(propName, Number(value));
-	                        return _this.getToolProperty(propName);
-	                    case 'boolean':
-	                        _this.setToolProperty(propName, Boolean(value));
-	                        return _this.getObjectProperty(propName);
-	                    case 'color':
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                }
-	            });
-	        }
-	        else {
-	            switch (propType) {
-	                case 'string':
-	                    this.addTextAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                    });
-	                    break;
-	                case 'number':
-	                    this.addNumberAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                    });
-	                    break;
-	                case 'boolean':
-	                    this.addToggleAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                    });
-	                    break;
-	                case 'color':
-	                    this.addColorAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
-	                        _this.setToolProperty(propName, value);
-	                        return _this.getToolProperty(propName);
-	                    });
-	                    break;
-	            }
-	        }
-	    };
-	    WBPropertyGrid.prototype.getObjectProperty = function (name) {
-	        if (this._object) {
-	            var ev = new whiteboard.WBGetPropertyEvent(name);
-	            this._object.triggerEx(ev);
-	            return ev.value;
-	        }
-	    };
-	    WBPropertyGrid.prototype.setObjectProperty = function (name, value) {
-	        if (this._object) {
-	            this._editor.executeCommand('SetObjectProperty', {
-	                objectName: this._object.entityName,
-	                propName: name,
-	                propValue: value
-	            });
-	        }
-	    };
-	    WBPropertyGrid.prototype.addObjectProperty = function (prop) {
-	        var _this = this;
-	        var propName = prop.name;
-	        var propType = prop.type;
-	        var propReadonly = prop.readonly;
-	        if (prop.enum) {
-	            this.addChoiceAttribute(prop.desc, prop.enum, this.getObjectProperty(propName), propReadonly, function (value) {
-	                switch (propType) {
-	                    case 'string':
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                    case 'number':
-	                        _this.setObjectProperty(propName, Number(value));
-	                        return _this.getObjectProperty(propName);
-	                    case 'boolean':
-	                        _this.setObjectProperty(propName, Boolean(value));
-	                        return _this.getObjectProperty(propName);
-	                    case 'color':
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                }
-	            });
-	        }
-	        else {
-	            switch (propType) {
-	                case 'string':
-	                    this.addTextAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                    });
-	                    break;
-	                case 'number':
-	                    this.addNumberAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                    });
-	                    break;
-	                case 'boolean':
-	                    this.addToggleAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                    });
-	                    break;
-	                case 'color':
-	                    this.addColorAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
-	                        _this.setObjectProperty(propName, value);
-	                        return _this.getObjectProperty(propName);
-	                    });
-	                    break;
-	            }
-	        }
-	    };
-	    WBPropertyGrid.prototype.clear = function () {
-	        var inputs = document.querySelectorAll("table#" + this._tableId + " input");
-	        for (var i = 0; i < inputs.length; i++) {
-	            inputs[i].onchange = null;
-	        }
-	        var selects = document.querySelectorAll("table#" + this._tableId + " select");
-	        for (var i = 0; i < selects.length; i++) {
-	            selects[i].onchange = null;
-	        }
-	        var tbody = document.querySelector("table#" + this._tableId + " tbody");
-	        while (tbody && tbody.hasChildNodes()) {
-	            tbody.removeChild(tbody.firstChild);
-	        }
-	        this._object = null;
-	    };
-	    WBPropertyGrid.prototype.reloadToolProperties = function () {
-	        var obj = this._object;
-	        this.clear();
-	        obj && this.loadToolProperties(obj);
-	    };
-	    WBPropertyGrid.prototype.loadToolProperties = function (object) {
-	        var _this = this;
-	        if (this._object !== object) {
-	            this.clear();
-	            this._object = object;
-	            if (this._object) {
-	                var ev = new whiteboard.WBGetPropertyListEvent();
-	                this._object.triggerEx(ev);
-	                if (ev.properties) {
-	                    for (var groupName in ev.properties) {
-	                        var group = ev.properties[groupName];
-	                        this.addGroup(group.desc);
-	                        group.properties.forEach(function (value) {
-	                            _this.addToolProperty(value);
-	                        });
-	                    }
-	                }
-	            }
-	        }
-	    };
-	    WBPropertyGrid.prototype.reloadObjectProperties = function () {
-	        var obj = this._object;
-	        this.clear();
-	        obj && this.loadObjectProperties(obj);
-	    };
-	    WBPropertyGrid.prototype.loadObjectProperties = function (object) {
-	        var _this = this;
-	        if (this._object !== object) {
-	            this.clear();
-	            this._object = object;
-	            if (this._object) {
-	                var ev = new whiteboard.WBGetPropertyListEvent();
-	                this._object.triggerEx(ev);
-	                if (ev.properties) {
-	                    for (var groupName in ev.properties) {
-	                        var group = ev.properties[groupName];
-	                        this.addGroup(group.desc);
-	                        group.properties.forEach(function (value) {
-	                            _this.addObjectProperty(value);
-	                        });
-	                    }
-	                }
-	            }
-	        }
-	    };
-	    WBPropertyGrid.prototype.loadPageProperties = function () {
-	        var _this = this;
-	        this.clear();
-	        var pageList = [];
-	        var view = this._editor.whiteboard.view;
-	        if (view) {
-	            view.forEachPage(function (page) {
-	                pageList.push({
-	                    value: page.name,
-	                    desc: page.name
-	                });
-	            });
-	            this.addChoiceAttribute('页面列表', pageList, view.currentPage, false, function (value) {
-	                view.selectPage(value);
-	                _this.loadPageProperties();
-	                return view.currentPage;
-	            });
-	            this.addTextAttribute('页面名称', view.currentPage, false, function (value) {
-	                if (value !== view.currentPage) {
-	                    _this._editor.executeCommand('RenamePage', {
-	                        newName: value
-	                    });
-	                    _this.loadPageProperties();
-	                    return view.currentPage;
-	                }
-	            }, true);
-	            this.addTextAttribute('页面背景图像', view.pageImage, false, function (value) {
-	                view.pageImage = (value === '') ? null : value;
-	                return value;
-	            }, true);
-	            this.addChoiceAttribute('页面背景重复', [{
-	                    value: 'repeat',
-	                    desc: '重复'
-	                }, {
-	                    value: 'repeat-x',
-	                    desc: '横向重复'
-	                }, {
-	                    value: 'repeat-y',
-	                    desc: '纵向重复'
-	                }, {
-	                    value: 'no-repeat',
-	                    desc: '不重复'
-	                }], view.pageImageRepeat, false, function (value) {
-	                view.pageImageRepeat = value;
-	                return value;
-	            });
-	            this.addToggleAttribute('页面背景固定', view.pageImageAttachment === 'fixed', false, function (value) {
-	                view.pageImageAttachment = value ? 'fixed' : 'scroll';
-	                return value;
-	            });
-	            this.addTextAttribute('页面背景大小', view.pageImageSize, false, function (value) {
-	                view.pageImageSize = value;
-	                return value;
-	            });
-	            this.addColorAttribute('页面背景颜色', view.pageColor || '', false, function (value) {
-	                view.pageColor = (value === '') ? null : value;
-	                return value;
-	            });
-	            this.addButton('新建页面', function () {
-	                _this._editor.executeCommand('AddPage');
-	                _this.loadPageProperties();
-	            });
-	            this.addButton('删除页面', function () {
-	                _this._editor.executeCommand('DeletePage');
-	                _this.loadPageProperties();
-	            });
-	        }
-	    };
-	    WBPropertyGrid.prototype.createRow = function () {
-	        var tbody = document.querySelector("#" + this._tableId + " tbody");
-	        var tr = document.createElement('tr');
-	        if (tbody && tr) {
-	            tbody.appendChild(tr);
-	        }
-	        return tr;
-	    };
-	    WBPropertyGrid.prototype.createCell = function (tr) {
-	        var td = document.createElement('td');
-	        td.style.color = '#000';
-	        td.style.fontWeight = 'bold';
-	        td.style.overflow = 'hidden';
-	        td.style.whiteSpace = 'nowrap';
-	        td.style.textOverflow = 'ellipsis';
-	        td.style.height = '24px';
-	        tr.appendChild(td);
-	        return td;
-	    };
-	    WBPropertyGrid.prototype.createGroupCell = function (tr, name) {
-	        var td = this.createCell(tr);
-	        td.style.paddingLeft = '5px';
-	        td.setAttribute('colspan', '2');
-	        td.innerText = name;
-	        return td;
-	    };
-	    WBPropertyGrid.prototype.createPropCell = function (tr) {
-	        var td = this.createCell(tr);
-	        td.style.paddingLeft = '5px';
-	        td.style.border = 'dotted 1px #ccc';
-	        td.style.color = '#000';
-	        return td;
-	    };
-	    return WBPropertyGrid;
-	}());
-	exports.WBPropertyGrid = WBPropertyGrid;
-	var WBEditor = /** @class */ (function () {
-	    function WBEditor(WB, toolset, toolPaletteElement, opPaletteElement, objectPropGridElement, toolPropGridElement) {
-	        this._strokeColor = '#00000000';
-	        this._fillColor = 'red';
-	        this._toolFontSize = 14;
-	        this._wb = WB;
-	        this._toolset = toolset;
-	        this._toolPalette = new WBToolPalette(this, toolPaletteElement);
-	        this._toolPalette.loadToolPalette(toolset.tools);
-	        this._opPalette = new WBToolPalette(this, opPaletteElement);
-	        this._opPalette.loadOpPalette(toolset.operations);
-	        this._objectPropGrid = new WBPropertyGrid(this, objectPropGridElement, 'wb-object');
-	        this._toolPropGrid = new WBPropertyGrid(this, toolPropGridElement, 'wb-tool');
-	        this._objectPropGrid.loadPageProperties();
-	    }
-	    Object.defineProperty(WBEditor.prototype, "whiteboard", {
-	        get: function () {
-	            return this._wb;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "toolSet", {
-	        get: function () {
-	            return this._toolset;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "opPalette", {
-	        get: function () {
-	            return this._opPalette;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "toolPalette", {
-	        get: function () {
-	            return this._toolPalette;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "objectPropertyGrid", {
-	        get: function () {
-	            return this._objectPropGrid;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "toolPropertyGrid", {
-	        get: function () {
-	            return this._toolPropGrid;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "strokeColor", {
-	        get: function () {
-	            return this._strokeColor;
-	        },
-	        set: function (value) {
-	            this._strokeColor = value;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "fillColor", {
-	        get: function () {
-	            return this._fillColor;
-	        },
-	        set: function (value) {
-	            this._fillColor = value;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "toolFontSize", {
-	        get: function () {
-	            return this._toolFontSize;
-	        },
-	        set: function (value) {
-	            this._toolFontSize = value;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBEditor.prototype.executeCommand = function (command, args) {
-	        catk.App.triggerEvent(null, new whiteboard.WBCommandEvent(command, args));
-	    };
-	    return WBEditor;
-	}());
-	exports.WBEditor = WBEditor;
-
-	});
-
-	unwrapExports(editor);
-	var editor_1 = editor.WBToolPalette;
-	var editor_2 = editor.WBPropertyGrid;
-	var editor_3 = editor.WBEditor;
-
-	var toolset = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.WBDefaultToolSet = {
-	    tools: {
-	        CreateLabel: {
-	            iconClass: 'fas fa-font fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'Create',
-	                args: {
-	                    createType: 'Label',
-	                    text: '标签',
-	                    textColor: '#000000'
-	                }
-	            }
-	        },
-	        Select: {
-	            iconClass: 'fas fa-mouse-pointer fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'Select'
-	            }
-	        },
-	        Swap: {
-	            iconClass: 'fas fa-exchange-alt fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'Swap'
-	            }
-	        },
-	        Connect: {
-	            iconClass: 'fas fa-arrow-right fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'Connect'
-	            }
-	        },
-	        Write: {
-	            iconClass: 'fas fa-pen fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'HandWriting',
-	                args: {
-	                    mode: 'draw'
-	                }
-	            }
-	        },
-	        Erase: {
-	            iconClass: 'fas fa-eraser fa-fw',
-	            command: 'UseTool',
-	            args: {
-	                name: 'HandWriting',
-	                args: {
-	                    mode: 'erase'
-	                }
-	            }
-	        }
-	    },
-	    operations: {
-	        Delete: {
-	            iconClass: 'fas fa-trash-alt fa-fw',
-	            command: 'DeleteSelected'
-	        },
-	        Clone: {
-	            iconClass: 'fas fa-clone fa-fw',
-	            command: 'CloneSelected'
-	        },
-	        AlignLeft: {
-	            iconClass: 'fas fa-align-left fa-fw',
-	            command: 'AlignSelected',
-	            args: {
-	                mode: 'Left'
-	            }
-	        },
-	        AlignRight: {
-	            iconClass: 'fas fa-align-right fa-fw',
-	            command: 'AlignSelected',
-	            args: {
-	                mode: 'Right'
-	            }
-	        },
-	        AlignTop: {
-	            iconClass: 'fas fa-align-right fa-rotate-270 fa-fw',
-	            command: 'AlignSelected',
-	            args: {
-	                mode: 'Top'
-	            }
-	        },
-	        AlignBottom: {
-	            iconClass: 'fas fa-align-right fa-rotate-90 fa-fw',
-	            command: 'AlignSelected',
-	            args: {
-	                mode: 'Bottom'
-	            }
-	        },
-	        ArrangeH: {
-	            iconClass: 'fas fa-arrows-alt-h fa-fw',
-	            command: 'ArrangeSelected',
-	            args: {
-	                mode: 'Horizontal'
-	            }
-	        },
-	        ArrangeV: {
-	            iconClass: 'fas fa-arrows-alt-v fa-fw',
-	            command: 'ArrangeSelected',
-	            args: {
-	                mode: 'Vertical'
-	            }
-	        },
-	    }
-	};
-
-	});
-
-	unwrapExports(toolset);
-	var toolset_1 = toolset.WBDefaultToolSet;
-
-	var editor$2 = createCommonjsModule(function (module, exports) {
-	function __export(m) {
-	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	__export(toolbox);
-	__export(editor);
-	__export(toolset);
-
-	});
-
-	unwrapExports(editor$2);
-
-	var label = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBLabel = /** @class */ (function (_super) {
-	    __extends(WBLabel, _super);
-	    function WBLabel(parent, params) {
-	        if (params === void 0) { params = null; }
-	        var _this = _super.call(this, parent || undefined) || this;
-	        var opt = params || {};
-	        _this._width = Number(opt.width || 0);
-	        _this._height = Number(opt.height || 0);
-	        _this._fontSize = Number(opt.fontSize || 16);
-	        _this._fontStyle = opt.fontStyle || 'normal';
-	        _this._fontVariant = opt.fontVariant || 'normal';
-	        _this._fontWeight = opt.fontWeight || 'normal';
-	        _this._fontFamily = opt.fontFamily || 'PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Source Han Sans CN,sans-serif';
-	        _this._font = '';
-	        _this._text = opt.text ? _this.parseText(opt.text) : '';
-	        _this._measure = null;
-	        _this._minwidth = 10;
-	        _this._textcolor = opt.textColor || '#000';
-	        _this._bkColor = opt.bkColor || '#f00';
-	        _this._bkShape = opt.bkShape || 'rect';
-	        _this._boundingShape = null;
-	        _this.anchorPoint = { x: 0.5, y: 0.5 };
-	        _this.on(catk.EvtUpdate.type, function (evt) {
-	            _this.update();
-	        });
-	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
-	            if (_this._boundingShape) {
-	                evt.shape = _this._boundingShape;
-	            }
-	        });
-	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this._measure) {
-	                var width = _this._measure.width;
-	                if (width < _this._minwidth) {
-	                    width = _this._minwidth;
-	                }
-	                var height = _this._fontSize;
-	                var boundingWidth = Math.max(_this._width, width);
-	                var boundingHeight = Math.max(_this._height, height);
-	                switch (_this._bkShape) {
-	                    case 'rect':
-	                        evt.canvas.context.fillStyle = _this._bkColor;
-	                        evt.canvas.context.fillRect(-boundingWidth * _this.anchorPoint.x, -boundingHeight * _this.anchorPoint.y, boundingWidth, boundingHeight);
-	                        break;
-	                    case 'ellipse':
-	                        evt.canvas.context.fillStyle = _this._bkColor;
-	                        evt.canvas.context.beginPath();
-	                        evt.canvas.context.ellipse(-boundingWidth * _this.anchorPoint.x + boundingWidth / 2, -boundingHeight * _this.anchorPoint.y + boundingHeight / 2, boundingWidth / 2, boundingHeight / 2, 0, 0, Math.PI * 2);
-	                        evt.canvas.context.closePath();
-	                        evt.canvas.context.fill();
-	                        break;
-	                }
-	                var x = (boundingWidth - width) / 2 - boundingWidth * _this.anchorPoint.x;
-	                var y = (boundingHeight - height) / 2 - boundingHeight * _this.anchorPoint.y;
-	                evt.canvas.context.fillStyle = _this._textcolor;
-	                evt.canvas.context.font = _this._font;
-	                evt.canvas.context.fillText(_this._text, x, y, width);
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'text': {
-	                    ev.value = _this.text;
-	                    break;
-	                }
-	                case 'textColor': {
-	                    ev.value = _this._textcolor;
-	                    break;
-	                }
-	                case 'fontSize': {
-	                    ev.value = _this.fontSize;
-	                    break;
-	                }
-	                case 'fontWeight': {
-	                    ev.value = _this.fontWeight;
-	                    break;
-	                }
-	                case 'fontStyle': {
-	                    ev.value = _this.fontStyle;
-	                    break;
-	                }
-	                case 'width': {
-	                    ev.value = _this._width;
-	                    break;
-	                }
-	                case 'height': {
-	                    ev.value = _this._height;
-	                    break;
-	                }
-	                case 'bkColor': {
-	                    ev.value = _this.bkColor;
-	                    break;
-	                }
-	                case 'bkShape': {
-	                    ev.value = _this.bkShape;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'text': {
-	                    _this.text = ev.value;
-	                    break;
-	                }
-	                case 'textColor': {
-	                    _this._textcolor = ev.value;
-	                    break;
-	                }
-	                case 'fontSize': {
-	                    _this.fontSize = Number(ev.value);
-	                    break;
-	                }
-	                case 'fontWeight': {
-	                    _this.fontWeight = String(ev.value);
-	                    break;
-	                }
-	                case 'fontStyle': {
-	                    _this.fontStyle = String(ev.value);
-	                    break;
-	                }
-	                case 'width': {
-	                    _this.width = Number(ev.value);
-	                    break;
-	                }
-	                case 'height': {
-	                    _this.height = Number(ev.value);
-	                    break;
-	                }
-	                case 'bkColor': {
-	                    _this.bkColor = String(ev.value);
-	                    break;
-	                }
-	                case 'bkShape': {
-	                    _this.bkShape = String(ev.value);
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'text',
-	                desc: '文字内容',
-	                readonly: false,
-	                type: 'string',
-	                value: _this.text
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'textColor',
-	                desc: '文字颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this._textcolor
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'fontSize',
-	                desc: '字体大小',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.fontSize
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'fontWeight',
-	                desc: '字体粗细',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._fontWeight,
-	                enum: [{
-	                        value: 'normal',
-	                        desc: '正常'
-	                    }, {
-	                        value: 'bold',
-	                        desc: '粗体'
-	                    }, {
-	                        value: 'bolder',
-	                        desc: '加粗'
-	                    }, {
-	                        value: 'lighter',
-	                        desc: '纤细'
-	                    }]
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'fontStyle',
-	                desc: '字体样式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._fontStyle,
-	                enum: [{
-	                        value: 'normal',
-	                        desc: '正常'
-	                    }, {
-	                        value: 'italic',
-	                        desc: '斜体'
-	                    }]
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'width',
-	                desc: '宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.width
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'height',
-	                desc: '高度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this.height
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'bkColor',
-	                desc: '背景颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this.bkColor
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'bkShape',
-	                desc: '背景样式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this.bkShape,
-	                enum: [{
-	                        value: 'none',
-	                        desc: '无'
-	                    }, {
-	                        value: 'rect',
-	                        desc: '矩形'
-	                    }, {
-	                        value: 'ellipse',
-	                        desc: '圆形'
-	                    }]
-	            });
-	        });
-	        return _this;
-	    }
-	    Object.defineProperty(WBLabel.prototype, "text", {
-	        get: function () {
-	            return this._text;
-	        },
-	        set: function (value) {
-	            var newText = this.parseText(value);
-	            if (newText !== this._text) {
-	                this._text = newText;
-	                this._measure = null;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBLabel.prototype.setAnchorPoint = function (pt) {
-	        _super.prototype.setAnchorPoint.call(this, pt);
-	        this._boundingShape = null;
-	    };
-	    Object.defineProperty(WBLabel.prototype, "fontSize", {
-	        get: function () {
-	            return this._fontSize;
-	        },
-	        set: function (value) {
-	            if (value !== this._fontSize) {
-	                this._fontSize = value;
-	                this._font = '';
-	                this._measure = null;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "fontWeight", {
-	        get: function () {
-	            return this._fontWeight;
-	        },
-	        set: function (value) {
-	            if (value !== this._fontWeight) {
-	                this._fontWeight = value;
-	                this._font = '';
-	                this._measure = null;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "fontStyle", {
-	        get: function () {
-	            return this._fontStyle;
-	        },
-	        set: function (value) {
-	            if (value !== this._fontStyle) {
-	                this._fontStyle = value;
-	                this._font = '';
-	                this._measure = null;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "width", {
-	        get: function () {
-	            return this._width;
-	        },
-	        set: function (value) {
-	            if (value !== this._width) {
-	                this._width = value;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "height", {
-	        get: function () {
-	            return this._height;
-	        },
-	        set: function (value) {
-	            if (value !== this._height) {
-	                this._height = value;
-	                this._boundingShape = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "bkColor", {
-	        get: function () {
-	            return this._bkColor;
-	        },
-	        set: function (value) {
-	            this._bkColor = value;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBLabel.prototype, "bkShape", {
-	        get: function () {
-	            return this._bkShape;
-	        },
-	        set: function (value) {
-	            this._bkShape = value;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBLabel.prototype.parseText = function (value) {
-	        var regexp = /\{\{[^\{\}]*\}\}/g;
-	        var k = value.split(regexp);
-	        if (k.length === 1) {
-	            return value;
-	        }
-	        var pos = 1;
-	        while (true) {
-	            var s = regexp.exec(value);
-	            if (s === null) {
-	                break;
-	            }
-	            var val = String((new Function('return ' + s[0].slice(2, s[0].length - 2)))());
-	            k.splice(pos, 0, val);
-	        }
-	        return k.join('');
-	    };
-	    WBLabel.prototype.update = function () {
-	        if (this._font === '') {
-	            this._font = this._fontStyle + " " + this._fontVariant + " " + this._fontWeight + " " + this._fontSize + "px " + this._fontFamily;
-	            this._boundingShape = null;
-	        }
-	        if (this.view && this._measure === null) {
-	            this.view.canvas.context.textAlign = 'left';
-	            this.view.canvas.context.textBaseline = 'hanging';
-	            this.view.canvas.context.font = this._font;
-	            this._measure = this.view.canvas.context.measureText(this._text);
-	            this._boundingShape = null;
-	        }
-	        if (this._measure && !this._boundingShape) {
-	            var width = Math.max(this._measure.width, this._minwidth);
-	            var height = this._fontSize;
-	            var boundingWidth = Math.max(width, this._width);
-	            var boundingHeight = Math.max(height, this._height);
-	            this._boundingShape = new catk.BoundingBox({ x: -boundingWidth * this.anchorPoint.x, y: -boundingHeight * this.anchorPoint.y, w: boundingWidth, h: boundingHeight });
-	        }
-	    };
-	    return WBLabel;
-	}(catk.SceneObject));
-	exports.WBLabel = WBLabel;
-	var WBLabelFactory = /** @class */ (function (_super) {
-	    __extends(WBLabelFactory, _super);
-	    function WBLabelFactory() {
-	        return _super !== null && _super.apply(this, arguments) || this;
-	    }
-	    WBLabelFactory.prototype.getCreationProperties = function () {
-	        return [{
-	                name: 'text',
-	                desc: '文字内容',
-	                readonly: false,
-	                type: 'string',
-	                value: '标签'
-	            }, {
-	                name: 'textColor',
-	                desc: '文字颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: '#000'
-	            }, {
-	                name: 'fontSize',
-	                desc: '字体大小',
-	                readonly: false,
-	                type: 'number',
-	                value: 16
-	            }, {
-	                name: 'fontWeight',
-	                desc: '字体粗细',
-	                readonly: false,
-	                type: 'string',
-	                value: 'normal',
-	                enum: [{
-	                        value: 'normal',
-	                        desc: '正常'
-	                    }, {
-	                        value: 'bold',
-	                        desc: '粗体'
-	                    }, {
-	                        value: 'bolder',
-	                        desc: '加粗'
-	                    }, {
-	                        value: 'lighter',
-	                        desc: '纤细'
-	                    }]
-	            }, {
-	                name: 'fontStyle',
-	                desc: '字体样式',
-	                readonly: false,
-	                type: 'string',
-	                value: 'normal',
-	                enum: [{
-	                        value: 'normal',
-	                        desc: '正常'
-	                    }, {
-	                        value: 'italic',
-	                        desc: '斜体'
-	                    }]
-	            }, {
-	                name: 'width',
-	                desc: '宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: 0
-	            }, {
-	                name: 'height',
-	                desc: '高度',
-	                readonly: false,
-	                type: 'number',
-	                value: 0
-	            }, {
-	                name: 'bkColor',
-	                desc: '背景颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: '#0000ff'
-	            }, {
-	                name: 'bkShape',
-	                desc: '背景样式',
-	                readonly: false,
-	                type: 'string',
-	                value: 'none',
-	                enum: [{
-	                        value: 'none',
-	                        desc: '无'
-	                    }, {
-	                        value: 'rect',
-	                        desc: '矩形'
-	                    }, {
-	                        value: 'ellipse',
-	                        desc: '圆形'
-	                    }]
-	            }];
-	    };
-	    WBLabelFactory.prototype._createEntity = function (options) {
-	        return new WBLabel(null, options);
-	    };
-	    return WBLabelFactory;
-	}(whiteboard.WBFactory));
-	exports.WBLabelFactory = WBLabelFactory;
-
-	});
-
-	unwrapExports(label);
-	var label_1 = label.WBLabel;
-	var label_2 = label.WBLabelFactory;
-
-	var arrow = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBArrow = /** @class */ (function (_super) {
-	    __extends(WBArrow, _super);
-	    function WBArrow(parent, params) {
-	        if (params === void 0) { params = null; }
-	        var _this = _super.call(this, parent || undefined) || this;
-	        var opt = params || {};
-	        _this._lineWidth = Number(opt.lineWidth || 1);
-	        _this._arrowLen = Number(opt.arrowLen || 15);
-	        _this._style = opt.style || 'single';
-	        _this._color = opt.color || '#000000';
-	        _this._objectFrom = opt.objectFrom || null;
-	        _this._positionFrom = { x: opt.positionFromX === undefined ? 0 : Number(opt.positionFromX), y: opt.positionFromY === undefined ? 0 : Number(opt.positionFromY) };
-	        _this._objectTo = opt.objectTo || null;
-	        _this._positionTo = { x: opt.positionToX === undefined ? 0 : Number(opt.positionToX), y: opt.positionToY === undefined ? 0 : Number(opt.positionToY) };
-	        _this._segment = null;
-	        _this._boundingShape = null;
-	        _this.on(catk.EvtUpdate.type, function (evt) {
-	            _this.update();
-	        });
-	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
-	            if (!_this._boundingShape) {
-	                _this.update();
-	            }
-	            if (_this._boundingShape) {
-	                evt.shape = _this._boundingShape;
-	            }
-	        });
-	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this._segment) {
-	                if (_this._style === 'none') {
-	                    evt.canvas.context.strokeStyle = _this._color;
-	                    evt.canvas.context.lineWidth = _this._lineWidth;
-	                    evt.canvas.context.beginPath();
-	                    evt.canvas.context.moveTo(_this._segment.start.x, _this._segment.start.y);
-	                    evt.canvas.context.lineTo(_this._segment.end.x, _this._segment.end.y);
-	                    evt.canvas.context.stroke();
-	                }
-	                else {
-	                    var double = _this._style === 'double';
-	                    _this.drawArrow(evt.canvas.context, _this._segment.end.x, _this._segment.end.y, _this._segment.start.x, _this._segment.start.y, 30, _this._arrowLen, _this._lineWidth, _this._color, double);
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    ev.value = _this._lineWidth;
-	                    break;
-	                }
-	                case 'arrowLen': {
-	                    ev.value = _this._arrowLen;
-	                    break;
-	                }
-	                case 'style': {
-	                    ev.value = _this._style;
-	                    break;
-	                }
-	                case 'color': {
-	                    ev.value = _this._color;
-	                    break;
-	                }
-	                case 'objectFrom': {
-	                    ev.value = _this._objectFrom || '';
-	                    break;
-	                }
-	                case 'positionFromX': {
-	                    ev.value = _this._positionFrom ? _this._positionFrom.x : null;
-	                    break;
-	                }
-	                case 'positionFromY': {
-	                    ev.value = _this._positionFrom ? _this._positionFrom.y : null;
-	                    break;
-	                }
-	                case 'objectTo': {
-	                    ev.value = _this._objectTo || '';
-	                    break;
-	                }
-	                case 'positionToX': {
-	                    ev.value = _this._positionTo ? _this._positionTo.x : null;
-	                    break;
-	                }
-	                case 'positionToY': {
-	                    ev.value = _this._positionTo ? _this._positionTo.y : null;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    _this._lineWidth = Number(ev.value);
-	                    break;
-	                }
-	                case 'arrowLen': {
-	                    _this._arrowLen = Number(ev.value);
-	                    break;
-	                }
-	                case 'style': {
-	                    _this._style = String(ev.value);
-	                    break;
-	                }
-	                case 'color': {
-	                    _this._color = String(ev.value);
-	                    break;
-	                }
-	                case 'objectFrom': {
-	                    _this._objectFrom = ev.value === '' ? null : String(ev.value);
-	                    break;
-	                }
-	                case 'positionFromX': {
-	                    if (!_this._positionFrom) {
-	                        _this._positionFrom = { x: 0, y: 0 };
-	                    }
-	                    _this._positionFrom.x = Number(ev.value);
-	                    break;
-	                }
-	                case 'positionFromY': {
-	                    if (!_this._positionFrom) {
-	                        _this._positionFrom = { x: 0, y: 0 };
-	                    }
-	                    _this._positionFrom.y = Number(ev.value);
-	                    break;
-	                }
-	                case 'objectTo': {
-	                    _this._objectTo = ev.value === '' ? null : String(ev.value);
-	                    break;
-	                }
-	                case 'positionToX': {
-	                    if (!_this._positionTo) {
-	                        _this._positionTo = { x: 0, y: 0 };
-	                    }
-	                    _this._positionTo.x = Number(ev.value);
-	                    break;
-	                }
-	                case 'positionToY': {
-	                    if (!_this._positionTo) {
-	                        _this._positionTo = { x: 0, y: 0 };
-	                    }
-	                    _this._positionTo.y = Number(ev.value);
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'lineWidth',
-	                desc: '线宽',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._lineWidth
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'arrowLen',
-	                desc: '箭头长度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._arrowLen
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'style',
-	                desc: '箭头样式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._style,
-	                enum: [{
-	                        value: 'none',
-	                        desc: '无'
-	                    }, {
-	                        value: 'single',
-	                        desc: '单向箭头'
-	                    }, {
-	                        value: 'double',
-	                        desc: '双向箭头'
-	                    }]
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'color',
-	                desc: '颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this._color
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'objectFrom',
-	                desc: '绑定出发节点',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._objectFrom || ''
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'positionFromX',
-	                desc: '出发点X坐标',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._positionFrom ? _this._positionFrom.x : null
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'positionFromY',
-	                desc: '出发点Y坐标',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._positionFrom ? _this._positionFrom.y : null
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'objectTo',
-	                desc: '绑定到达节点',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._objectTo || ''
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'positionToX',
-	                desc: '到达点X坐标',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._positionTo ? _this._positionTo.x : null
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'positionToY',
-	                desc: '到达点Y坐标',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._positionTo ? _this._positionTo.y : null
-	            });
-	        });
-	        return _this;
-	    }
-	    WBArrow.prototype.getSegment = function () {
-	        if (!this._positionFrom || !this._positionTo) {
-	            return null;
-	        }
-	        var t = this.worldTransform;
-	        var posFrom = t.transformPoint(this._positionFrom);
-	        var posTo = t.transformPoint(this._positionTo);
-	        var result = { start: { x: posFrom.x, y: posFrom.y }, end: { x: posTo.x, y: posTo.y } };
-	        var objectFrom = null;
-	        var transformFrom = null;
-	        var objectTo = null;
-	        var transformTo = null;
-	        if (this._objectFrom) {
-	            var ev = new whiteboard.WBGetObjectEvent(this._objectFrom);
-	            catk.App.triggerEvent(null, ev);
-	            objectFrom = ev.object || null;
-	            if (objectFrom) {
-	                transformFrom = objectFrom.worldTransform;
-	                result.start.x = transformFrom.e;
-	                result.start.y = transformFrom.f;
-	            }
-	        }
-	        if (this._objectTo) {
-	            var ev = new whiteboard.WBGetObjectEvent(this._objectTo);
-	            catk.App.triggerEvent(null, ev);
-	            objectTo = ev.object || null;
-	            if (objectTo) {
-	                transformTo = objectTo.worldTransform;
-	                result.end.x = transformTo.e;
-	                result.end.y = transformTo.f;
-	            }
-	        }
-	        if (objectFrom && transformFrom) {
-	            var boundingShape = objectFrom.boundingShape;
-	            var ptList = boundingShape ? catk.IntersectionTestShapeSegment(boundingShape.getTransformedShape(transformFrom), result) : null;
-	            if (ptList && ptList.length > 0) {
-	                result.start = ptList[0];
-	            }
-	        }
-	        if (objectTo && transformTo) {
-	            var boundingShape = objectTo.boundingShape;
-	            var ptList = boundingShape ? catk.IntersectionTestShapeSegment(boundingShape.getTransformedShape(transformTo), result) : null;
-	            if (ptList && ptList.length > 0) {
-	                result.end = ptList[0];
-	            }
-	        }
-	        var it = catk.Matrix2d.invert(t);
-	        result.start = it.transformPoint(result.start);
-	        result.end = it.transformPoint(result.end);
-	        return result;
-	    };
-	    WBArrow.prototype.drawArrow = function (ctx, fromX, fromY, toX, toY, theta, headlen, width, color, double) {
-	        // 计算各角度和对应的P2,P3坐标 
-	        var angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI, angle1 = (angle + theta) * Math.PI / 180, angle2 = (angle - theta) * Math.PI / 180, topX = headlen * Math.cos(angle1), topY = headlen * Math.sin(angle1), botX = headlen * Math.cos(angle2), botY = headlen * Math.sin(angle2);
-	        ctx.beginPath();
-	        var arrowX = fromX - topX;
-	        var arrowY = fromY - topY;
-	        ctx.moveTo(arrowX, arrowY);
-	        ctx.lineTo(fromX, fromY);
-	        arrowX = fromX - botX;
-	        arrowY = fromY - botY;
-	        ctx.lineTo(arrowX, arrowY);
-	        ctx.moveTo(fromX, fromY);
-	        ctx.lineTo(toX, toY);
-	        if (double) {
-	            arrowX = toX + topX;
-	            arrowY = toY + topY;
-	            ctx.moveTo(arrowX, arrowY);
-	            ctx.lineTo(toX, toY);
-	            arrowX = toX + botX;
-	            arrowY = toY + botY;
-	            ctx.lineTo(arrowX, arrowY);
-	        }
-	        ctx.strokeStyle = color;
-	        ctx.lineWidth = width;
-	        ctx.stroke();
-	    };
-	    WBArrow.prototype.update = function () {
-	        // Compute segment and bounding shape
-	        this._segment = this.getSegment();
-	        if (this._segment) {
-	            var v = catk.GetVector(this._segment.start, this._segment.end);
-	            var d = catk.VectorLength(v);
-	            var w = Math.floor(this._lineWidth / 2 + 3);
-	            var dx = w * v.y / d;
-	            var dy = -w * v.x / d;
-	            if (this._boundingShape === null) {
-	                this._boundingShape = new catk.BoundingHull();
-	            }
-	            else {
-	                this._boundingShape.clear();
-	            }
-	            this._boundingShape.addPoint({ x: this._segment.start.x + dx, y: this._segment.start.y + dy });
-	            this._boundingShape.addPoint({ x: this._segment.start.x - dx, y: this._segment.start.y - dy });
-	            this._boundingShape.addPoint({ x: this._segment.end.x - dx, y: this._segment.end.y - dy });
-	            this._boundingShape.addPoint({ x: this._segment.end.x + dx, y: this._segment.end.y + dy });
-	        }
-	    };
-	    return WBArrow;
-	}(catk.SceneObject));
-	exports.WBArrow = WBArrow;
-	var WBArrowFactory = /** @class */ (function (_super) {
-	    __extends(WBArrowFactory, _super);
-	    function WBArrowFactory() {
-	        return _super !== null && _super.apply(this, arguments) || this;
-	    }
-	    WBArrowFactory.prototype.getCreationProperties = function () {
-	        return [{
-	                name: 'lineWidth',
-	                desc: '线宽',
-	                readonly: false,
-	                type: 'number',
-	                value: 3
-	            }, {
-	                name: 'arrowLen',
-	                desc: '箭头长度',
-	                readonly: false,
-	                type: 'number',
-	                value: 15
-	            }, {
-	                name: 'style',
-	                desc: '箭头样式',
-	                readonly: false,
-	                type: 'string',
-	                value: 'single',
-	                enum: [{
-	                        value: 'none',
-	                        desc: '无'
-	                    }, {
-	                        value: 'single',
-	                        desc: '单向箭头'
-	                    }, {
-	                        value: 'double',
-	                        desc: '双向箭头'
-	                    }]
-	            }, {
-	                name: 'color',
-	                desc: '颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: '#000000'
-	            }];
-	    };
-	    WBArrowFactory.prototype._createEntity = function (options) {
-	        return new WBArrow(null, options);
-	    };
-	    return WBArrowFactory;
-	}(whiteboard.WBFactory));
-	exports.WBArrowFactory = WBArrowFactory;
-
-	});
-
-	unwrapExports(arrow);
-	var arrow_1 = arrow.WBArrow;
-	var arrow_2 = arrow.WBArrowFactory;
-
-	var freedraw = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBFreeDraw = /** @class */ (function (_super) {
-	    __extends(WBFreeDraw, _super);
-	    function WBFreeDraw(parent, params) {
-	        if (params === void 0) { params = null; }
-	        var _this = _super.call(this, parent || undefined) || this;
-	        _this._canvas = null;
-	        _this._boundingShape = null;
-	        _this._cp = [];
-	        _this._lastMoveTime = 0;
-	        _this._action = false;
-	        var opt = params || {};
-	        _this._lineWidth = Number(opt.lineWidth || 1);
-	        _this._color = opt.color || '#000000';
-	        _this._mode = opt.mode || 'draw';
-	        _this._mousePosX = 0;
-	        _this._mousePosY = 0;
-	        _this._eraseSize = opt.eraseSize || 20;
-	        _this._curveMode = opt.curveMode || 0;
-	        _this.on(catk.EvtCanvasResize.type, function (evt) {
-	            if (evt.view === _this.view && _this._canvas) {
-	                _this._canvas.width = evt.view.canvas.width;
-	                _this._canvas.height = evt.view.canvas.height;
-	                if (_this._boundingShape) {
-	                    _this._boundingShape.rect = { x: 0, y: 0, w: _this._canvas.width, h: _this._canvas.height };
-	                }
-	            }
-	        });
-	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
-	            if (_this._boundingShape === null && _this.canvas) {
-	                _this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: _this.canvas.width, h: _this.canvas.height });
-	            }
-	            if (_this._boundingShape) {
-	                evt.shape = _this._boundingShape;
-	            }
-	        });
-	        _this.on(catk.EvtHitTest.type, function (evt) {
-	            var canvas = _this.canvas;
-	            if (canvas && evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
-	                var ctx = canvas.getContext('2d');
-	                if (ctx) {
-	                    var data = ctx.getImageData(evt.x, evt.y, 1, 1);
-	                    if (data && data.data[3] > 0) {
-	                        evt.result = true;
-	                    }
-	                }
-	            }
-	            evt.eat();
-	        });
-	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this.canvas) {
-	                var w = _this.canvas.width;
-	                var h = _this.canvas.height;
-	                evt.canvas.context.drawImage(_this.canvas, -Math.round(w * _this.anchorPoint.x) - 0.5, -Math.round(h * _this.anchorPoint.y) - 0.5, w, h);
-	                if (_this._mode === 'erase') {
-	                    evt.canvas.context.strokeStyle = '#000000';
-	                    evt.canvas.context.strokeRect(Math.round(_this._mousePosX - _this._eraseSize / 2), Math.round(_this._mousePosY - _this._eraseSize / 2), _this._eraseSize, _this._eraseSize);
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBCommandEvent.type, function (ev) {
-	            if (_this.canvas) {
-	                var context = _this.canvas.getContext('2d');
-	                if (context) {
-	                    if (ev.command === 'StartDraw') {
-	                        context.lineWidth = _this._lineWidth;
-	                        context.strokeStyle = _this._color;
-	                        context.lineCap = 'round';
-	                        context.lineJoin = 'round';
-	                        context.beginPath();
-	                        context.moveTo(ev.args.x + 0.5, ev.args.y + 0.5);
-	                    }
-	                    else if (ev.command === 'Drawing') {
-	                        if (ev.args.curveMode === 0) {
-	                            context.lineTo(ev.args.x + 0.5, ev.args.y + 0.5);
-	                            context.stroke();
-	                        }
-	                        else if (ev.args.curveMode === 1) {
-	                            if (ev.args.cp.length === 1) {
-	                                context.quadraticCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
-	                                context.stroke();
-	                            }
-	                        }
-	                        else if (ev.args.curveMode === 2) {
-	                            if (ev.args.cp.length === 2) {
-	                                context.bezierCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
-	                                context.stroke();
-	                            }
-	                        }
-	                    }
-	                    else if (ev.command === 'EndDraw') {
-	                        if (ev.args.cp.length > 0) {
-	                            if (ev.args.cp.length === 1) {
-	                                context.lineTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5);
-	                            }
-	                            else if (ev.args.cp.length) {
-	                                context.quadraticCurveTo(ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5);
-	                            }
-	                            context.stroke();
-	                        }
-	                    }
-	                    else if (ev.command === 'Erase') {
-	                        context.clearRect(ev.args.x - ev.args.size / 2, ev.args.y - ev.args.size / 2, ev.args.size, ev.args.size);
-	                    }
-	                }
-	            }
-	        });
-	        _this.on(catk.EvtMouseDown.type, function (ev) {
-	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
-	            if (_this.canvas) {
-	                if (_this._mode === 'draw') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('StartDraw', {
-	                        x: pt.x,
-	                        y: pt.y
-	                    }, undefined, _this.entityName));
-	                    _this._cp.length = 0;
-	                    _this._action = true;
-	                    /*
-	                    const context = this.canvas.getContext('2d');
-	                    if (context) {
-	                        context.lineWidth = this._lineWidth;
-	                        context.strokeStyle = this._color;
-	                        context.lineCap = 'round';
-	                        context.lineJoin = 'round';
-	                        context.beginPath ();
-	                        context.moveTo (pt.x + 0.5, pt.y + 0.5);
-	                        this._cp.length = 0;
-	                        this._action = true;
-	                    }
-	                    */
-	                }
-	                else if (_this._mode === 'erase') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Erase', {
-	                        x: pt.x,
-	                        y: pt.y,
-	                        size: _this._eraseSize
-	                    }, undefined, _this.entityName));
-	                    _this._action = true;
-	                    /*
-	                    const context = this.canvas.getContext('2d');
-	                    if (context) {
-	                        context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
-	                        this._action = true;
-	                    }
-	                    */
-	                }
-	            }
-	        });
-	        _this.on(catk.EvtMouseMove.type, function (ev) {
-	            _this._mousePosX = ev.x;
-	            _this._mousePosY = ev.y;
-	            if (_this._action && _this.canvas) {
-	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
-	                if (_this._mode === 'draw') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Drawing', {
-	                        curveMode: _this._curveMode,
-	                        x: pt.x,
-	                        y: pt.y,
-	                        cp: _this._cp,
-	                    }, undefined, _this.entityName));
-	                    if (_this._curveMode === 1) {
-	                        if (_this._cp.length === 1) {
-	                            _this._cp.length = 0;
-	                        }
-	                        else {
-	                            _this._cp.push({ x: pt.x, y: pt.y });
-	                            _this._lastMoveTime = Date.now();
-	                        }
-	                    }
-	                    else if (_this._curveMode === 2) {
-	                        if (_this._cp.length === 2) {
-	                            _this._cp.length = 0;
-	                        }
-	                        else {
-	                            _this._cp.push({ x: pt.x, y: pt.y });
-	                            _this._lastMoveTime = Date.now();
-	                        }
-	                    }
-	                    /*
-	                    const context = this.canvas.getContext('2d');
-	                    if (context) {
-	                        if (this._curveMode === 0) {
-	                            context.lineTo (pt.x + 0.5, pt.y + 0.5);
-	                            context.stroke ();
-	                        } else if (this._curveMode === 1) {
-	                            if (this._cp.length === 1) {
-	                                context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-	                                context.stroke ();
-	                                this._cp.length = 0;
-	                            } else {
-	                                this._cp.push ({x: pt.x, y: pt.y});
-	                                this._lastMoveTime = Date.now();
-	                            }
-	                        } else if (this._curveMode === 2) {
-	                            if (this._cp.length === 2) {
-	                                context.bezierCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-	                                context.stroke ();
-	                                this._cp.length = 0;
-	                            } else {
-	                                this._cp.push ({x: pt.x, y: pt.y});
-	                                this._lastMoveTime = Date.now();
-	                            }
-	                        }
-	                    }
-	                    */
-	                }
-	                else if (_this._mode === 'erase') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('Erase', {
-	                        x: pt.x,
-	                        y: pt.y,
-	                        size: _this._eraseSize
-	                    }, undefined, _this.entityName));
-	                    /*
-	                    const context = this.canvas.getContext('2d');
-	                    context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
-	                    */
-	                }
-	            }
-	        });
-	        _this.on(catk.EvtFrame.type, function (ev) {
-	            if (_this._mode === 'draw' && _this._action) {
-	                var t = Date.now();
-	                if (t > _this._lastMoveTime + 250) {
-	                    _this.finishDraw();
-	                }
-	            }
-	        });
-	        _this.on(catk.EvtMouseUp.type, function (ev) {
-	            if (_this._mode === 'draw' && _this._action) {
-	                _this.finishDraw();
-	            }
-	            _this._action = false;
-	        });
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    ev.value = _this._lineWidth;
-	                    break;
-	                }
-	                case 'color': {
-	                    ev.value = _this._color;
-	                    break;
-	                }
-	                case 'curveMode': {
-	                    ev.value = _this._curveMode;
-	                    break;
-	                }
-	                case 'eraseSize': {
-	                    ev.value = _this._eraseSize;
-	                    break;
-	                }
-	                case 'mode': {
-	                    ev.value = _this._mode;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    _this._lineWidth = Number(ev.value);
-	                    break;
-	                }
-	                case 'color': {
-	                    _this._color = String(ev.value);
-	                    break;
-	                }
-	                case 'curveMode': {
-	                    _this._curveMode = Number(ev.value);
-	                    break;
-	                }
-	                case 'eraseSize': {
-	                    _this._eraseSize = Number(ev.value);
-	                    break;
-	                }
-	                case 'mode': {
-	                    _this._mode = String(ev.value);
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'lineWidth',
-	                desc: '画笔宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._lineWidth
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'color',
-	                desc: '画笔颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this._color
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'curveMode',
-	                desc: '平滑模式',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._curveMode,
-	                enum: [{
-	                        value: 0,
-	                        desc: '无'
-	                    }, {
-	                        value: 1,
-	                        desc: '二次样条'
-	                    }, {
-	                        value: 2,
-	                        desc: '三次样条'
-	                    }]
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'eraseSize',
-	                desc: '橡皮宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._eraseSize
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'mode',
-	                desc: '操作模式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._mode,
-	                enum: [{
-	                        value: 'draw',
-	                        desc: '绘制'
-	                    }, {
-	                        value: 'erase',
-	                        desc: '擦除'
-	                    }, {
-	                        value: 'none',
-	                        desc: '无'
-	                    }]
-	            });
-	        });
-	        return _this;
-	    }
-	    Object.defineProperty(WBFreeDraw.prototype, "mode", {
-	        get: function () {
-	            return this._mode;
-	        },
-	        set: function (value) {
-	            if (this._mode !== value) {
-	                if (this._mode === 'draw') {
-	                    this.finishDraw();
-	                }
-	                this._action = false;
-	                this._mode = value;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBFreeDraw.prototype, "canvas", {
-	        get: function () {
-	            if (this._canvas === null && this.view) {
-	                this._canvas = document.createElement('canvas');
-	                this._canvas.style.backgroundColor = '#00000000';
-	                this._canvas.width = this.view.canvas.width;
-	                this._canvas.height = this.view.canvas.height;
-	                if (this._boundingShape) {
-	                    this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: this._canvas.width, h: this._canvas.height });
-	                }
-	            }
-	            return this._canvas;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBFreeDraw.prototype.finishDraw = function () {
-	        if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('EndDraw', {
-	                cp: this._cp
-	            }, undefined, this.entityName));
-	            this._cp.length = 0;
-	            /*
-	            const context = this.canvas.getContext('2d');
-	            if (context) {
-	                if (this._cp.length === 1) {
-	                    context.lineTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5);
-	                } else if (this._cp.length) {
-	                    context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5);
-	                }
-	                context.stroke ();
-	                this._cp.length = 0;
-	            }
-	            */
-	        }
-	    };
-	    return WBFreeDraw;
-	}(catk.SceneObject));
-	exports.WBFreeDraw = WBFreeDraw;
-	var WBFreeDrawFactory = /** @class */ (function (_super) {
-	    __extends(WBFreeDrawFactory, _super);
-	    function WBFreeDrawFactory() {
-	        return _super !== null && _super.apply(this, arguments) || this;
-	    }
-	    WBFreeDrawFactory.prototype.getCreationProperties = function () {
-	        return [{
-	                name: 'lineWidth',
-	                desc: '画笔宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: 3
-	            }, {
-	                name: 'color',
-	                desc: '颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: '#000000'
-	            }, {
-	                name: 'curveMode',
-	                desc: '平滑模式',
-	                readonly: false,
-	                type: 'number',
-	                value: 0,
-	                enum: [{
-	                        value: 0,
-	                        desc: '无'
-	                    }, {
-	                        value: 1,
-	                        desc: '二次样条'
-	                    }, {
-	                        value: 2,
-	                        desc: '三次样条'
-	                    }]
-	            }, {
-	                name: 'eraseSize',
-	                desc: '橡皮宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: 20
-	            }];
-	    };
-	    WBFreeDrawFactory.prototype._createEntity = function (options) {
-	        return new WBFreeDraw(null, options);
-	    };
-	    return WBFreeDrawFactory;
-	}(whiteboard.WBFactory));
-	exports.WBFreeDrawFactory = WBFreeDrawFactory;
-
-	});
-
-	unwrapExports(freedraw);
-	var freedraw_1 = freedraw.WBFreeDraw;
-	var freedraw_2 = freedraw.WBFreeDrawFactory;
-
-	var factory = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-
-	function installFactories(wb) {
-	    wb.addFactory(new label.WBLabelFactory('Label'));
-	    wb.addFactory(new arrow.WBArrowFactory('Arrow'));
-	    wb.addFactory(new freedraw.WBFreeDrawFactory('FreeDraw'));
-	}
-	exports.installFactories = installFactories;
-
-	});
-
-	unwrapExports(factory);
-	var factory_1 = factory.installFactories;
-
-	var objects = createCommonjsModule(function (module, exports) {
-	function __export(m) {
-	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	__export(label);
-	__export(arrow);
-	__export(freedraw);
-	__export(factory);
-
-	});
-
-	unwrapExports(objects);
-
-	var select = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBSelectEvent = /** @class */ (function (_super) {
-	    __extends(WBSelectEvent, _super);
-	    function WBSelectEvent(selectIndex) {
-	        var _this = _super.call(this, WBSelectEvent.type) || this;
-	        _this.selectIndex = selectIndex;
-	        return _this;
-	    }
-	    WBSelectEvent.type = '@WBSelect';
-	    return WBSelectEvent;
-	}(catk.BaseEvent));
-	exports.WBSelectEvent = WBSelectEvent;
-	var WBDeselectEvent = /** @class */ (function (_super) {
-	    __extends(WBDeselectEvent, _super);
-	    function WBDeselectEvent() {
-	        return _super.call(this, WBDeselectEvent.type) || this;
-	    }
-	    WBDeselectEvent.type = '@WBDeselect';
-	    return WBDeselectEvent;
-	}(catk.BaseEvent));
-	exports.WBDeselectEvent = WBDeselectEvent;
-	var WBObjectSelectedEvent = /** @class */ (function (_super) {
-	    __extends(WBObjectSelectedEvent, _super);
-	    function WBObjectSelectedEvent(objects) {
-	        var _this = _super.call(this, WBObjectSelectedEvent.type) || this;
-	        _this.objects = objects;
-	        return _this;
-	    }
-	    WBObjectSelectedEvent.type = '@WBObjectSelected';
-	    return WBObjectSelectedEvent;
-	}(catk.BaseEvent));
-	exports.WBObjectSelectedEvent = WBObjectSelectedEvent;
-	var WBObjectMovedEvent = /** @class */ (function (_super) {
-	    __extends(WBObjectMovedEvent, _super);
-	    function WBObjectMovedEvent(objects) {
-	        var _this = _super.call(this, WBObjectMovedEvent.type) || this;
-	        _this.objects = objects;
-	        return _this;
-	    }
-	    WBObjectMovedEvent.type = '@WBObjectMoved';
-	    return WBObjectMovedEvent;
-	}(catk.BaseEvent));
-	exports.WBObjectMovedEvent = WBObjectMovedEvent;
-	var WBObjectDeselectedEvent = /** @class */ (function (_super) {
-	    __extends(WBObjectDeselectedEvent, _super);
-	    function WBObjectDeselectedEvent(object, objects) {
-	        var _this = _super.call(this, WBObjectDeselectedEvent.type) || this;
-	        _this.object = object;
-	        _this.objects = objects;
-	        return _this;
-	    }
-	    WBObjectDeselectedEvent.type = '@WBObjectDeselected';
-	    return WBObjectDeselectedEvent;
-	}(catk.BaseEvent));
-	exports.WBObjectDeselectedEvent = WBObjectDeselectedEvent;
-	var WBSelectComponent = /** @class */ (function (_super) {
-	    __extends(WBSelectComponent, _super);
-	    function WBSelectComponent(tool) {
-	        var _this = _super.call(this, WBSelectComponent.type) || this;
-	        _this.tool = tool;
-	        _this._selected = false;
-	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this._selected) {
-	                var shape = _this.object.boundingShape;
-	                if (shape) {
-	                    var bbox = shape.getBoundingbox();
-	                    if (bbox) {
-	                        evt.canvas.context.strokeStyle = '#000';
-	                        evt.canvas.context.lineWidth = 1;
-	                        evt.canvas.context.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
-	                    }
-	                }
-	            }
-	        });
-	        _this.on(WBSelectEvent.type, function (evt) {
-	            _this._selected = true;
-	        });
-	        _this.on(WBDeselectEvent.type, function (evt) {
-	            _this._selected = false;
-	        });
-	        return _this;
-	    }
-	    WBSelectComponent.type = 'WBSelect';
-	    return WBSelectComponent;
-	}(catk.Component));
-	exports.WBSelectComponent = WBSelectComponent;
-	var WBSelectTool = /** @class */ (function (_super) {
-	    __extends(WBSelectTool, _super);
-	    function WBSelectTool(whiteboard$$1) {
-	        var _this = _super.call(this, WBSelectTool.toolname, whiteboard$$1) || this;
-	        _this._selectedObjects = [];
-	        _this._moving = false;
-	        _this._rangeSelecting = false;
-	        _this._mouseStartPosX = 0;
-	        _this._mouseStartPosY = 0;
-	        _this._mouseCurrentPosX = 0;
-	        _this._mouseCurrentPosY = 0;
-	        return _this;
-	    }
-	    Object.defineProperty(WBSelectTool.prototype, "selectedObjects", {
-	        get: function () {
-	            return this._selectedObjects;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBSelectTool.prototype.activate = function (options) {
-	        var _this = this;
-	        _super.prototype.activate.call(this, options);
-	        this._selectedObjects.length = 0;
-	        this.on(catk.EvtKeyDown.type, function (ev) {
-	            if (_this._selectedObjects.length === 1) {
-	                _this._selectedObjects[0].triggerEx(ev);
-	            }
-	        });
-	        this.on(catk.EvtKeyUp.type, function (ev) {
-	            if (_this._selectedObjects.length === 1) {
-	                _this._selectedObjects[0].triggerEx(ev);
-	            }
-	        });
-	        this.on(catk.EvtKeyPress.type, function (ev) {
-	            if (_this._selectedObjects.length === 1) {
-	                _this._selectedObjects[0].triggerEx(ev);
-	            }
-	        });
-	        this.on(catk.EvtMouseDown.type, function (ev) {
-	            _this._mouseStartPosX = ev.x;
-	            _this._mouseStartPosY = ev.y;
-	            var view = _this._wb.view;
-	            if (view) {
-	                var hitObjects = view.hitObjects;
-	                if (hitObjects.length > 1) {
-	                    _this.selectObject(hitObjects[0], ev);
-	                    _this._moving = true;
-	                    _this._rangeSelecting = false;
-	                }
-	                else {
-	                    _this.deselectAll();
-	                    _this._rangeSelecting = true;
-	                    _this._moving = false;
-	                    _this._mouseCurrentPosX = ev.x;
-	                    _this._mouseCurrentPosY = ev.y;
-	                }
-	            }
-	        });
-	        this.on(catk.EvtMouseMove.type, function (ev) {
-	            if (_this._moving) {
-	                var dx_1 = ev.x - _this._mouseStartPosX;
-	                var dy_1 = ev.y - _this._mouseStartPosY;
-	                _this._mouseStartPosX = ev.x;
-	                _this._mouseStartPosY = ev.y;
-	                _this._selectedObjects.forEach(function (obj) {
-	                    var t = obj.translation;
-	                    //obj.translation = { x: t.x + dx, y: t.y + dy };
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
-	                        objectName: obj.entityName,
-	                        propName: 'localx',
-	                        propValue: t.x + dx_1
-	                    }));
-	                    catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
-	                        objectName: obj.entityName,
-	                        propName: 'localy',
-	                        propValue: t.y + dy_1
-	                    }));
-	                });
-	            }
-	            else if (_this._rangeSelecting) {
-	                var view = _this._wb.view;
-	                if (view && view.rootNode) {
-	                    _this.rangeSelectR(view.rootNode, _this._mouseStartPosX, _this._mouseStartPosY, ev.x - _this._mouseStartPosX, ev.y - _this._mouseStartPosY);
-	                    _this._mouseCurrentPosX = ev.x;
-	                    _this._mouseCurrentPosY = ev.y;
-	                }
-	            }
-	        });
-	        this.on(catk.EvtMouseUp.type, function (ev) {
-	            if (_this._moving && _this._selectedObjects && _this._selectedObjects.length > 0) {
-	                catk.App.triggerEvent(null, new WBObjectMovedEvent(_this._selectedObjects));
-	            }
-	            _this._moving = false;
-	            _this._rangeSelecting = false;
-	        });
-	        this.on(catk.EvtDraw.type, function (ev) {
-	            if (_this._rangeSelecting) {
-	                ev.canvas.context.save();
-	                ev.canvas.context.setTransform(1, 0, 0, 1, 0.5, 0.5);
-	                ev.canvas.context.strokeStyle = '#000';
-	                ev.canvas.context.lineWidth = 1;
-	                ev.canvas.context.setLineDash([6, 3]);
-	                ev.canvas.context.beginPath();
-	                ev.canvas.context.moveTo(_this._mouseStartPosX, _this._mouseStartPosY);
-	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseStartPosY);
-	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseCurrentPosY);
-	                ev.canvas.context.moveTo(_this._mouseStartPosX, _this._mouseStartPosY);
-	                ev.canvas.context.lineTo(_this._mouseStartPosX, _this._mouseCurrentPosY);
-	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseCurrentPosY);
-	                ev.canvas.context.stroke();
-	                ev.canvas.context.restore();
-	            }
-	        });
-	    };
-	    WBSelectTool.prototype.deactivate = function () {
-	        this.off(catk.EvtKeyDown.type);
-	        this.off(catk.EvtKeyUp.type);
-	        this.off(catk.EvtKeyPress.type);
-	        this.off(catk.EvtMouseDown.type);
-	        this.off(catk.EvtMouseMove.type);
-	        this.off(catk.EvtMouseUp.type);
-	        this.off(catk.EvtDraw.type);
-	        _super.prototype.deactivate.call(this);
-	    };
-	    WBSelectTool.prototype.activateObject = function (object) {
-	        this.deactivateObject(object);
-	        object.addComponent(new WBSelectComponent(this));
-	    };
-	    WBSelectTool.prototype.deactivateObject = function (object) {
-	        var components = object.getComponents(WBSelectComponent.type);
-	        if (components && components.length > 0) {
-	            this.deselectObject(object);
-	            object.removeComponentsByType(WBSelectComponent.type);
-	        }
-	    };
-	    WBSelectTool.prototype.executeCommand = function (command, args) {
-	        if (command === 'GetSelected') {
-	            args.selectedObjects = this._selectedObjects;
-	        }
-	        else if (command === 'DeleteSelected') {
-	            if (this._selectedObjects.length > 0) {
-	                catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('DeleteObjects', {
-	                    objects: this._selectedObjects.map(function (obj) { return obj.entityName; })
-	                }));
-	            }
-	        }
-	        else if (command === 'AlignSelected') {
-	            var mode = args.mode;
-	            if (this._selectedObjects.length > 0) {
-	                catk.App.triggerEvent(null, new whiteboard.WBCommandEvent("AlignObjects" + mode, {
-	                    objects: this._selectedObjects.map(function (obj) { return obj.entityName; })
-	                }));
-	            }
-	        }
-	        else if (command === 'ArrangeSelected') {
-	            var mode = args.mode;
-	            if (this._selectedObjects.length > 0) {
-	                catk.App.triggerEvent(null, new whiteboard.WBCommandEvent("ArrangeObjects" + mode, {
-	                    objects: this._selectedObjects.map(function (obj) { return obj.entityName; })
-	                }));
-	            }
-	        }
-	    };
-	    WBSelectTool.prototype.selectObject = function (object, ev) {
-	        if (this._selectedObjects.indexOf(object) < 0) {
-	            var metaDown = ev ? catk.EvtSysInfo.isMac() ? ev.metaDown : ev.ctrlDown : true;
-	            if (!metaDown) {
-	                this.deselectAll();
-	            }
-	            this.selectedObjects.push(object);
-	            object.triggerEx(new WBSelectEvent(this.selectedObjects.length));
-	            catk.App.triggerEvent(null, new WBObjectSelectedEvent(this._selectedObjects));
-	        }
-	    };
-	    WBSelectTool.prototype.deselectObject = function (object) {
-	        var index = this._selectedObjects.indexOf(object);
-	        if (index >= 0) {
-	            object.triggerEx(new WBDeselectEvent());
-	            this.selectedObjects.splice(index, 1);
-	            catk.App.triggerEvent(null, new WBObjectDeselectedEvent(object, this._selectedObjects));
-	        }
-	    };
-	    WBSelectTool.prototype.deselectAll = function () {
-	        while (this.selectedObjects.length > 0) {
-	            this.deselectObject(this.selectedObjects[this.selectedObjects.length - 1]);
-	        }
-	    };
-	    WBSelectTool.prototype.rangeSelectR = function (root, x, y, w, h) {
-	        var _this = this;
-	        root.forEachChild(function (child) {
-	            if (w === 0 || h === 0) {
-	                _this.deselectObject(child);
-	            }
-	            else {
-	                var shape = child.boundingShape;
-	                if (shape) {
-	                    var t = catk.Matrix2d.invert(child.worldTransform);
-	                    var rectObject = [
-	                        t.transformPoint({ x: x, y: y }),
-	                        t.transformPoint({ x: x, y: y + h }),
-	                        t.transformPoint({ x: x + w, y: y + h }),
-	                        t.transformPoint({ x: x + w, y: y })
-	                    ];
-	                    if (catk.IntersectionTestShapeHull(shape, rectObject)) {
-	                        _this.selectObject(child, null);
-	                    }
-	                    else {
-	                        _this.deselectObject(child);
-	                    }
-	                }
-	                _this.rangeSelectR(child, x, y, w, h);
-	            }
-	        });
-	    };
-	    WBSelectTool.toolname = 'Select';
-	    return WBSelectTool;
-	}(whiteboard.WBTool));
-	exports.WBSelectTool = WBSelectTool;
-
-	});
-
-	unwrapExports(select);
-	var select_1 = select.WBSelectEvent;
-	var select_2 = select.WBDeselectEvent;
-	var select_3 = select.WBObjectSelectedEvent;
-	var select_4 = select.WBObjectMovedEvent;
-	var select_5 = select.WBObjectDeselectedEvent;
-	var select_6 = select.WBSelectComponent;
-	var select_7 = select.WBSelectTool;
-
-	var swap = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-
-	var WBSwapComponent = /** @class */ (function (_super) {
-	    __extends(WBSwapComponent, _super);
-	    function WBSwapComponent(tool) {
-	        var _this = _super.call(this, WBSwapComponent.type) || this;
-	        _this.tool = tool;
-	        _this.selected = false;
-	        _this.on(catk.EvtMouseDown.type, function (ev) {
-	            if (_this.tool.currentObject) {
-	                _this.tool.currentObject.getComponent(WBSwapComponent.type, 0).selected = false;
-	            }
-	            else {
-	                _this.selected = true;
-	            }
-	            _this.tool.selectObject(_this.object, ev);
-	        });
-	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this.selected) {
-	                var shape = _this.object.boundingShape;
-	                if (shape) {
-	                    var bbox = shape.getBoundingbox();
-	                    if (bbox) {
-	                        evt.canvas.context.strokeStyle = '#000';
-	                        evt.canvas.context.lineWidth = 1;
-	                        evt.canvas.context.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
-	                    }
-	                }
-	            }
-	        });
-	        return _this;
-	    }
-	    WBSwapComponent.type = 'WBSwap';
-	    return WBSwapComponent;
-	}(catk.Component));
-	exports.WBSwapComponent = WBSwapComponent;
-	var WBSwapTool = /** @class */ (function (_super) {
-	    __extends(WBSwapTool, _super);
-	    function WBSwapTool(whiteboard$$1) {
-	        var _this = _super.call(this, WBSwapTool.toolname, whiteboard$$1) || this;
-	        _this._curObject = null;
-	        return _this;
-	    }
-	    Object.defineProperty(WBSwapTool.prototype, "currentObject", {
-	        get: function () {
-	            return this._curObject;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    WBSwapTool.prototype.activate = function (options) {
-	        _super.prototype.activate.call(this, options);
-	        this._curObject = null;
-	    };
-	    WBSwapTool.prototype.deactivate = function () {
-	        if (this._curObject) {
-	            this._curObject.triggerEx(new select.WBDeselectEvent());
-	            this._curObject = null;
-	        }
-	        _super.prototype.deactivate.call(this);
-	    };
-	    WBSwapTool.prototype.activateObject = function (object) {
-	        this.deactivateObject(object);
-	        object.addComponent(new WBSwapComponent(this));
-	    };
-	    WBSwapTool.prototype.deactivateObject = function (object) {
-	        object.removeComponentsByType(WBSwapComponent.type);
-	    };
-	    WBSwapTool.prototype.selectObject = function (object, ev) {
-	        if (this._curObject == null) {
-	            this._curObject = object;
-	        }
-	        else if (this._curObject !== object) {
-	            this.swapObject(this._curObject, object, 200);
-	            this._curObject = null;
-	        }
-	        else {
-	            this._curObject = null;
-	        }
-	    };
-	    WBSwapTool.prototype.swapObject = function (object1, object2, animationDuration) {
-	        var t1 = object1.translation;
-	        var t2 = object2.translation;
-	        (object2.getComponents(catk.CoKeyframeAnimation.type) || []).forEach(function (comp) {
-	            comp.finish();
-	            object2.removeComponentsByType(catk.CoKeyframeAnimation.type);
-	        });
-	        object2.addComponent(new catk.CoKeyframeAnimation({
-	            delay: 0,
-	            repeat: 1,
-	            exclusive: true,
-	            tracks: {
-	                translation: {
-	                    cp: [{ x: 0, y: [t2.x, t2.y] }, { x: animationDuration, y: [t1.x, t1.y] }],
-	                    type: catk.SplineType.LINEAR
-	                }
-	            }
-	        }));
-	        object1.addComponent(new catk.CoKeyframeAnimation({
-	            delay: 0,
-	            repeat: 1,
-	            exclusive: true,
-	            tracks: {
-	                translation: {
-	                    cp: [{ x: 0, y: [t1.x, t1.y] }, { x: animationDuration, y: [t2.x, t2.y] }],
-	                    type: catk.SplineType.LINEAR
-	                }
-	            }
-	        }));
-	    };
-	    WBSwapTool.toolname = 'Swap';
-	    return WBSwapTool;
-	}(whiteboard.WBTool));
-	exports.WBSwapTool = WBSwapTool;
-
-	});
-
-	unwrapExports(swap);
-	var swap_1 = swap.WBSwapComponent;
-	var swap_2 = swap.WBSwapTool;
-
-	var create = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBCreateTool = /** @class */ (function (_super) {
-	    __extends(WBCreateTool, _super);
-	    function WBCreateTool(whiteboard$$1) {
-	        var _this = _super.call(this, WBCreateTool.toolname, whiteboard$$1) || this;
-	        _this.options = {};
-	        _this._factoryProperties = [];
-	        _this._creationParams = {};
-	        return _this;
-	    }
-	    WBCreateTool.prototype.activate = function (options) {
-	        var _this = this;
-	        if (options) {
-	            this.options = options;
-	            if (this._creationParams[options.createType] === undefined) {
-	                this._creationParams[options.createType] = {};
-	                this._factoryProperties = this._wb.getFactory(options.createType).getCreationProperties();
-	                if (this._factoryProperties) {
-	                    this._factoryProperties.forEach(function (prop) {
-	                        _this._creationParams[options.createType][prop.name] = prop.value;
-	                    });
-	                }
-	            }
-	        }
-	        this.on(catk.EvtMouseDown.type, function (ev) {
-	            var args = {
-	                type: _this.options.createType,
-	                name: null,
-	            };
-	            for (var arg in _this.options) {
-	                if (arg !== 'command' && arg !== 'createType' && arg !== 'type') {
-	                    args[arg] = _this.options[arg];
-	                }
-	            }
-	            args.x = ev.x;
-	            args.y = ev.y;
-	            args.params = _this._creationParams[_this.options.createType];
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('CreateObject', args));
-	        });
-	        this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            if (ev.name in _this._creationParams[_this.options.createType]) {
-	                ev.value = _this._creationParams[_this.options.createType][ev.name];
-	            }
-	        });
-	        this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            if (ev.name in _this._creationParams[_this.options.createType]) {
-	                _this._creationParams[_this.options.createType][ev.name] = ev.value;
-	            }
-	        });
-	        this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            if (_this._factoryProperties && _this._factoryProperties.length > 0) {
-	                ev.properties = ev.properties || {};
-	                ev.properties[_this.options.createType] = ev.properties[_this.options.createType] || { desc: _this.options.createType, properties: [] };
-	                ev.properties[_this.options.createType].properties = _this._factoryProperties;
-	            }
-	        });
-	        _super.prototype.activate.call(this, options);
-	    };
-	    WBCreateTool.prototype.deactivate = function () {
-	        this.off(catk.EvtMouseDown.type);
-	        this.options = {};
-	        _super.prototype.deactivate.call(this);
-	    };
-	    WBCreateTool.toolname = 'Create';
-	    return WBCreateTool;
-	}(whiteboard.WBTool));
-	exports.WBCreateTool = WBCreateTool;
-
-	});
-
-	unwrapExports(create);
-	var create_1 = create.WBCreateTool;
-
-	var connect = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBConnectTool = /** @class */ (function (_super) {
-	    __extends(WBConnectTool, _super);
-	    function WBConnectTool(whiteboard$$1) {
-	        var _this = _super.call(this, WBConnectTool.toolname, whiteboard$$1) || this;
-	        _this._createParams = {
-	            lineWidth: 3,
-	            arrowLen: 15,
-	            style: 'single',
-	            color: '#000000',
-	            objectFrom: null,
-	            positionFromX: 0,
-	            positionFromY: 0,
-	            objectTo: null,
-	            positionToX: 0,
-	            positionToY: 0
-	        };
-	        _this._moving = false;
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            if (ev.name in _this._createParams) {
-	                ev.value = _this._createParams[ev.name];
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            if (ev.name in _this._createParams) {
-	                _this._createParams[ev.name] = ev.value;
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties[_this.name] = ev.properties[_this.name] || { desc: '画笔工具', properties: [] };
-	            ev.properties[_this.name].properties.push({
-	                name: 'lineWidth',
-	                desc: '线宽',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._createParams.lineWidth
-	            });
-	            ev.properties[_this.name].properties.push({
-	                name: 'arrowLen',
-	                desc: '箭头长度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._createParams.arrowLen
-	            });
-	            ev.properties[_this.name].properties.push({
-	                name: 'style',
-	                desc: '箭头样式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._createParams.style,
-	                enum: [{
-	                        value: 'none',
-	                        desc: '无'
-	                    }, {
-	                        value: 'single',
-	                        desc: '单向箭头'
-	                    }, {
-	                        value: 'double',
-	                        desc: '双向箭头'
-	                    }]
-	            });
-	            ev.properties[_this.name].properties.push({
-	                name: 'color',
-	                desc: '颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this._createParams.color
-	            });
-	        });
-	        return _this;
-	    }
-	    WBConnectTool.prototype.activate = function (options) {
-	        var _this = this;
-	        _super.prototype.activate.call(this, options);
-	        this._moving = false;
-	        this.on(catk.EvtMouseDown.type, function (ev) {
-	            var view = _this._wb.view;
-	            if (view) {
-	                _this._moving = true;
-	                _this._createParams.objectFrom = null;
-	                _this._createParams.objectTo = null;
-	                _this._createParams.positionToX = ev.x;
-	                _this._createParams.positionToY = ev.y;
-	                var hitObjects = view.hitObjects;
-	                if (hitObjects.length > 1 && hitObjects[0].entityType !== 'Arrow') {
-	                    _this._createParams.objectFrom = hitObjects[0];
-	                }
-	                else {
-	                    _this._createParams.positionFromX = ev.x;
-	                    _this._createParams.positionFromY = ev.y;
-	                }
-	            }
-	        });
-	        this.on(catk.EvtMouseMove.type, function (ev) {
-	            if (_this._moving) {
-	                var view = _this._wb.view;
-	                if (view) {
-	                    var hitObjects = view.hitObjects;
-	                    if (hitObjects.length > 1 && hitObjects[0] !== _this._createParams.objectFrom && hitObjects[0].entityType !== 'Arrow') {
-	                        _this._createParams.objectTo = hitObjects[0];
-	                    }
-	                    else {
-	                        _this._createParams.objectTo = null;
-	                        _this._createParams.positionToX = ev.x;
-	                        _this._createParams.positionToY = ev.y;
-	                    }
-	                }
-	            }
-	        });
-	        this.on(catk.EvtMouseUp.type, function (ev) {
-	            _this._moving = false;
-	            var x = 0, y = 0;
-	            if (_this._createParams.objectFrom && _this._createParams.objectTo) {
-	                _this._createParams.objectFrom = _this._createParams.objectFrom.entityName;
-	                _this._createParams.objectTo = _this._createParams.objectTo.entityName;
-	            }
-	            else if (_this._createParams.objectFrom) {
-	                _this._createParams.objectFrom = _this._createParams.objectFrom.entityName;
-	                x = _this._createParams.positionToX;
-	                y = _this._createParams.positionToY;
-	                _this._createParams.positionToX = 0;
-	                _this._createParams.positionToY = 0;
-	            }
-	            else if (_this._createParams.objectTo) {
-	                _this._createParams.objectTo = _this._createParams.objectTo.entityName;
-	                x = _this._createParams.positionFromX;
-	                y = _this._createParams.positionFromY;
-	                _this._createParams.positionFromX = 0;
-	                _this._createParams.positionFromY = 0;
-	            }
-	            else {
-	                x = _this._createParams.positionFromX;
-	                y = _this._createParams.positionFromY;
-	                _this._createParams.positionToX -= x;
-	                _this._createParams.positionToY -= y;
-	                _this._createParams.positionFromX = 0;
-	                _this._createParams.positionFromY = 0;
-	            }
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('CreateObject', {
-	                type: 'Arrow',
-	                name: null,
-	                x: x,
-	                y: y,
-	                params: _this._createParams
-	            }));
-	        });
-	        this.on(catk.EvtDraw.type, function (ev) {
-	            if (_this._moving) {
-	                ev.canvas.context.save();
-	                ev.canvas.context.setTransform(1, 0, 0, 1, 0.5, 0.5);
-	                ev.canvas.context.strokeStyle = '#000';
-	                ev.canvas.context.lineWidth = 1;
-	                ev.canvas.context.setLineDash([6, 3]);
-	                ev.canvas.context.beginPath();
-	                if (_this._createParams.objectFrom) {
-	                    var t = _this._createParams.objectFrom.worldTransform;
-	                    ev.canvas.context.moveTo(t.e, t.f);
-	                }
-	                else {
-	                    ev.canvas.context.moveTo(_this._createParams.positionFromX, _this._createParams.positionFromY);
-	                }
-	                if (_this._createParams.objectTo) {
-	                    var t = _this._createParams.objectTo.worldTransform;
-	                    ev.canvas.context.lineTo(t.e, t.f);
-	                }
-	                else {
-	                    ev.canvas.context.lineTo(_this._createParams.positionToX, _this._createParams.positionToY);
-	                }
-	                ev.canvas.context.stroke();
-	                ev.canvas.context.restore();
-	            }
-	        });
-	    };
-	    WBConnectTool.prototype.deactivate = function () {
-	        this.off(catk.EvtMouseDown.type);
-	        this.off(catk.EvtMouseMove.type);
-	        this.off(catk.EvtMouseUp.type);
-	        _super.prototype.deactivate.call(this);
-	    };
-	    WBConnectTool.prototype.activateObject = function (object) {
-	        _super.prototype.activateObject.call(this, object);
-	    };
-	    WBConnectTool.prototype.deactivateObject = function (object) {
-	        _super.prototype.deactivateObject.call(this, object);
-	    };
-	    WBConnectTool.toolname = 'Connect';
-	    return WBConnectTool;
-	}(whiteboard.WBTool));
-	exports.WBConnectTool = WBConnectTool;
-
-	});
-
-	unwrapExports(connect);
-	var connect_1 = connect.WBConnectTool;
-
-	var handwriting = createCommonjsModule(function (module, exports) {
-	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	    return function (d, b) {
-	        extendStatics(d, b);
-	        function __() { this.constructor = d; }
-	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	    };
-	})();
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-	var WBHandWritingTool = /** @class */ (function (_super) {
-	    __extends(WBHandWritingTool, _super);
-	    function WBHandWritingTool(whiteboard$$1) {
-	        var _this = _super.call(this, WBHandWritingTool.toolname, whiteboard$$1) || this;
-	        _this._freedrawNode = null;
-	        _this._mode = 'draw';
-	        _this._paramsDraw = {
-	            color: '#000',
-	            lineWidth: 2,
-	            curveMode: 0
-	        };
-	        _this._paramsErase = {
-	            eraseSize: 20
-	        };
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            var params = null;
-	            if (_this._mode === 'draw') {
-	                params = _this._paramsDraw;
-	            }
-	            else if (_this._mode === 'erase') {
-	                params = _this._paramsErase;
-	            }
-	            if (params && ev.name in params) {
-	                ev.value = params[ev.name];
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            var params = null;
-	            if (_this._mode === 'draw') {
-	                params = _this._paramsDraw;
-	            }
-	            else if (_this._mode === 'erase') {
-	                params = _this._paramsErase;
-	            }
-	            if (params && ev.name in params) {
-	                params[ev.name] = ev.value;
-	                _this.applyProperty(ev.name, ev.value);
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            if (_this._mode === 'draw') {
-	                ev.properties[_this.name] = ev.properties[_this.name] || { desc: '画笔工具', properties: [] };
-	                ev.properties[_this.name].properties.push({
-	                    name: 'color',
-	                    desc: '画笔颜色',
-	                    readonly: false,
-	                    type: 'color',
-	                    value: _this._paramsDraw.color
-	                });
-	                ev.properties[_this.name].properties.push({
-	                    name: 'lineWidth',
-	                    desc: '画笔粗细',
-	                    readonly: false,
-	                    type: 'number',
-	                    value: _this._paramsDraw.lineWidth
-	                });
-	                ev.properties[_this.name].properties.push({
-	                    name: 'curveMode',
-	                    desc: '平滑模式',
-	                    readonly: false,
-	                    type: 'number',
-	                    value: _this._paramsDraw.curveMode,
-	                    enum: [{
-	                            value: 0,
-	                            desc: '无'
-	                        }, {
-	                            value: 1,
-	                            desc: '二次样条'
-	                        }, {
-	                            value: 2,
-	                            desc: '三次样条'
-	                        }]
-	                });
-	            }
-	            else if (_this._mode === 'erase') {
-	                ev.properties[_this.name] = ev.properties[_this.name] || { desc: '橡皮工具', properties: [] };
-	                ev.properties[_this.name].properties.push({
-	                    name: 'eraseSize',
-	                    desc: '橡皮大小',
-	                    readonly: false,
-	                    type: 'number',
-	                    value: _this._paramsErase.eraseSize
-	                });
-	            }
-	        });
-	        return _this;
-	    }
-	    WBHandWritingTool.prototype.activate = function (options) {
-	        if (options) {
-	            this._mode = options.mode || 'draw';
-	        }
-	        this._freedrawNode = this.findFreedrawNode();
-	        if (!this._freedrawNode) {
-	            var args = {
-	                type: 'FreeDraw',
-	                name: null,
-	                x: 0,
-	                y: 0
-	            };
-	            var results = {};
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('CreateObject', args, results));
-	            this._freedrawNode = results.objectCreated;
-	        }
-	        if (this._freedrawNode) {
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValue: this._mode
-	            }));
-	            // this._freedrawNode.mode = this._mode;
-	            this._freedrawNode.setCapture();
-	            this.applyProperties(this._paramsDraw);
-	            this.applyProperties(this._paramsErase);
-	            _super.prototype.activate.call(this, options);
-	        }
-	    };
-	    WBHandWritingTool.prototype.deactivate = function () {
-	        if (this._freedrawNode) {
-	            this._freedrawNode.releaseCapture();
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValue: 'none'
-	            }));
-	            // this._freedrawNode.mode = 'none';
-	            this._freedrawNode = null;
-	        }
-	        _super.prototype.deactivate.call(this);
-	    };
-	    WBHandWritingTool.prototype.activateObject = function (object) {
-	        _super.prototype.activateObject.call(this, object);
-	    };
-	    WBHandWritingTool.prototype.deactivateObject = function (object) {
-	        _super.prototype.deactivateObject.call(this, object);
-	    };
-	    WBHandWritingTool.prototype.applyProperty = function (name, value) {
-	        if (this._freedrawNode) {
-	            catk.App.triggerEvent(null, new whiteboard.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: name,
-	                propValue: value
-	            }));
-	            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
-	        }
-	    };
-	    WBHandWritingTool.prototype.applyProperties = function (props) {
-	        for (var prop in props) {
-	            this.applyProperty(prop, props[prop]);
-	        }
-	    };
-	    WBHandWritingTool.prototype.findFreedrawNode = function () {
-	        var node = this._wb.findEntityByType('FreeDraw');
-	        return node ? node : null;
-	    };
-	    WBHandWritingTool.toolname = 'HandWriting';
-	    return WBHandWritingTool;
-	}(whiteboard.WBTool));
-	exports.WBHandWritingTool = WBHandWritingTool;
-
-	});
-
-	unwrapExports(handwriting);
-	var handwriting_1 = handwriting.WBHandWritingTool;
-
-	var tool = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-
-
-
-
-	function installTools(whiteboard) {
-	    whiteboard.addTool(new select.WBSelectTool(whiteboard));
-	    whiteboard.addTool(new swap.WBSwapTool(whiteboard));
-	    whiteboard.addTool(new create.WBCreateTool(whiteboard));
-	    whiteboard.addTool(new connect.WBConnectTool(whiteboard));
-	    whiteboard.addTool(new handwriting.WBHandWritingTool(whiteboard));
-	}
-	exports.installTools = installTools;
-
-	});
-
-	unwrapExports(tool);
-	var tool_1 = tool.installTools;
-
-	var tools = createCommonjsModule(function (module, exports) {
-	function __export(m) {
-	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	__export(select);
-	__export(swap);
-	__export(create);
-	__export(connect);
-	__export(handwriting);
-	__export(tool);
-
-	});
-
-	unwrapExports(tools);
-
-	var commands = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-	var WBCommandParser = /** @class */ (function () {
-	    function WBCommandParser() {
-	    }
-	    WBCommandParser.parse = function (command) {
-	        var s = WBCommandParser.trimLeft(command);
-	        var result = { command: '' };
-	        var lexData = {
-	            str: s,
-	            token: ''
-	        };
-	        WBCommandParser.lexical(lexData);
-	        result.command = lexData.token;
-	        while (true) {
-	            WBCommandParser.lexical(lexData);
-	            if (lexData.token === '') {
-	                break;
-	            }
-	            var arr = lexData.token.split('=');
-	            if (arr.length === 1) {
-	                result[arr[0]] = true;
-	            }
-	            else {
-	                var val = arr[1];
-	                if (val.length > 1 && val.charAt(0) === '[' && val.charAt(val.length - 1) === ']') {
-	                    val = val.substr(1, val.length - 2).split(',');
-	                }
-	                result[arr[0]] = val;
-	            }
-	        }
-	        return result;
-	    };
-	    WBCommandParser.trimLeft = function (s) {
-	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
-	        var pos = 0;
-	        while (pos < s.length && whitespace.indexOf(s.charAt(pos)) >= 0) {
-	            pos++;
-	        }
-	        return s.substring(pos, s.length - pos);
-	    };
-	    WBCommandParser.trimRight = function (s) {
-	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
-	        var pos = s.length - 1;
-	        while (pos >= 0 && whitespace.indexOf(s.charAt(pos)) >= 0) {
-	            pos--;
-	        }
-	        return s.substring(0, pos + 1);
-	    };
-	    WBCommandParser.trim = function (s) {
-	        return this.trimRight(this.trimLeft(s));
-	    };
-	    WBCommandParser.lexical = function (lexData) {
-	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
-	        var pos = 0;
-	        while (pos < lexData.str.length && whitespace.indexOf(lexData.str.charAt(pos)) >= 0) {
-	            pos++;
-	        }
-	        lexData.str = lexData.str.substr(pos, lexData.str.length - pos);
-	        pos = 0;
-	        while (pos < lexData.str.length && whitespace.indexOf(lexData.str.charAt(pos)) < 0) {
-	            pos++;
-	        }
-	        lexData.token = lexData.str.substr(0, pos);
-	        lexData.str = lexData.str.substr(pos, lexData.str.length - pos);
-	    };
-	    return WBCommandParser;
-	}());
-	exports.WBCommandParser = WBCommandParser;
-
-	});
-
-	unwrapExports(commands);
-	var commands_1 = commands.WBCommandParser;
-
-	var whiteboard$2 = createCommonjsModule(function (module, exports) {
-	function __export(m) {
-	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	__export(editor$2);
-	__export(objects);
-	__export(tools);
-	__export(commands);
-	__export(whiteboard);
-
-	});
-
-	unwrapExports(whiteboard$2);
-
 	var aspromise = asPromise;
 
 	/**
@@ -8296,7 +4393,7 @@
 	    return this;
 	};
 
-	var float_1 = factory$2(factory$2);
+	var float_1 = factory(factory);
 
 	/**
 	 * Reads / writes floats / doubles from / to buffers.
@@ -8381,7 +4478,7 @@
 	 */
 
 	// Factory function for the purpose of node-based testing in modified global environments
-	function factory$2(exports) {
+	function factory(exports) {
 
 	    // float: typed array
 	    if (typeof Float32Array !== "undefined") (function() {
@@ -11431,11 +7528,4654 @@
 	        };
 	        return CommandMessage;
 	    })();
+	    whiteboard.EventMessage = (function () {
+	        /**
+	         * Properties of an EventMessage.
+	         * @memberof whiteboard
+	         * @interface IEventMessage
+	         * @property {Uint8Array|null} [message] EventMessage message
+	         * @property {string|null} [object] EventMessage object
+	         */
+	        /**
+	         * Constructs a new EventMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an EventMessage.
+	         * @implements IEventMessage
+	         * @constructor
+	         * @param {whiteboard.IEventMessage=} [properties] Properties to set
+	         */
+	        function EventMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * EventMessage message.
+	         * @member {Uint8Array} message
+	         * @memberof whiteboard.EventMessage
+	         * @instance
+	         */
+	        EventMessage.prototype.message = $util.newBuffer([]);
+	        /**
+	         * EventMessage object.
+	         * @member {string} object
+	         * @memberof whiteboard.EventMessage
+	         * @instance
+	         */
+	        EventMessage.prototype.object = "";
+	        /**
+	         * Creates a new EventMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {whiteboard.IEventMessage=} [properties] Properties to set
+	         * @returns {whiteboard.EventMessage} EventMessage instance
+	         */
+	        EventMessage.create = function create(properties) {
+	            return new EventMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified EventMessage message. Does not implicitly {@link whiteboard.EventMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {whiteboard.IEventMessage} message EventMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EventMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.message != null && message.hasOwnProperty("message"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).bytes(message.message);
+	            if (message.object != null && message.hasOwnProperty("object"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.object);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified EventMessage message, length delimited. Does not implicitly {@link whiteboard.EventMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {whiteboard.IEventMessage} message EventMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EventMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an EventMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.EventMessage} EventMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EventMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.EventMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.message = reader.bytes();
+	                        break;
+	                    case 2:
+	                        message.object = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an EventMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.EventMessage} EventMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EventMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an EventMessage message.
+	         * @function verify
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        EventMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.message != null && message.hasOwnProperty("message"))
+	                if (!(message.message && typeof message.message.length === "number" || $util.isString(message.message)))
+	                    return "message: buffer expected";
+	            if (message.object != null && message.hasOwnProperty("object"))
+	                if (!$util.isString(message.object))
+	                    return "object: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an EventMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.EventMessage} EventMessage
+	         */
+	        EventMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.EventMessage)
+	                return object;
+	            var message = new $root.whiteboard.EventMessage();
+	            if (object.message != null)
+	                if (typeof object.message === "string")
+	                    $util.base64.decode(object.message, message.message = $util.newBuffer($util.base64.length(object.message)), 0);
+	                else if (object.message.length)
+	                    message.message = object.message;
+	            if (object.object != null)
+	                message.object = String(object.object);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an EventMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.EventMessage
+	         * @static
+	         * @param {whiteboard.EventMessage} message EventMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        EventMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                if (options.bytes === String)
+	                    object.message = "";
+	                else {
+	                    object.message = [];
+	                    if (options.bytes !== Array)
+	                        object.message = $util.newBuffer(object.message);
+	                }
+	                object.object = "";
+	            }
+	            if (message.message != null && message.hasOwnProperty("message"))
+	                object.message = options.bytes === String ? $util.base64.encode(message.message, 0, message.message.length) : options.bytes === Array ? Array.prototype.slice.call(message.message) : message.message;
+	            if (message.object != null && message.hasOwnProperty("object"))
+	                object.object = message.object;
+	            return object;
+	        };
+	        /**
+	         * Converts this EventMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.EventMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        EventMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return EventMessage;
+	    })();
+	    whiteboard.UseToolMessage = (function () {
+	        /**
+	         * Properties of a UseToolMessage.
+	         * @memberof whiteboard
+	         * @interface IUseToolMessage
+	         * @property {string|null} [name] UseToolMessage name
+	         * @property {string|null} [paramsJson] UseToolMessage paramsJson
+	         */
+	        /**
+	         * Constructs a new UseToolMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a UseToolMessage.
+	         * @implements IUseToolMessage
+	         * @constructor
+	         * @param {whiteboard.IUseToolMessage=} [properties] Properties to set
+	         */
+	        function UseToolMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * UseToolMessage name.
+	         * @member {string} name
+	         * @memberof whiteboard.UseToolMessage
+	         * @instance
+	         */
+	        UseToolMessage.prototype.name = "";
+	        /**
+	         * UseToolMessage paramsJson.
+	         * @member {string} paramsJson
+	         * @memberof whiteboard.UseToolMessage
+	         * @instance
+	         */
+	        UseToolMessage.prototype.paramsJson = "";
+	        /**
+	         * Creates a new UseToolMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {whiteboard.IUseToolMessage=} [properties] Properties to set
+	         * @returns {whiteboard.UseToolMessage} UseToolMessage instance
+	         */
+	        UseToolMessage.create = function create(properties) {
+	            return new UseToolMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified UseToolMessage message. Does not implicitly {@link whiteboard.UseToolMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {whiteboard.IUseToolMessage} message UseToolMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        UseToolMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.name);
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.paramsJson);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified UseToolMessage message, length delimited. Does not implicitly {@link whiteboard.UseToolMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {whiteboard.IUseToolMessage} message UseToolMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        UseToolMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a UseToolMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.UseToolMessage} UseToolMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        UseToolMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.UseToolMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.name = reader.string();
+	                        break;
+	                    case 2:
+	                        message.paramsJson = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a UseToolMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.UseToolMessage} UseToolMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        UseToolMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a UseToolMessage message.
+	         * @function verify
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        UseToolMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                if (!$util.isString(message.name))
+	                    return "name: string expected";
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                if (!$util.isString(message.paramsJson))
+	                    return "paramsJson: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a UseToolMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.UseToolMessage} UseToolMessage
+	         */
+	        UseToolMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.UseToolMessage)
+	                return object;
+	            var message = new $root.whiteboard.UseToolMessage();
+	            if (object.name != null)
+	                message.name = String(object.name);
+	            if (object.paramsJson != null)
+	                message.paramsJson = String(object.paramsJson);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a UseToolMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.UseToolMessage
+	         * @static
+	         * @param {whiteboard.UseToolMessage} message UseToolMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        UseToolMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.name = "";
+	                object.paramsJson = "";
+	            }
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                object.name = message.name;
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                object.paramsJson = message.paramsJson;
+	            return object;
+	        };
+	        /**
+	         * Converts this UseToolMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.UseToolMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        UseToolMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return UseToolMessage;
+	    })();
+	    whiteboard.CreateObjectMessage = (function () {
+	        /**
+	         * Properties of a CreateObjectMessage.
+	         * @memberof whiteboard
+	         * @interface ICreateObjectMessage
+	         * @property {string|null} [type] CreateObjectMessage type
+	         * @property {number|null} [x] CreateObjectMessage x
+	         * @property {number|null} [y] CreateObjectMessage y
+	         * @property {string|null} [name] CreateObjectMessage name
+	         * @property {boolean|null} [failOnExists] CreateObjectMessage failOnExists
+	         * @property {string|null} [paramsJson] CreateObjectMessage paramsJson
+	         */
+	        /**
+	         * Constructs a new CreateObjectMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a CreateObjectMessage.
+	         * @implements ICreateObjectMessage
+	         * @constructor
+	         * @param {whiteboard.ICreateObjectMessage=} [properties] Properties to set
+	         */
+	        function CreateObjectMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * CreateObjectMessage type.
+	         * @member {string} type
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.type = "";
+	        /**
+	         * CreateObjectMessage x.
+	         * @member {number} x
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.x = 0;
+	        /**
+	         * CreateObjectMessage y.
+	         * @member {number} y
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.y = 0;
+	        /**
+	         * CreateObjectMessage name.
+	         * @member {string} name
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.name = "";
+	        /**
+	         * CreateObjectMessage failOnExists.
+	         * @member {boolean} failOnExists
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.failOnExists = false;
+	        /**
+	         * CreateObjectMessage paramsJson.
+	         * @member {string} paramsJson
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         */
+	        CreateObjectMessage.prototype.paramsJson = "";
+	        /**
+	         * Creates a new CreateObjectMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {whiteboard.ICreateObjectMessage=} [properties] Properties to set
+	         * @returns {whiteboard.CreateObjectMessage} CreateObjectMessage instance
+	         */
+	        CreateObjectMessage.create = function create(properties) {
+	            return new CreateObjectMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified CreateObjectMessage message. Does not implicitly {@link whiteboard.CreateObjectMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {whiteboard.ICreateObjectMessage} message CreateObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        CreateObjectMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.type);
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.x);
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.y);
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                writer.uint32(/* id 4, wireType 2 =*/ 34).string(message.name);
+	            if (message.failOnExists != null && message.hasOwnProperty("failOnExists"))
+	                writer.uint32(/* id 5, wireType 0 =*/ 40).bool(message.failOnExists);
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                writer.uint32(/* id 6, wireType 2 =*/ 50).string(message.paramsJson);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified CreateObjectMessage message, length delimited. Does not implicitly {@link whiteboard.CreateObjectMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {whiteboard.ICreateObjectMessage} message CreateObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        CreateObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a CreateObjectMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.CreateObjectMessage} CreateObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        CreateObjectMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.CreateObjectMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.type = reader.string();
+	                        break;
+	                    case 2:
+	                        message.x = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.y = reader.uint32();
+	                        break;
+	                    case 4:
+	                        message.name = reader.string();
+	                        break;
+	                    case 5:
+	                        message.failOnExists = reader.bool();
+	                        break;
+	                    case 6:
+	                        message.paramsJson = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a CreateObjectMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.CreateObjectMessage} CreateObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        CreateObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a CreateObjectMessage message.
+	         * @function verify
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        CreateObjectMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                if (!$util.isString(message.type))
+	                    return "type: string expected";
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                if (!$util.isInteger(message.x))
+	                    return "x: integer expected";
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                if (!$util.isInteger(message.y))
+	                    return "y: integer expected";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                if (!$util.isString(message.name))
+	                    return "name: string expected";
+	            if (message.failOnExists != null && message.hasOwnProperty("failOnExists"))
+	                if (typeof message.failOnExists !== "boolean")
+	                    return "failOnExists: boolean expected";
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                if (!$util.isString(message.paramsJson))
+	                    return "paramsJson: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a CreateObjectMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.CreateObjectMessage} CreateObjectMessage
+	         */
+	        CreateObjectMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.CreateObjectMessage)
+	                return object;
+	            var message = new $root.whiteboard.CreateObjectMessage();
+	            if (object.type != null)
+	                message.type = String(object.type);
+	            if (object.x != null)
+	                message.x = object.x >>> 0;
+	            if (object.y != null)
+	                message.y = object.y >>> 0;
+	            if (object.name != null)
+	                message.name = String(object.name);
+	            if (object.failOnExists != null)
+	                message.failOnExists = Boolean(object.failOnExists);
+	            if (object.paramsJson != null)
+	                message.paramsJson = String(object.paramsJson);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a CreateObjectMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @static
+	         * @param {whiteboard.CreateObjectMessage} message CreateObjectMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        CreateObjectMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.type = "";
+	                object.x = 0;
+	                object.y = 0;
+	                object.name = "";
+	                object.failOnExists = false;
+	                object.paramsJson = "";
+	            }
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                object.type = message.type;
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                object.x = message.x;
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                object.y = message.y;
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                object.name = message.name;
+	            if (message.failOnExists != null && message.hasOwnProperty("failOnExists"))
+	                object.failOnExists = message.failOnExists;
+	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
+	                object.paramsJson = message.paramsJson;
+	            return object;
+	        };
+	        /**
+	         * Converts this CreateObjectMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.CreateObjectMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        CreateObjectMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return CreateObjectMessage;
+	    })();
+	    whiteboard.DeleteSelected = (function () {
+	        /**
+	         * Properties of a DeleteSelected.
+	         * @memberof whiteboard
+	         * @interface IDeleteSelected
+	         */
+	        /**
+	         * Constructs a new DeleteSelected.
+	         * @memberof whiteboard
+	         * @classdesc Represents a DeleteSelected.
+	         * @implements IDeleteSelected
+	         * @constructor
+	         * @param {whiteboard.IDeleteSelected=} [properties] Properties to set
+	         */
+	        function DeleteSelected(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new DeleteSelected instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {whiteboard.IDeleteSelected=} [properties] Properties to set
+	         * @returns {whiteboard.DeleteSelected} DeleteSelected instance
+	         */
+	        DeleteSelected.create = function create(properties) {
+	            return new DeleteSelected(properties);
+	        };
+	        /**
+	         * Encodes the specified DeleteSelected message. Does not implicitly {@link whiteboard.DeleteSelected.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {whiteboard.IDeleteSelected} message DeleteSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteSelected.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified DeleteSelected message, length delimited. Does not implicitly {@link whiteboard.DeleteSelected.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {whiteboard.IDeleteSelected} message DeleteSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteSelected.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a DeleteSelected message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.DeleteSelected} DeleteSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteSelected.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DeleteSelected();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a DeleteSelected message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.DeleteSelected} DeleteSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteSelected.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a DeleteSelected message.
+	         * @function verify
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        DeleteSelected.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a DeleteSelected message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.DeleteSelected} DeleteSelected
+	         */
+	        DeleteSelected.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.DeleteSelected)
+	                return object;
+	            return new $root.whiteboard.DeleteSelected();
+	        };
+	        /**
+	         * Creates a plain object from a DeleteSelected message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.DeleteSelected
+	         * @static
+	         * @param {whiteboard.DeleteSelected} message DeleteSelected
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        DeleteSelected.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this DeleteSelected to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.DeleteSelected
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        DeleteSelected.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return DeleteSelected;
+	    })();
+	    whiteboard.CloneSelected = (function () {
+	        /**
+	         * Properties of a CloneSelected.
+	         * @memberof whiteboard
+	         * @interface ICloneSelected
+	         */
+	        /**
+	         * Constructs a new CloneSelected.
+	         * @memberof whiteboard
+	         * @classdesc Represents a CloneSelected.
+	         * @implements ICloneSelected
+	         * @constructor
+	         * @param {whiteboard.ICloneSelected=} [properties] Properties to set
+	         */
+	        function CloneSelected(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new CloneSelected instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {whiteboard.ICloneSelected=} [properties] Properties to set
+	         * @returns {whiteboard.CloneSelected} CloneSelected instance
+	         */
+	        CloneSelected.create = function create(properties) {
+	            return new CloneSelected(properties);
+	        };
+	        /**
+	         * Encodes the specified CloneSelected message. Does not implicitly {@link whiteboard.CloneSelected.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {whiteboard.ICloneSelected} message CloneSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        CloneSelected.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified CloneSelected message, length delimited. Does not implicitly {@link whiteboard.CloneSelected.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {whiteboard.ICloneSelected} message CloneSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        CloneSelected.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a CloneSelected message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.CloneSelected} CloneSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        CloneSelected.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.CloneSelected();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a CloneSelected message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.CloneSelected} CloneSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        CloneSelected.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a CloneSelected message.
+	         * @function verify
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        CloneSelected.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a CloneSelected message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.CloneSelected} CloneSelected
+	         */
+	        CloneSelected.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.CloneSelected)
+	                return object;
+	            return new $root.whiteboard.CloneSelected();
+	        };
+	        /**
+	         * Creates a plain object from a CloneSelected message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.CloneSelected
+	         * @static
+	         * @param {whiteboard.CloneSelected} message CloneSelected
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        CloneSelected.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this CloneSelected to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.CloneSelected
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        CloneSelected.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return CloneSelected;
+	    })();
+	    whiteboard.AlignSelected = (function () {
+	        /**
+	         * Properties of an AlignSelected.
+	         * @memberof whiteboard
+	         * @interface IAlignSelected
+	         * @property {string|null} [mode] AlignSelected mode
+	         */
+	        /**
+	         * Constructs a new AlignSelected.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignSelected.
+	         * @implements IAlignSelected
+	         * @constructor
+	         * @param {whiteboard.IAlignSelected=} [properties] Properties to set
+	         */
+	        function AlignSelected(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignSelected mode.
+	         * @member {string} mode
+	         * @memberof whiteboard.AlignSelected
+	         * @instance
+	         */
+	        AlignSelected.prototype.mode = "";
+	        /**
+	         * Creates a new AlignSelected instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {whiteboard.IAlignSelected=} [properties] Properties to set
+	         * @returns {whiteboard.AlignSelected} AlignSelected instance
+	         */
+	        AlignSelected.create = function create(properties) {
+	            return new AlignSelected(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignSelected message. Does not implicitly {@link whiteboard.AlignSelected.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {whiteboard.IAlignSelected} message AlignSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignSelected.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.mode);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignSelected message, length delimited. Does not implicitly {@link whiteboard.AlignSelected.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {whiteboard.IAlignSelected} message AlignSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignSelected.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignSelected message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignSelected} AlignSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignSelected.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignSelected();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.mode = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignSelected message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignSelected} AlignSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignSelected.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignSelected message.
+	         * @function verify
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignSelected.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                if (!$util.isString(message.mode))
+	                    return "mode: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignSelected message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignSelected} AlignSelected
+	         */
+	        AlignSelected.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignSelected)
+	                return object;
+	            var message = new $root.whiteboard.AlignSelected();
+	            if (object.mode != null)
+	                message.mode = String(object.mode);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignSelected message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignSelected
+	         * @static
+	         * @param {whiteboard.AlignSelected} message AlignSelected
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignSelected.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults)
+	                object.mode = "";
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                object.mode = message.mode;
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignSelected to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignSelected
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignSelected.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignSelected;
+	    })();
+	    whiteboard.ArrangeSelected = (function () {
+	        /**
+	         * Properties of an ArrangeSelected.
+	         * @memberof whiteboard
+	         * @interface IArrangeSelected
+	         * @property {string|null} [mode] ArrangeSelected mode
+	         */
+	        /**
+	         * Constructs a new ArrangeSelected.
+	         * @memberof whiteboard
+	         * @classdesc Represents an ArrangeSelected.
+	         * @implements IArrangeSelected
+	         * @constructor
+	         * @param {whiteboard.IArrangeSelected=} [properties] Properties to set
+	         */
+	        function ArrangeSelected(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * ArrangeSelected mode.
+	         * @member {string} mode
+	         * @memberof whiteboard.ArrangeSelected
+	         * @instance
+	         */
+	        ArrangeSelected.prototype.mode = "";
+	        /**
+	         * Creates a new ArrangeSelected instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {whiteboard.IArrangeSelected=} [properties] Properties to set
+	         * @returns {whiteboard.ArrangeSelected} ArrangeSelected instance
+	         */
+	        ArrangeSelected.create = function create(properties) {
+	            return new ArrangeSelected(properties);
+	        };
+	        /**
+	         * Encodes the specified ArrangeSelected message. Does not implicitly {@link whiteboard.ArrangeSelected.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {whiteboard.IArrangeSelected} message ArrangeSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeSelected.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.mode);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified ArrangeSelected message, length delimited. Does not implicitly {@link whiteboard.ArrangeSelected.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {whiteboard.IArrangeSelected} message ArrangeSelected message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeSelected.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an ArrangeSelected message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.ArrangeSelected} ArrangeSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeSelected.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ArrangeSelected();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.mode = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an ArrangeSelected message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.ArrangeSelected} ArrangeSelected
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeSelected.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an ArrangeSelected message.
+	         * @function verify
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        ArrangeSelected.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                if (!$util.isString(message.mode))
+	                    return "mode: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an ArrangeSelected message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.ArrangeSelected} ArrangeSelected
+	         */
+	        ArrangeSelected.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.ArrangeSelected)
+	                return object;
+	            var message = new $root.whiteboard.ArrangeSelected();
+	            if (object.mode != null)
+	                message.mode = String(object.mode);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an ArrangeSelected message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.ArrangeSelected
+	         * @static
+	         * @param {whiteboard.ArrangeSelected} message ArrangeSelected
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        ArrangeSelected.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults)
+	                object.mode = "";
+	            if (message.mode != null && message.hasOwnProperty("mode"))
+	                object.mode = message.mode;
+	            return object;
+	        };
+	        /**
+	         * Converts this ArrangeSelected to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.ArrangeSelected
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        ArrangeSelected.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return ArrangeSelected;
+	    })();
+	    whiteboard.DeleteObjectMessage = (function () {
+	        /**
+	         * Properties of a DeleteObjectMessage.
+	         * @memberof whiteboard
+	         * @interface IDeleteObjectMessage
+	         * @property {string|null} [name] DeleteObjectMessage name
+	         */
+	        /**
+	         * Constructs a new DeleteObjectMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a DeleteObjectMessage.
+	         * @implements IDeleteObjectMessage
+	         * @constructor
+	         * @param {whiteboard.IDeleteObjectMessage=} [properties] Properties to set
+	         */
+	        function DeleteObjectMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * DeleteObjectMessage name.
+	         * @member {string} name
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @instance
+	         */
+	        DeleteObjectMessage.prototype.name = "";
+	        /**
+	         * Creates a new DeleteObjectMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectMessage=} [properties] Properties to set
+	         * @returns {whiteboard.DeleteObjectMessage} DeleteObjectMessage instance
+	         */
+	        DeleteObjectMessage.create = function create(properties) {
+	            return new DeleteObjectMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified DeleteObjectMessage message. Does not implicitly {@link whiteboard.DeleteObjectMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectMessage} message DeleteObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteObjectMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.name);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified DeleteObjectMessage message, length delimited. Does not implicitly {@link whiteboard.DeleteObjectMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectMessage} message DeleteObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a DeleteObjectMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.DeleteObjectMessage} DeleteObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteObjectMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DeleteObjectMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.name = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a DeleteObjectMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.DeleteObjectMessage} DeleteObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a DeleteObjectMessage message.
+	         * @function verify
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        DeleteObjectMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                if (!$util.isString(message.name))
+	                    return "name: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a DeleteObjectMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.DeleteObjectMessage} DeleteObjectMessage
+	         */
+	        DeleteObjectMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.DeleteObjectMessage)
+	                return object;
+	            var message = new $root.whiteboard.DeleteObjectMessage();
+	            if (object.name != null)
+	                message.name = String(object.name);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a DeleteObjectMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @static
+	         * @param {whiteboard.DeleteObjectMessage} message DeleteObjectMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        DeleteObjectMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults)
+	                object.name = "";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                object.name = message.name;
+	            return object;
+	        };
+	        /**
+	         * Converts this DeleteObjectMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.DeleteObjectMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        DeleteObjectMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return DeleteObjectMessage;
+	    })();
+	    whiteboard.DeleteObjectsMessage = (function () {
+	        /**
+	         * Properties of a DeleteObjectsMessage.
+	         * @memberof whiteboard
+	         * @interface IDeleteObjectsMessage
+	         * @property {Array.<string>|null} [names] DeleteObjectsMessage names
+	         */
+	        /**
+	         * Constructs a new DeleteObjectsMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a DeleteObjectsMessage.
+	         * @implements IDeleteObjectsMessage
+	         * @constructor
+	         * @param {whiteboard.IDeleteObjectsMessage=} [properties] Properties to set
+	         */
+	        function DeleteObjectsMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * DeleteObjectsMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @instance
+	         */
+	        DeleteObjectsMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new DeleteObjectsMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectsMessage=} [properties] Properties to set
+	         * @returns {whiteboard.DeleteObjectsMessage} DeleteObjectsMessage instance
+	         */
+	        DeleteObjectsMessage.create = function create(properties) {
+	            return new DeleteObjectsMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified DeleteObjectsMessage message. Does not implicitly {@link whiteboard.DeleteObjectsMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectsMessage} message DeleteObjectsMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteObjectsMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified DeleteObjectsMessage message, length delimited. Does not implicitly {@link whiteboard.DeleteObjectsMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {whiteboard.IDeleteObjectsMessage} message DeleteObjectsMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeleteObjectsMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a DeleteObjectsMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.DeleteObjectsMessage} DeleteObjectsMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteObjectsMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DeleteObjectsMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a DeleteObjectsMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.DeleteObjectsMessage} DeleteObjectsMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeleteObjectsMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a DeleteObjectsMessage message.
+	         * @function verify
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        DeleteObjectsMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates a DeleteObjectsMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.DeleteObjectsMessage} DeleteObjectsMessage
+	         */
+	        DeleteObjectsMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.DeleteObjectsMessage)
+	                return object;
+	            var message = new $root.whiteboard.DeleteObjectsMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.DeleteObjectsMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a DeleteObjectsMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @static
+	         * @param {whiteboard.DeleteObjectsMessage} message DeleteObjectsMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        DeleteObjectsMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this DeleteObjectsMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.DeleteObjectsMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        DeleteObjectsMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return DeleteObjectsMessage;
+	    })();
+	    whiteboard.AlignObjectsLeftMessage = (function () {
+	        /**
+	         * Properties of an AlignObjectsLeftMessage.
+	         * @memberof whiteboard
+	         * @interface IAlignObjectsLeftMessage
+	         * @property {Array.<string>|null} [names] AlignObjectsLeftMessage names
+	         */
+	        /**
+	         * Constructs a new AlignObjectsLeftMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignObjectsLeftMessage.
+	         * @implements IAlignObjectsLeftMessage
+	         * @constructor
+	         * @param {whiteboard.IAlignObjectsLeftMessage=} [properties] Properties to set
+	         */
+	        function AlignObjectsLeftMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignObjectsLeftMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @instance
+	         */
+	        AlignObjectsLeftMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new AlignObjectsLeftMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsLeftMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AlignObjectsLeftMessage} AlignObjectsLeftMessage instance
+	         */
+	        AlignObjectsLeftMessage.create = function create(properties) {
+	            return new AlignObjectsLeftMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsLeftMessage message. Does not implicitly {@link whiteboard.AlignObjectsLeftMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsLeftMessage} message AlignObjectsLeftMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsLeftMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsLeftMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsLeftMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsLeftMessage} message AlignObjectsLeftMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsLeftMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignObjectsLeftMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignObjectsLeftMessage} AlignObjectsLeftMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsLeftMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectsLeftMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignObjectsLeftMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignObjectsLeftMessage} AlignObjectsLeftMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsLeftMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignObjectsLeftMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignObjectsLeftMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignObjectsLeftMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignObjectsLeftMessage} AlignObjectsLeftMessage
+	         */
+	        AlignObjectsLeftMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignObjectsLeftMessage)
+	                return object;
+	            var message = new $root.whiteboard.AlignObjectsLeftMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.AlignObjectsLeftMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignObjectsLeftMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @static
+	         * @param {whiteboard.AlignObjectsLeftMessage} message AlignObjectsLeftMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignObjectsLeftMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignObjectsLeftMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignObjectsLeftMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignObjectsLeftMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignObjectsLeftMessage;
+	    })();
+	    whiteboard.AlignObjectsRightMessage = (function () {
+	        /**
+	         * Properties of an AlignObjectsRightMessage.
+	         * @memberof whiteboard
+	         * @interface IAlignObjectsRightMessage
+	         * @property {Array.<string>|null} [names] AlignObjectsRightMessage names
+	         */
+	        /**
+	         * Constructs a new AlignObjectsRightMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignObjectsRightMessage.
+	         * @implements IAlignObjectsRightMessage
+	         * @constructor
+	         * @param {whiteboard.IAlignObjectsRightMessage=} [properties] Properties to set
+	         */
+	        function AlignObjectsRightMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignObjectsRightMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @instance
+	         */
+	        AlignObjectsRightMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new AlignObjectsRightMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsRightMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AlignObjectsRightMessage} AlignObjectsRightMessage instance
+	         */
+	        AlignObjectsRightMessage.create = function create(properties) {
+	            return new AlignObjectsRightMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsRightMessage message. Does not implicitly {@link whiteboard.AlignObjectsRightMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsRightMessage} message AlignObjectsRightMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsRightMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsRightMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsRightMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsRightMessage} message AlignObjectsRightMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsRightMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignObjectsRightMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignObjectsRightMessage} AlignObjectsRightMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsRightMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectsRightMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignObjectsRightMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignObjectsRightMessage} AlignObjectsRightMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsRightMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignObjectsRightMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignObjectsRightMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignObjectsRightMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignObjectsRightMessage} AlignObjectsRightMessage
+	         */
+	        AlignObjectsRightMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignObjectsRightMessage)
+	                return object;
+	            var message = new $root.whiteboard.AlignObjectsRightMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.AlignObjectsRightMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignObjectsRightMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @static
+	         * @param {whiteboard.AlignObjectsRightMessage} message AlignObjectsRightMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignObjectsRightMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignObjectsRightMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignObjectsRightMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignObjectsRightMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignObjectsRightMessage;
+	    })();
+	    whiteboard.AlignObjectsTopMessage = (function () {
+	        /**
+	         * Properties of an AlignObjectsTopMessage.
+	         * @memberof whiteboard
+	         * @interface IAlignObjectsTopMessage
+	         * @property {Array.<string>|null} [names] AlignObjectsTopMessage names
+	         */
+	        /**
+	         * Constructs a new AlignObjectsTopMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignObjectsTopMessage.
+	         * @implements IAlignObjectsTopMessage
+	         * @constructor
+	         * @param {whiteboard.IAlignObjectsTopMessage=} [properties] Properties to set
+	         */
+	        function AlignObjectsTopMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignObjectsTopMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @instance
+	         */
+	        AlignObjectsTopMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new AlignObjectsTopMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsTopMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AlignObjectsTopMessage} AlignObjectsTopMessage instance
+	         */
+	        AlignObjectsTopMessage.create = function create(properties) {
+	            return new AlignObjectsTopMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsTopMessage message. Does not implicitly {@link whiteboard.AlignObjectsTopMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsTopMessage} message AlignObjectsTopMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsTopMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsTopMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsTopMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsTopMessage} message AlignObjectsTopMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsTopMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignObjectsTopMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignObjectsTopMessage} AlignObjectsTopMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsTopMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectsTopMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignObjectsTopMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignObjectsTopMessage} AlignObjectsTopMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsTopMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignObjectsTopMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignObjectsTopMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignObjectsTopMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignObjectsTopMessage} AlignObjectsTopMessage
+	         */
+	        AlignObjectsTopMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignObjectsTopMessage)
+	                return object;
+	            var message = new $root.whiteboard.AlignObjectsTopMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.AlignObjectsTopMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignObjectsTopMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @static
+	         * @param {whiteboard.AlignObjectsTopMessage} message AlignObjectsTopMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignObjectsTopMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignObjectsTopMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignObjectsTopMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignObjectsTopMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignObjectsTopMessage;
+	    })();
+	    whiteboard.AlignObjectsBottomMessage = (function () {
+	        /**
+	         * Properties of an AlignObjectsBottomMessage.
+	         * @memberof whiteboard
+	         * @interface IAlignObjectsBottomMessage
+	         * @property {Array.<string>|null} [names] AlignObjectsBottomMessage names
+	         */
+	        /**
+	         * Constructs a new AlignObjectsBottomMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignObjectsBottomMessage.
+	         * @implements IAlignObjectsBottomMessage
+	         * @constructor
+	         * @param {whiteboard.IAlignObjectsBottomMessage=} [properties] Properties to set
+	         */
+	        function AlignObjectsBottomMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignObjectsBottomMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @instance
+	         */
+	        AlignObjectsBottomMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new AlignObjectsBottomMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsBottomMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AlignObjectsBottomMessage} AlignObjectsBottomMessage instance
+	         */
+	        AlignObjectsBottomMessage.create = function create(properties) {
+	            return new AlignObjectsBottomMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsBottomMessage message. Does not implicitly {@link whiteboard.AlignObjectsBottomMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsBottomMessage} message AlignObjectsBottomMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsBottomMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignObjectsBottomMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsBottomMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectsBottomMessage} message AlignObjectsBottomMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectsBottomMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignObjectsBottomMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignObjectsBottomMessage} AlignObjectsBottomMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsBottomMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectsBottomMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignObjectsBottomMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignObjectsBottomMessage} AlignObjectsBottomMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectsBottomMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignObjectsBottomMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignObjectsBottomMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignObjectsBottomMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignObjectsBottomMessage} AlignObjectsBottomMessage
+	         */
+	        AlignObjectsBottomMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignObjectsBottomMessage)
+	                return object;
+	            var message = new $root.whiteboard.AlignObjectsBottomMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.AlignObjectsBottomMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignObjectsBottomMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @static
+	         * @param {whiteboard.AlignObjectsBottomMessage} message AlignObjectsBottomMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignObjectsBottomMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignObjectsBottomMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignObjectsBottomMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignObjectsBottomMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignObjectsBottomMessage;
+	    })();
+	    whiteboard.ArrangeObjectsHorizontalMessage = (function () {
+	        /**
+	         * Properties of an ArrangeObjectsHorizontalMessage.
+	         * @memberof whiteboard
+	         * @interface IArrangeObjectsHorizontalMessage
+	         * @property {Array.<string>|null} [names] ArrangeObjectsHorizontalMessage names
+	         */
+	        /**
+	         * Constructs a new ArrangeObjectsHorizontalMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an ArrangeObjectsHorizontalMessage.
+	         * @implements IArrangeObjectsHorizontalMessage
+	         * @constructor
+	         * @param {whiteboard.IArrangeObjectsHorizontalMessage=} [properties] Properties to set
+	         */
+	        function ArrangeObjectsHorizontalMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * ArrangeObjectsHorizontalMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @instance
+	         */
+	        ArrangeObjectsHorizontalMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new ArrangeObjectsHorizontalMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsHorizontalMessage=} [properties] Properties to set
+	         * @returns {whiteboard.ArrangeObjectsHorizontalMessage} ArrangeObjectsHorizontalMessage instance
+	         */
+	        ArrangeObjectsHorizontalMessage.create = function create(properties) {
+	            return new ArrangeObjectsHorizontalMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectsHorizontalMessage message. Does not implicitly {@link whiteboard.ArrangeObjectsHorizontalMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsHorizontalMessage} message ArrangeObjectsHorizontalMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectsHorizontalMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectsHorizontalMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectsHorizontalMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsHorizontalMessage} message ArrangeObjectsHorizontalMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectsHorizontalMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an ArrangeObjectsHorizontalMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.ArrangeObjectsHorizontalMessage} ArrangeObjectsHorizontalMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectsHorizontalMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ArrangeObjectsHorizontalMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an ArrangeObjectsHorizontalMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.ArrangeObjectsHorizontalMessage} ArrangeObjectsHorizontalMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectsHorizontalMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an ArrangeObjectsHorizontalMessage message.
+	         * @function verify
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        ArrangeObjectsHorizontalMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an ArrangeObjectsHorizontalMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.ArrangeObjectsHorizontalMessage} ArrangeObjectsHorizontalMessage
+	         */
+	        ArrangeObjectsHorizontalMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.ArrangeObjectsHorizontalMessage)
+	                return object;
+	            var message = new $root.whiteboard.ArrangeObjectsHorizontalMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.ArrangeObjectsHorizontalMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an ArrangeObjectsHorizontalMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @static
+	         * @param {whiteboard.ArrangeObjectsHorizontalMessage} message ArrangeObjectsHorizontalMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        ArrangeObjectsHorizontalMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this ArrangeObjectsHorizontalMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.ArrangeObjectsHorizontalMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        ArrangeObjectsHorizontalMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return ArrangeObjectsHorizontalMessage;
+	    })();
+	    whiteboard.ArrangeObjectsVerticalMessage = (function () {
+	        /**
+	         * Properties of an ArrangeObjectsVerticalMessage.
+	         * @memberof whiteboard
+	         * @interface IArrangeObjectsVerticalMessage
+	         * @property {Array.<string>|null} [names] ArrangeObjectsVerticalMessage names
+	         */
+	        /**
+	         * Constructs a new ArrangeObjectsVerticalMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an ArrangeObjectsVerticalMessage.
+	         * @implements IArrangeObjectsVerticalMessage
+	         * @constructor
+	         * @param {whiteboard.IArrangeObjectsVerticalMessage=} [properties] Properties to set
+	         */
+	        function ArrangeObjectsVerticalMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * ArrangeObjectsVerticalMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @instance
+	         */
+	        ArrangeObjectsVerticalMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * Creates a new ArrangeObjectsVerticalMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsVerticalMessage=} [properties] Properties to set
+	         * @returns {whiteboard.ArrangeObjectsVerticalMessage} ArrangeObjectsVerticalMessage instance
+	         */
+	        ArrangeObjectsVerticalMessage.create = function create(properties) {
+	            return new ArrangeObjectsVerticalMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectsVerticalMessage message. Does not implicitly {@link whiteboard.ArrangeObjectsVerticalMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsVerticalMessage} message ArrangeObjectsVerticalMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectsVerticalMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectsVerticalMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectsVerticalMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectsVerticalMessage} message ArrangeObjectsVerticalMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectsVerticalMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an ArrangeObjectsVerticalMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.ArrangeObjectsVerticalMessage} ArrangeObjectsVerticalMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectsVerticalMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ArrangeObjectsVerticalMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an ArrangeObjectsVerticalMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.ArrangeObjectsVerticalMessage} ArrangeObjectsVerticalMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectsVerticalMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an ArrangeObjectsVerticalMessage message.
+	         * @function verify
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        ArrangeObjectsVerticalMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates an ArrangeObjectsVerticalMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.ArrangeObjectsVerticalMessage} ArrangeObjectsVerticalMessage
+	         */
+	        ArrangeObjectsVerticalMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.ArrangeObjectsVerticalMessage)
+	                return object;
+	            var message = new $root.whiteboard.ArrangeObjectsVerticalMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.ArrangeObjectsVerticalMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an ArrangeObjectsVerticalMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @static
+	         * @param {whiteboard.ArrangeObjectsVerticalMessage} message ArrangeObjectsVerticalMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        ArrangeObjectsVerticalMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this ArrangeObjectsVerticalMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.ArrangeObjectsVerticalMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        ArrangeObjectsVerticalMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return ArrangeObjectsVerticalMessage;
+	    })();
+	    whiteboard.SetObjectPropertyMessage = (function () {
+	        /**
+	         * Properties of a SetObjectPropertyMessage.
+	         * @memberof whiteboard
+	         * @interface ISetObjectPropertyMessage
+	         * @property {string|null} [name] SetObjectPropertyMessage name
+	         * @property {string|null} [propName] SetObjectPropertyMessage propName
+	         * @property {string|null} [propValueJson] SetObjectPropertyMessage propValueJson
+	         */
+	        /**
+	         * Constructs a new SetObjectPropertyMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a SetObjectPropertyMessage.
+	         * @implements ISetObjectPropertyMessage
+	         * @constructor
+	         * @param {whiteboard.ISetObjectPropertyMessage=} [properties] Properties to set
+	         */
+	        function SetObjectPropertyMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * SetObjectPropertyMessage name.
+	         * @member {string} name
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @instance
+	         */
+	        SetObjectPropertyMessage.prototype.name = "";
+	        /**
+	         * SetObjectPropertyMessage propName.
+	         * @member {string} propName
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @instance
+	         */
+	        SetObjectPropertyMessage.prototype.propName = "";
+	        /**
+	         * SetObjectPropertyMessage propValueJson.
+	         * @member {string} propValueJson
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @instance
+	         */
+	        SetObjectPropertyMessage.prototype.propValueJson = "";
+	        /**
+	         * Creates a new SetObjectPropertyMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {whiteboard.ISetObjectPropertyMessage=} [properties] Properties to set
+	         * @returns {whiteboard.SetObjectPropertyMessage} SetObjectPropertyMessage instance
+	         */
+	        SetObjectPropertyMessage.create = function create(properties) {
+	            return new SetObjectPropertyMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified SetObjectPropertyMessage message. Does not implicitly {@link whiteboard.SetObjectPropertyMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {whiteboard.ISetObjectPropertyMessage} message SetObjectPropertyMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SetObjectPropertyMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.name);
+	            if (message.propName != null && message.hasOwnProperty("propName"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.propName);
+	            if (message.propValueJson != null && message.hasOwnProperty("propValueJson"))
+	                writer.uint32(/* id 3, wireType 2 =*/ 26).string(message.propValueJson);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified SetObjectPropertyMessage message, length delimited. Does not implicitly {@link whiteboard.SetObjectPropertyMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {whiteboard.ISetObjectPropertyMessage} message SetObjectPropertyMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SetObjectPropertyMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a SetObjectPropertyMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.SetObjectPropertyMessage} SetObjectPropertyMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SetObjectPropertyMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.SetObjectPropertyMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.name = reader.string();
+	                        break;
+	                    case 2:
+	                        message.propName = reader.string();
+	                        break;
+	                    case 3:
+	                        message.propValueJson = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a SetObjectPropertyMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.SetObjectPropertyMessage} SetObjectPropertyMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SetObjectPropertyMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a SetObjectPropertyMessage message.
+	         * @function verify
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        SetObjectPropertyMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                if (!$util.isString(message.name))
+	                    return "name: string expected";
+	            if (message.propName != null && message.hasOwnProperty("propName"))
+	                if (!$util.isString(message.propName))
+	                    return "propName: string expected";
+	            if (message.propValueJson != null && message.hasOwnProperty("propValueJson"))
+	                if (!$util.isString(message.propValueJson))
+	                    return "propValueJson: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a SetObjectPropertyMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.SetObjectPropertyMessage} SetObjectPropertyMessage
+	         */
+	        SetObjectPropertyMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.SetObjectPropertyMessage)
+	                return object;
+	            var message = new $root.whiteboard.SetObjectPropertyMessage();
+	            if (object.name != null)
+	                message.name = String(object.name);
+	            if (object.propName != null)
+	                message.propName = String(object.propName);
+	            if (object.propValueJson != null)
+	                message.propValueJson = String(object.propValueJson);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a SetObjectPropertyMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @static
+	         * @param {whiteboard.SetObjectPropertyMessage} message SetObjectPropertyMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        SetObjectPropertyMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.name = "";
+	                object.propName = "";
+	                object.propValueJson = "";
+	            }
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                object.name = message.name;
+	            if (message.propName != null && message.hasOwnProperty("propName"))
+	                object.propName = message.propName;
+	            if (message.propValueJson != null && message.hasOwnProperty("propValueJson"))
+	                object.propValueJson = message.propValueJson;
+	            return object;
+	        };
+	        /**
+	         * Converts this SetObjectPropertyMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.SetObjectPropertyMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        SetObjectPropertyMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return SetObjectPropertyMessage;
+	    })();
+	    whiteboard.AddPageMessage = (function () {
+	        /**
+	         * Properties of an AddPageMessage.
+	         * @memberof whiteboard
+	         * @interface IAddPageMessage
+	         */
+	        /**
+	         * Constructs a new AddPageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AddPageMessage.
+	         * @implements IAddPageMessage
+	         * @constructor
+	         * @param {whiteboard.IAddPageMessage=} [properties] Properties to set
+	         */
+	        function AddPageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new AddPageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {whiteboard.IAddPageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AddPageMessage} AddPageMessage instance
+	         */
+	        AddPageMessage.create = function create(properties) {
+	            return new AddPageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AddPageMessage message. Does not implicitly {@link whiteboard.AddPageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {whiteboard.IAddPageMessage} message AddPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AddPageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AddPageMessage message, length delimited. Does not implicitly {@link whiteboard.AddPageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {whiteboard.IAddPageMessage} message AddPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AddPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AddPageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AddPageMessage} AddPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AddPageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AddPageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AddPageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AddPageMessage} AddPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AddPageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AddPageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AddPageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an AddPageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AddPageMessage} AddPageMessage
+	         */
+	        AddPageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AddPageMessage)
+	                return object;
+	            return new $root.whiteboard.AddPageMessage();
+	        };
+	        /**
+	         * Creates a plain object from an AddPageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AddPageMessage
+	         * @static
+	         * @param {whiteboard.AddPageMessage} message AddPageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AddPageMessage.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this AddPageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AddPageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AddPageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AddPageMessage;
+	    })();
+	    whiteboard.RenamePageMessage = (function () {
+	        /**
+	         * Properties of a RenamePageMessage.
+	         * @memberof whiteboard
+	         * @interface IRenamePageMessage
+	         * @property {string|null} [newName] RenamePageMessage newName
+	         */
+	        /**
+	         * Constructs a new RenamePageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a RenamePageMessage.
+	         * @implements IRenamePageMessage
+	         * @constructor
+	         * @param {whiteboard.IRenamePageMessage=} [properties] Properties to set
+	         */
+	        function RenamePageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * RenamePageMessage newName.
+	         * @member {string} newName
+	         * @memberof whiteboard.RenamePageMessage
+	         * @instance
+	         */
+	        RenamePageMessage.prototype.newName = "";
+	        /**
+	         * Creates a new RenamePageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {whiteboard.IRenamePageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.RenamePageMessage} RenamePageMessage instance
+	         */
+	        RenamePageMessage.create = function create(properties) {
+	            return new RenamePageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified RenamePageMessage message. Does not implicitly {@link whiteboard.RenamePageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {whiteboard.IRenamePageMessage} message RenamePageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        RenamePageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.newName != null && message.hasOwnProperty("newName"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.newName);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified RenamePageMessage message, length delimited. Does not implicitly {@link whiteboard.RenamePageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {whiteboard.IRenamePageMessage} message RenamePageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        RenamePageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a RenamePageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.RenamePageMessage} RenamePageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        RenamePageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.RenamePageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.newName = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a RenamePageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.RenamePageMessage} RenamePageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        RenamePageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a RenamePageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        RenamePageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.newName != null && message.hasOwnProperty("newName"))
+	                if (!$util.isString(message.newName))
+	                    return "newName: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a RenamePageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.RenamePageMessage} RenamePageMessage
+	         */
+	        RenamePageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.RenamePageMessage)
+	                return object;
+	            var message = new $root.whiteboard.RenamePageMessage();
+	            if (object.newName != null)
+	                message.newName = String(object.newName);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a RenamePageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.RenamePageMessage
+	         * @static
+	         * @param {whiteboard.RenamePageMessage} message RenamePageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        RenamePageMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults)
+	                object.newName = "";
+	            if (message.newName != null && message.hasOwnProperty("newName"))
+	                object.newName = message.newName;
+	            return object;
+	        };
+	        /**
+	         * Converts this RenamePageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.RenamePageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        RenamePageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return RenamePageMessage;
+	    })();
+	    whiteboard.DeletePageMessage = (function () {
+	        /**
+	         * Properties of a DeletePageMessage.
+	         * @memberof whiteboard
+	         * @interface IDeletePageMessage
+	         */
+	        /**
+	         * Constructs a new DeletePageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a DeletePageMessage.
+	         * @implements IDeletePageMessage
+	         * @constructor
+	         * @param {whiteboard.IDeletePageMessage=} [properties] Properties to set
+	         */
+	        function DeletePageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new DeletePageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {whiteboard.IDeletePageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.DeletePageMessage} DeletePageMessage instance
+	         */
+	        DeletePageMessage.create = function create(properties) {
+	            return new DeletePageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified DeletePageMessage message. Does not implicitly {@link whiteboard.DeletePageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {whiteboard.IDeletePageMessage} message DeletePageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeletePageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified DeletePageMessage message, length delimited. Does not implicitly {@link whiteboard.DeletePageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {whiteboard.IDeletePageMessage} message DeletePageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DeletePageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a DeletePageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.DeletePageMessage} DeletePageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeletePageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DeletePageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a DeletePageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.DeletePageMessage} DeletePageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DeletePageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a DeletePageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        DeletePageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a DeletePageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.DeletePageMessage} DeletePageMessage
+	         */
+	        DeletePageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.DeletePageMessage)
+	                return object;
+	            return new $root.whiteboard.DeletePageMessage();
+	        };
+	        /**
+	         * Creates a plain object from a DeletePageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.DeletePageMessage
+	         * @static
+	         * @param {whiteboard.DeletePageMessage} message DeletePageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        DeletePageMessage.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this DeletePageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.DeletePageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        DeletePageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return DeletePageMessage;
+	    })();
+	    whiteboard.StartDrawMessage = (function () {
+	        /**
+	         * Properties of a StartDrawMessage.
+	         * @memberof whiteboard
+	         * @interface IStartDrawMessage
+	         * @property {number|null} [x] StartDrawMessage x
+	         * @property {number|null} [y] StartDrawMessage y
+	         */
+	        /**
+	         * Constructs a new StartDrawMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a StartDrawMessage.
+	         * @implements IStartDrawMessage
+	         * @constructor
+	         * @param {whiteboard.IStartDrawMessage=} [properties] Properties to set
+	         */
+	        function StartDrawMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * StartDrawMessage x.
+	         * @member {number} x
+	         * @memberof whiteboard.StartDrawMessage
+	         * @instance
+	         */
+	        StartDrawMessage.prototype.x = 0;
+	        /**
+	         * StartDrawMessage y.
+	         * @member {number} y
+	         * @memberof whiteboard.StartDrawMessage
+	         * @instance
+	         */
+	        StartDrawMessage.prototype.y = 0;
+	        /**
+	         * Creates a new StartDrawMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {whiteboard.IStartDrawMessage=} [properties] Properties to set
+	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage instance
+	         */
+	        StartDrawMessage.create = function create(properties) {
+	            return new StartDrawMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified StartDrawMessage message. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {whiteboard.IStartDrawMessage} message StartDrawMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        StartDrawMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified StartDrawMessage message, length delimited. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {whiteboard.IStartDrawMessage} message StartDrawMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        StartDrawMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a StartDrawMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        StartDrawMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.StartDrawMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.x = reader.uint32();
+	                        break;
+	                    case 2:
+	                        message.y = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a StartDrawMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        StartDrawMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a StartDrawMessage message.
+	         * @function verify
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        StartDrawMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                if (!$util.isInteger(message.x))
+	                    return "x: integer expected";
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                if (!$util.isInteger(message.y))
+	                    return "y: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a StartDrawMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
+	         */
+	        StartDrawMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.StartDrawMessage)
+	                return object;
+	            var message = new $root.whiteboard.StartDrawMessage();
+	            if (object.x != null)
+	                message.x = object.x >>> 0;
+	            if (object.y != null)
+	                message.y = object.y >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a StartDrawMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.StartDrawMessage
+	         * @static
+	         * @param {whiteboard.StartDrawMessage} message StartDrawMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        StartDrawMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.x = 0;
+	                object.y = 0;
+	            }
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                object.x = message.x;
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                object.y = message.y;
+	            return object;
+	        };
+	        /**
+	         * Converts this StartDrawMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.StartDrawMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        StartDrawMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return StartDrawMessage;
+	    })();
+	    whiteboard.DrawingMessage = (function () {
+	        /**
+	         * Properties of a DrawingMessage.
+	         * @memberof whiteboard
+	         * @interface IDrawingMessage
+	         * @property {number|null} [x] DrawingMessage x
+	         * @property {number|null} [y] DrawingMessage y
+	         * @property {number|null} [cpX1] DrawingMessage cpX1
+	         * @property {number|null} [cpY1] DrawingMessage cpY1
+	         * @property {number|null} [cpX2] DrawingMessage cpX2
+	         * @property {number|null} [cpY2] DrawingMessage cpY2
+	         */
+	        /**
+	         * Constructs a new DrawingMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a DrawingMessage.
+	         * @implements IDrawingMessage
+	         * @constructor
+	         * @param {whiteboard.IDrawingMessage=} [properties] Properties to set
+	         */
+	        function DrawingMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * DrawingMessage x.
+	         * @member {number} x
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.x = 0;
+	        /**
+	         * DrawingMessage y.
+	         * @member {number} y
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.y = 0;
+	        /**
+	         * DrawingMessage cpX1.
+	         * @member {number} cpX1
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.cpX1 = 0;
+	        /**
+	         * DrawingMessage cpY1.
+	         * @member {number} cpY1
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.cpY1 = 0;
+	        /**
+	         * DrawingMessage cpX2.
+	         * @member {number} cpX2
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.cpX2 = 0;
+	        /**
+	         * DrawingMessage cpY2.
+	         * @member {number} cpY2
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         */
+	        DrawingMessage.prototype.cpY2 = 0;
+	        /**
+	         * Creates a new DrawingMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {whiteboard.IDrawingMessage=} [properties] Properties to set
+	         * @returns {whiteboard.DrawingMessage} DrawingMessage instance
+	         */
+	        DrawingMessage.create = function create(properties) {
+	            return new DrawingMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified DrawingMessage message. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {whiteboard.IDrawingMessage} message DrawingMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DrawingMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.cpX1);
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                writer.uint32(/* id 4, wireType 0 =*/ 32).uint32(message.cpY1);
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                writer.uint32(/* id 5, wireType 0 =*/ 40).uint32(message.cpX2);
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                writer.uint32(/* id 6, wireType 0 =*/ 48).uint32(message.cpY2);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified DrawingMessage message, length delimited. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {whiteboard.IDrawingMessage} message DrawingMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        DrawingMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a DrawingMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DrawingMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DrawingMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.x = reader.uint32();
+	                        break;
+	                    case 2:
+	                        message.y = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.cpX1 = reader.uint32();
+	                        break;
+	                    case 4:
+	                        message.cpY1 = reader.uint32();
+	                        break;
+	                    case 5:
+	                        message.cpX2 = reader.uint32();
+	                        break;
+	                    case 6:
+	                        message.cpY2 = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a DrawingMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        DrawingMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a DrawingMessage message.
+	         * @function verify
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        DrawingMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                if (!$util.isInteger(message.x))
+	                    return "x: integer expected";
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                if (!$util.isInteger(message.y))
+	                    return "y: integer expected";
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                if (!$util.isInteger(message.cpX1))
+	                    return "cpX1: integer expected";
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                if (!$util.isInteger(message.cpY1))
+	                    return "cpY1: integer expected";
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                if (!$util.isInteger(message.cpX2))
+	                    return "cpX2: integer expected";
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                if (!$util.isInteger(message.cpY2))
+	                    return "cpY2: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a DrawingMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         */
+	        DrawingMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.DrawingMessage)
+	                return object;
+	            var message = new $root.whiteboard.DrawingMessage();
+	            if (object.x != null)
+	                message.x = object.x >>> 0;
+	            if (object.y != null)
+	                message.y = object.y >>> 0;
+	            if (object.cpX1 != null)
+	                message.cpX1 = object.cpX1 >>> 0;
+	            if (object.cpY1 != null)
+	                message.cpY1 = object.cpY1 >>> 0;
+	            if (object.cpX2 != null)
+	                message.cpX2 = object.cpX2 >>> 0;
+	            if (object.cpY2 != null)
+	                message.cpY2 = object.cpY2 >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a DrawingMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.DrawingMessage
+	         * @static
+	         * @param {whiteboard.DrawingMessage} message DrawingMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        DrawingMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.x = 0;
+	                object.y = 0;
+	                object.cpX1 = 0;
+	                object.cpY1 = 0;
+	                object.cpX2 = 0;
+	                object.cpY2 = 0;
+	            }
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                object.x = message.x;
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                object.y = message.y;
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                object.cpX1 = message.cpX1;
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                object.cpY1 = message.cpY1;
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                object.cpX2 = message.cpX2;
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                object.cpY2 = message.cpY2;
+	            return object;
+	        };
+	        /**
+	         * Converts this DrawingMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.DrawingMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        DrawingMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return DrawingMessage;
+	    })();
+	    whiteboard.EndDrawMessage = (function () {
+	        /**
+	         * Properties of an EndDrawMessage.
+	         * @memberof whiteboard
+	         * @interface IEndDrawMessage
+	         * @property {number|null} [cpX1] EndDrawMessage cpX1
+	         * @property {number|null} [cpY1] EndDrawMessage cpY1
+	         * @property {number|null} [cpX2] EndDrawMessage cpX2
+	         * @property {number|null} [cpY2] EndDrawMessage cpY2
+	         */
+	        /**
+	         * Constructs a new EndDrawMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an EndDrawMessage.
+	         * @implements IEndDrawMessage
+	         * @constructor
+	         * @param {whiteboard.IEndDrawMessage=} [properties] Properties to set
+	         */
+	        function EndDrawMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * EndDrawMessage cpX1.
+	         * @member {number} cpX1
+	         * @memberof whiteboard.EndDrawMessage
+	         * @instance
+	         */
+	        EndDrawMessage.prototype.cpX1 = 0;
+	        /**
+	         * EndDrawMessage cpY1.
+	         * @member {number} cpY1
+	         * @memberof whiteboard.EndDrawMessage
+	         * @instance
+	         */
+	        EndDrawMessage.prototype.cpY1 = 0;
+	        /**
+	         * EndDrawMessage cpX2.
+	         * @member {number} cpX2
+	         * @memberof whiteboard.EndDrawMessage
+	         * @instance
+	         */
+	        EndDrawMessage.prototype.cpX2 = 0;
+	        /**
+	         * EndDrawMessage cpY2.
+	         * @member {number} cpY2
+	         * @memberof whiteboard.EndDrawMessage
+	         * @instance
+	         */
+	        EndDrawMessage.prototype.cpY2 = 0;
+	        /**
+	         * Creates a new EndDrawMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {whiteboard.IEndDrawMessage=} [properties] Properties to set
+	         * @returns {whiteboard.EndDrawMessage} EndDrawMessage instance
+	         */
+	        EndDrawMessage.create = function create(properties) {
+	            return new EndDrawMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified EndDrawMessage message. Does not implicitly {@link whiteboard.EndDrawMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {whiteboard.IEndDrawMessage} message EndDrawMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EndDrawMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.cpX1);
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.cpY1);
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.cpX2);
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                writer.uint32(/* id 4, wireType 0 =*/ 32).uint32(message.cpY2);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified EndDrawMessage message, length delimited. Does not implicitly {@link whiteboard.EndDrawMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {whiteboard.IEndDrawMessage} message EndDrawMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EndDrawMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an EndDrawMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EndDrawMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.EndDrawMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.cpX1 = reader.uint32();
+	                        break;
+	                    case 2:
+	                        message.cpY1 = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.cpX2 = reader.uint32();
+	                        break;
+	                    case 4:
+	                        message.cpY2 = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an EndDrawMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EndDrawMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an EndDrawMessage message.
+	         * @function verify
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        EndDrawMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                if (!$util.isInteger(message.cpX1))
+	                    return "cpX1: integer expected";
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                if (!$util.isInteger(message.cpY1))
+	                    return "cpY1: integer expected";
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                if (!$util.isInteger(message.cpX2))
+	                    return "cpX2: integer expected";
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                if (!$util.isInteger(message.cpY2))
+	                    return "cpY2: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an EndDrawMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+	         */
+	        EndDrawMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.EndDrawMessage)
+	                return object;
+	            var message = new $root.whiteboard.EndDrawMessage();
+	            if (object.cpX1 != null)
+	                message.cpX1 = object.cpX1 >>> 0;
+	            if (object.cpY1 != null)
+	                message.cpY1 = object.cpY1 >>> 0;
+	            if (object.cpX2 != null)
+	                message.cpX2 = object.cpX2 >>> 0;
+	            if (object.cpY2 != null)
+	                message.cpY2 = object.cpY2 >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an EndDrawMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.EndDrawMessage
+	         * @static
+	         * @param {whiteboard.EndDrawMessage} message EndDrawMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        EndDrawMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.cpX1 = 0;
+	                object.cpY1 = 0;
+	                object.cpX2 = 0;
+	                object.cpY2 = 0;
+	            }
+	            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
+	                object.cpX1 = message.cpX1;
+	            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
+	                object.cpY1 = message.cpY1;
+	            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
+	                object.cpX2 = message.cpX2;
+	            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
+	                object.cpY2 = message.cpY2;
+	            return object;
+	        };
+	        /**
+	         * Converts this EndDrawMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.EndDrawMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        EndDrawMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return EndDrawMessage;
+	    })();
+	    whiteboard.EraseMessage = (function () {
+	        /**
+	         * Properties of an EraseMessage.
+	         * @memberof whiteboard
+	         * @interface IEraseMessage
+	         * @property {number|null} [x] EraseMessage x
+	         * @property {number|null} [y] EraseMessage y
+	         * @property {number|null} [size] EraseMessage size
+	         */
+	        /**
+	         * Constructs a new EraseMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an EraseMessage.
+	         * @implements IEraseMessage
+	         * @constructor
+	         * @param {whiteboard.IEraseMessage=} [properties] Properties to set
+	         */
+	        function EraseMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * EraseMessage x.
+	         * @member {number} x
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         */
+	        EraseMessage.prototype.x = 0;
+	        /**
+	         * EraseMessage y.
+	         * @member {number} y
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         */
+	        EraseMessage.prototype.y = 0;
+	        /**
+	         * EraseMessage size.
+	         * @member {number} size
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         */
+	        EraseMessage.prototype.size = 0;
+	        /**
+	         * Creates a new EraseMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {whiteboard.IEraseMessage=} [properties] Properties to set
+	         * @returns {whiteboard.EraseMessage} EraseMessage instance
+	         */
+	        EraseMessage.create = function create(properties) {
+	            return new EraseMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified EraseMessage message. Does not implicitly {@link whiteboard.EraseMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {whiteboard.IEraseMessage} message EraseMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EraseMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.size);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified EraseMessage message, length delimited. Does not implicitly {@link whiteboard.EraseMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {whiteboard.IEraseMessage} message EraseMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        EraseMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an EraseMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.EraseMessage} EraseMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EraseMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.EraseMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.x = reader.uint32();
+	                        break;
+	                    case 2:
+	                        message.y = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.size = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an EraseMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.EraseMessage} EraseMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        EraseMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an EraseMessage message.
+	         * @function verify
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        EraseMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                if (!$util.isInteger(message.x))
+	                    return "x: integer expected";
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                if (!$util.isInteger(message.y))
+	                    return "y: integer expected";
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                if (!$util.isInteger(message.size))
+	                    return "size: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates an EraseMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.EraseMessage} EraseMessage
+	         */
+	        EraseMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.EraseMessage)
+	                return object;
+	            var message = new $root.whiteboard.EraseMessage();
+	            if (object.x != null)
+	                message.x = object.x >>> 0;
+	            if (object.y != null)
+	                message.y = object.y >>> 0;
+	            if (object.size != null)
+	                message.size = object.size >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an EraseMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.EraseMessage
+	         * @static
+	         * @param {whiteboard.EraseMessage} message EraseMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        EraseMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.x = 0;
+	                object.y = 0;
+	                object.size = 0;
+	            }
+	            if (message.x != null && message.hasOwnProperty("x"))
+	                object.x = message.x;
+	            if (message.y != null && message.hasOwnProperty("y"))
+	                object.y = message.y;
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                object.size = message.size;
+	            return object;
+	        };
+	        /**
+	         * Converts this EraseMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        EraseMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return EraseMessage;
+	    })();
+	    whiteboard.SwapObjectMessage = (function () {
+	        /**
+	         * Properties of a SwapObjectMessage.
+	         * @memberof whiteboard
+	         * @interface ISwapObjectMessage
+	         * @property {string|null} [name1] SwapObjectMessage name1
+	         * @property {string|null} [name2] SwapObjectMessage name2
+	         * @property {number|null} [duration] SwapObjectMessage duration
+	         */
+	        /**
+	         * Constructs a new SwapObjectMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a SwapObjectMessage.
+	         * @implements ISwapObjectMessage
+	         * @constructor
+	         * @param {whiteboard.ISwapObjectMessage=} [properties] Properties to set
+	         */
+	        function SwapObjectMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * SwapObjectMessage name1.
+	         * @member {string} name1
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @instance
+	         */
+	        SwapObjectMessage.prototype.name1 = "";
+	        /**
+	         * SwapObjectMessage name2.
+	         * @member {string} name2
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @instance
+	         */
+	        SwapObjectMessage.prototype.name2 = "";
+	        /**
+	         * SwapObjectMessage duration.
+	         * @member {number} duration
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @instance
+	         */
+	        SwapObjectMessage.prototype.duration = 0;
+	        /**
+	         * Creates a new SwapObjectMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {whiteboard.ISwapObjectMessage=} [properties] Properties to set
+	         * @returns {whiteboard.SwapObjectMessage} SwapObjectMessage instance
+	         */
+	        SwapObjectMessage.create = function create(properties) {
+	            return new SwapObjectMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified SwapObjectMessage message. Does not implicitly {@link whiteboard.SwapObjectMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {whiteboard.ISwapObjectMessage} message SwapObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SwapObjectMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.name1 != null && message.hasOwnProperty("name1"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.name1);
+	            if (message.name2 != null && message.hasOwnProperty("name2"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.name2);
+	            if (message.duration != null && message.hasOwnProperty("duration"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.duration);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified SwapObjectMessage message, length delimited. Does not implicitly {@link whiteboard.SwapObjectMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {whiteboard.ISwapObjectMessage} message SwapObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SwapObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a SwapObjectMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.SwapObjectMessage} SwapObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SwapObjectMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.SwapObjectMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.name1 = reader.string();
+	                        break;
+	                    case 2:
+	                        message.name2 = reader.string();
+	                        break;
+	                    case 3:
+	                        message.duration = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a SwapObjectMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.SwapObjectMessage} SwapObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SwapObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a SwapObjectMessage message.
+	         * @function verify
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        SwapObjectMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.name1 != null && message.hasOwnProperty("name1"))
+	                if (!$util.isString(message.name1))
+	                    return "name1: string expected";
+	            if (message.name2 != null && message.hasOwnProperty("name2"))
+	                if (!$util.isString(message.name2))
+	                    return "name2: string expected";
+	            if (message.duration != null && message.hasOwnProperty("duration"))
+	                if (!$util.isInteger(message.duration))
+	                    return "duration: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a SwapObjectMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.SwapObjectMessage} SwapObjectMessage
+	         */
+	        SwapObjectMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.SwapObjectMessage)
+	                return object;
+	            var message = new $root.whiteboard.SwapObjectMessage();
+	            if (object.name1 != null)
+	                message.name1 = String(object.name1);
+	            if (object.name2 != null)
+	                message.name2 = String(object.name2);
+	            if (object.duration != null)
+	                message.duration = object.duration >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a SwapObjectMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @static
+	         * @param {whiteboard.SwapObjectMessage} message SwapObjectMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        SwapObjectMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.name1 = "";
+	                object.name2 = "";
+	                object.duration = 0;
+	            }
+	            if (message.name1 != null && message.hasOwnProperty("name1"))
+	                object.name1 = message.name1;
+	            if (message.name2 != null && message.hasOwnProperty("name2"))
+	                object.name2 = message.name2;
+	            if (message.duration != null && message.hasOwnProperty("duration"))
+	                object.duration = message.duration;
+	            return object;
+	        };
+	        /**
+	         * Converts this SwapObjectMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.SwapObjectMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        SwapObjectMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return SwapObjectMessage;
+	    })();
 	    return whiteboard;
 	})();
 	var protocols = $root;
 
 	var protolist = createCommonjsModule(function (module, exports) {
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 	var MsgType;
@@ -11444,20 +12184,4105 @@
 	    MsgType[MsgType["room_JoinRoomMessage"] = 20000] = "room_JoinRoomMessage";
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20001] = "room_LeaveRoomMessage";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30000] = "whiteboard_CommandMessage";
+	    MsgType[MsgType["whiteboard_EventMessage"] = 30001] = "whiteboard_EventMessage";
+	    MsgType[MsgType["whiteboard_UseToolMessage"] = 30002] = "whiteboard_UseToolMessage";
+	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30003] = "whiteboard_CreateObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteSelected"] = 30004] = "whiteboard_DeleteSelected";
+	    MsgType[MsgType["whiteboard_CloneSelected"] = 30005] = "whiteboard_CloneSelected";
+	    MsgType[MsgType["whiteboard_AlignSelected"] = 30006] = "whiteboard_AlignSelected";
+	    MsgType[MsgType["whiteboard_ArrangeSelected"] = 30007] = "whiteboard_ArrangeSelected";
+	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30008] = "whiteboard_DeleteObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30009] = "whiteboard_DeleteObjectsMessage";
+	    MsgType[MsgType["whiteboard_AlignObjectsLeftMessage"] = 30010] = "whiteboard_AlignObjectsLeftMessage";
+	    MsgType[MsgType["whiteboard_AlignObjectsRightMessage"] = 30011] = "whiteboard_AlignObjectsRightMessage";
+	    MsgType[MsgType["whiteboard_AlignObjectsTopMessage"] = 30012] = "whiteboard_AlignObjectsTopMessage";
+	    MsgType[MsgType["whiteboard_AlignObjectsBottomMessage"] = 30013] = "whiteboard_AlignObjectsBottomMessage";
+	    MsgType[MsgType["whiteboard_ArrangeObjectsHorizontalMessage"] = 30014] = "whiteboard_ArrangeObjectsHorizontalMessage";
+	    MsgType[MsgType["whiteboard_ArrangeObjectsVerticalMessage"] = 30015] = "whiteboard_ArrangeObjectsVerticalMessage";
+	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30016] = "whiteboard_SetObjectPropertyMessage";
+	    MsgType[MsgType["whiteboard_AddPageMessage"] = 30017] = "whiteboard_AddPageMessage";
+	    MsgType[MsgType["whiteboard_RenamePageMessage"] = 30018] = "whiteboard_RenamePageMessage";
+	    MsgType[MsgType["whiteboard_DeletePageMessage"] = 30019] = "whiteboard_DeletePageMessage";
+	    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30020] = "whiteboard_StartDrawMessage";
+	    MsgType[MsgType["whiteboard_DrawingMessage"] = 30021] = "whiteboard_DrawingMessage";
+	    MsgType[MsgType["whiteboard_EndDrawMessage"] = 30022] = "whiteboard_EndDrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30023] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30024] = "whiteboard_SwapObjectMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
 	    20000: protocols.room.JoinRoomMessage,
 	    20001: protocols.room.LeaveRoomMessage,
 	    30000: protocols.whiteboard.CommandMessage,
+	    30001: protocols.whiteboard.EventMessage,
+	    30002: protocols.whiteboard.UseToolMessage,
+	    30003: protocols.whiteboard.CreateObjectMessage,
+	    30004: protocols.whiteboard.DeleteSelected,
+	    30005: protocols.whiteboard.CloneSelected,
+	    30006: protocols.whiteboard.AlignSelected,
+	    30007: protocols.whiteboard.ArrangeSelected,
+	    30008: protocols.whiteboard.DeleteObjectMessage,
+	    30009: protocols.whiteboard.DeleteObjectsMessage,
+	    30010: protocols.whiteboard.AlignObjectsLeftMessage,
+	    30011: protocols.whiteboard.AlignObjectsRightMessage,
+	    30012: protocols.whiteboard.AlignObjectsTopMessage,
+	    30013: protocols.whiteboard.AlignObjectsBottomMessage,
+	    30014: protocols.whiteboard.ArrangeObjectsHorizontalMessage,
+	    30015: protocols.whiteboard.ArrangeObjectsVerticalMessage,
+	    30016: protocols.whiteboard.SetObjectPropertyMessage,
+	    30017: protocols.whiteboard.AddPageMessage,
+	    30018: protocols.whiteboard.RenamePageMessage,
+	    30019: protocols.whiteboard.DeletePageMessage,
+	    30020: protocols.whiteboard.StartDrawMessage,
+	    30021: protocols.whiteboard.DrawingMessage,
+	    30022: protocols.whiteboard.EndDrawMessage,
+	    30023: protocols.whiteboard.EraseMessage,
+	    30024: protocols.whiteboard.SwapObjectMessage,
 	};
 	exports.msgMap = msgMap;
+	__export(protocols);
 
 	});
 
 	unwrapExports(protolist);
 	var protolist_1 = protolist.MsgType;
 	var protolist_2 = protolist.msgMap;
+
+	var whiteboard = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var EvtSocketMessage = /** @class */ (function (_super) {
+	    __extends(EvtSocketMessage, _super);
+	    function EvtSocketMessage(messageType, messageData) {
+	        var _this = _super.call(this, EvtSocketMessage.type) || this;
+	        _this.messageType = messageType;
+	        _this.messageData = messageData;
+	        return _this;
+	    }
+	    EvtSocketMessage.type = '@socketMessage';
+	    return EvtSocketMessage;
+	}(catk.BaseEvent));
+	exports.EvtSocketMessage = EvtSocketMessage;
+	var WBComponent = /** @class */ (function (_super) {
+	    __extends(WBComponent, _super);
+	    function WBComponent() {
+	        var _this = _super.call(this, WBComponent.type) || this;
+	        _this.on(WBToolActivateEvent.type, function (ev) {
+	            ev.tool.activateObject(_this.object);
+	        });
+	        _this.on(WBToolDeactivateEvent.type, function (ev) {
+	            ev.tool.deactivateObject(_this.object);
+	        });
+	        _this.on(WBSetPropertyEvent.type, function (ev) {
+	            var object = _this.object;
+	            switch (ev.name) {
+	                case 'localx': {
+	                    var t = object.translation;
+	                    t.x = Number(ev.value);
+	                    object.translation = t;
+	                    break;
+	                }
+	                case 'localy': {
+	                    var t = object.translation;
+	                    t.y = Number(ev.value);
+	                    object.translation = t;
+	                    break;
+	                }
+	                case 'anchorx': {
+	                    var t = object.anchorPoint;
+	                    t.x = Number(ev.value);
+	                    object.anchorPoint = t;
+	                    break;
+	                }
+	                case 'anchory': {
+	                    var t = object.anchorPoint;
+	                    t.y = Number(ev.value);
+	                    object.anchorPoint = t;
+	                    break;
+	                }
+	                case 'entityName': {
+	                    object.entityName = ev.value;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(WBGetPropertyEvent.type, function (ev) {
+	            var object = _this.object;
+	            switch (ev.name) {
+	                case 'localx': {
+	                    ev.value = object.translation.x;
+	                    break;
+	                }
+	                case 'localy': {
+	                    ev.value = object.translation.y;
+	                    break;
+	                }
+	                case 'anchorx': {
+	                    ev.value = object.anchorPoint.x;
+	                    break;
+	                }
+	                case 'anchory': {
+	                    ev.value = object.anchorPoint.y;
+	                    break;
+	                }
+	                case 'entityName': {
+	                    ev.value = object.entityName;
+	                    break;
+	                }
+	                case 'entityType': {
+	                    ev.value = object.entityType;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            ev.properties.general = ev.properties.general || { desc: '通用', properties: [] };
+	            ev.properties.general.properties.push({
+	                name: 'entityType',
+	                desc: '类型',
+	                readonly: true,
+	                type: 'string',
+	                value: _this.object ? _this.object.entityType : null
+	            });
+	            ev.properties.general.properties.push({
+	                name: 'entityName',
+	                desc: '名称',
+	                readonly: false,
+	                type: 'string',
+	                value: _this.object ? _this.object.entityName : null
+	            });
+	            ev.properties.general.properties.push({
+	                name: 'localx',
+	                desc: '位置X',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.object ? _this.object.translation.x : null
+	            });
+	            ev.properties.general.properties.push({
+	                name: 'localy',
+	                desc: '位置Y',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.object ? _this.object.translation.y : null
+	            });
+	            ev.properties.general.properties.push({
+	                name: 'anchorx',
+	                desc: '锚点X',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.object ? _this.object.anchorPoint.x : null
+	            });
+	            ev.properties.general.properties.push({
+	                name: 'anchory',
+	                desc: '锚点Y',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.object ? _this.object.anchorPoint.y : null
+	            });
+	        });
+	        return _this;
+	    }
+	    WBComponent.type = 'WBComponent';
+	    return WBComponent;
+	}(catk.Component));
+	exports.WBComponent = WBComponent;
+	var WBFactory = /** @class */ (function () {
+	    function WBFactory(name) {
+	        this.name = name;
+	    }
+	    WBFactory.prototype.createEntity = function (x, y, options) {
+	        var entity = this._createEntity(options);
+	        if (entity === null) {
+	            return null;
+	        }
+	        entity.addComponent(new WBComponent());
+	        entity.translation = { x: x, y: y };
+	        return entity;
+	    };
+	    WBFactory.prototype.getCreationProperties = function () {
+	        return [];
+	    };
+	    return WBFactory;
+	}());
+	exports.WBFactory = WBFactory;
+	var WBToolActivateEvent = /** @class */ (function (_super) {
+	    __extends(WBToolActivateEvent, _super);
+	    function WBToolActivateEvent(tool) {
+	        var _this = _super.call(this, WBToolActivateEvent.type) || this;
+	        _this.tool = tool;
+	        return _this;
+	    }
+	    WBToolActivateEvent.type = '@WBToolActivate';
+	    return WBToolActivateEvent;
+	}(catk.BaseEvent));
+	exports.WBToolActivateEvent = WBToolActivateEvent;
+	var WBToolDeactivateEvent = /** @class */ (function (_super) {
+	    __extends(WBToolDeactivateEvent, _super);
+	    function WBToolDeactivateEvent(tool) {
+	        var _this = _super.call(this, WBToolDeactivateEvent.type) || this;
+	        _this.tool = tool;
+	        return _this;
+	    }
+	    WBToolDeactivateEvent.type = '@WBToolDeactivate';
+	    return WBToolDeactivateEvent;
+	}(catk.BaseEvent));
+	exports.WBToolDeactivateEvent = WBToolDeactivateEvent;
+	var WBGetPropertyListEvent = /** @class */ (function (_super) {
+	    __extends(WBGetPropertyListEvent, _super);
+	    function WBGetPropertyListEvent() {
+	        return _super.call(this, WBGetPropertyListEvent.type) || this;
+	    }
+	    WBGetPropertyListEvent.type = '@WBGetObjectPropertyList';
+	    return WBGetPropertyListEvent;
+	}(catk.BaseEvent));
+	exports.WBGetPropertyListEvent = WBGetPropertyListEvent;
+	var WBSetPropertyEvent = /** @class */ (function (_super) {
+	    __extends(WBSetPropertyEvent, _super);
+	    function WBSetPropertyEvent(name, value) {
+	        var _this = _super.call(this, WBSetPropertyEvent.type) || this;
+	        _this.name = name;
+	        _this.value = value;
+	        return _this;
+	    }
+	    WBSetPropertyEvent.type = '@WBSetObjectPropertyEvent';
+	    return WBSetPropertyEvent;
+	}(catk.BaseEvent));
+	exports.WBSetPropertyEvent = WBSetPropertyEvent;
+	var WBGetPropertyEvent = /** @class */ (function (_super) {
+	    __extends(WBGetPropertyEvent, _super);
+	    function WBGetPropertyEvent(name) {
+	        var _this = _super.call(this, WBGetPropertyEvent.type) || this;
+	        _this.name = name;
+	        return _this;
+	    }
+	    WBGetPropertyEvent.type = '@WBGetObjectPropertyEvent';
+	    return WBGetPropertyEvent;
+	}(catk.BaseEvent));
+	exports.WBGetPropertyEvent = WBGetPropertyEvent;
+	var WBGetObjectEvent = /** @class */ (function (_super) {
+	    __extends(WBGetObjectEvent, _super);
+	    function WBGetObjectEvent(name) {
+	        var _this = _super.call(this, WBGetObjectEvent.type) || this;
+	        _this.name = name;
+	        return _this;
+	    }
+	    WBGetObjectEvent.type = '@WBGetObject';
+	    return WBGetObjectEvent;
+	}(catk.BaseEvent));
+	exports.WBGetObjectEvent = WBGetObjectEvent;
+	var WBMessageEvent = /** @class */ (function (_super) {
+	    __extends(WBMessageEvent, _super);
+	    function WBMessageEvent(type, data, results, object) {
+	        var _this = _super.call(this, WBMessageEvent.type) || this;
+	        _this.messageType = type;
+	        _this.messageData = data;
+	        _this.results = results;
+	        _this.object = object;
+	        return _this;
+	    }
+	    WBMessageEvent.type = '@WBMessage';
+	    return WBMessageEvent;
+	}(catk.BaseEvent));
+	exports.WBMessageEvent = WBMessageEvent;
+	var WBTool = /** @class */ (function (_super) {
+	    __extends(WBTool, _super);
+	    function WBTool(name, whiteboard, desc) {
+	        var _this = _super.call(this) || this;
+	        _this.name = name;
+	        _this.desc = desc || name;
+	        _this._wb = whiteboard;
+	        _this.on(WBGetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'desc': {
+	                    ev.value = _this.desc;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	        });
+	        return _this;
+	    }
+	    WBTool.prototype.activate = function (options) {
+	        catk.App.triggerEvent(null, new WBToolActivateEvent(this));
+	    };
+	    WBTool.prototype.deactivate = function () {
+	        catk.App.triggerEvent(null, new WBToolDeactivateEvent(this));
+	    };
+	    WBTool.prototype.activateObject = function (object) {
+	    };
+	    WBTool.prototype.deactivateObject = function (object) {
+	    };
+	    WBTool.prototype.handleMessage = function (type, args) {
+	    };
+	    return WBTool;
+	}(catk.EventObserver));
+	exports.WBTool = WBTool;
+	var WhiteBoard = /** @class */ (function (_super) {
+	    __extends(WhiteBoard, _super);
+	    function WhiteBoard(canvas, doubleBuffer) {
+	        if (doubleBuffer === void 0) { doubleBuffer = false; }
+	        var _this = _super.call(this) || this;
+	        _this.view = null;
+	        _this.view = catk.App.addCanvas(canvas, doubleBuffer);
+	        _this._factories = {};
+	        _this._tools = {};
+	        _this._currentTool = '';
+	        _this._entities = {};
+	        _this.on(WBGetObjectEvent.type, function (ev) {
+	            ev.object = _this.findEntity(ev.name);
+	        });
+	        _this.on(catk.EvtSceneViewPageWillChange.type, function (ev) {
+	            var tool = _this._tools[_this._currentTool];
+	            if (tool) {
+	                tool.deactivate();
+	            }
+	        });
+	        _this.on(catk.EvtSceneViewPageChanged.type, function (ev) {
+	            var tool = _this._tools[_this._currentTool];
+	            if (tool) {
+	                tool.activate();
+	            }
+	        });
+	        _this.on(WBMessageEvent.type, function (ev) {
+	            _this._handleMessage(ev.messageType, ev.messageData, ev.results, ev.object);
+	        });
+	        if (_this.view) {
+	            _this.view.on(catk.EvtKeyDown.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtKeyUp.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtKeyPress.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtMouseDown.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtMouseUp.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtMouseMove.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtClick.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtDblClick.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            });
+	            _this.view.on(catk.EvtDraw.type, function (ev) {
+	                if (_this._currentTool !== '') {
+	                    var tool = _this._tools[_this._currentTool];
+	                    tool.trigger(ev);
+	                }
+	            }, catk.EventListenerOrder.LAST);
+	        }
+	        return _this;
+	    }
+	    WhiteBoard.prototype.addTool = function (tool) {
+	        this._tools[tool.name] = tool;
+	    };
+	    WhiteBoard.prototype.addFactory = function (factory) {
+	        this._factories[factory.name] = factory;
+	    };
+	    WhiteBoard.prototype.getFactory = function (name) {
+	        return this._factories[name] || null;
+	    };
+	    WhiteBoard.prototype.createEntity = function (type, name, failOnExists, x, y, options) {
+	        var entity = null;
+	        if (name === null) {
+	            var id = 1;
+	            while (true) {
+	                name = "" + type.toLowerCase() + id++;
+	                if (this.findEntity(name) === null) {
+	                    break;
+	                }
+	            }
+	        }
+	        else {
+	            entity = this.findEntity(name);
+	            if (entity !== null) {
+	                return failOnExists ? null : entity;
+	            }
+	        }
+	        var factory = this._factories[type];
+	        if (factory) {
+	            entity = factory.createEntity(x, y, options);
+	            if (entity) {
+	                entity.entityName = name;
+	                entity.entityType = type;
+	                if (this.view && this.view.rootNode) {
+	                    this.view.rootNode.addChild(entity);
+	                }
+	                this._entities[name] = entity;
+	                if (this._currentTool !== '') {
+	                    var curTool = this._tools[this._currentTool];
+	                    if (curTool) {
+	                        entity.triggerEx(new WBToolActivateEvent(curTool));
+	                    }
+	                }
+	            }
+	        }
+	        return entity;
+	    };
+	    WhiteBoard.prototype.deleteEntity = function (name) {
+	        var entity = this.findEntity(name);
+	        if (entity) {
+	            entity.remove();
+	            delete this._entities[name];
+	        }
+	    };
+	    WhiteBoard.prototype.findEntity = function (name) {
+	        return this._entities[name] || null;
+	    };
+	    WhiteBoard.prototype.findEntityByType = function (type, rootNode) {
+	        if (this.view) {
+	            var root = rootNode || this.view.rootNode;
+	            if (root) {
+	                if (root.entityType === type) {
+	                    return root;
+	                }
+	                else {
+	                    for (var i = 0; i < root.numChildren; i++) {
+	                        var result = this.findEntityByType(type, root.childAt(i));
+	                        if (result) {
+	                            return result;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        return null;
+	    };
+	    WhiteBoard.prototype._handleMessage = function (type, data, results, object) {
+	        var _this = this;
+	        var cmd = data || {};
+	        if (object) {
+	            var obj = this.findEntity(object);
+	            if (obj) {
+	                obj.triggerEx(new WBMessageEvent(type, data, results, object));
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_UseToolMessage) {
+	            if (this._currentTool !== cmd.name) {
+	                if (this._currentTool !== '') {
+	                    var prevTool = this._tools[this._currentTool];
+	                    prevTool.deactivate();
+	                }
+	                this._currentTool = '';
+	                if (cmd.name) {
+	                    var newTool = this._tools[cmd.name];
+	                    if (newTool) {
+	                        this._currentTool = cmd.name;
+	                        var args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
+	                        newTool.activate(args);
+	                    }
+	                }
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_CreateObjectMessage) {
+	            var type_1 = cmd.type;
+	            var name_1 = cmd.name || null;
+	            var failOnExists = !!cmd.failOnExists;
+	            var params = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
+	            var obj = this.createEntity(type_1, name_1, failOnExists, cmd.x, cmd.y, params);
+	            if (results) {
+	                results.objectCreated = obj;
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_DeleteObjectMessage) {
+	            this.deleteEntity(cmd.name);
+	        }
+	        else if (type === protolist.MsgType.whiteboard_DeleteObjectsMessage) {
+	            if (cmd.names) {
+	                cmd.names.forEach(function (name) {
+	                    _this.deleteEntity(name);
+	                });
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AlignObjectsLeftMessage) {
+	            if (cmd.names && cmd.names.length > 1) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                var minx_1 = objects[0].worldTransform.e;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var x = objects[i].worldTransform.e;
+	                    if (x < minx_1) {
+	                        minx_1 = x;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: minx_1, y: obj.worldTransform.f };
+	                    obj.collapseTransform();
+	                });
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AlignObjectsRightMessage) {
+	            if (cmd.names && cmd.names.length > 1) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                var maxx_1 = objects[0].worldTransform.e;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var x = objects[i].worldTransform.e;
+	                    if (x > maxx_1) {
+	                        maxx_1 = x;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: maxx_1, y: obj.worldTransform.f };
+	                    obj.collapseTransform();
+	                });
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AlignObjectsTopMessage) {
+	            if (cmd.names && cmd.names.length > 1) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                var miny_1 = objects[0].worldTransform.f;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var y = objects[i].worldTransform.f;
+	                    if (y < miny_1) {
+	                        miny_1 = y;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: obj.worldTransform.e, y: miny_1 };
+	                    obj.collapseTransform();
+	                });
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AlignObjectsBottomMessage) {
+	            if (cmd.names && cmd.names.length > 1) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                var maxy_1 = objects[0].worldTransform.f;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var y = objects[i].worldTransform.f;
+	                    if (y > maxy_1) {
+	                        maxy_1 = y;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: obj.worldTransform.e, y: maxy_1 };
+	                    obj.collapseTransform();
+	                });
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_ArrangeObjectsHorizontalMessage) {
+	            if (cmd.names && cmd.names.length > 2) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                objects.sort(function (a, b) {
+	                    return a.worldTransform.e - b.worldTransform.e;
+	                });
+	                var posStart = objects[0].worldTransform.e;
+	                var gap = (objects[objects.length - 1].worldTransform.e - posStart) / (objects.length - 1);
+	                for (var i = 1; i < objects.length - 1; i++) {
+	                    objects[i].worldTranslation = { x: posStart + i * gap, y: objects[i].worldTransform.f };
+	                    objects[i].collapseTransform();
+	                }
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_ArrangeObjectsVerticalMessage) {
+	            if (cmd.names && cmd.names.length > 2) {
+	                var objects = cmd.names.map(function (name) { return _this.findEntity(name); });
+	                objects.sort(function (a, b) {
+	                    return a.worldTransform.f - b.worldTransform.f;
+	                });
+	                var posStart = objects[0].worldTransform.f;
+	                var gap = (objects[objects.length - 1].worldTransform.f - posStart) / (objects.length - 1);
+	                for (var i = 1; i < objects.length - 1; i++) {
+	                    objects[i].worldTranslation = { x: objects[i].worldTransform.e, y: posStart + i * gap };
+	                    objects[i].collapseTransform();
+	                }
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_SetObjectPropertyMessage) {
+	            var obj = this.findEntity(cmd.name);
+	            if (obj) {
+	                var ev = new WBSetPropertyEvent(cmd.propName, JSON.parse(cmd.propValueJson));
+	                obj.triggerEx(ev);
+	                if (obj.entityName !== cmd.name) {
+	                    if (this.findEntity(obj.entityName)) {
+	                        obj.entityName = cmd.name;
+	                    }
+	                    else {
+	                        delete this._entities[cmd.name];
+	                        this._entities[obj.entityName] = obj;
+	                    }
+	                }
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AddPageMessage) {
+	            this.view && this.view.addPage();
+	        }
+	        else if (type === protolist.MsgType.whiteboard_RenamePageMessage) {
+	            this.view && this.view.currentPage && this.view.renamePage(this.view.currentPage, cmd.newName);
+	        }
+	        else if (this._currentTool) {
+	            this._tools[this._currentTool].handleMessage(type, cmd);
+	        }
+	        else {
+	            return;
+	        }
+	    };
+	    return WhiteBoard;
+	}(catk.EventObserver));
+	exports.WhiteBoard = WhiteBoard;
+
+	});
+
+	unwrapExports(whiteboard);
+	var whiteboard_1 = whiteboard.EvtSocketMessage;
+	var whiteboard_2 = whiteboard.WBComponent;
+	var whiteboard_3 = whiteboard.WBFactory;
+	var whiteboard_4 = whiteboard.WBToolActivateEvent;
+	var whiteboard_5 = whiteboard.WBToolDeactivateEvent;
+	var whiteboard_6 = whiteboard.WBGetPropertyListEvent;
+	var whiteboard_7 = whiteboard.WBSetPropertyEvent;
+	var whiteboard_8 = whiteboard.WBGetPropertyEvent;
+	var whiteboard_9 = whiteboard.WBGetObjectEvent;
+	var whiteboard_10 = whiteboard.WBMessageEvent;
+	var whiteboard_11 = whiteboard.WBTool;
+	var whiteboard_12 = whiteboard.WhiteBoard;
+
+	var editor = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBToolPalette = /** @class */ (function () {
+	    function WBToolPalette(editor, container) {
+	        this._editor = editor;
+	        this._container = container;
+	        this._tools = [];
+	        this._curTool = null;
+	    }
+	    WBToolPalette.prototype.unload = function () {
+	        while (this._container.hasChildNodes()) {
+	            this._container.removeChild(this._container.firstChild);
+	        }
+	        this._tools = [];
+	    };
+	    WBToolPalette.prototype.loadToolPalette = function (toolPalette) {
+	        var _this = this;
+	        var _loop_1 = function (toolname) {
+	            var tooldef = this_1.getOpTool(toolPalette, toolname);
+	            var toolButton = this_1.createToolButton(tooldef);
+	            if (toolButton) {
+	                toolButton.addEventListener('click', function () {
+	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
+	                    var tool = _this._tools[toolIndex];
+	                    if (tool !== _this._curTool) {
+	                        if (_this._curTool) {
+	                            var curToolButton = document.querySelector("#" + _this._curTool.elementId);
+	                            curToolButton && curToolButton.classList.remove('active');
+	                            _this._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage);
+	                            _this._curTool = null;
+	                        }
+	                    }
+	                    if (tool) {
+	                        var button = document.querySelector("#" + tool.elementId);
+	                        button && button.classList.add('active');
+	                        _this._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, tool.args);
+	                        _this._curTool = tool;
+	                    }
+	                });
+	            }
+	        };
+	        var this_1 = this;
+	        for (var toolname in toolPalette) {
+	            _loop_1(toolname);
+	        }
+	    };
+	    WBToolPalette.prototype.loadOpPalette = function (opPalette) {
+	        var _this = this;
+	        var _loop_2 = function (op) {
+	            var tooldef = this_2.getOpTool(opPalette, op);
+	            var toolButton = this_2.createToolButton(tooldef);
+	            if (toolButton) {
+	                toolButton.addEventListener('click', function () {
+	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
+	                    var tool = _this._tools[toolIndex];
+	                    _this._editor.handleMessage(tool.command, tool.args);
+	                });
+	            }
+	        };
+	        var this_2 = this;
+	        for (var op in opPalette) {
+	            _loop_2(op);
+	        }
+	    };
+	    WBToolPalette.prototype.getOpTool = function (tool, name) {
+	        return {
+	            command: tool[name].command,
+	            args: tool[name].args,
+	            iconClass: tool[name].iconClass
+	        };
+	    };
+	    WBToolPalette.prototype.createToolButton = function (tooldef) {
+	        this._tools.push(tooldef);
+	        var buttonSize = this._editor.toolFontSize + 6;
+	        var toolButton = null;
+	        if (typeof tooldef.iconClass === 'function') {
+	            toolButton = tooldef.iconClass(this._editor);
+	            toolButton && toolButton.classList.add('toolbutton');
+	        }
+	        else {
+	            toolButton = document.createElement('div');
+	            toolButton.classList.add('flex-h', 'flex-align-x-center', 'flex-align-y-center');
+	            toolButton.classList.add('toolbutton');
+	            var toolIcon_1 = document.createElement('i');
+	            toolIcon_1.style.fontSize = this._editor.toolFontSize + "px";
+	            toolIcon_1.style.color = '#fff';
+	            tooldef.iconClass.split(' ').forEach(function (cls) {
+	                toolIcon_1.classList.add(cls);
+	            });
+	            toolButton.appendChild(toolIcon_1);
+	        }
+	        if (toolButton) {
+	            tooldef.elementId = "toolbutton-" + WBToolPalette.uniqueId++;
+	            toolButton.setAttribute('id', tooldef.elementId);
+	            toolButton.style.width = buttonSize + "px";
+	            toolButton.style.height = buttonSize + "px";
+	            toolButton.setAttribute('toolIndex', String(this._tools.length - 1));
+	            this._container.appendChild(toolButton);
+	        }
+	        return toolButton;
+	    };
+	    WBToolPalette.uniqueId = 1;
+	    return WBToolPalette;
+	}());
+	exports.WBToolPalette = WBToolPalette;
+	var WBPropertyGrid = /** @class */ (function () {
+	    function WBPropertyGrid(editor, container, id) {
+	        this._editor = editor;
+	        this._container = container;
+	        this._tableId = id;
+	        this._object = null;
+	        var table = document.createElement('table');
+	        table.style.border = 'solid 1px #95B8E7';
+	        table.style.borderSpacing = '0px';
+	        table.style.margin = '0px';
+	        table.style.fontSize = '12px';
+	        table.style.fontFamily = 'verdana';
+	        table.style.width = '100%';
+	        table.style.tableLayout = 'fixed';
+	        table.style.backgroundColor = '#fff';
+	        table.setAttribute('id', this._tableId);
+	        var tbody = document.createElement('tbody');
+	        table.appendChild(tbody);
+	        this._container.appendChild(table);
+	    }
+	    WBPropertyGrid.prototype.addGroup = function (name) {
+	        var tr = this.createRow();
+	        tr.style.backgroundColor = '#E0ECFF';
+	        tr.style.fontWeight = 'bold';
+	        this.createGroupCell(tr, name);
+	    };
+	    WBPropertyGrid.prototype.addButton = function (text, callback) {
+	        var tr = this.createRow();
+	        var td = this.createCell(tr);
+	        td.style.padding = '5px';
+	        td.style.textAlign = 'center';
+	        td.setAttribute('colspan', '2');
+	        var btn = document.createElement('button');
+	        btn.innerText = text;
+	        btn.style.width = '100%';
+	        btn.style.padding = '5px';
+	        btn.onclick = function () {
+	            callback && callback();
+	        };
+	        td.appendChild(btn);
+	    };
+	    WBPropertyGrid.prototype.addTextAttribute = function (name, value, readonly, changeCallback, laterChange) {
+	        var tr = this.createRow();
+	        this.createPropCell(tr).innerText = name;
+	        var input = document.createElement('input');
+	        input.type = 'text';
+	        if (value) {
+	            input.value = value;
+	        }
+	        input.style.width = '100%';
+	        input.style.boxSizing = 'border-box';
+	        input.readOnly = readonly;
+	        input.disabled = readonly;
+	        if (changeCallback) {
+	            if (laterChange) {
+	                input.onchange = input.onblur = function () {
+	                    input.value = String(changeCallback(input.value));
+	                };
+	            }
+	            else {
+	                input.oninput = function () {
+	                    input.value = String(changeCallback(input.value));
+	                };
+	            }
+	        }
+	        this.createPropCell(tr).appendChild(input);
+	    };
+	    WBPropertyGrid.prototype.addToggleAttribute = function (name, value, readonly, changeCallback) {
+	        var tr = this.createRow();
+	        this.createPropCell(tr).innerText = name;
+	        var input = document.createElement('input');
+	        input.type = 'checkbox';
+	        input.checked = value;
+	        input.readOnly = readonly;
+	        input.disabled = readonly;
+	        if (changeCallback) {
+	            input.onchange = function () {
+	                input.checked = Boolean(changeCallback(input.checked));
+	            };
+	        }
+	        this.createPropCell(tr).appendChild(input);
+	    };
+	    WBPropertyGrid.prototype.addNumberAttribute = function (name, value, readonly, changeCallback) {
+	        var tr = this.createRow();
+	        this.createPropCell(tr).innerText = name;
+	        var input = document.createElement('input');
+	        input.type = 'number';
+	        input.value = String(value);
+	        input.readOnly = readonly;
+	        input.disabled = readonly;
+	        input.style.width = '100%';
+	        input.style.boxSizing = 'border-box';
+	        if (changeCallback) {
+	            input.oninput = function () {
+	                input.value = String(changeCallback(Number(input.value)));
+	            };
+	        }
+	        this.createPropCell(tr).appendChild(input);
+	    };
+	    WBPropertyGrid.prototype.addChoiceAttribute = function (name, values, value, readonly, changeCallback) {
+	        var tr = this.createRow();
+	        this.createPropCell(tr).innerText = name;
+	        var input = document.createElement('select');
+	        values.forEach(function (opt) {
+	            var option = document.createElement('option');
+	            option.value = String(opt.value);
+	            option.innerText = String(opt.desc);
+	            input.add(option);
+	        });
+	        if (value) {
+	            input.value = String(value);
+	        }
+	        input.disabled = readonly;
+	        input.style.width = '100%';
+	        input.style.boxSizing = 'border-box';
+	        if (changeCallback) {
+	            input.onchange = function () {
+	                input.value = String(changeCallback(input.value));
+	            };
+	        }
+	        this.createPropCell(tr).appendChild(input);
+	    };
+	    WBPropertyGrid.prototype.addColorAttribute = function (name, value, readonly, changeCallback) {
+	        var tr = this.createRow();
+	        this.createPropCell(tr).innerText = name;
+	        var input = document.createElement('input');
+	        input.type = 'color';
+	        input.value = value;
+	        input.readOnly = readonly;
+	        input.disabled = readonly;
+	        input.style.width = '100%';
+	        input.style.boxSizing = 'border-box';
+	        if (changeCallback) {
+	            input.onchange = function () {
+	                input.value = String(changeCallback(input.value));
+	            };
+	        }
+	        this.createPropCell(tr).appendChild(input);
+	    };
+	    WBPropertyGrid.prototype.getToolProperty = function (name) {
+	        if (this._object) {
+	            var ev = new whiteboard.WBGetPropertyEvent(name);
+	            this._object.triggerEx(ev);
+	            return ev.value;
+	        }
+	    };
+	    WBPropertyGrid.prototype.setToolProperty = function (name, value) {
+	        if (this._object) {
+	            var ev = new whiteboard.WBSetPropertyEvent(name, value);
+	            this._object.triggerEx(ev);
+	        }
+	    };
+	    WBPropertyGrid.prototype.addToolProperty = function (prop) {
+	        var _this = this;
+	        var propName = prop.name;
+	        var propType = prop.type;
+	        var propReadonly = prop.readonly;
+	        if (prop.enum) {
+	            this.addChoiceAttribute(prop.desc, prop.enum, this.getToolProperty(propName), propReadonly, function (value) {
+	                switch (propType) {
+	                    case 'string':
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                    case 'number':
+	                        _this.setToolProperty(propName, Number(value));
+	                        return _this.getToolProperty(propName);
+	                    case 'boolean':
+	                        _this.setToolProperty(propName, Boolean(value));
+	                        return _this.getObjectProperty(propName);
+	                    case 'color':
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                }
+	            });
+	        }
+	        else {
+	            switch (propType) {
+	                case 'string':
+	                    this.addTextAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                    });
+	                    break;
+	                case 'number':
+	                    this.addNumberAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                    });
+	                    break;
+	                case 'boolean':
+	                    this.addToggleAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                    });
+	                    break;
+	                case 'color':
+	                    this.addColorAttribute(prop.desc, this.getToolProperty(propName), propReadonly, function (value) {
+	                        _this.setToolProperty(propName, value);
+	                        return _this.getToolProperty(propName);
+	                    });
+	                    break;
+	            }
+	        }
+	    };
+	    WBPropertyGrid.prototype.getObjectProperty = function (name) {
+	        if (this._object) {
+	            var ev = new whiteboard.WBGetPropertyEvent(name);
+	            this._object.triggerEx(ev);
+	            return ev.value;
+	        }
+	    };
+	    WBPropertyGrid.prototype.setObjectProperty = function (name, value) {
+	        if (this._object) {
+	            this._editor.handleMessage(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                name: this._object.entityName,
+	                propName: name,
+	                propValueJson: JSON.stringify(value)
+	            });
+	        }
+	    };
+	    WBPropertyGrid.prototype.addObjectProperty = function (prop) {
+	        var _this = this;
+	        var propName = prop.name;
+	        var propType = prop.type;
+	        var propReadonly = prop.readonly;
+	        if (prop.enum) {
+	            this.addChoiceAttribute(prop.desc, prop.enum, this.getObjectProperty(propName), propReadonly, function (value) {
+	                switch (propType) {
+	                    case 'string':
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                    case 'number':
+	                        _this.setObjectProperty(propName, Number(value));
+	                        return _this.getObjectProperty(propName);
+	                    case 'boolean':
+	                        _this.setObjectProperty(propName, Boolean(value));
+	                        return _this.getObjectProperty(propName);
+	                    case 'color':
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                }
+	            });
+	        }
+	        else {
+	            switch (propType) {
+	                case 'string':
+	                    this.addTextAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                    });
+	                    break;
+	                case 'number':
+	                    this.addNumberAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                    });
+	                    break;
+	                case 'boolean':
+	                    this.addToggleAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                    });
+	                    break;
+	                case 'color':
+	                    this.addColorAttribute(prop.desc, this.getObjectProperty(propName), propReadonly, function (value) {
+	                        _this.setObjectProperty(propName, value);
+	                        return _this.getObjectProperty(propName);
+	                    });
+	                    break;
+	            }
+	        }
+	    };
+	    WBPropertyGrid.prototype.clear = function () {
+	        var inputs = document.querySelectorAll("table#" + this._tableId + " input");
+	        for (var i = 0; i < inputs.length; i++) {
+	            inputs[i].onchange = null;
+	        }
+	        var selects = document.querySelectorAll("table#" + this._tableId + " select");
+	        for (var i = 0; i < selects.length; i++) {
+	            selects[i].onchange = null;
+	        }
+	        var tbody = document.querySelector("table#" + this._tableId + " tbody");
+	        while (tbody && tbody.hasChildNodes()) {
+	            tbody.removeChild(tbody.firstChild);
+	        }
+	        this._object = null;
+	    };
+	    WBPropertyGrid.prototype.reloadToolProperties = function () {
+	        var obj = this._object;
+	        this.clear();
+	        obj && this.loadToolProperties(obj);
+	    };
+	    WBPropertyGrid.prototype.loadToolProperties = function (object) {
+	        var _this = this;
+	        if (this._object !== object) {
+	            this.clear();
+	            this._object = object;
+	            if (this._object) {
+	                var ev = new whiteboard.WBGetPropertyListEvent();
+	                this._object.triggerEx(ev);
+	                if (ev.properties) {
+	                    for (var groupName in ev.properties) {
+	                        var group = ev.properties[groupName];
+	                        this.addGroup(group.desc);
+	                        group.properties.forEach(function (value) {
+	                            _this.addToolProperty(value);
+	                        });
+	                    }
+	                }
+	            }
+	        }
+	    };
+	    WBPropertyGrid.prototype.reloadObjectProperties = function () {
+	        var obj = this._object;
+	        this.clear();
+	        obj && this.loadObjectProperties(obj);
+	    };
+	    WBPropertyGrid.prototype.loadObjectProperties = function (object) {
+	        var _this = this;
+	        if (this._object !== object) {
+	            this.clear();
+	            this._object = object;
+	            if (this._object) {
+	                var ev = new whiteboard.WBGetPropertyListEvent();
+	                this._object.triggerEx(ev);
+	                if (ev.properties) {
+	                    for (var groupName in ev.properties) {
+	                        var group = ev.properties[groupName];
+	                        this.addGroup(group.desc);
+	                        group.properties.forEach(function (value) {
+	                            _this.addObjectProperty(value);
+	                        });
+	                    }
+	                }
+	            }
+	        }
+	    };
+	    WBPropertyGrid.prototype.loadPageProperties = function () {
+	        var _this = this;
+	        this.clear();
+	        var pageList = [];
+	        var view = this._editor.whiteboard.view;
+	        if (view) {
+	            view.forEachPage(function (page) {
+	                pageList.push({
+	                    value: page.name,
+	                    desc: page.name
+	                });
+	            });
+	            this.addChoiceAttribute('页面列表', pageList, view.currentPage, false, function (value) {
+	                view.selectPage(value);
+	                _this.loadPageProperties();
+	                return view.currentPage;
+	            });
+	            this.addTextAttribute('页面名称', view.currentPage, false, function (value) {
+	                if (value !== view.currentPage) {
+	                    _this._editor.handleMessage(protolist.MsgType.whiteboard_RenamePageMessage, {
+	                        newName: value
+	                    });
+	                    _this.loadPageProperties();
+	                    return view.currentPage;
+	                }
+	            }, true);
+	            this.addTextAttribute('页面背景图像', view.pageImage, false, function (value) {
+	                view.pageImage = (value === '') ? null : value;
+	                return value;
+	            }, true);
+	            this.addChoiceAttribute('页面背景重复', [{
+	                    value: 'repeat',
+	                    desc: '重复'
+	                }, {
+	                    value: 'repeat-x',
+	                    desc: '横向重复'
+	                }, {
+	                    value: 'repeat-y',
+	                    desc: '纵向重复'
+	                }, {
+	                    value: 'no-repeat',
+	                    desc: '不重复'
+	                }], view.pageImageRepeat, false, function (value) {
+	                view.pageImageRepeat = value;
+	                return value;
+	            });
+	            this.addToggleAttribute('页面背景固定', view.pageImageAttachment === 'fixed', false, function (value) {
+	                view.pageImageAttachment = value ? 'fixed' : 'scroll';
+	                return value;
+	            });
+	            this.addTextAttribute('页面背景大小', view.pageImageSize, false, function (value) {
+	                view.pageImageSize = value;
+	                return value;
+	            });
+	            this.addColorAttribute('页面背景颜色', view.pageColor || '', false, function (value) {
+	                view.pageColor = (value === '') ? null : value;
+	                return value;
+	            });
+	            this.addButton('新建页面', function () {
+	                _this._editor.handleMessage(protolist.MsgType.whiteboard_AddPageMessage);
+	                _this.loadPageProperties();
+	            });
+	            this.addButton('删除页面', function () {
+	                _this._editor.handleMessage(protolist.MsgType.whiteboard_DeletePageMessage);
+	                _this.loadPageProperties();
+	            });
+	        }
+	    };
+	    WBPropertyGrid.prototype.createRow = function () {
+	        var tbody = document.querySelector("#" + this._tableId + " tbody");
+	        var tr = document.createElement('tr');
+	        if (tbody && tr) {
+	            tbody.appendChild(tr);
+	        }
+	        return tr;
+	    };
+	    WBPropertyGrid.prototype.createCell = function (tr) {
+	        var td = document.createElement('td');
+	        td.style.color = '#000';
+	        td.style.fontWeight = 'bold';
+	        td.style.overflow = 'hidden';
+	        td.style.whiteSpace = 'nowrap';
+	        td.style.textOverflow = 'ellipsis';
+	        td.style.height = '24px';
+	        tr.appendChild(td);
+	        return td;
+	    };
+	    WBPropertyGrid.prototype.createGroupCell = function (tr, name) {
+	        var td = this.createCell(tr);
+	        td.style.paddingLeft = '5px';
+	        td.setAttribute('colspan', '2');
+	        td.innerText = name;
+	        return td;
+	    };
+	    WBPropertyGrid.prototype.createPropCell = function (tr) {
+	        var td = this.createCell(tr);
+	        td.style.paddingLeft = '5px';
+	        td.style.border = 'dotted 1px #ccc';
+	        td.style.color = '#000';
+	        return td;
+	    };
+	    return WBPropertyGrid;
+	}());
+	exports.WBPropertyGrid = WBPropertyGrid;
+	var WBEditor = /** @class */ (function () {
+	    function WBEditor(WB, toolset, toolPaletteElement, opPaletteElement, objectPropGridElement, toolPropGridElement) {
+	        this._strokeColor = '#00000000';
+	        this._fillColor = 'red';
+	        this._toolFontSize = 14;
+	        this._wb = WB;
+	        this._toolset = toolset;
+	        this._toolPalette = new WBToolPalette(this, toolPaletteElement);
+	        this._toolPalette.loadToolPalette(toolset.tools);
+	        this._opPalette = new WBToolPalette(this, opPaletteElement);
+	        this._opPalette.loadOpPalette(toolset.operations);
+	        this._objectPropGrid = new WBPropertyGrid(this, objectPropGridElement, 'wb-object');
+	        this._toolPropGrid = new WBPropertyGrid(this, toolPropGridElement, 'wb-tool');
+	        this._objectPropGrid.loadPageProperties();
+	    }
+	    Object.defineProperty(WBEditor.prototype, "whiteboard", {
+	        get: function () {
+	            return this._wb;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "toolSet", {
+	        get: function () {
+	            return this._toolset;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "opPalette", {
+	        get: function () {
+	            return this._opPalette;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "toolPalette", {
+	        get: function () {
+	            return this._toolPalette;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "objectPropertyGrid", {
+	        get: function () {
+	            return this._objectPropGrid;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "toolPropertyGrid", {
+	        get: function () {
+	            return this._toolPropGrid;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "strokeColor", {
+	        get: function () {
+	            return this._strokeColor;
+	        },
+	        set: function (value) {
+	            this._strokeColor = value;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "fillColor", {
+	        get: function () {
+	            return this._fillColor;
+	        },
+	        set: function (value) {
+	            this._fillColor = value;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "toolFontSize", {
+	        get: function () {
+	            return this._toolFontSize;
+	        },
+	        set: function (value) {
+	            this._toolFontSize = value;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBEditor.prototype.handleMessage = function (msgType, args) {
+	        catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(msgType, args));
+	    };
+	    return WBEditor;
+	}());
+	exports.WBEditor = WBEditor;
+
+	});
+
+	unwrapExports(editor);
+	var editor_1 = editor.WBToolPalette;
+	var editor_2 = editor.WBPropertyGrid;
+	var editor_3 = editor.WBEditor;
+
+	var toolset = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+	exports.WBDefaultToolSet = {
+	    tools: {
+	        CreateLabel: {
+	            iconClass: 'fas fa-font fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'Create',
+	                paramsJson: JSON.stringify({
+	                    createType: 'Label',
+	                    text: '标签',
+	                    textColor: '#000000'
+	                })
+	            }
+	        },
+	        Select: {
+	            iconClass: 'fas fa-mouse-pointer fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'Select'
+	            }
+	        },
+	        Swap: {
+	            iconClass: 'fas fa-exchange-alt fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'Swap'
+	            }
+	        },
+	        Connect: {
+	            iconClass: 'fas fa-arrow-right fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'Connect'
+	            }
+	        },
+	        Write: {
+	            iconClass: 'fas fa-pen fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'HandWriting',
+	                paramsJson: JSON.stringify({
+	                    mode: 'draw'
+	                })
+	            }
+	        },
+	        Erase: {
+	            iconClass: 'fas fa-eraser fa-fw',
+	            command: protolist.MsgType.whiteboard_UseToolMessage,
+	            args: {
+	                name: 'HandWriting',
+	                paramsJson: JSON.stringify({
+	                    mode: 'erase'
+	                })
+	            }
+	        }
+	    },
+	    operations: {
+	        Delete: {
+	            iconClass: 'fas fa-trash-alt fa-fw',
+	            command: protolist.MsgType.whiteboard_DeleteSelected
+	        },
+	        Clone: {
+	            iconClass: 'fas fa-clone fa-fw',
+	            command: protolist.MsgType.whiteboard_CloneSelected
+	        },
+	        AlignLeft: {
+	            iconClass: 'fas fa-align-left fa-fw',
+	            command: protolist.MsgType.whiteboard_AlignSelected,
+	            args: {
+	                mode: 'Left'
+	            }
+	        },
+	        AlignRight: {
+	            iconClass: 'fas fa-align-right fa-fw',
+	            command: protolist.MsgType.whiteboard_AlignSelected,
+	            args: {
+	                mode: 'Right'
+	            }
+	        },
+	        AlignTop: {
+	            iconClass: 'fas fa-align-right fa-rotate-270 fa-fw',
+	            command: protolist.MsgType.whiteboard_AlignSelected,
+	            args: {
+	                mode: 'Top'
+	            }
+	        },
+	        AlignBottom: {
+	            iconClass: 'fas fa-align-right fa-rotate-90 fa-fw',
+	            command: protolist.MsgType.whiteboard_AlignSelected,
+	            args: {
+	                mode: 'Bottom'
+	            }
+	        },
+	        ArrangeH: {
+	            iconClass: 'fas fa-arrows-alt-h fa-fw',
+	            command: protolist.MsgType.whiteboard_ArrangeSelected,
+	            args: {
+	                mode: 'Horizontal'
+	            }
+	        },
+	        ArrangeV: {
+	            iconClass: 'fas fa-arrows-alt-v fa-fw',
+	            command: protolist.MsgType.whiteboard_ArrangeSelected,
+	            args: {
+	                mode: 'Vertical'
+	            }
+	        },
+	    }
+	};
+
+	});
+
+	unwrapExports(toolset);
+	var toolset_1 = toolset.WBDefaultToolSet;
+
+	var editor$2 = createCommonjsModule(function (module, exports) {
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	__export(toolbox);
+	__export(editor);
+	__export(toolset);
+
+	});
+
+	unwrapExports(editor$2);
+
+	var label = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var WBLabel = /** @class */ (function (_super) {
+	    __extends(WBLabel, _super);
+	    function WBLabel(parent, params) {
+	        if (params === void 0) { params = null; }
+	        var _this = _super.call(this, parent || undefined) || this;
+	        var opt = params || {};
+	        _this._width = Number(opt.width || 0);
+	        _this._height = Number(opt.height || 0);
+	        _this._fontSize = Number(opt.fontSize || 16);
+	        _this._fontStyle = opt.fontStyle || 'normal';
+	        _this._fontVariant = opt.fontVariant || 'normal';
+	        _this._fontWeight = opt.fontWeight || 'normal';
+	        _this._fontFamily = opt.fontFamily || 'PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Source Han Sans CN,sans-serif';
+	        _this._font = '';
+	        _this._text = opt.text ? _this.parseText(opt.text) : '';
+	        _this._measure = null;
+	        _this._minwidth = 10;
+	        _this._textcolor = opt.textColor || '#000';
+	        _this._bkColor = opt.bkColor || '#f00';
+	        _this._bkShape = opt.bkShape || 'rect';
+	        _this._boundingShape = null;
+	        _this.anchorPoint = { x: 0.5, y: 0.5 };
+	        _this.on(catk.EvtUpdate.type, function (evt) {
+	            _this.update();
+	        });
+	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
+	            if (_this._boundingShape) {
+	                evt.shape = _this._boundingShape;
+	            }
+	        });
+	        _this.on(catk.EvtDraw.type, function (evt) {
+	            if (_this._measure) {
+	                var width = _this._measure.width;
+	                if (width < _this._minwidth) {
+	                    width = _this._minwidth;
+	                }
+	                var height = _this._fontSize;
+	                var boundingWidth = Math.max(_this._width, width);
+	                var boundingHeight = Math.max(_this._height, height);
+	                switch (_this._bkShape) {
+	                    case 'rect':
+	                        evt.canvas.context.fillStyle = _this._bkColor;
+	                        evt.canvas.context.fillRect(-boundingWidth * _this.anchorPoint.x, -boundingHeight * _this.anchorPoint.y, boundingWidth, boundingHeight);
+	                        break;
+	                    case 'ellipse':
+	                        evt.canvas.context.fillStyle = _this._bkColor;
+	                        evt.canvas.context.beginPath();
+	                        evt.canvas.context.ellipse(-boundingWidth * _this.anchorPoint.x + boundingWidth / 2, -boundingHeight * _this.anchorPoint.y + boundingHeight / 2, boundingWidth / 2, boundingHeight / 2, 0, 0, Math.PI * 2);
+	                        evt.canvas.context.closePath();
+	                        evt.canvas.context.fill();
+	                        break;
+	                }
+	                var x = (boundingWidth - width) / 2 - boundingWidth * _this.anchorPoint.x;
+	                var y = (boundingHeight - height) / 2 - boundingHeight * _this.anchorPoint.y;
+	                evt.canvas.context.fillStyle = _this._textcolor;
+	                evt.canvas.context.font = _this._font;
+	                evt.canvas.context.fillText(_this._text, x, y, width);
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'text': {
+	                    ev.value = _this.text;
+	                    break;
+	                }
+	                case 'textColor': {
+	                    ev.value = _this._textcolor;
+	                    break;
+	                }
+	                case 'fontSize': {
+	                    ev.value = _this.fontSize;
+	                    break;
+	                }
+	                case 'fontWeight': {
+	                    ev.value = _this.fontWeight;
+	                    break;
+	                }
+	                case 'fontStyle': {
+	                    ev.value = _this.fontStyle;
+	                    break;
+	                }
+	                case 'width': {
+	                    ev.value = _this._width;
+	                    break;
+	                }
+	                case 'height': {
+	                    ev.value = _this._height;
+	                    break;
+	                }
+	                case 'bkColor': {
+	                    ev.value = _this.bkColor;
+	                    break;
+	                }
+	                case 'bkShape': {
+	                    ev.value = _this.bkShape;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'text': {
+	                    _this.text = ev.value;
+	                    break;
+	                }
+	                case 'textColor': {
+	                    _this._textcolor = ev.value;
+	                    break;
+	                }
+	                case 'fontSize': {
+	                    _this.fontSize = Number(ev.value);
+	                    break;
+	                }
+	                case 'fontWeight': {
+	                    _this.fontWeight = String(ev.value);
+	                    break;
+	                }
+	                case 'fontStyle': {
+	                    _this.fontStyle = String(ev.value);
+	                    break;
+	                }
+	                case 'width': {
+	                    _this.width = Number(ev.value);
+	                    break;
+	                }
+	                case 'height': {
+	                    _this.height = Number(ev.value);
+	                    break;
+	                }
+	                case 'bkColor': {
+	                    _this.bkColor = String(ev.value);
+	                    break;
+	                }
+	                case 'bkShape': {
+	                    _this.bkShape = String(ev.value);
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'text',
+	                desc: '文字内容',
+	                readonly: false,
+	                type: 'string',
+	                value: _this.text
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'textColor',
+	                desc: '文字颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: _this._textcolor
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'fontSize',
+	                desc: '字体大小',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.fontSize
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'fontWeight',
+	                desc: '字体粗细',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._fontWeight,
+	                enum: [{
+	                        value: 'normal',
+	                        desc: '正常'
+	                    }, {
+	                        value: 'bold',
+	                        desc: '粗体'
+	                    }, {
+	                        value: 'bolder',
+	                        desc: '加粗'
+	                    }, {
+	                        value: 'lighter',
+	                        desc: '纤细'
+	                    }]
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'fontStyle',
+	                desc: '字体样式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._fontStyle,
+	                enum: [{
+	                        value: 'normal',
+	                        desc: '正常'
+	                    }, {
+	                        value: 'italic',
+	                        desc: '斜体'
+	                    }]
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'width',
+	                desc: '宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.width
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'height',
+	                desc: '高度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this.height
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'bkColor',
+	                desc: '背景颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: _this.bkColor
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'bkShape',
+	                desc: '背景样式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this.bkShape,
+	                enum: [{
+	                        value: 'none',
+	                        desc: '无'
+	                    }, {
+	                        value: 'rect',
+	                        desc: '矩形'
+	                    }, {
+	                        value: 'ellipse',
+	                        desc: '圆形'
+	                    }]
+	            });
+	        });
+	        return _this;
+	    }
+	    Object.defineProperty(WBLabel.prototype, "text", {
+	        get: function () {
+	            return this._text;
+	        },
+	        set: function (value) {
+	            var newText = this.parseText(value);
+	            if (newText !== this._text) {
+	                this._text = newText;
+	                this._measure = null;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBLabel.prototype.setAnchorPoint = function (pt) {
+	        _super.prototype.setAnchorPoint.call(this, pt);
+	        this._boundingShape = null;
+	    };
+	    Object.defineProperty(WBLabel.prototype, "fontSize", {
+	        get: function () {
+	            return this._fontSize;
+	        },
+	        set: function (value) {
+	            if (value !== this._fontSize) {
+	                this._fontSize = value;
+	                this._font = '';
+	                this._measure = null;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "fontWeight", {
+	        get: function () {
+	            return this._fontWeight;
+	        },
+	        set: function (value) {
+	            if (value !== this._fontWeight) {
+	                this._fontWeight = value;
+	                this._font = '';
+	                this._measure = null;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "fontStyle", {
+	        get: function () {
+	            return this._fontStyle;
+	        },
+	        set: function (value) {
+	            if (value !== this._fontStyle) {
+	                this._fontStyle = value;
+	                this._font = '';
+	                this._measure = null;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "width", {
+	        get: function () {
+	            return this._width;
+	        },
+	        set: function (value) {
+	            if (value !== this._width) {
+	                this._width = value;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "height", {
+	        get: function () {
+	            return this._height;
+	        },
+	        set: function (value) {
+	            if (value !== this._height) {
+	                this._height = value;
+	                this._boundingShape = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "bkColor", {
+	        get: function () {
+	            return this._bkColor;
+	        },
+	        set: function (value) {
+	            this._bkColor = value;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBLabel.prototype, "bkShape", {
+	        get: function () {
+	            return this._bkShape;
+	        },
+	        set: function (value) {
+	            this._bkShape = value;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBLabel.prototype.parseText = function (value) {
+	        var regexp = /\{\{[^\{\}]*\}\}/g;
+	        var k = value.split(regexp);
+	        if (k.length === 1) {
+	            return value;
+	        }
+	        var pos = 1;
+	        while (true) {
+	            var s = regexp.exec(value);
+	            if (s === null) {
+	                break;
+	            }
+	            var val = String((new Function('return ' + s[0].slice(2, s[0].length - 2)))());
+	            k.splice(pos, 0, val);
+	        }
+	        return k.join('');
+	    };
+	    WBLabel.prototype.update = function () {
+	        if (this._font === '') {
+	            this._font = this._fontStyle + " " + this._fontVariant + " " + this._fontWeight + " " + this._fontSize + "px " + this._fontFamily;
+	            this._boundingShape = null;
+	        }
+	        if (this.view && this._measure === null) {
+	            this.view.canvas.context.textAlign = 'left';
+	            this.view.canvas.context.textBaseline = 'hanging';
+	            this.view.canvas.context.font = this._font;
+	            this._measure = this.view.canvas.context.measureText(this._text);
+	            this._boundingShape = null;
+	        }
+	        if (this._measure && !this._boundingShape) {
+	            var width = Math.max(this._measure.width, this._minwidth);
+	            var height = this._fontSize;
+	            var boundingWidth = Math.max(width, this._width);
+	            var boundingHeight = Math.max(height, this._height);
+	            this._boundingShape = new catk.BoundingBox({ x: -boundingWidth * this.anchorPoint.x, y: -boundingHeight * this.anchorPoint.y, w: boundingWidth, h: boundingHeight });
+	        }
+	    };
+	    return WBLabel;
+	}(catk.SceneObject));
+	exports.WBLabel = WBLabel;
+	var WBLabelFactory = /** @class */ (function (_super) {
+	    __extends(WBLabelFactory, _super);
+	    function WBLabelFactory() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    WBLabelFactory.prototype.getCreationProperties = function () {
+	        return [{
+	                name: 'text',
+	                desc: '文字内容',
+	                readonly: false,
+	                type: 'string',
+	                value: '标签'
+	            }, {
+	                name: 'textColor',
+	                desc: '文字颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: '#000'
+	            }, {
+	                name: 'fontSize',
+	                desc: '字体大小',
+	                readonly: false,
+	                type: 'number',
+	                value: 16
+	            }, {
+	                name: 'fontWeight',
+	                desc: '字体粗细',
+	                readonly: false,
+	                type: 'string',
+	                value: 'normal',
+	                enum: [{
+	                        value: 'normal',
+	                        desc: '正常'
+	                    }, {
+	                        value: 'bold',
+	                        desc: '粗体'
+	                    }, {
+	                        value: 'bolder',
+	                        desc: '加粗'
+	                    }, {
+	                        value: 'lighter',
+	                        desc: '纤细'
+	                    }]
+	            }, {
+	                name: 'fontStyle',
+	                desc: '字体样式',
+	                readonly: false,
+	                type: 'string',
+	                value: 'normal',
+	                enum: [{
+	                        value: 'normal',
+	                        desc: '正常'
+	                    }, {
+	                        value: 'italic',
+	                        desc: '斜体'
+	                    }]
+	            }, {
+	                name: 'width',
+	                desc: '宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: 0
+	            }, {
+	                name: 'height',
+	                desc: '高度',
+	                readonly: false,
+	                type: 'number',
+	                value: 0
+	            }, {
+	                name: 'bkColor',
+	                desc: '背景颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: '#0000ff'
+	            }, {
+	                name: 'bkShape',
+	                desc: '背景样式',
+	                readonly: false,
+	                type: 'string',
+	                value: 'none',
+	                enum: [{
+	                        value: 'none',
+	                        desc: '无'
+	                    }, {
+	                        value: 'rect',
+	                        desc: '矩形'
+	                    }, {
+	                        value: 'ellipse',
+	                        desc: '圆形'
+	                    }]
+	            }];
+	    };
+	    WBLabelFactory.prototype._createEntity = function (options) {
+	        return new WBLabel(null, options);
+	    };
+	    return WBLabelFactory;
+	}(whiteboard.WBFactory));
+	exports.WBLabelFactory = WBLabelFactory;
+
+	});
+
+	unwrapExports(label);
+	var label_1 = label.WBLabel;
+	var label_2 = label.WBLabelFactory;
+
+	var arrow = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var WBArrow = /** @class */ (function (_super) {
+	    __extends(WBArrow, _super);
+	    function WBArrow(parent, params) {
+	        if (params === void 0) { params = null; }
+	        var _this = _super.call(this, parent || undefined) || this;
+	        var opt = params || {};
+	        _this._lineWidth = Number(opt.lineWidth || 1);
+	        _this._arrowLen = Number(opt.arrowLen || 15);
+	        _this._style = opt.style || 'single';
+	        _this._color = opt.color || '#000000';
+	        _this._objectFrom = opt.objectFrom || null;
+	        _this._positionFrom = { x: opt.positionFromX === undefined ? 0 : Number(opt.positionFromX), y: opt.positionFromY === undefined ? 0 : Number(opt.positionFromY) };
+	        _this._objectTo = opt.objectTo || null;
+	        _this._positionTo = { x: opt.positionToX === undefined ? 0 : Number(opt.positionToX), y: opt.positionToY === undefined ? 0 : Number(opt.positionToY) };
+	        _this._segment = null;
+	        _this._boundingShape = null;
+	        _this.on(catk.EvtUpdate.type, function (evt) {
+	            _this.update();
+	        });
+	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
+	            if (!_this._boundingShape) {
+	                _this.update();
+	            }
+	            if (_this._boundingShape) {
+	                evt.shape = _this._boundingShape;
+	            }
+	        });
+	        _this.on(catk.EvtDraw.type, function (evt) {
+	            if (_this._segment) {
+	                if (_this._style === 'none') {
+	                    evt.canvas.context.strokeStyle = _this._color;
+	                    evt.canvas.context.lineWidth = _this._lineWidth;
+	                    evt.canvas.context.beginPath();
+	                    evt.canvas.context.moveTo(_this._segment.start.x, _this._segment.start.y);
+	                    evt.canvas.context.lineTo(_this._segment.end.x, _this._segment.end.y);
+	                    evt.canvas.context.stroke();
+	                }
+	                else {
+	                    var double = _this._style === 'double';
+	                    _this.drawArrow(evt.canvas.context, _this._segment.end.x, _this._segment.end.y, _this._segment.start.x, _this._segment.start.y, 30, _this._arrowLen, _this._lineWidth, _this._color, double);
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'lineWidth': {
+	                    ev.value = _this._lineWidth;
+	                    break;
+	                }
+	                case 'arrowLen': {
+	                    ev.value = _this._arrowLen;
+	                    break;
+	                }
+	                case 'style': {
+	                    ev.value = _this._style;
+	                    break;
+	                }
+	                case 'color': {
+	                    ev.value = _this._color;
+	                    break;
+	                }
+	                case 'objectFrom': {
+	                    ev.value = _this._objectFrom || '';
+	                    break;
+	                }
+	                case 'positionFromX': {
+	                    ev.value = _this._positionFrom ? _this._positionFrom.x : null;
+	                    break;
+	                }
+	                case 'positionFromY': {
+	                    ev.value = _this._positionFrom ? _this._positionFrom.y : null;
+	                    break;
+	                }
+	                case 'objectTo': {
+	                    ev.value = _this._objectTo || '';
+	                    break;
+	                }
+	                case 'positionToX': {
+	                    ev.value = _this._positionTo ? _this._positionTo.x : null;
+	                    break;
+	                }
+	                case 'positionToY': {
+	                    ev.value = _this._positionTo ? _this._positionTo.y : null;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'lineWidth': {
+	                    _this._lineWidth = Number(ev.value);
+	                    break;
+	                }
+	                case 'arrowLen': {
+	                    _this._arrowLen = Number(ev.value);
+	                    break;
+	                }
+	                case 'style': {
+	                    _this._style = String(ev.value);
+	                    break;
+	                }
+	                case 'color': {
+	                    _this._color = String(ev.value);
+	                    break;
+	                }
+	                case 'objectFrom': {
+	                    _this._objectFrom = ev.value === '' ? null : String(ev.value);
+	                    break;
+	                }
+	                case 'positionFromX': {
+	                    if (!_this._positionFrom) {
+	                        _this._positionFrom = { x: 0, y: 0 };
+	                    }
+	                    _this._positionFrom.x = Number(ev.value);
+	                    break;
+	                }
+	                case 'positionFromY': {
+	                    if (!_this._positionFrom) {
+	                        _this._positionFrom = { x: 0, y: 0 };
+	                    }
+	                    _this._positionFrom.y = Number(ev.value);
+	                    break;
+	                }
+	                case 'objectTo': {
+	                    _this._objectTo = ev.value === '' ? null : String(ev.value);
+	                    break;
+	                }
+	                case 'positionToX': {
+	                    if (!_this._positionTo) {
+	                        _this._positionTo = { x: 0, y: 0 };
+	                    }
+	                    _this._positionTo.x = Number(ev.value);
+	                    break;
+	                }
+	                case 'positionToY': {
+	                    if (!_this._positionTo) {
+	                        _this._positionTo = { x: 0, y: 0 };
+	                    }
+	                    _this._positionTo.y = Number(ev.value);
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'lineWidth',
+	                desc: '线宽',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._lineWidth
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'arrowLen',
+	                desc: '箭头长度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._arrowLen
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'style',
+	                desc: '箭头样式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._style,
+	                enum: [{
+	                        value: 'none',
+	                        desc: '无'
+	                    }, {
+	                        value: 'single',
+	                        desc: '单向箭头'
+	                    }, {
+	                        value: 'double',
+	                        desc: '双向箭头'
+	                    }]
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'color',
+	                desc: '颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: _this._color
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'objectFrom',
+	                desc: '绑定出发节点',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._objectFrom || ''
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'positionFromX',
+	                desc: '出发点X坐标',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._positionFrom ? _this._positionFrom.x : null
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'positionFromY',
+	                desc: '出发点Y坐标',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._positionFrom ? _this._positionFrom.y : null
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'objectTo',
+	                desc: '绑定到达节点',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._objectTo || ''
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'positionToX',
+	                desc: '到达点X坐标',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._positionTo ? _this._positionTo.x : null
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'positionToY',
+	                desc: '到达点Y坐标',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._positionTo ? _this._positionTo.y : null
+	            });
+	        });
+	        return _this;
+	    }
+	    WBArrow.prototype.getSegment = function () {
+	        if (!this._positionFrom || !this._positionTo) {
+	            return null;
+	        }
+	        var t = this.worldTransform;
+	        var posFrom = t.transformPoint(this._positionFrom);
+	        var posTo = t.transformPoint(this._positionTo);
+	        var result = { start: { x: posFrom.x, y: posFrom.y }, end: { x: posTo.x, y: posTo.y } };
+	        var objectFrom = null;
+	        var transformFrom = null;
+	        var objectTo = null;
+	        var transformTo = null;
+	        if (this._objectFrom) {
+	            var ev = new whiteboard.WBGetObjectEvent(this._objectFrom);
+	            catk.App.triggerEvent(null, ev);
+	            objectFrom = ev.object || null;
+	            if (objectFrom) {
+	                transformFrom = objectFrom.worldTransform;
+	                result.start.x = transformFrom.e;
+	                result.start.y = transformFrom.f;
+	            }
+	        }
+	        if (this._objectTo) {
+	            var ev = new whiteboard.WBGetObjectEvent(this._objectTo);
+	            catk.App.triggerEvent(null, ev);
+	            objectTo = ev.object || null;
+	            if (objectTo) {
+	                transformTo = objectTo.worldTransform;
+	                result.end.x = transformTo.e;
+	                result.end.y = transformTo.f;
+	            }
+	        }
+	        if (objectFrom && transformFrom) {
+	            var boundingShape = objectFrom.boundingShape;
+	            var ptList = boundingShape ? catk.IntersectionTestShapeSegment(boundingShape.getTransformedShape(transformFrom), result) : null;
+	            if (ptList && ptList.length > 0) {
+	                result.start = ptList[0];
+	            }
+	        }
+	        if (objectTo && transformTo) {
+	            var boundingShape = objectTo.boundingShape;
+	            var ptList = boundingShape ? catk.IntersectionTestShapeSegment(boundingShape.getTransformedShape(transformTo), result) : null;
+	            if (ptList && ptList.length > 0) {
+	                result.end = ptList[0];
+	            }
+	        }
+	        var it = catk.Matrix2d.invert(t);
+	        result.start = it.transformPoint(result.start);
+	        result.end = it.transformPoint(result.end);
+	        return result;
+	    };
+	    WBArrow.prototype.drawArrow = function (ctx, fromX, fromY, toX, toY, theta, headlen, width, color, double) {
+	        // 计算各角度和对应的P2,P3坐标 
+	        var angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI, angle1 = (angle + theta) * Math.PI / 180, angle2 = (angle - theta) * Math.PI / 180, topX = headlen * Math.cos(angle1), topY = headlen * Math.sin(angle1), botX = headlen * Math.cos(angle2), botY = headlen * Math.sin(angle2);
+	        ctx.beginPath();
+	        var arrowX = fromX - topX;
+	        var arrowY = fromY - topY;
+	        ctx.moveTo(arrowX, arrowY);
+	        ctx.lineTo(fromX, fromY);
+	        arrowX = fromX - botX;
+	        arrowY = fromY - botY;
+	        ctx.lineTo(arrowX, arrowY);
+	        ctx.moveTo(fromX, fromY);
+	        ctx.lineTo(toX, toY);
+	        if (double) {
+	            arrowX = toX + topX;
+	            arrowY = toY + topY;
+	            ctx.moveTo(arrowX, arrowY);
+	            ctx.lineTo(toX, toY);
+	            arrowX = toX + botX;
+	            arrowY = toY + botY;
+	            ctx.lineTo(arrowX, arrowY);
+	        }
+	        ctx.strokeStyle = color;
+	        ctx.lineWidth = width;
+	        ctx.stroke();
+	    };
+	    WBArrow.prototype.update = function () {
+	        // Compute segment and bounding shape
+	        this._segment = this.getSegment();
+	        if (this._segment) {
+	            var v = catk.GetVector(this._segment.start, this._segment.end);
+	            var d = catk.VectorLength(v);
+	            var w = Math.floor(this._lineWidth / 2 + 3);
+	            var dx = w * v.y / d;
+	            var dy = -w * v.x / d;
+	            if (this._boundingShape === null) {
+	                this._boundingShape = new catk.BoundingHull();
+	            }
+	            else {
+	                this._boundingShape.clear();
+	            }
+	            this._boundingShape.addPoint({ x: this._segment.start.x + dx, y: this._segment.start.y + dy });
+	            this._boundingShape.addPoint({ x: this._segment.start.x - dx, y: this._segment.start.y - dy });
+	            this._boundingShape.addPoint({ x: this._segment.end.x - dx, y: this._segment.end.y - dy });
+	            this._boundingShape.addPoint({ x: this._segment.end.x + dx, y: this._segment.end.y + dy });
+	        }
+	    };
+	    return WBArrow;
+	}(catk.SceneObject));
+	exports.WBArrow = WBArrow;
+	var WBArrowFactory = /** @class */ (function (_super) {
+	    __extends(WBArrowFactory, _super);
+	    function WBArrowFactory() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    WBArrowFactory.prototype.getCreationProperties = function () {
+	        return [{
+	                name: 'lineWidth',
+	                desc: '线宽',
+	                readonly: false,
+	                type: 'number',
+	                value: 3
+	            }, {
+	                name: 'arrowLen',
+	                desc: '箭头长度',
+	                readonly: false,
+	                type: 'number',
+	                value: 15
+	            }, {
+	                name: 'style',
+	                desc: '箭头样式',
+	                readonly: false,
+	                type: 'string',
+	                value: 'single',
+	                enum: [{
+	                        value: 'none',
+	                        desc: '无'
+	                    }, {
+	                        value: 'single',
+	                        desc: '单向箭头'
+	                    }, {
+	                        value: 'double',
+	                        desc: '双向箭头'
+	                    }]
+	            }, {
+	                name: 'color',
+	                desc: '颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: '#000000'
+	            }];
+	    };
+	    WBArrowFactory.prototype._createEntity = function (options) {
+	        return new WBArrow(null, options);
+	    };
+	    return WBArrowFactory;
+	}(whiteboard.WBFactory));
+	exports.WBArrowFactory = WBArrowFactory;
+
+	});
+
+	unwrapExports(arrow);
+	var arrow_1 = arrow.WBArrow;
+	var arrow_2 = arrow.WBArrowFactory;
+
+	var freedraw = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBFreeDraw = /** @class */ (function (_super) {
+	    __extends(WBFreeDraw, _super);
+	    function WBFreeDraw(parent, params) {
+	        if (params === void 0) { params = null; }
+	        var _this = _super.call(this, parent || undefined) || this;
+	        _this._canvas = null;
+	        _this._boundingShape = null;
+	        _this._cp = [];
+	        _this._lastMoveTime = 0;
+	        _this._action = false;
+	        var opt = params || {};
+	        _this._lineWidth = Number(opt.lineWidth || 1);
+	        _this._color = opt.color || '#000000';
+	        _this._mode = opt.mode || 'draw';
+	        _this._mousePosX = 0;
+	        _this._mousePosY = 0;
+	        _this._eraseSize = opt.eraseSize || 20;
+	        _this._curveMode = opt.curveMode || 0;
+	        _this.on(catk.EvtCanvasResize.type, function (evt) {
+	            if (evt.view === _this.view && _this._canvas) {
+	                _this._canvas.width = evt.view.canvas.width;
+	                _this._canvas.height = evt.view.canvas.height;
+	                if (_this._boundingShape) {
+	                    _this._boundingShape.rect = { x: 0, y: 0, w: _this._canvas.width, h: _this._canvas.height };
+	                }
+	            }
+	        });
+	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
+	            if (_this._boundingShape === null && _this.canvas) {
+	                _this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: _this.canvas.width, h: _this.canvas.height });
+	            }
+	            if (_this._boundingShape) {
+	                evt.shape = _this._boundingShape;
+	            }
+	        });
+	        _this.on(catk.EvtHitTest.type, function (evt) {
+	            var canvas = _this.canvas;
+	            if (canvas && evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
+	                var ctx = canvas.getContext('2d');
+	                if (ctx) {
+	                    var data = ctx.getImageData(evt.x, evt.y, 1, 1);
+	                    if (data && data.data[3] > 0) {
+	                        evt.result = true;
+	                    }
+	                }
+	            }
+	            evt.eat();
+	        });
+	        _this.on(catk.EvtDraw.type, function (evt) {
+	            if (_this.canvas) {
+	                var w = _this.canvas.width;
+	                var h = _this.canvas.height;
+	                evt.canvas.context.drawImage(_this.canvas, -Math.round(w * _this.anchorPoint.x) - 0.5, -Math.round(h * _this.anchorPoint.y) - 0.5, w, h);
+	                if (_this._mode === 'erase') {
+	                    evt.canvas.context.strokeStyle = '#000000';
+	                    evt.canvas.context.strokeRect(Math.round(_this._mousePosX - _this._eraseSize / 2), Math.round(_this._mousePosY - _this._eraseSize / 2), _this._eraseSize, _this._eraseSize);
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBMessageEvent.type, function (ev) {
+	            if (_this.canvas) {
+	                var context = _this.canvas.getContext('2d');
+	                if (context) {
+	                    var type = ev.messageType;
+	                    var data = ev.messageData;
+	                    if (type === protolist.MsgType.whiteboard_StartDrawMessage) {
+	                        context.lineWidth = _this._lineWidth;
+	                        context.strokeStyle = _this._color;
+	                        context.lineCap = 'round';
+	                        context.lineJoin = 'round';
+	                        context.beginPath();
+	                        context.moveTo(data.x + 0.5, data.y + 0.5);
+	                    }
+	                    else if (type === protolist.MsgType.whiteboard_DrawingMessage) {
+	                        if (data.cpX1 === undefined) {
+	                            context.lineTo(data.x + 0.5, data.y + 0.5);
+	                            context.stroke();
+	                        }
+	                        else if (data.cpX1 !== undefined && data.cpX2 === undefined) {
+	                            context.quadraticCurveTo(ev.messageData.cpX1 + 0.5, ev.messageData.cpY1 + 0.5, ev.messageData.x + 0.5, ev.messageData.y + 0.5);
+	                            context.stroke();
+	                        }
+	                        else if (data.cpX2 !== undefined) {
+	                            context.bezierCurveTo(data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5, data.x + 0.5, data.y + 0.5);
+	                            context.stroke();
+	                        }
+	                    }
+	                    else if (type === protolist.MsgType.whiteboard_EndDrawMessage) {
+	                        if (data.cpX2 === undefined) {
+	                            context.lineTo(data.cpX1 + 0.5, data.cpY1 + 0.5);
+	                        }
+	                        else {
+	                            context.quadraticCurveTo(data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5);
+	                        }
+	                        context.stroke();
+	                    }
+	                    else if (type === protolist.MsgType.whiteboard_EraseMessage) {
+	                        context.clearRect(data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
+	                    }
+	                }
+	            }
+	        });
+	        _this.on(catk.EvtMouseDown.type, function (ev) {
+	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	            if (_this.canvas) {
+	                if (_this._mode === 'draw') {
+	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_StartDrawMessage, {
+	                        x: pt.x,
+	                        y: pt.y
+	                    }, undefined, _this.entityName));
+	                    /*
+	                    lib.App.triggerEvent (null, new wb.WBCommandEvent('StartDraw', {
+	                        x: pt.x,
+	                        y: pt.y
+	                    }, undefined, this.entityName));
+	                    */
+	                    _this._cp.length = 0;
+	                    _this._action = true;
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    if (context) {
+	                        context.lineWidth = this._lineWidth;
+	                        context.strokeStyle = this._color;
+	                        context.lineCap = 'round';
+	                        context.lineJoin = 'round';
+	                        context.beginPath ();
+	                        context.moveTo (pt.x + 0.5, pt.y + 0.5);
+	                        this._cp.length = 0;
+	                        this._action = true;
+	                    }
+	                    */
+	                }
+	                else if (_this._mode === 'erase') {
+	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: _this._eraseSize
+	                    }, undefined, _this.entityName));
+	                    /*
+	                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: this._eraseSize
+	                    }, undefined, this.entityName));
+	                    */
+	                    _this._action = true;
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    if (context) {
+	                        context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
+	                        this._action = true;
+	                    }
+	                    */
+	                }
+	            }
+	        });
+	        _this.on(catk.EvtMouseMove.type, function (ev) {
+	            _this._mousePosX = ev.x;
+	            _this._mousePosY = ev.y;
+	            if (_this._action && _this.canvas) {
+	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	                if (_this._mode === 'draw') {
+	                    /*
+	                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Drawing', {
+	                        curveMode: this._curveMode,
+	                        x: pt.x,
+	                        y: pt.y,
+	                        cp: this._cp,
+	                    }, undefined, this.entityName));
+	                    */
+	                    if (_this._curveMode === 0) {
+	                        catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawingMessage, {
+	                            x: pt.x,
+	                            y: pt.y
+	                        }, undefined, _this.entityName));
+	                    }
+	                    else if (_this._curveMode === 1) {
+	                        if (_this._cp.length === 1) {
+	                            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawingMessage, {
+	                                x: pt.x,
+	                                y: pt.y,
+	                                cpX1: _this._cp[0].x,
+	                                cpY1: _this._cp[0].y
+	                            }, undefined, _this.entityName));
+	                            _this._cp.length = 0;
+	                        }
+	                        else {
+	                            _this._cp.push({ x: pt.x, y: pt.y });
+	                            _this._lastMoveTime = Date.now();
+	                        }
+	                    }
+	                    else if (_this._curveMode === 2) {
+	                        if (_this._cp.length === 2) {
+	                            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawingMessage, {
+	                                x: pt.x,
+	                                y: pt.y,
+	                                cpX1: _this._cp[0].x,
+	                                cpY1: _this._cp[0].y,
+	                                cpX2: _this._cp[1].x,
+	                                cpY2: _this._cp[1].y
+	                            }, undefined, _this.entityName));
+	                            _this._cp.length = 0;
+	                        }
+	                        else {
+	                            _this._cp.push({ x: pt.x, y: pt.y });
+	                            _this._lastMoveTime = Date.now();
+	                        }
+	                    }
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    if (context) {
+	                        if (this._curveMode === 0) {
+	                            context.lineTo (pt.x + 0.5, pt.y + 0.5);
+	                            context.stroke ();
+	                        } else if (this._curveMode === 1) {
+	                            if (this._cp.length === 1) {
+	                                context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, pt.x + 0.5, pt.y + 0.5);
+	                                context.stroke ();
+	                                this._cp.length = 0;
+	                            } else {
+	                                this._cp.push ({x: pt.x, y: pt.y});
+	                                this._lastMoveTime = Date.now();
+	                            }
+	                        } else if (this._curveMode === 2) {
+	                            if (this._cp.length === 2) {
+	                                context.bezierCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5, pt.x + 0.5, pt.y + 0.5);
+	                                context.stroke ();
+	                                this._cp.length = 0;
+	                            } else {
+	                                this._cp.push ({x: pt.x, y: pt.y});
+	                                this._lastMoveTime = Date.now();
+	                            }
+	                        }
+	                    }
+	                    */
+	                }
+	                else if (_this._mode === 'erase') {
+	                    /*
+	                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: this._eraseSize
+	                    }, undefined, this.entityName));
+	                    */
+	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
+	                        x: pt.x,
+	                        y: pt.y,
+	                        size: _this._eraseSize
+	                    }, undefined, _this.entityName));
+	                    /*
+	                    const context = this.canvas.getContext('2d');
+	                    context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
+	                    */
+	                }
+	            }
+	        });
+	        _this.on(catk.EvtFrame.type, function (ev) {
+	            if (_this._mode === 'draw' && _this._action) {
+	                var t = Date.now();
+	                if (t > _this._lastMoveTime + 250) {
+	                    _this.finishDraw();
+	                }
+	            }
+	        });
+	        _this.on(catk.EvtMouseUp.type, function (ev) {
+	            if (_this._mode === 'draw' && _this._action) {
+	                _this.finishDraw();
+	            }
+	            _this._action = false;
+	        });
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'lineWidth': {
+	                    ev.value = _this._lineWidth;
+	                    break;
+	                }
+	                case 'color': {
+	                    ev.value = _this._color;
+	                    break;
+	                }
+	                case 'curveMode': {
+	                    ev.value = _this._curveMode;
+	                    break;
+	                }
+	                case 'eraseSize': {
+	                    ev.value = _this._eraseSize;
+	                    break;
+	                }
+	                case 'mode': {
+	                    ev.value = _this._mode;
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            switch (ev.name) {
+	                case 'lineWidth': {
+	                    _this._lineWidth = Number(ev.value);
+	                    break;
+	                }
+	                case 'color': {
+	                    _this._color = String(ev.value);
+	                    break;
+	                }
+	                case 'curveMode': {
+	                    _this._curveMode = Number(ev.value);
+	                    break;
+	                }
+	                case 'eraseSize': {
+	                    _this._eraseSize = Number(ev.value);
+	                    break;
+	                }
+	                case 'mode': {
+	                    _this._mode = String(ev.value);
+	                    break;
+	                }
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'lineWidth',
+	                desc: '画笔宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._lineWidth
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'color',
+	                desc: '画笔颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: _this._color
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'curveMode',
+	                desc: '平滑模式',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._curveMode,
+	                enum: [{
+	                        value: 0,
+	                        desc: '无'
+	                    }, {
+	                        value: 1,
+	                        desc: '二次样条'
+	                    }, {
+	                        value: 2,
+	                        desc: '三次样条'
+	                    }]
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'eraseSize',
+	                desc: '橡皮宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._eraseSize
+	            });
+	            ev.properties[_this.entityType].properties.push({
+	                name: 'mode',
+	                desc: '操作模式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._mode,
+	                enum: [{
+	                        value: 'draw',
+	                        desc: '绘制'
+	                    }, {
+	                        value: 'erase',
+	                        desc: '擦除'
+	                    }, {
+	                        value: 'none',
+	                        desc: '无'
+	                    }]
+	            });
+	        });
+	        return _this;
+	    }
+	    Object.defineProperty(WBFreeDraw.prototype, "mode", {
+	        get: function () {
+	            return this._mode;
+	        },
+	        set: function (value) {
+	            if (this._mode !== value) {
+	                if (this._mode === 'draw') {
+	                    this.finishDraw();
+	                }
+	                this._action = false;
+	                this._mode = value;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBFreeDraw.prototype, "canvas", {
+	        get: function () {
+	            if (this._canvas === null && this.view) {
+	                this._canvas = document.createElement('canvas');
+	                this._canvas.style.backgroundColor = '#00000000';
+	                this._canvas.width = this.view.canvas.width;
+	                this._canvas.height = this.view.canvas.height;
+	                if (this._boundingShape) {
+	                    this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: this._canvas.width, h: this._canvas.height });
+	                }
+	            }
+	            return this._canvas;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBFreeDraw.prototype.finishDraw = function () {
+	        if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
+	            /*
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('EndDraw', {
+	                cp: this._cp
+	            }, undefined, this.entityName));
+	            */
+	            var args = {
+	                cpX1: this._cp[0].x,
+	                cpY1: this._cp[0].y
+	            };
+	            if (this._cp.length > 1) {
+	                args.cpX2 = this._cp[1].x,
+	                    args.cpY2 = this._cp[1].y;
+	            }
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EndDrawMessage, args, undefined, this.entityName));
+	            this._cp.length = 0;
+	            /*
+	            const context = this.canvas.getContext('2d');
+	            if (context) {
+	                if (this._cp.length === 1) {
+	                    context.lineTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5);
+	                } else if (this._cp.length) {
+	                    context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5);
+	                }
+	                context.stroke ();
+	                this._cp.length = 0;
+	            }
+	            */
+	        }
+	    };
+	    return WBFreeDraw;
+	}(catk.SceneObject));
+	exports.WBFreeDraw = WBFreeDraw;
+	var WBFreeDrawFactory = /** @class */ (function (_super) {
+	    __extends(WBFreeDrawFactory, _super);
+	    function WBFreeDrawFactory() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    WBFreeDrawFactory.prototype.getCreationProperties = function () {
+	        return [{
+	                name: 'lineWidth',
+	                desc: '画笔宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: 3
+	            }, {
+	                name: 'color',
+	                desc: '颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: '#000000'
+	            }, {
+	                name: 'curveMode',
+	                desc: '平滑模式',
+	                readonly: false,
+	                type: 'number',
+	                value: 0,
+	                enum: [{
+	                        value: 0,
+	                        desc: '无'
+	                    }, {
+	                        value: 1,
+	                        desc: '二次样条'
+	                    }, {
+	                        value: 2,
+	                        desc: '三次样条'
+	                    }]
+	            }, {
+	                name: 'eraseSize',
+	                desc: '橡皮宽度',
+	                readonly: false,
+	                type: 'number',
+	                value: 20
+	            }];
+	    };
+	    WBFreeDrawFactory.prototype._createEntity = function (options) {
+	        return new WBFreeDraw(null, options);
+	    };
+	    return WBFreeDrawFactory;
+	}(whiteboard.WBFactory));
+	exports.WBFreeDrawFactory = WBFreeDrawFactory;
+
+	});
+
+	unwrapExports(freedraw);
+	var freedraw_1 = freedraw.WBFreeDraw;
+	var freedraw_2 = freedraw.WBFreeDrawFactory;
+
+	var factory$1 = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	function installFactories(wb) {
+	    wb.addFactory(new label.WBLabelFactory('Label'));
+	    wb.addFactory(new arrow.WBArrowFactory('Arrow'));
+	    wb.addFactory(new freedraw.WBFreeDrawFactory('FreeDraw'));
+	}
+	exports.installFactories = installFactories;
+
+	});
+
+	unwrapExports(factory$1);
+	var factory_1 = factory$1.installFactories;
+
+	var objects = createCommonjsModule(function (module, exports) {
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	__export(label);
+	__export(arrow);
+	__export(freedraw);
+	__export(factory$1);
+
+	});
+
+	unwrapExports(objects);
+
+	var select = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBSelectEvent = /** @class */ (function (_super) {
+	    __extends(WBSelectEvent, _super);
+	    function WBSelectEvent(selectIndex) {
+	        var _this = _super.call(this, WBSelectEvent.type) || this;
+	        _this.selectIndex = selectIndex;
+	        return _this;
+	    }
+	    WBSelectEvent.type = '@WBSelect';
+	    return WBSelectEvent;
+	}(catk.BaseEvent));
+	exports.WBSelectEvent = WBSelectEvent;
+	var WBDeselectEvent = /** @class */ (function (_super) {
+	    __extends(WBDeselectEvent, _super);
+	    function WBDeselectEvent() {
+	        return _super.call(this, WBDeselectEvent.type) || this;
+	    }
+	    WBDeselectEvent.type = '@WBDeselect';
+	    return WBDeselectEvent;
+	}(catk.BaseEvent));
+	exports.WBDeselectEvent = WBDeselectEvent;
+	var WBObjectSelectedEvent = /** @class */ (function (_super) {
+	    __extends(WBObjectSelectedEvent, _super);
+	    function WBObjectSelectedEvent(objects) {
+	        var _this = _super.call(this, WBObjectSelectedEvent.type) || this;
+	        _this.objects = objects;
+	        return _this;
+	    }
+	    WBObjectSelectedEvent.type = '@WBObjectSelected';
+	    return WBObjectSelectedEvent;
+	}(catk.BaseEvent));
+	exports.WBObjectSelectedEvent = WBObjectSelectedEvent;
+	var WBObjectMovedEvent = /** @class */ (function (_super) {
+	    __extends(WBObjectMovedEvent, _super);
+	    function WBObjectMovedEvent(objects) {
+	        var _this = _super.call(this, WBObjectMovedEvent.type) || this;
+	        _this.objects = objects;
+	        return _this;
+	    }
+	    WBObjectMovedEvent.type = '@WBObjectMoved';
+	    return WBObjectMovedEvent;
+	}(catk.BaseEvent));
+	exports.WBObjectMovedEvent = WBObjectMovedEvent;
+	var WBObjectDeselectedEvent = /** @class */ (function (_super) {
+	    __extends(WBObjectDeselectedEvent, _super);
+	    function WBObjectDeselectedEvent(object, objects) {
+	        var _this = _super.call(this, WBObjectDeselectedEvent.type) || this;
+	        _this.object = object;
+	        _this.objects = objects;
+	        return _this;
+	    }
+	    WBObjectDeselectedEvent.type = '@WBObjectDeselected';
+	    return WBObjectDeselectedEvent;
+	}(catk.BaseEvent));
+	exports.WBObjectDeselectedEvent = WBObjectDeselectedEvent;
+	var WBSelectComponent = /** @class */ (function (_super) {
+	    __extends(WBSelectComponent, _super);
+	    function WBSelectComponent(tool) {
+	        var _this = _super.call(this, WBSelectComponent.type) || this;
+	        _this.tool = tool;
+	        _this._selected = false;
+	        _this.on(catk.EvtDraw.type, function (evt) {
+	            if (_this._selected) {
+	                var shape = _this.object.boundingShape;
+	                if (shape) {
+	                    var bbox = shape.getBoundingbox();
+	                    if (bbox) {
+	                        evt.canvas.context.strokeStyle = '#000';
+	                        evt.canvas.context.lineWidth = 1;
+	                        evt.canvas.context.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
+	                    }
+	                }
+	            }
+	        });
+	        _this.on(WBSelectEvent.type, function (evt) {
+	            _this._selected = true;
+	        });
+	        _this.on(WBDeselectEvent.type, function (evt) {
+	            _this._selected = false;
+	        });
+	        return _this;
+	    }
+	    WBSelectComponent.type = 'WBSelect';
+	    return WBSelectComponent;
+	}(catk.Component));
+	exports.WBSelectComponent = WBSelectComponent;
+	var WBSelectTool = /** @class */ (function (_super) {
+	    __extends(WBSelectTool, _super);
+	    function WBSelectTool(whiteboard$$1) {
+	        var _this = _super.call(this, WBSelectTool.toolname, whiteboard$$1) || this;
+	        _this._selectedObjects = [];
+	        _this._moving = false;
+	        _this._rangeSelecting = false;
+	        _this._mouseStartPosX = 0;
+	        _this._mouseStartPosY = 0;
+	        _this._mouseCurrentPosX = 0;
+	        _this._mouseCurrentPosY = 0;
+	        return _this;
+	    }
+	    Object.defineProperty(WBSelectTool.prototype, "selectedObjects", {
+	        get: function () {
+	            return this._selectedObjects;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBSelectTool.prototype.activate = function (options) {
+	        var _this = this;
+	        _super.prototype.activate.call(this, options);
+	        this._selectedObjects.length = 0;
+	        this.on(catk.EvtKeyDown.type, function (ev) {
+	            if (_this._selectedObjects.length === 1) {
+	                _this._selectedObjects[0].triggerEx(ev);
+	            }
+	        });
+	        this.on(catk.EvtKeyUp.type, function (ev) {
+	            if (_this._selectedObjects.length === 1) {
+	                _this._selectedObjects[0].triggerEx(ev);
+	            }
+	        });
+	        this.on(catk.EvtKeyPress.type, function (ev) {
+	            if (_this._selectedObjects.length === 1) {
+	                _this._selectedObjects[0].triggerEx(ev);
+	            }
+	        });
+	        this.on(catk.EvtMouseDown.type, function (ev) {
+	            _this._mouseStartPosX = ev.x;
+	            _this._mouseStartPosY = ev.y;
+	            var view = _this._wb.view;
+	            if (view) {
+	                var hitObjects = view.hitObjects;
+	                if (hitObjects.length > 1) {
+	                    _this.selectObject(hitObjects[0], ev);
+	                    _this._moving = true;
+	                    _this._rangeSelecting = false;
+	                }
+	                else {
+	                    _this.deselectAll();
+	                    _this._rangeSelecting = true;
+	                    _this._moving = false;
+	                    _this._mouseCurrentPosX = ev.x;
+	                    _this._mouseCurrentPosY = ev.y;
+	                }
+	            }
+	        });
+	        this.on(catk.EvtMouseMove.type, function (ev) {
+	            if (_this._moving) {
+	                var dx_1 = ev.x - _this._mouseStartPosX;
+	                var dy_1 = ev.y - _this._mouseStartPosY;
+	                _this._mouseStartPosX = ev.x;
+	                _this._mouseStartPosY = ev.y;
+	                _this._selectedObjects.forEach(function (obj) {
+	                    var t = obj.translation;
+	                    // obj.translation = { x: t.x + dx, y: t.y + dy };
+	                    /*
+	                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+	                        objectName: obj.entityName,
+	                        propName: 'localx',
+	                        propValue: t.x + dx
+	                    }));
+	                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+	                        objectName: obj.entityName,
+	                        propName: 'localy',
+	                        propValue: t.y + dy
+	                    }));
+	                    */
+	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                        name: obj.entityName,
+	                        propName: 'localx',
+	                        propValueJson: JSON.stringify(t.x + dx_1)
+	                    }));
+	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                        name: obj.entityName,
+	                        propName: 'localy',
+	                        propValueJson: JSON.stringify(t.y + dy_1)
+	                    }));
+	                });
+	            }
+	            else if (_this._rangeSelecting) {
+	                var view = _this._wb.view;
+	                if (view && view.rootNode) {
+	                    _this.rangeSelectR(view.rootNode, _this._mouseStartPosX, _this._mouseStartPosY, ev.x - _this._mouseStartPosX, ev.y - _this._mouseStartPosY);
+	                    _this._mouseCurrentPosX = ev.x;
+	                    _this._mouseCurrentPosY = ev.y;
+	                }
+	            }
+	        });
+	        this.on(catk.EvtMouseUp.type, function (ev) {
+	            if (_this._moving && _this._selectedObjects && _this._selectedObjects.length > 0) {
+	                catk.App.triggerEvent(null, new WBObjectMovedEvent(_this._selectedObjects));
+	            }
+	            _this._moving = false;
+	            _this._rangeSelecting = false;
+	        });
+	        this.on(catk.EvtDraw.type, function (ev) {
+	            if (_this._rangeSelecting) {
+	                ev.canvas.context.save();
+	                ev.canvas.context.setTransform(1, 0, 0, 1, 0.5, 0.5);
+	                ev.canvas.context.strokeStyle = '#000';
+	                ev.canvas.context.lineWidth = 1;
+	                ev.canvas.context.setLineDash([6, 3]);
+	                ev.canvas.context.beginPath();
+	                ev.canvas.context.moveTo(_this._mouseStartPosX, _this._mouseStartPosY);
+	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseStartPosY);
+	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseCurrentPosY);
+	                ev.canvas.context.moveTo(_this._mouseStartPosX, _this._mouseStartPosY);
+	                ev.canvas.context.lineTo(_this._mouseStartPosX, _this._mouseCurrentPosY);
+	                ev.canvas.context.lineTo(_this._mouseCurrentPosX, _this._mouseCurrentPosY);
+	                ev.canvas.context.stroke();
+	                ev.canvas.context.restore();
+	            }
+	        });
+	    };
+	    WBSelectTool.prototype.deactivate = function () {
+	        this.off(catk.EvtKeyDown.type);
+	        this.off(catk.EvtKeyUp.type);
+	        this.off(catk.EvtKeyPress.type);
+	        this.off(catk.EvtMouseDown.type);
+	        this.off(catk.EvtMouseMove.type);
+	        this.off(catk.EvtMouseUp.type);
+	        this.off(catk.EvtDraw.type);
+	        _super.prototype.deactivate.call(this);
+	    };
+	    WBSelectTool.prototype.activateObject = function (object) {
+	        this.deactivateObject(object);
+	        object.addComponent(new WBSelectComponent(this));
+	    };
+	    WBSelectTool.prototype.deactivateObject = function (object) {
+	        var components = object.getComponents(WBSelectComponent.type);
+	        if (components && components.length > 0) {
+	            this.deselectObject(object);
+	            object.removeComponentsByType(WBSelectComponent.type);
+	        }
+	    };
+	    WBSelectTool.prototype.handleMessage = function (type, args) {
+	        if (type === protolist.MsgType.whiteboard_DeleteSelected) {
+	            if (this._selectedObjects.length > 0) {
+	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DeleteObjectsMessage, {
+	                    names: this._selectedObjects.map(function (obj) { return obj.entityName; })
+	                }));
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_AlignSelected) {
+	            var mode = args.mode;
+	            if (this._selectedObjects.length > 0) {
+	                var msgType = void 0;
+	                if (mode === 'Left') {
+	                    msgType = protolist.MsgType.whiteboard_AlignObjectsLeftMessage;
+	                }
+	                else if (mode === 'Right') {
+	                    msgType = protolist.MsgType.whiteboard_AlignObjectsRightMessage;
+	                }
+	                else if (mode === 'Top') {
+	                    msgType = protolist.MsgType.whiteboard_AlignObjectsTopMessage;
+	                }
+	                else if (mode === 'Bottom') {
+	                    msgType = protolist.MsgType.whiteboard_AlignObjectsBottomMessage;
+	                }
+	                else {
+	                    return;
+	                }
+	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(msgType, {
+	                    names: this._selectedObjects.map(function (obj) { return obj.entityName; })
+	                }));
+	            }
+	        }
+	        else if (type === protolist.MsgType.whiteboard_ArrangeSelected) {
+	            var mode = args.mode;
+	            if (this._selectedObjects.length > 0) {
+	                /*
+	                lib.App.triggerEvent (null, new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
+	                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
+	                }));
+	                */
+	                var msgType = void 0;
+	                if (mode === 'Horizontal') {
+	                    msgType = protolist.MsgType.whiteboard_ArrangeObjectsHorizontalMessage;
+	                }
+	                else if (mode === 'Vertical') {
+	                    msgType = protolist.MsgType.whiteboard_ArrangeObjectsVerticalMessage;
+	                }
+	                else {
+	                    return;
+	                }
+	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(msgType, {
+	                    names: this._selectedObjects.map(function (obj) { return obj.entityName; })
+	                }));
+	            }
+	        }
+	    };
+	    WBSelectTool.prototype.selectObject = function (object, ev) {
+	        if (this._selectedObjects.indexOf(object) < 0) {
+	            var metaDown = ev ? catk.EvtSysInfo.isMac() ? ev.metaDown : ev.ctrlDown : true;
+	            if (!metaDown) {
+	                this.deselectAll();
+	            }
+	            this.selectedObjects.push(object);
+	            object.triggerEx(new WBSelectEvent(this.selectedObjects.length));
+	            catk.App.triggerEvent(null, new WBObjectSelectedEvent(this._selectedObjects));
+	        }
+	    };
+	    WBSelectTool.prototype.deselectObject = function (object) {
+	        var index = this._selectedObjects.indexOf(object);
+	        if (index >= 0) {
+	            object.triggerEx(new WBDeselectEvent());
+	            this.selectedObjects.splice(index, 1);
+	            catk.App.triggerEvent(null, new WBObjectDeselectedEvent(object, this._selectedObjects));
+	        }
+	    };
+	    WBSelectTool.prototype.deselectAll = function () {
+	        while (this.selectedObjects.length > 0) {
+	            this.deselectObject(this.selectedObjects[this.selectedObjects.length - 1]);
+	        }
+	    };
+	    WBSelectTool.prototype.rangeSelectR = function (root, x, y, w, h) {
+	        var _this = this;
+	        root.forEachChild(function (child) {
+	            if (w === 0 || h === 0) {
+	                _this.deselectObject(child);
+	            }
+	            else {
+	                var shape = child.boundingShape;
+	                if (shape) {
+	                    var t = catk.Matrix2d.invert(child.worldTransform);
+	                    var rectObject = [
+	                        t.transformPoint({ x: x, y: y }),
+	                        t.transformPoint({ x: x, y: y + h }),
+	                        t.transformPoint({ x: x + w, y: y + h }),
+	                        t.transformPoint({ x: x + w, y: y })
+	                    ];
+	                    if (catk.IntersectionTestShapeHull(shape, rectObject)) {
+	                        _this.selectObject(child, null);
+	                    }
+	                    else {
+	                        _this.deselectObject(child);
+	                    }
+	                }
+	                _this.rangeSelectR(child, x, y, w, h);
+	            }
+	        });
+	    };
+	    WBSelectTool.toolname = 'Select';
+	    return WBSelectTool;
+	}(whiteboard.WBTool));
+	exports.WBSelectTool = WBSelectTool;
+
+	});
+
+	unwrapExports(select);
+	var select_1 = select.WBSelectEvent;
+	var select_2 = select.WBDeselectEvent;
+	var select_3 = select.WBObjectSelectedEvent;
+	var select_4 = select.WBObjectMovedEvent;
+	var select_5 = select.WBObjectDeselectedEvent;
+	var select_6 = select.WBSelectComponent;
+	var select_7 = select.WBSelectTool;
+
+	var swap = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+
+	var WBSwapComponent = /** @class */ (function (_super) {
+	    __extends(WBSwapComponent, _super);
+	    function WBSwapComponent(tool) {
+	        var _this = _super.call(this, WBSwapComponent.type) || this;
+	        _this.tool = tool;
+	        _this.selected = false;
+	        _this.on(catk.EvtMouseDown.type, function (ev) {
+	            if (_this.tool.currentObject) {
+	                _this.tool.currentObject.getComponent(WBSwapComponent.type, 0).selected = false;
+	            }
+	            else {
+	                _this.selected = true;
+	            }
+	            _this.tool.selectObject(_this.object, ev);
+	        });
+	        _this.on(catk.EvtDraw.type, function (evt) {
+	            if (_this.selected) {
+	                var shape = _this.object.boundingShape;
+	                if (shape) {
+	                    var bbox = shape.getBoundingbox();
+	                    if (bbox) {
+	                        evt.canvas.context.strokeStyle = '#000';
+	                        evt.canvas.context.lineWidth = 1;
+	                        evt.canvas.context.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
+	                    }
+	                }
+	            }
+	        });
+	        return _this;
+	    }
+	    WBSwapComponent.type = 'WBSwap';
+	    return WBSwapComponent;
+	}(catk.Component));
+	exports.WBSwapComponent = WBSwapComponent;
+	var WBSwapTool = /** @class */ (function (_super) {
+	    __extends(WBSwapTool, _super);
+	    function WBSwapTool(whiteboard$$1) {
+	        var _this = _super.call(this, WBSwapTool.toolname, whiteboard$$1) || this;
+	        _this._curObject = null;
+	        return _this;
+	    }
+	    Object.defineProperty(WBSwapTool.prototype, "currentObject", {
+	        get: function () {
+	            return this._curObject;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    WBSwapTool.prototype.activate = function (options) {
+	        _super.prototype.activate.call(this, options);
+	        this._curObject = null;
+	    };
+	    WBSwapTool.prototype.deactivate = function () {
+	        if (this._curObject) {
+	            this._curObject.triggerEx(new select.WBDeselectEvent());
+	            this._curObject = null;
+	        }
+	        _super.prototype.deactivate.call(this);
+	    };
+	    WBSwapTool.prototype.activateObject = function (object) {
+	        this.deactivateObject(object);
+	        object.addComponent(new WBSwapComponent(this));
+	    };
+	    WBSwapTool.prototype.deactivateObject = function (object) {
+	        object.removeComponentsByType(WBSwapComponent.type);
+	    };
+	    WBSwapTool.prototype.selectObject = function (object, ev) {
+	        if (this._curObject == null) {
+	            this._curObject = object;
+	        }
+	        else if (this._curObject !== object) {
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SwapObjectMessage, {
+	                name1: this._curObject.entityName,
+	                name2: object.entityName,
+	                duration: 200
+	            }));
+	            // this.swapObject (this._curObject, object, 200);
+	            this._curObject = null;
+	        }
+	        else {
+	            this._curObject = null;
+	        }
+	    };
+	    WBSwapTool.prototype.handleMessage = function (type, args) {
+	        if (type === protolist.MsgType.whiteboard_SwapObjectMessage) {
+	            var object1 = this._wb.findEntity(args.name1);
+	            var object2 = this._wb.findEntity(args.name2);
+	            if (object1 && object2) {
+	                this.swapObject(object1, object2, args.duration);
+	            }
+	        }
+	    };
+	    WBSwapTool.prototype.swapObject = function (object1, object2, animationDuration) {
+	        var t1 = object1.translation;
+	        var t2 = object2.translation;
+	        (object2.getComponents(catk.CoKeyframeAnimation.type) || []).forEach(function (comp) {
+	            comp.finish();
+	            object2.removeComponentsByType(catk.CoKeyframeAnimation.type);
+	        });
+	        object2.addComponent(new catk.CoKeyframeAnimation({
+	            delay: 0,
+	            repeat: 1,
+	            exclusive: true,
+	            tracks: {
+	                translation: {
+	                    cp: [{ x: 0, y: [t2.x, t2.y] }, { x: animationDuration, y: [t1.x, t1.y] }],
+	                    type: catk.SplineType.LINEAR
+	                }
+	            }
+	        }));
+	        object1.addComponent(new catk.CoKeyframeAnimation({
+	            delay: 0,
+	            repeat: 1,
+	            exclusive: true,
+	            tracks: {
+	                translation: {
+	                    cp: [{ x: 0, y: [t1.x, t1.y] }, { x: animationDuration, y: [t2.x, t2.y] }],
+	                    type: catk.SplineType.LINEAR
+	                }
+	            }
+	        }));
+	    };
+	    WBSwapTool.toolname = 'Swap';
+	    return WBSwapTool;
+	}(whiteboard.WBTool));
+	exports.WBSwapTool = WBSwapTool;
+
+	});
+
+	unwrapExports(swap);
+	var swap_1 = swap.WBSwapComponent;
+	var swap_2 = swap.WBSwapTool;
+
+	var create = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBCreateTool = /** @class */ (function (_super) {
+	    __extends(WBCreateTool, _super);
+	    function WBCreateTool(whiteboard$$1) {
+	        var _this = _super.call(this, WBCreateTool.toolname, whiteboard$$1) || this;
+	        _this.options = {};
+	        _this._factoryProperties = [];
+	        _this._creationParams = {};
+	        return _this;
+	    }
+	    WBCreateTool.prototype.activate = function (options) {
+	        var _this = this;
+	        if (options) {
+	            this.options = options;
+	            if (this._creationParams[options.createType] === undefined) {
+	                this._creationParams[options.createType] = {};
+	                this._factoryProperties = this._wb.getFactory(options.createType).getCreationProperties();
+	                if (this._factoryProperties) {
+	                    this._factoryProperties.forEach(function (prop) {
+	                        _this._creationParams[options.createType][prop.name] = prop.value;
+	                    });
+	                }
+	            }
+	        }
+	        this.on(catk.EvtMouseDown.type, function (ev) {
+	            /*
+	            const args: any  = {
+	                type: this.options.createType,
+	                name: null,
+	            };
+	            for (const arg in this.options) {
+	                if (arg !== 'command' && arg !== 'createType' && arg !== 'type') {
+	                    args[arg] = this.options[arg];
+	                }
+	            }
+	            args.x = ev.x;
+	            args.y = ev.y;
+	            args.params = this._creationParams[this.options.createType];
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_CreateObjectMessage, {
+	                type: _this.options.createType,
+	                name: null,
+	                x: ev.x,
+	                y: ev.y,
+	                paramsJson: JSON.stringify(_this._creationParams[_this.options.createType])
+	            }));
+	        });
+	        this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            if (ev.name in _this._creationParams[_this.options.createType]) {
+	                ev.value = _this._creationParams[_this.options.createType][ev.name];
+	            }
+	        });
+	        this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            if (ev.name in _this._creationParams[_this.options.createType]) {
+	                _this._creationParams[_this.options.createType][ev.name] = ev.value;
+	            }
+	        });
+	        this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            if (_this._factoryProperties && _this._factoryProperties.length > 0) {
+	                ev.properties = ev.properties || {};
+	                ev.properties[_this.options.createType] = ev.properties[_this.options.createType] || { desc: _this.options.createType, properties: [] };
+	                ev.properties[_this.options.createType].properties = _this._factoryProperties;
+	            }
+	        });
+	        _super.prototype.activate.call(this, options);
+	    };
+	    WBCreateTool.prototype.deactivate = function () {
+	        this.off(catk.EvtMouseDown.type);
+	        this.options = {};
+	        _super.prototype.deactivate.call(this);
+	    };
+	    WBCreateTool.toolname = 'Create';
+	    return WBCreateTool;
+	}(whiteboard.WBTool));
+	exports.WBCreateTool = WBCreateTool;
+
+	});
+
+	unwrapExports(create);
+	var create_1 = create.WBCreateTool;
+
+	var connect = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBConnectTool = /** @class */ (function (_super) {
+	    __extends(WBConnectTool, _super);
+	    function WBConnectTool(whiteboard$$1) {
+	        var _this = _super.call(this, WBConnectTool.toolname, whiteboard$$1) || this;
+	        _this._createParams = {
+	            lineWidth: 3,
+	            arrowLen: 15,
+	            style: 'single',
+	            color: '#000000',
+	            objectFrom: null,
+	            positionFromX: 0,
+	            positionFromY: 0,
+	            objectTo: null,
+	            positionToX: 0,
+	            positionToY: 0
+	        };
+	        _this._moving = false;
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            if (ev.name in _this._createParams) {
+	                ev.value = _this._createParams[ev.name];
+	            }
+	        });
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            if (ev.name in _this._createParams) {
+	                _this._createParams[ev.name] = ev.value;
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            ev.properties[_this.name] = ev.properties[_this.name] || { desc: '画笔工具', properties: [] };
+	            ev.properties[_this.name].properties.push({
+	                name: 'lineWidth',
+	                desc: '线宽',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._createParams.lineWidth
+	            });
+	            ev.properties[_this.name].properties.push({
+	                name: 'arrowLen',
+	                desc: '箭头长度',
+	                readonly: false,
+	                type: 'number',
+	                value: _this._createParams.arrowLen
+	            });
+	            ev.properties[_this.name].properties.push({
+	                name: 'style',
+	                desc: '箭头样式',
+	                readonly: false,
+	                type: 'string',
+	                value: _this._createParams.style,
+	                enum: [{
+	                        value: 'none',
+	                        desc: '无'
+	                    }, {
+	                        value: 'single',
+	                        desc: '单向箭头'
+	                    }, {
+	                        value: 'double',
+	                        desc: '双向箭头'
+	                    }]
+	            });
+	            ev.properties[_this.name].properties.push({
+	                name: 'color',
+	                desc: '颜色',
+	                readonly: false,
+	                type: 'color',
+	                value: _this._createParams.color
+	            });
+	        });
+	        return _this;
+	    }
+	    WBConnectTool.prototype.activate = function (options) {
+	        var _this = this;
+	        _super.prototype.activate.call(this, options);
+	        this._moving = false;
+	        this.on(catk.EvtMouseDown.type, function (ev) {
+	            var view = _this._wb.view;
+	            if (view) {
+	                _this._moving = true;
+	                _this._createParams.objectFrom = null;
+	                _this._createParams.objectTo = null;
+	                _this._createParams.positionToX = ev.x;
+	                _this._createParams.positionToY = ev.y;
+	                var hitObjects = view.hitObjects;
+	                if (hitObjects.length > 1 && hitObjects[0].entityType !== 'Arrow') {
+	                    _this._createParams.objectFrom = hitObjects[0];
+	                }
+	                else {
+	                    _this._createParams.positionFromX = ev.x;
+	                    _this._createParams.positionFromY = ev.y;
+	                }
+	            }
+	        });
+	        this.on(catk.EvtMouseMove.type, function (ev) {
+	            if (_this._moving) {
+	                var view = _this._wb.view;
+	                if (view) {
+	                    var hitObjects = view.hitObjects;
+	                    if (hitObjects.length > 1 && hitObjects[0] !== _this._createParams.objectFrom && hitObjects[0].entityType !== 'Arrow') {
+	                        _this._createParams.objectTo = hitObjects[0];
+	                    }
+	                    else {
+	                        _this._createParams.objectTo = null;
+	                        _this._createParams.positionToX = ev.x;
+	                        _this._createParams.positionToY = ev.y;
+	                    }
+	                }
+	            }
+	        });
+	        this.on(catk.EvtMouseUp.type, function (ev) {
+	            _this._moving = false;
+	            var x = 0, y = 0;
+	            if (_this._createParams.objectFrom && _this._createParams.objectTo) {
+	                _this._createParams.objectFrom = _this._createParams.objectFrom.entityName;
+	                _this._createParams.objectTo = _this._createParams.objectTo.entityName;
+	            }
+	            else if (_this._createParams.objectFrom) {
+	                _this._createParams.objectFrom = _this._createParams.objectFrom.entityName;
+	                x = _this._createParams.positionToX;
+	                y = _this._createParams.positionToY;
+	                _this._createParams.positionToX = 0;
+	                _this._createParams.positionToY = 0;
+	            }
+	            else if (_this._createParams.objectTo) {
+	                _this._createParams.objectTo = _this._createParams.objectTo.entityName;
+	                x = _this._createParams.positionFromX;
+	                y = _this._createParams.positionFromY;
+	                _this._createParams.positionFromX = 0;
+	                _this._createParams.positionFromY = 0;
+	            }
+	            else {
+	                x = _this._createParams.positionFromX;
+	                y = _this._createParams.positionFromY;
+	                _this._createParams.positionToX -= x;
+	                _this._createParams.positionToY -= y;
+	                _this._createParams.positionFromX = 0;
+	                _this._createParams.positionFromY = 0;
+	            }
+	            /*
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', {
+	                type: 'Arrow',
+	                name: null,
+	                x: x,
+	                y: y,
+	                params: this._createParams
+	            }));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_CreateObjectMessage, {
+	                type: 'Arrow',
+	                name: null,
+	                x: x,
+	                y: y,
+	                paramsJson: JSON.stringify(_this._createParams)
+	            }));
+	        });
+	        this.on(catk.EvtDraw.type, function (ev) {
+	            if (_this._moving) {
+	                ev.canvas.context.save();
+	                ev.canvas.context.setTransform(1, 0, 0, 1, 0.5, 0.5);
+	                ev.canvas.context.strokeStyle = '#000';
+	                ev.canvas.context.lineWidth = 1;
+	                ev.canvas.context.setLineDash([6, 3]);
+	                ev.canvas.context.beginPath();
+	                if (_this._createParams.objectFrom) {
+	                    var t = _this._createParams.objectFrom.worldTransform;
+	                    ev.canvas.context.moveTo(t.e, t.f);
+	                }
+	                else {
+	                    ev.canvas.context.moveTo(_this._createParams.positionFromX, _this._createParams.positionFromY);
+	                }
+	                if (_this._createParams.objectTo) {
+	                    var t = _this._createParams.objectTo.worldTransform;
+	                    ev.canvas.context.lineTo(t.e, t.f);
+	                }
+	                else {
+	                    ev.canvas.context.lineTo(_this._createParams.positionToX, _this._createParams.positionToY);
+	                }
+	                ev.canvas.context.stroke();
+	                ev.canvas.context.restore();
+	            }
+	        });
+	    };
+	    WBConnectTool.prototype.deactivate = function () {
+	        this.off(catk.EvtMouseDown.type);
+	        this.off(catk.EvtMouseMove.type);
+	        this.off(catk.EvtMouseUp.type);
+	        _super.prototype.deactivate.call(this);
+	    };
+	    WBConnectTool.prototype.activateObject = function (object) {
+	        _super.prototype.activateObject.call(this, object);
+	    };
+	    WBConnectTool.prototype.deactivateObject = function (object) {
+	        _super.prototype.deactivateObject.call(this, object);
+	    };
+	    WBConnectTool.toolname = 'Connect';
+	    return WBConnectTool;
+	}(whiteboard.WBTool));
+	exports.WBConnectTool = WBConnectTool;
+
+	});
+
+	unwrapExports(connect);
+	var connect_1 = connect.WBConnectTool;
+
+	var handwriting = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+	var WBHandWritingTool = /** @class */ (function (_super) {
+	    __extends(WBHandWritingTool, _super);
+	    function WBHandWritingTool(whiteboard$$1) {
+	        var _this = _super.call(this, WBHandWritingTool.toolname, whiteboard$$1) || this;
+	        _this._freedrawNode = null;
+	        _this._mode = 'draw';
+	        _this._paramsDraw = {
+	            color: '#000',
+	            lineWidth: 2,
+	            curveMode: 0
+	        };
+	        _this._paramsErase = {
+	            eraseSize: 20
+	        };
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	            var params = null;
+	            if (_this._mode === 'draw') {
+	                params = _this._paramsDraw;
+	            }
+	            else if (_this._mode === 'erase') {
+	                params = _this._paramsErase;
+	            }
+	            if (params && ev.name in params) {
+	                ev.value = params[ev.name];
+	            }
+	        });
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	            var params = null;
+	            if (_this._mode === 'draw') {
+	                params = _this._paramsDraw;
+	            }
+	            else if (_this._mode === 'erase') {
+	                params = _this._paramsErase;
+	            }
+	            if (params && ev.name in params) {
+	                params[ev.name] = ev.value;
+	                _this.applyProperty(ev.name, ev.value);
+	            }
+	        });
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	            ev.properties = ev.properties || {};
+	            if (_this._mode === 'draw') {
+	                ev.properties[_this.name] = ev.properties[_this.name] || { desc: '画笔工具', properties: [] };
+	                ev.properties[_this.name].properties.push({
+	                    name: 'color',
+	                    desc: '画笔颜色',
+	                    readonly: false,
+	                    type: 'color',
+	                    value: _this._paramsDraw.color
+	                });
+	                ev.properties[_this.name].properties.push({
+	                    name: 'lineWidth',
+	                    desc: '画笔粗细',
+	                    readonly: false,
+	                    type: 'number',
+	                    value: _this._paramsDraw.lineWidth
+	                });
+	                ev.properties[_this.name].properties.push({
+	                    name: 'curveMode',
+	                    desc: '平滑模式',
+	                    readonly: false,
+	                    type: 'number',
+	                    value: _this._paramsDraw.curveMode,
+	                    enum: [{
+	                            value: 0,
+	                            desc: '无'
+	                        }, {
+	                            value: 1,
+	                            desc: '二次样条'
+	                        }, {
+	                            value: 2,
+	                            desc: '三次样条'
+	                        }]
+	                });
+	            }
+	            else if (_this._mode === 'erase') {
+	                ev.properties[_this.name] = ev.properties[_this.name] || { desc: '橡皮工具', properties: [] };
+	                ev.properties[_this.name].properties.push({
+	                    name: 'eraseSize',
+	                    desc: '橡皮大小',
+	                    readonly: false,
+	                    type: 'number',
+	                    value: _this._paramsErase.eraseSize
+	                });
+	            }
+	        });
+	        return _this;
+	    }
+	    WBHandWritingTool.prototype.activate = function (options) {
+	        if (options) {
+	            this._mode = options.mode || 'draw';
+	        }
+	        this._freedrawNode = this.findFreedrawNode();
+	        if (!this._freedrawNode) {
+	            var results = {};
+	            /*
+	            const args: any = {
+	                type: 'FreeDraw',
+	                name: null,
+	                x: 0,
+	                y: 0
+	            };
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args, results));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_CreateObjectMessage, {
+	                type: 'FreeDraw',
+	                name: null,
+	                x: 0,
+	                y: 0
+	            }, results));
+	            this._freedrawNode = results.objectCreated;
+	        }
+	        if (this._freedrawNode) {
+	            /*
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValue: this._mode
+	            }));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                name: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValueJson: JSON.stringify(this._mode)
+	            }));
+	            // this._freedrawNode.mode = this._mode;
+	            this._freedrawNode.setCapture();
+	            this.applyProperties(this._paramsDraw);
+	            this.applyProperties(this._paramsErase);
+	            _super.prototype.activate.call(this, options);
+	        }
+	    };
+	    WBHandWritingTool.prototype.deactivate = function () {
+	        if (this._freedrawNode) {
+	            this._freedrawNode.releaseCapture();
+	            /*
+	            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValue: 'none'
+	            }));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                name: this._freedrawNode.entityName,
+	                propName: 'mode',
+	                propValueJson: JSON.stringify('none')
+	            }));
+	            // this._freedrawNode.mode = 'none';
+	            this._freedrawNode = null;
+	        }
+	        _super.prototype.deactivate.call(this);
+	    };
+	    WBHandWritingTool.prototype.activateObject = function (object) {
+	        _super.prototype.activateObject.call(this, object);
+	    };
+	    WBHandWritingTool.prototype.deactivateObject = function (object) {
+	        _super.prototype.deactivateObject.call(this, object);
+	    };
+	    WBHandWritingTool.prototype.applyProperty = function (name, value) {
+	        if (this._freedrawNode) {
+	            /*
+	            lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
+	                objectName: this._freedrawNode.entityName,
+	                propName: name,
+	                propValue: value
+	            }));
+	            */
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	                name: this._freedrawNode.entityName,
+	                propName: name,
+	                propValueJson: JSON.stringify(value)
+	            }));
+	            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
+	        }
+	    };
+	    WBHandWritingTool.prototype.applyProperties = function (props) {
+	        for (var prop in props) {
+	            this.applyProperty(prop, props[prop]);
+	        }
+	    };
+	    WBHandWritingTool.prototype.findFreedrawNode = function () {
+	        var node = this._wb.findEntityByType('FreeDraw');
+	        return node ? node : null;
+	    };
+	    WBHandWritingTool.toolname = 'HandWriting';
+	    return WBHandWritingTool;
+	}(whiteboard.WBTool));
+	exports.WBHandWritingTool = WBHandWritingTool;
+
+	});
+
+	unwrapExports(handwriting);
+	var handwriting_1 = handwriting.WBHandWritingTool;
+
+	var tool = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+
+
+
+	function installTools(whiteboard) {
+	    whiteboard.addTool(new select.WBSelectTool(whiteboard));
+	    whiteboard.addTool(new swap.WBSwapTool(whiteboard));
+	    whiteboard.addTool(new create.WBCreateTool(whiteboard));
+	    whiteboard.addTool(new connect.WBConnectTool(whiteboard));
+	    whiteboard.addTool(new handwriting.WBHandWritingTool(whiteboard));
+	}
+	exports.installTools = installTools;
+
+	});
+
+	unwrapExports(tool);
+	var tool_1 = tool.installTools;
+
+	var tools = createCommonjsModule(function (module, exports) {
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	__export(select);
+	__export(swap);
+	__export(create);
+	__export(connect);
+	__export(handwriting);
+	__export(tool);
+
+	});
+
+	unwrapExports(tools);
+
+	var commands = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var WBCommandParser = /** @class */ (function () {
+	    function WBCommandParser() {
+	    }
+	    WBCommandParser.parse = function (command) {
+	        var s = WBCommandParser.trimLeft(command);
+	        var result = { command: '' };
+	        var lexData = {
+	            str: s,
+	            token: ''
+	        };
+	        WBCommandParser.lexical(lexData);
+	        result.command = lexData.token;
+	        while (true) {
+	            WBCommandParser.lexical(lexData);
+	            if (lexData.token === '') {
+	                break;
+	            }
+	            var arr = lexData.token.split('=');
+	            if (arr.length === 1) {
+	                result[arr[0]] = true;
+	            }
+	            else {
+	                var val = arr[1];
+	                if (val.length > 1 && val.charAt(0) === '[' && val.charAt(val.length - 1) === ']') {
+	                    val = val.substr(1, val.length - 2).split(',');
+	                }
+	                result[arr[0]] = val;
+	            }
+	        }
+	        return result;
+	    };
+	    WBCommandParser.trimLeft = function (s) {
+	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+	        var pos = 0;
+	        while (pos < s.length && whitespace.indexOf(s.charAt(pos)) >= 0) {
+	            pos++;
+	        }
+	        return s.substring(pos, s.length - pos);
+	    };
+	    WBCommandParser.trimRight = function (s) {
+	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+	        var pos = s.length - 1;
+	        while (pos >= 0 && whitespace.indexOf(s.charAt(pos)) >= 0) {
+	            pos--;
+	        }
+	        return s.substring(0, pos + 1);
+	    };
+	    WBCommandParser.trim = function (s) {
+	        return this.trimRight(this.trimLeft(s));
+	    };
+	    WBCommandParser.lexical = function (lexData) {
+	        var whitespace = ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+	        var pos = 0;
+	        while (pos < lexData.str.length && whitespace.indexOf(lexData.str.charAt(pos)) >= 0) {
+	            pos++;
+	        }
+	        lexData.str = lexData.str.substr(pos, lexData.str.length - pos);
+	        pos = 0;
+	        while (pos < lexData.str.length && whitespace.indexOf(lexData.str.charAt(pos)) < 0) {
+	            pos++;
+	        }
+	        lexData.token = lexData.str.substr(0, pos);
+	        lexData.str = lexData.str.substr(pos, lexData.str.length - pos);
+	    };
+	    return WBCommandParser;
+	}());
+	exports.WBCommandParser = WBCommandParser;
+
+	});
+
+	unwrapExports(commands);
+	var commands_1 = commands.WBCommandParser;
+
+	var whiteboard$2 = createCommonjsModule(function (module, exports) {
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	__export(editor$2);
+	__export(objects);
+	__export(tools);
+	__export(commands);
+	__export(whiteboard);
+
+	});
+
+	unwrapExports(whiteboard$2);
 
 	var protoutils = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -11645,13 +16470,23 @@
 	            while (true) {
 	                var msg = _this._assembler.getMessage();
 	                if (msg) {
-	                    if (msg.type === protolist.MsgType.whiteboard_CommandMessage) {
-	                        var cmd = JSON.parse(msg.data.command);
-	                        _this._wb.triggerEx(new whiteboard.WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
+	                    if (msg.type === protolist.MsgType.whiteboard_EventMessage) {
+	                        var msgData = new protoutils.Packet(msg.data.message).getMsgData();
+	                        if (msgData) {
+	                            _this._wb.triggerEx(new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object));
+	                        }
 	                    }
 	                    else {
 	                        catk.App.triggerEvent(null, new whiteboard_2.EvtSocketMessage(msg.type, msg.data));
 	                    }
+	                    /*
+	                    if (msg.type === MsgType.whiteboard_CommandMessage) {
+	                        const cmd:any = JSON.parse (msg.data.command);
+	                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
+	                    } else {
+	                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
+	                    }
+	                    */
 	                }
 	                else {
 	                    break;
@@ -11662,37 +16497,43 @@
 	            console.log("Disconnected: " + reason);
 	            _this.onDisconnect();
 	        });
-	        this.on(whiteboard.WBCommandEvent.type, function (ev) {
+	        this.on(whiteboard.WBMessageEvent.type, function (ev) {
 	            if (_this._socket && _this._socket.connected) {
-	                var pkg = protoutils.Packet.create(protolist.MsgType.whiteboard_CommandMessage, {
-	                    command: JSON.stringify({
-	                        command: ev.command,
-	                        args: ev.args,
-	                        results: {},
-	                        object: ev.object
-	                    }) /*.replace (/[\u007F-\uFFFF]/g, function(chr) {
-	                        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)
-	                    })*/
-	                });
-	                _this._socket.binary(true).emit('message', pkg.buffer);
+	                var data = {
+	                    message: protoutils.Packet.create(ev.messageType, ev.messageData).buffer
+	                };
+	                if (ev.object) {
+	                    data.object = ev.object;
+	                }
+	                var wrapPacket = protoutils.Packet.create(protolist.MsgType.whiteboard_EventMessage, data);
+	                _this._socket.binary(true).emit('message', wrapPacket.buffer);
 	            }
 	        });
-	        (function () {
-	            var tmp1 = protoutils.Packet.create(protolist.MsgType.whiteboard_CommandMessage, {
-	                command: '你好'
-	            });
-	            var tmp2 = protoutils.Packet.create(protolist.MsgType.whiteboard_CommandMessage, {
-	                command: 'World'
-	            });
-	            var uber = protoutils.Packet.create(protolist.MsgType.base_UberMessage, {
-	                subMessages: [tmp1.buffer, tmp2.buffer]
-	            });
-	            var verify = uber.getMsgData();
-	            var t1 = new protoutils.Packet(verify.data.subMessages[0]).getMsgData();
-	            var t2 = new protoutils.Packet(verify.data.subMessages[1]).getMsgData();
-	            console.log(t1);
-	            console.log(t2);
-	        }());
+	        // (function(){
+	        //     const tmp1:Packet = Packet.create(MsgType.whiteboard_UseToolMessage, {
+	        //         name: 'Test',
+	        //         paramsJson: google.protobuf.Any.fromObject({
+	        //             value: {
+	        //                 a: 'hello',
+	        //                 b: {
+	        //                     c: 'hello',
+	        //                     d: 'world'
+	        //                 }
+	        //             }
+	        //         })
+	        //     });
+	        //     const tmp2:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
+	        //         command: 'World'
+	        //     });
+	        //     const uber:Packet = Packet.create(MsgType.base_UberMessage, {
+	        //         subMessages: [tmp1.buffer, tmp2.buffer]
+	        //     });
+	        //     const verify = uber.getMsgData () as IMsgData;
+	        //     const t1 = new Packet(verify.data.subMessages[0]).getMsgData ();
+	        //     const t2 = new Packet(verify.data.subMessages[1]).getMsgData ();
+	        //     console.log (t1);
+	        //     console.log (t2);
+	        // }());
 	        return true;
 	    };
 	    SocketCommandServer.prototype.stop = function () {

@@ -1,6 +1,8 @@
 import * as lib from '../../catk';
 import * as commands from '../commands';
 import * as wb from '../whiteboard';
+import { MsgType } from '../../../../common/protocols/protolist';
+import { outputJsonSync } from 'fs-extra';
 
 export class WBConnectTool extends wb.WBTool {
     public static readonly toolname: string = 'Connect';
@@ -135,6 +137,7 @@ export class WBConnectTool extends wb.WBTool {
                 this._createParams.positionFromX = 0;
                 this._createParams.positionFromY = 0;
             }
+            /*
             lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', {
                 type: 'Arrow',
                 name: null,
@@ -142,6 +145,14 @@ export class WBConnectTool extends wb.WBTool {
                 y: y,
                 params: this._createParams
             }));
+            */
+           lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
+               type: 'Arrow',
+               name: null,
+               x: x,
+               y: y,
+               paramsJson: JSON.stringify(this._createParams)
+           }));
         });
         this.on (lib.EvtDraw.type, (ev: lib.EvtDraw) => {
             if (this._moving) {

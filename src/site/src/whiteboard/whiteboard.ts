@@ -227,16 +227,16 @@ export class WBGetObjectEvent extends lib.BaseEvent {
     }
 }
 
-export class WBCommandEvent extends lib.BaseEvent {
-    static readonly type: string = '@WBCommand';
-    command: string;
-    args?: any;
+export class WBMessageEvent extends lib.BaseEvent {
+    static readonly type: string = '@WBMessage';
+    messageType: MsgType;
+    messageData: any;
     results?: any;
     object?: string;
-    constructor (command: string, args?: any, results?: any, object?: string) {
-        super (WBCommandEvent.type);
-        this.command = command;
-        this.args = args;
+    constructor (type: MsgType, data: any, results?: any, object?: string) {
+        super (WBMessageEvent.type);
+        this.messageType = type;
+        this.messageData = data;
         this.results = results;
         this.object = object;
     }
@@ -273,7 +273,7 @@ export class WBTool extends lib.EventObserver {
     }
     public deactivateObject(object: lib.SceneObject) {
     }
-    public executeCommand(command: string, args?: any) {
+    public handleMessage(type:MsgType, args?: any) {
     }
 }
 
@@ -306,8 +306,8 @@ export class WhiteBoard extends lib.EventObserver {
                 tool.activate();
             }
         });
-        this.on(WBCommandEvent.type, (ev: WBCommandEvent) => {
-            this._executeCommand (ev.command, ev.args, ev.results, ev.object);
+        this.on(WBMessageEvent.type, (ev: WBMessageEvent) => {
+            this._handleMessage (ev.messageType, ev.messageData, ev.results, ev.object);
         });
         if (this.view) {
             this.view.on (lib.EvtKeyDown.type, (ev: lib.EvtKeyDown) => {
@@ -439,26 +439,14 @@ export class WhiteBoard extends lib.EventObserver {
         }
         return null;
     }
-    public encodeCommand(cmd: command.IWBCommand) {
-        return JSON.stringify (cmd);
-        /*
-        let str = command;
-        for (const name in cmd) {
-            if (name !== 'command') {
-                str += ` ${name}=${cmd[name]}`;
-            }
-        }
-        return str;
-        */
-    }
-    public _executeCommand(command: string, args?: any, results?: any, object?: string) {
-        const cmd = args||{};
+    _handleMessage (type: MsgType, data: any, results?: any, object?: string) {
+        const cmd = data||{};
         if (object) {
             const obj = this.findEntity (object);
             if (obj) {
-                obj.triggerEx (new WBCommandEvent(command, args, results, object));
+                obj.triggerEx (new WBMessageEvent(type, data, results, object));
             }
-        } else if (command === 'UseTool') {
+        } else if (type === MsgType.whiteboard_UseToolMessage) {
             if (this._currentTool !== cmd.name) {
                 if (this._currentTool !== '') {
                     const prevTool = this._tools[this._currentTool];
@@ -469,30 +457,31 @@ export class WhiteBoard extends lib.EventObserver {
                     const newTool = this._tools[cmd.name];
                     if (newTool) {
                         this._currentTool = cmd.name;
-                        newTool.activate(cmd.args||{});
+                        const args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
+                        newTool.activate(args);
                     }
                 }
             }
-        } else if (command === 'CreateObject') {
+        } else if (type === MsgType.whiteboard_CreateObjectMessage) {
             const type = cmd.type;
             const name = cmd.name||null;
             const failOnExists = !!cmd.failOnExists;
-            const params = cmd.params||{};
+            const params = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
             const obj = this.createEntity (type, name, failOnExists, cmd.x, cmd.y, params);
             if (results) {
                 results.objectCreated = obj;
             }
-        } else if (command === 'DeleteObject') {
+        } else if (type === MsgType.whiteboard_DeleteObjectMessage) {
             this.deleteEntity (cmd.name);
-        } else if (command === 'DeleteObjects') {
-            if (cmd.objects) {
-                cmd.objects.forEach ((name:string) => {
+        } else if (type === MsgType.whiteboard_DeleteObjectsMessage) {
+            if (cmd.names) {
+                cmd.names.forEach ((name:string) => {
                     this.deleteEntity (name);
                 });
             }
-        } else if (command === 'AlignObjectsLeft') {
-            if (cmd.objects && cmd.objects.length > 1) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_AlignObjectsLeftMessage) {
+            if (cmd.names && cmd.names.length > 1) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 let minx = objects[0].worldTransform.e;
                 for (let i = 1; i < objects.length; i++) {
                     const x = objects[i].worldTransform.e;
@@ -505,9 +494,9 @@ export class WhiteBoard extends lib.EventObserver {
                     obj.collapseTransform ();
                 });
             }
-        } else if (command === 'AlignObjectsRight') {
-            if (cmd.objects && cmd.objects.length > 1) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_AlignObjectsRightMessage) {
+            if (cmd.names && cmd.names.length > 1) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 let maxx = objects[0].worldTransform.e;
                 for (let i = 1; i < objects.length; i++) {
                     const x = objects[i].worldTransform.e;
@@ -520,9 +509,9 @@ export class WhiteBoard extends lib.EventObserver {
                     obj.collapseTransform ();
                 });
             }
-        } else if (command === 'AlignObjectsTop') {
-            if (cmd.objects && cmd.objects.length > 1) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_AlignObjectsTopMessage) {
+            if (cmd.names && cmd.names.length > 1) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 let miny = objects[0].worldTransform.f;
                 for (let i = 1; i < objects.length; i++) {
                     const y = objects[i].worldTransform.f;
@@ -535,9 +524,9 @@ export class WhiteBoard extends lib.EventObserver {
                     obj.collapseTransform ();
                 });
             }
-        } else if (command === 'AlignObjectsBottom') {
-            if (cmd.objects && cmd.objects.length > 1) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_AlignObjectsBottomMessage) {
+            if (cmd.names && cmd.names.length > 1) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 let maxy = objects[0].worldTransform.f;
                 for (let i = 1; i < objects.length; i++) {
                     const y = objects[i].worldTransform.f;
@@ -550,23 +539,9 @@ export class WhiteBoard extends lib.EventObserver {
                     obj.collapseTransform ();
                 });
             }
-        } else if (command === 'AlignObjectsHorizontal') {
-            if (cmd.objects && cmd.objects.length > 1) {
-                const firstObject = this.findEntity (cmd.objects[0]);
-                if (firstObject) {
-                    const y = firstObject.worldTransform.f;
-                    for (let i = 1; i < cmd.objects.length; i++) {
-                        const obj = this.findEntity (cmd.objects[i]);
-                        if (obj) {
-                            obj.worldTranslation = { x:obj.worldTransform.e, y:y };
-                            obj.collapseTransform ();
-                        }
-                    }
-                }
-            }
-        } else if (command === 'ArrangeObjectsHorizontal') {
-            if (cmd.objects && cmd.objects.length > 2) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_ArrangeObjectsHorizontalMessage) {
+            if (cmd.names && cmd.names.length > 2) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 objects.sort ((a, b) => {
                     return a.worldTransform.e - b.worldTransform.e;
                 });
@@ -577,9 +552,9 @@ export class WhiteBoard extends lib.EventObserver {
                     objects[i].collapseTransform ();
                 }
             }
-        } else if (command === 'ArrangeObjectsVertical') {
-            if (cmd.objects && cmd.objects.length > 2) {
-                const objects: lib.SceneObject[] = cmd.objects.map ((name:string) => this.findEntity(name));
+        } else if (type === MsgType.whiteboard_ArrangeObjectsVerticalMessage) {
+            if (cmd.names && cmd.names.length > 2) {
+                const objects: lib.SceneObject[] = cmd.names.map ((name:string) => this.findEntity(name));
                 objects.sort ((a, b) => {
                     return a.worldTransform.f - b.worldTransform.f;
                 });
@@ -590,26 +565,26 @@ export class WhiteBoard extends lib.EventObserver {
                     objects[i].collapseTransform ();
                 }
             }
-        } else if (command === 'SetObjectProperty') {
-            const obj = this.findEntity (cmd.objectName);
+        } else if (type === MsgType.whiteboard_SetObjectPropertyMessage) {
+            const obj = this.findEntity (cmd.name);
             if (obj) {
-                const ev = new WBSetPropertyEvent (cmd.propName, cmd.propValue);
+                const ev = new WBSetPropertyEvent (cmd.propName, JSON.parse(cmd.propValueJson));
                 obj.triggerEx (ev);
-                if (obj.entityName !== cmd.objectName) {
+                if (obj.entityName !== cmd.name) {
                     if (this.findEntity(obj.entityName)) {
-                        obj.entityName = cmd.objectName;
+                        obj.entityName = cmd.name;
                     } else {
-                        delete this._entities[cmd.objectName];
+                        delete this._entities[cmd.name];
                         this._entities[obj.entityName] = obj;
                     }
                 }
             }
-        } else if (command === 'AddPage') {
+        } else if (type === MsgType.whiteboard_AddPageMessage) {
             this.view && this.view.addPage ();
-        } else if (command === 'RenamePage') {
+        } else if (type === MsgType.whiteboard_RenamePageMessage) {
             this.view && this.view.currentPage && this.view.renamePage (this.view.currentPage, cmd.newName);
         } else if (this._currentTool) {
-            this._tools[this._currentTool].executeCommand (command, cmd);
+            this._tools[this._currentTool].handleMessage (type, cmd);
         } else {
             return;
         }

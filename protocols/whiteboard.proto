@@ -8,3 +8,117 @@ enum MessageID {
 message CommandMessage {
     string command = 1;
 }
+
+message EventMessage {
+    bytes message = 1;
+    optional string object = 2;
+}
+
+message UseToolMessage {
+    optional string name = 1;
+    optional string paramsJson = 2;
+}
+
+message CreateObjectMessage {
+    string type = 1;
+    uint32 x = 2;
+    uint32 y = 3;
+    optional string name = 4;
+    optional bool failOnExists = 5;
+    optional string paramsJson = 6;
+}
+
+message DeleteSelected {
+}
+
+message CloneSelected {
+}
+
+message AlignSelected {
+    string mode = 1;
+}
+
+message ArrangeSelected {
+    string mode = 1;
+}
+
+message DeleteObjectMessage {
+    string name = 1;
+}
+
+message DeleteObjectsMessage {
+    repeated string names = 1;
+}
+
+message AlignObjectsLeftMessage {
+    repeated string names = 1;
+}
+
+message AlignObjectsRightMessage {
+    repeated string names = 1;
+}
+
+message AlignObjectsTopMessage {
+    repeated string names = 1;
+}
+
+message AlignObjectsBottomMessage {
+    repeated string names = 1;
+}
+
+message ArrangeObjectsHorizontalMessage {
+    repeated string names = 1;
+}
+
+message ArrangeObjectsVerticalMessage {
+    repeated string names = 1;
+}
+
+message SetObjectPropertyMessage {
+    string name = 1;
+    string propName = 2;
+    string propValueJson = 3;
+}
+
+message AddPageMessage {
+}
+
+message RenamePageMessage {
+    string newName = 1;
+}
+
+message DeletePageMessage {
+}
+
+message StartDrawMessage {
+    uint32 x = 1;
+    uint32 y = 2;
+}
+
+message DrawingMessage {
+    uint32 x = 1;
+    uint32 y = 2;
+    optional uint32 cpX1 = 3;
+    optional uint32 cpY1 = 4;
+    optional uint32 cpX2 = 5;
+    optional uint32 cpY2 = 6;
+}
+
+message EndDrawMessage {
+    uint32 cpX1 = 1;
+    uint32 cpY1 = 2;
+    optional uint32 cpX2 = 3;
+    optional uint32 cpY2 = 4;
+}
+
+message EraseMessage {
+    uint32 x = 1;
+    uint32 y = 2;
+    uint32 size = 3;
+}
+
+message SwapObjectMessage {
+    string name1 = 1;
+    string name2 = 2;
+    uint32 duration = 3;
+}

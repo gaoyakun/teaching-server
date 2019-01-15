@@ -1,8 +1,9 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
+import * as proto from '../../../../common/protocols/protolist';
 
 interface ITool {
-    command: string,
+    command: proto.MsgType,
     args?: any,
     iconClass: string|Function;
     elementId?: string;
@@ -11,7 +12,7 @@ interface ITool {
 interface IToolPalette {
     [name: string]: {
         iconClass: string;
-        command: string;
+        command: proto.MsgType;
         args?: {
             [name: string]: any;
         }
@@ -53,14 +54,14 @@ export class WBToolPalette {
                         if (this._curTool) {
                             const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
                             curToolButton && curToolButton.classList.remove ('active');
-                            this._editor.executeCommand ('UseTool');
+                            this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage);
                             this._curTool = null;
                         }
                     }
                     if (tool) {
                         const button = document.querySelector(`#${tool.elementId}`);
                         button && button.classList.add ('active');
-                        this._editor.executeCommand (tool.command, tool.args);
+                        this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, tool.args);
                         this._curTool = tool;
                     }
                 });
@@ -75,7 +76,7 @@ export class WBToolPalette {
                 toolButton.addEventListener ('click', () => {
                     const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
                     const tool = this._tools[toolIndex];
-                    this._editor.executeCommand (tool.command, tool.args);
+                    this._editor.handleMessage (tool.command, tool.args);
                 });
             }
         }
@@ -332,10 +333,10 @@ export class WBPropertyGrid {
     }
     setObjectProperty (name: string, value: any): void {
         if (this._object) {
-            this._editor.executeCommand ('SetObjectProperty', {
-                objectName: (this._object as lib.SceneObject).entityName,
+            this._editor.handleMessage (proto.MsgType.whiteboard_SetObjectPropertyMessage, {
+                name: (this._object as lib.SceneObject).entityName,
                 propName: name,
-                propValue: value
+                propValueJson: JSON.stringify(value)
             });
         }
     }
@@ -470,7 +471,7 @@ export class WBPropertyGrid {
             });
             this.addTextAttribute ('页面名称', view.currentPage, false, (value:string) => {
                 if (value !== view.currentPage) {
-                    this._editor.executeCommand ('RenamePage', {
+                    this._editor.handleMessage (proto.MsgType.whiteboard_RenamePageMessage, {
                         newName: value
                     });
                     this.loadPageProperties ();
@@ -510,11 +511,11 @@ export class WBPropertyGrid {
                 return value;
             });
             this.addButton ('新建页面', () => {
-                this._editor.executeCommand ('AddPage');
+                this._editor.handleMessage (proto.MsgType.whiteboard_AddPageMessage);
                 this.loadPageProperties ();
             });
             this.addButton ('删除页面', () => {
-                this._editor.executeCommand ('DeletePage');
+                this._editor.handleMessage (proto.MsgType.whiteboard_DeletePageMessage);
                 this.loadPageProperties ();
             })
         }
@@ -614,7 +615,7 @@ export class WBEditor {
     set toolFontSize (value: number) {
         this._toolFontSize = value;
     }
-    executeCommand (command:string, args?: any) {
-        lib.App.triggerEvent(null, new wb.WBCommandEvent(command, args));
+    handleMessage (msgType:proto.MsgType, args?: any) {
+        lib.App.triggerEvent(null, new wb.WBMessageEvent(msgType, args));
     }
 }

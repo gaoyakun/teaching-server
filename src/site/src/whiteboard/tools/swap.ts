@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as select from './select';
 import * as wb from '../whiteboard';
+import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBSwapComponent extends lib.Component {
     static readonly type = 'WBSwap';
@@ -66,10 +67,24 @@ export class WBSwapTool extends wb.WBTool {
         if (this._curObject == null) {
             this._curObject = object;
         } else if (this._curObject !== object) {
-            this.swapObject (this._curObject, object, 200);
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SwapObjectMessage, {
+                name1: this._curObject.entityName,
+                name2: object.entityName,
+                duration: 200
+            }));
+            // this.swapObject (this._curObject, object, 200);
             this._curObject = null;
         } else {
             this._curObject = null;
+        }
+    }
+    public handleMessage(type:MsgType, args?:any) {
+        if (type === MsgType.whiteboard_SwapObjectMessage) {
+            const object1 = this._wb.findEntity (args.name1);
+            const object2 = this._wb.findEntity (args.name2);
+            if (object1 && object2) {
+                this.swapObject (object1, object2, args.duration);
+            }
         }
     }
     private swapObject (object1: lib.SceneObject, object2: lib.SceneObject, animationDuration:number) {

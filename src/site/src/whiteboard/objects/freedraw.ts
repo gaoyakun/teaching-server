@@ -1,5 +1,6 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
+import * as proto from '../../../../common/protocols/protolist';
 
 export class WBFreeDraw extends lib.SceneObject {
     private _lineWidth: number;
@@ -71,43 +72,39 @@ export class WBFreeDraw extends lib.SceneObject {
                 }
             }
         });
-        this.on (wb.WBCommandEvent.type, (ev: wb.WBCommandEvent) => {
+        this.on (wb.WBMessageEvent.type, (ev: wb.WBMessageEvent) => {
             if (this.canvas) {
                 const context = this.canvas.getContext('2d');
                 if (context) {
-                    if (ev.command === 'StartDraw') {
+                    const type = ev.messageType;
+                    const data = ev.messageData;
+                    if (type === proto.MsgType.whiteboard_StartDrawMessage) {
                         context.lineWidth = this._lineWidth;
                         context.strokeStyle = this._color;
                         context.lineCap = 'round';
                         context.lineJoin = 'round';
                         context.beginPath ();
-                        context.moveTo (ev.args.x + 0.5, ev.args.y + 0.5);
-                    } else if (ev.command === 'Drawing') {
-                        if (ev.args.curveMode === 0) {
-                            context.lineTo (ev.args.x + 0.5, ev.args.y + 0.5);
+                        context.moveTo (data.x + 0.5, data.y + 0.5);
+                    } else if (type === proto.MsgType.whiteboard_DrawingMessage) {
+                        if (data.cpX1 === undefined) {
+                            context.lineTo (data.x + 0.5, data.y + 0.5);
                             context.stroke ();
-                        } else if (ev.args.curveMode === 1) {
-                            if (ev.args.cp.length === 1) {
-                                context.quadraticCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
-                                context.stroke ();
-                            }
-                        } else if (ev.args.curveMode === 2) {
-                            if (ev.args.cp.length === 2) {
-                                context.bezierCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5, ev.args.x + 0.5, ev.args.y + 0.5);
-                                context.stroke ();
-                            }
-                        }
-                    } else if (ev.command === 'EndDraw') {
-                        if (ev.args.cp.length > 0) {
-                            if (ev.args.cp.length === 1) {
-                                context.lineTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5);
-                            } else if (ev.args.cp.length) {
-                                context.quadraticCurveTo (ev.args.cp[0].x + 0.5, ev.args.cp[0].y + 0.5, ev.args.cp[1].x + 0.5, ev.args.cp[1].y + 0.5);
-                            }
+                        } else if (data.cpX1 !== undefined && data.cpX2 === undefined) {
+                            context.quadraticCurveTo (ev.messageData.cpX1 + 0.5, ev.messageData.cpY1 + 0.5, ev.messageData.x + 0.5, ev.messageData.y + 0.5);
+                            context.stroke ();
+                        } else if (data.cpX2 !== undefined) {
+                            context.bezierCurveTo (data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5, data.x + 0.5, data.y + 0.5);
                             context.stroke ();
                         }
-                    } else if (ev.command === 'Erase') {
-                        context.clearRect (ev.args.x - ev.args.size / 2, ev.args.y - ev.args.size / 2, ev.args.size, ev.args.size);
+                    } else if (type === proto.MsgType.whiteboard_EndDrawMessage) {
+                        if (data.cpX2 === undefined) {
+                            context.lineTo (data.cpX1 + 0.5, data.cpY1 + 0.5);
+                        } else {
+                            context.quadraticCurveTo (data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5);
+                        }
+                        context.stroke ();
+                    } else if (type === proto.MsgType.whiteboard_EraseMessage) {
+                        context.clearRect (data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
                     }
                 }
             }
@@ -116,10 +113,16 @@ export class WBFreeDraw extends lib.SceneObject {
             const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
             if (this.canvas) {
                 if (this._mode === 'draw') {
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_StartDrawMessage, {
+                        x: pt.x,
+                        y: pt.y
+                    }, undefined, this.entityName))
+                    /*
                     lib.App.triggerEvent (null, new wb.WBCommandEvent('StartDraw', {
                         x: pt.x,
                         y: pt.y
                     }, undefined, this.entityName));
+                    */
                     this._cp.length = 0;
                     this._action = true;
                     /*
@@ -136,11 +139,18 @@ export class WBFreeDraw extends lib.SceneObject {
                     }
                     */
                 } else if (this._mode === 'erase') {
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
+                        x: pt.x,
+                        y: pt.y,
+                        size: this._eraseSize
+                    }, undefined, this.entityName));
+                    /*
                     lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
                         x: pt.x,
                         y: pt.y,
                         size: this._eraseSize
                     }, undefined, this.entityName));
+                    */
                     this._action = true;
                     /*
                     const context = this.canvas.getContext('2d');
@@ -158,14 +168,27 @@ export class WBFreeDraw extends lib.SceneObject {
             if (this._action && this.canvas) {
                 const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
                 if (this._mode === 'draw') {
+                    /*
                     lib.App.triggerEvent (null, new wb.WBCommandEvent('Drawing', {
                         curveMode: this._curveMode,
                         x: pt.x,
                         y: pt.y,
                         cp: this._cp,
                     }, undefined, this.entityName));
-                    if (this._curveMode === 1) {
+                    */
+                    if (this._curveMode === 0) {
+                        lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
+                            x: pt.x,
+                            y: pt.y
+                        }, undefined, this.entityName));
+                    } else if (this._curveMode === 1) {
                         if (this._cp.length === 1) {
+                            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
+                                x: pt.x,
+                                y: pt.y,
+                                cpX1: this._cp[0].x,
+                                cpY1: this._cp[0].y
+                            }, undefined, this.entityName));
                             this._cp.length = 0;
                         } else {
                             this._cp.push ({ x: pt.x, y: pt.y});
@@ -173,6 +196,14 @@ export class WBFreeDraw extends lib.SceneObject {
                         }
                     } else if (this._curveMode === 2) {
                         if (this._cp.length === 2) {
+                            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
+                                x: pt.x,
+                                y: pt.y,
+                                cpX1: this._cp[0].x,
+                                cpY1: this._cp[0].y,
+                                cpX2: this._cp[1].x,
+                                cpY2: this._cp[1].y
+                            }, undefined, this.entityName))
                             this._cp.length = 0;
                         } else {
                             this._cp.push ({x: pt.x, y: pt.y});
@@ -207,11 +238,18 @@ export class WBFreeDraw extends lib.SceneObject {
                     }
                     */
                 } else if (this._mode === 'erase') {
+                    /*
                     lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
                         x: pt.x,
                         y: pt.y,
                         size: this._eraseSize
                     }, undefined, this.entityName));
+                    */
+                   lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
+                       x: pt.x, 
+                       y: pt.y,
+                       size: this._eraseSize
+                   }, undefined, this.entityName));
                     /*
                     const context = this.canvas.getContext('2d');
                     context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
@@ -367,9 +405,20 @@ export class WBFreeDraw extends lib.SceneObject {
     }
     private finishDraw () {
         if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
+            /*
             lib.App.triggerEvent (null, new wb.WBCommandEvent('EndDraw', {
                 cp: this._cp
             }, undefined, this.entityName));
+            */
+            const args:any = {
+                cpX1: this._cp[0].x,
+                cpY1: this._cp[0].y
+            };
+            if (this._cp.length > 1) {
+                args.cpX2 = this._cp[1].x,
+                args.cpY2 = this._cp[1].y
+            }
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EndDrawMessage, args, undefined, this.entityName));
             this._cp.length = 0;
             /*
             const context = this.canvas.getContext('2d');
