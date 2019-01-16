@@ -16,7 +16,6 @@ export class WBHandWritingTool extends wb.WBTool {
         this._paramsDraw = {
             color: '#000',
             lineWidth: 2,
-            curveMode: 0
         };
         this._paramsErase = {
             eraseSize: 20
@@ -61,23 +60,6 @@ export class WBHandWritingTool extends wb.WBTool {
                     readonly: false,
                     type: 'number',
                     value: this._paramsDraw.lineWidth
-                });
-                ev.properties[this.name].properties.push ({
-                    name: 'curveMode',
-                    desc: '平滑模式',
-                    readonly: false,
-                    type: 'number',
-                    value: this._paramsDraw.curveMode,
-                    enum: [{
-                        value: 0,
-                        desc: '无'
-                    }, {
-                        value: 1,
-                        desc: '二次样条'
-                    }, {
-                        value: 2,
-                        desc: '三次样条'
-                    }]
                 });
             } else if (this._mode === 'erase') {
                 ev.properties[this.name] = ev.properties[this.name] || { desc: '橡皮工具', properties: []};

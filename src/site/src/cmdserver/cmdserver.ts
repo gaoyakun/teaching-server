@@ -70,14 +70,16 @@ export class SocketCommandServer extends catk.EventObserver {
         });
         this.on (WBMessageEvent.type, (ev:WBMessageEvent) => {
             if (this._socket && this._socket.connected) {
-                const data: any = {
-                    message: Packet.create(ev.messageType, ev.messageData).buffer
-                };
-                if (ev.object) {
-                    data.object = ev.object;
+                if (ev.messageType !== MsgType.whiteboard_StartDrawMessage && ev.messageType !== MsgType.whiteboard_DrawingMessage) {
+                    const data: any = {
+                        message: Packet.create(ev.messageType, ev.messageData).buffer
+                    };
+                    if (ev.object) {
+                        data.object = ev.object;
+                    }
+                    const wrapPacket = Packet.create(MsgType.whiteboard_EventMessage, data);
+                    (this._socket as any).binary(true).emit ('message', wrapPacket.buffer);
                 }
-                const wrapPacket = Packet.create(MsgType.whiteboard_EventMessage, data);
-                (this._socket as any).binary(true).emit ('message', wrapPacket.buffer);
             }    
         });
         // (function(){

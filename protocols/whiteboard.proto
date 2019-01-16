@@ -93,22 +93,19 @@ message DeletePageMessage {
 message StartDrawMessage {
     uint32 x = 1;
     uint32 y = 2;
+    uint32 lineWidth = 3;
+    string color = 4;
 }
 
 message DrawingMessage {
     uint32 x = 1;
     uint32 y = 2;
-    optional uint32 cpX1 = 3;
-    optional uint32 cpY1 = 4;
-    optional uint32 cpX2 = 5;
-    optional uint32 cpY2 = 6;
 }
 
-message EndDrawMessage {
-    uint32 cpX1 = 1;
-    uint32 cpY1 = 2;
-    optional uint32 cpX2 = 3;
-    optional uint32 cpY2 = 4;
+message DrawMessage {
+    uint32 lineWidth = 1;
+    string color = 2;
+    repeated DrawingMessage points = 3;
 }
 
 message EraseMessage {

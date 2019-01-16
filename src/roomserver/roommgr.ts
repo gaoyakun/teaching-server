@@ -5,7 +5,7 @@ import { Server } from '../lib/servermgr';
 import { Session } from '../lib/session';
 import { RoomState } from '../common/defines';
 import { Packet } from '../common/protoutils';
-import { MsgType } from '../common/protocols/protolist';
+import { whiteboard, MsgType } from '../common/protocols/protolist';
 import { MessageAssembler } from '../common/protoutils';
 
 const messageAssembler = new MessageAssembler ();
@@ -113,14 +113,20 @@ export class Client {
         }
     }
     handleMessage (data:Buffer) {
-        const u8arr = new Uint8Array(data);
-        messageAssembler.put (u8arr);
-        const msg = messageAssembler.getMessage ();
-        if (msg) {
-            console.log (`Got message ${MsgType[msg.type]}`);
-            console.log (JSON.stringify(msg.data));
+        if (this._room) {
+            const u8arr = new Uint8Array(data);
+            messageAssembler.put (u8arr);
+            const msg = messageAssembler.getMessage ();
+            if (msg) {
+                console.log (`Got message ${MsgType[msg.type]}`);
+                console.log (JSON.stringify(msg.data));
+                const type = msg.type as number;
+                if (type >= whiteboard.MessageID.Start && type < whiteboard.MessageID.Start + 10000) {
+                    Server.redis.rpush (`room:${this._room.id}:events`, data);
+                }
+                this.broadCastBuffer ('message', data);
+            }
         }
-        this.broadCastBuffer ('message', data);
     }
 }
 

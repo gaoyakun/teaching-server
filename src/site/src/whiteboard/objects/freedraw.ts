@@ -5,22 +5,21 @@ import * as proto from '../../../../common/protocols/protolist';
 export class WBFreeDraw extends lib.SceneObject {
     private _lineWidth: number;
     private _color: string;
-    private _curveMode: number;
     private _eraseSize: number;
     private _mode: string;
     private _mousePosX: number;
     private _mousePosY: number;
-    private _cp: lib.IPoint2d[];
     private _lastMoveTime: number;
     private _action: boolean;
+    private _notify: boolean;
     private _canvas: HTMLCanvasElement|null;
     private _boundingShape: lib.BoundingBox|null;
+    private _strokeInfo: proto.whiteboard.IDrawMessage;
 
     constructor(parent: lib.SceneObject|null, params:any = null) {
         super(parent||undefined);
         this._canvas = null;
         this._boundingShape = null;
-        this._cp = [];
         this._lastMoveTime = 0;
         this._action = false;
         const opt = params||{}
@@ -29,8 +28,13 @@ export class WBFreeDraw extends lib.SceneObject {
         this._mode = opt.mode || 'draw';
         this._mousePosX = 0;
         this._mousePosY = 0;
+        this._notify = false;
+        this._strokeInfo = {
+            lineWidth: this._lineWidth,
+            color: this._color,
+            points: []
+        };
         this._eraseSize = opt.eraseSize || 20;
-        this._curveMode = opt.curveMode || 0;
         this.on(lib.EvtCanvasResize.type, (evt: lib.EvtCanvasResize) => {
             if (evt.view === this.view && this._canvas) {
                 this._canvas.width = evt.view.canvas.width;
@@ -79,30 +83,32 @@ export class WBFreeDraw extends lib.SceneObject {
                     const type = ev.messageType;
                     const data = ev.messageData;
                     if (type === proto.MsgType.whiteboard_StartDrawMessage) {
-                        context.lineWidth = this._lineWidth;
-                        context.strokeStyle = this._color;
+                        this._strokeInfo.lineWidth = data.lineWidth;
+                        this._strokeInfo.color = data.color;
+                        this._strokeInfo.points = [{x: data.x, y: data.y}];
+                        context.lineWidth = data.lineWidth;
+                        context.strokeStyle = data.color;
                         context.lineCap = 'round';
                         context.lineJoin = 'round';
                         context.beginPath ();
                         context.moveTo (data.x + 0.5, data.y + 0.5);
                     } else if (type === proto.MsgType.whiteboard_DrawingMessage) {
-                        if (data.cpX1 === undefined) {
-                            context.lineTo (data.x + 0.5, data.y + 0.5);
-                            context.stroke ();
-                        } else if (data.cpX1 !== undefined && data.cpX2 === undefined) {
-                            context.quadraticCurveTo (ev.messageData.cpX1 + 0.5, ev.messageData.cpY1 + 0.5, ev.messageData.x + 0.5, ev.messageData.y + 0.5);
-                            context.stroke ();
-                        } else if (data.cpX2 !== undefined) {
-                            context.bezierCurveTo (data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5, data.x + 0.5, data.y + 0.5);
-                            context.stroke ();
-                        }
-                    } else if (type === proto.MsgType.whiteboard_EndDrawMessage) {
-                        if (data.cpX2 === undefined) {
-                            context.lineTo (data.cpX1 + 0.5, data.cpY1 + 0.5);
-                        } else {
-                            context.quadraticCurveTo (data.cpX1 + 0.5, data.cpY1 + 0.5, data.cpX2 + 0.5, data.cpY2 + 0.5);
-                        }
+                        this._strokeInfo.points && this._strokeInfo.points.push ({x:data.x, y:data.y});
+                        context.lineTo (data.x + 0.5, data.y + 0.5);
                         context.stroke ();
+                    } else if (type === proto.MsgType.whiteboard_DrawMessage && !this._notify) {
+                        if (data.points.length > 1) {
+                            context.lineWidth = data.lineWidth;
+                            context.strokeStyle = data.color;
+                            context.lineCap = 'round';
+                            context.lineJoin = 'round';
+                            context.beginPath ();
+                            context.moveTo (data.points[0].x + 0.5, data.points[0].y + 0.5);
+                            for (let i = 1; i < data.points.length; i++) {
+                                context.lineTo (data.points[i].x + 0.5, data.points[i].y + 0.5);
+                            }
+                            context.stroke ();
+                        }
                     } else if (type === proto.MsgType.whiteboard_EraseMessage) {
                         context.clearRect (data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
                     }
@@ -115,50 +121,18 @@ export class WBFreeDraw extends lib.SceneObject {
                 if (this._mode === 'draw') {
                     lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_StartDrawMessage, {
                         x: pt.x,
-                        y: pt.y
+                        y: pt.y,
+                        lineWidth: this._lineWidth,
+                        color: this._color
                     }, undefined, this.entityName))
-                    /*
-                    lib.App.triggerEvent (null, new wb.WBCommandEvent('StartDraw', {
-                        x: pt.x,
-                        y: pt.y
-                    }, undefined, this.entityName));
-                    */
-                    this._cp.length = 0;
                     this._action = true;
-                    /*
-                    const context = this.canvas.getContext('2d');
-                    if (context) {
-                        context.lineWidth = this._lineWidth;
-                        context.strokeStyle = this._color;
-                        context.lineCap = 'round';
-                        context.lineJoin = 'round';
-                        context.beginPath ();
-                        context.moveTo (pt.x + 0.5, pt.y + 0.5);
-                        this._cp.length = 0;
-                        this._action = true;
-                    }
-                    */
                 } else if (this._mode === 'erase') {
                     lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
                         x: pt.x,
                         y: pt.y,
                         size: this._eraseSize
                     }, undefined, this.entityName));
-                    /*
-                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
-                        x: pt.x,
-                        y: pt.y,
-                        size: this._eraseSize
-                    }, undefined, this.entityName));
-                    */
                     this._action = true;
-                    /*
-                    const context = this.canvas.getContext('2d');
-                    if (context) {
-                        context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
-                        this._action = true;
-                    }
-                    */
                 }
             }
         });
@@ -168,101 +142,24 @@ export class WBFreeDraw extends lib.SceneObject {
             if (this._action && this.canvas) {
                 const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
                 if (this._mode === 'draw') {
-                    /*
-                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Drawing', {
-                        curveMode: this._curveMode,
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
                         x: pt.x,
-                        y: pt.y,
-                        cp: this._cp,
+                        y: pt.y
                     }, undefined, this.entityName));
-                    */
-                    if (this._curveMode === 0) {
-                        lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
-                            x: pt.x,
-                            y: pt.y
-                        }, undefined, this.entityName));
-                    } else if (this._curveMode === 1) {
-                        if (this._cp.length === 1) {
-                            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
-                                x: pt.x,
-                                y: pt.y,
-                                cpX1: this._cp[0].x,
-                                cpY1: this._cp[0].y
-                            }, undefined, this.entityName));
-                            this._cp.length = 0;
-                        } else {
-                            this._cp.push ({ x: pt.x, y: pt.y});
-                            this._lastMoveTime = Date.now();
-                        }
-                    } else if (this._curveMode === 2) {
-                        if (this._cp.length === 2) {
-                            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
-                                x: pt.x,
-                                y: pt.y,
-                                cpX1: this._cp[0].x,
-                                cpY1: this._cp[0].y,
-                                cpX2: this._cp[1].x,
-                                cpY2: this._cp[1].y
-                            }, undefined, this.entityName))
-                            this._cp.length = 0;
-                        } else {
-                            this._cp.push ({x: pt.x, y: pt.y});
-                            this._lastMoveTime = Date.now();
-                        }
-                    }
-                    /*
-                    const context = this.canvas.getContext('2d');
-                    if (context) {
-                        if (this._curveMode === 0) {
-                            context.lineTo (pt.x + 0.5, pt.y + 0.5);
-                            context.stroke ();
-                        } else if (this._curveMode === 1) {
-                            if (this._cp.length === 1) {
-                                context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-                                context.stroke ();
-                                this._cp.length = 0;
-                            } else {
-                                this._cp.push ({x: pt.x, y: pt.y});
-                                this._lastMoveTime = Date.now();
-                            }
-                        } else if (this._curveMode === 2) {
-                            if (this._cp.length === 2) {
-                                context.bezierCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5, pt.x + 0.5, pt.y + 0.5);
-                                context.stroke ();
-                                this._cp.length = 0;
-                            } else {
-                                this._cp.push ({x: pt.x, y: pt.y});
-                                this._lastMoveTime = Date.now();
-                            }
-                        }
-                    }
-                    */
+                    this._lastMoveTime = Date.now();
                 } else if (this._mode === 'erase') {
-                    /*
-                    lib.App.triggerEvent (null, new wb.WBCommandEvent('Erase', {
-                        x: pt.x,
-                        y: pt.y,
-                        size: this._eraseSize
-                    }, undefined, this.entityName));
-                    */
                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
                        x: pt.x, 
                        y: pt.y,
                        size: this._eraseSize
                    }, undefined, this.entityName));
-                    /*
-                    const context = this.canvas.getContext('2d');
-                    context && context.clearRect (pt.x - this._eraseSize / 2, pt.y - this._eraseSize / 2, this._eraseSize, this._eraseSize);
-                    */
                 }
             }
         });
         this.on (lib.EvtFrame.type, (ev: lib.EvtFrame) => {            
-            if (this._mode === 'draw' && this._action) {
-                const t = Date.now();
-                if (t > this._lastMoveTime + 250) {
-                    this.finishDraw ();
-                }
+            const t = Date.now();
+            if (t > this._lastMoveTime + 250) {
+                this.finishDraw ();
             }
         });
         this.on (lib.EvtMouseUp.type, (ev: lib.EvtMouseUp) => {
@@ -279,10 +176,6 @@ export class WBFreeDraw extends lib.SceneObject {
                 }
                 case 'color': {
                     ev.value = this._color;
-                    break;
-                }
-                case 'curveMode': {
-                    ev.value = this._curveMode;
                     break;
                 }
                 case 'eraseSize': {
@@ -303,10 +196,6 @@ export class WBFreeDraw extends lib.SceneObject {
                 }
                 case 'color': {
                     this._color = String(ev.value);
-                    break;
-                }
-                case 'curveMode': {
-                    this._curveMode = Number(ev.value);
                     break;
                 }
                 case 'eraseSize': {
@@ -335,23 +224,6 @@ export class WBFreeDraw extends lib.SceneObject {
                 readonly: false,
                 type: 'color',
                 value: this._color
-            });
-            ev.properties[this.entityType].properties.push ({
-                name: 'curveMode',
-                desc: '平滑模式',
-                readonly: false,
-                type: 'number',
-                value: this._curveMode,
-                enum: [{
-                    value: 0,
-                    desc: '无'
-                }, {
-                    value: 1,
-                    desc: '二次样条'
-                }, {
-                    value: 2,
-                    desc: '三次样条'
-                }]
             });
             ev.properties[this.entityType].properties.push ({
                 name: 'eraseSize',
@@ -404,34 +276,11 @@ export class WBFreeDraw extends lib.SceneObject {
         return this._canvas;
     }
     private finishDraw () {
-        if (this.canvas && this._mode === 'draw' && this._cp.length > 0) {
-            /*
-            lib.App.triggerEvent (null, new wb.WBCommandEvent('EndDraw', {
-                cp: this._cp
-            }, undefined, this.entityName));
-            */
-            const args:any = {
-                cpX1: this._cp[0].x,
-                cpY1: this._cp[0].y
-            };
-            if (this._cp.length > 1) {
-                args.cpX2 = this._cp[1].x,
-                args.cpY2 = this._cp[1].y
-            }
-            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EndDrawMessage, args, undefined, this.entityName));
-            this._cp.length = 0;
-            /*
-            const context = this.canvas.getContext('2d');
-            if (context) {
-                if (this._cp.length === 1) {
-                    context.lineTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5);
-                } else if (this._cp.length) {
-                    context.quadraticCurveTo (this._cp[0].x + 0.5, this._cp[0].y + 0.5, this._cp[1].x + 0.5, this._cp[1].y + 0.5);
-                }
-                context.stroke ();
-                this._cp.length = 0;
-            }
-            */
+        if (this._strokeInfo.points && this._strokeInfo.points.length > 1) {
+            this._notify = true;
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawMessage, this._strokeInfo, undefined, this.entityName));
+            this._notify = false;
+            this._strokeInfo.points = [this._strokeInfo.points[this._strokeInfo.points.length-1]];
         }
     }
 }
@@ -450,22 +299,6 @@ export class WBFreeDrawFactory extends wb.WBFactory {
             readonly: false,
             type: 'color',
             value: '#000000'
-        }, {
-            name: 'curveMode',
-            desc: '平滑模式',
-            readonly: false,
-            type: 'number',
-            value: 0,
-            enum: [{
-                value: 0,
-                desc: '无'
-            }, {
-                value: 1,
-                desc: '二次样条'
-            }, {
-                value: 2,
-                desc: '三次样条'
-            }]
         }, {
             name: 'eraseSize',
             desc: '橡皮宽度',

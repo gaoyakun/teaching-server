@@ -4667,6 +4667,8 @@ $root.whiteboard = (function() {
          * @interface IStartDrawMessage
          * @property {number|null} [x] StartDrawMessage x
          * @property {number|null} [y] StartDrawMessage y
+         * @property {number|null} [lineWidth] StartDrawMessage lineWidth
+         * @property {string|null} [color] StartDrawMessage color
          */
 
         /**
@@ -4701,6 +4703,22 @@ $root.whiteboard = (function() {
         StartDrawMessage.prototype.y = 0;
 
         /**
+         * StartDrawMessage lineWidth.
+         * @member {number} lineWidth
+         * @memberof whiteboard.StartDrawMessage
+         * @instance
+         */
+        StartDrawMessage.prototype.lineWidth = 0;
+
+        /**
+         * StartDrawMessage color.
+         * @member {string} color
+         * @memberof whiteboard.StartDrawMessage
+         * @instance
+         */
+        StartDrawMessage.prototype.color = "";
+
+        /**
          * Creates a new StartDrawMessage instance using the specified properties.
          * @function create
          * @memberof whiteboard.StartDrawMessage
@@ -4728,6 +4746,10 @@ $root.whiteboard = (function() {
                 writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.x);
             if (message.y != null && message.hasOwnProperty("y"))
                 writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.y);
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.lineWidth);
+            if (message.color != null && message.hasOwnProperty("color"))
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.color);
             return writer;
         };
 
@@ -4767,6 +4789,12 @@ $root.whiteboard = (function() {
                     break;
                 case 2:
                     message.y = reader.uint32();
+                    break;
+                case 3:
+                    message.lineWidth = reader.uint32();
+                    break;
+                case 4:
+                    message.color = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4809,6 +4837,12 @@ $root.whiteboard = (function() {
             if (message.y != null && message.hasOwnProperty("y"))
                 if (!$util.isInteger(message.y))
                     return "y: integer expected";
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                if (!$util.isInteger(message.lineWidth))
+                    return "lineWidth: integer expected";
+            if (message.color != null && message.hasOwnProperty("color"))
+                if (!$util.isString(message.color))
+                    return "color: string expected";
             return null;
         };
 
@@ -4828,6 +4862,10 @@ $root.whiteboard = (function() {
                 message.x = object.x >>> 0;
             if (object.y != null)
                 message.y = object.y >>> 0;
+            if (object.lineWidth != null)
+                message.lineWidth = object.lineWidth >>> 0;
+            if (object.color != null)
+                message.color = String(object.color);
             return message;
         };
 
@@ -4847,11 +4885,17 @@ $root.whiteboard = (function() {
             if (options.defaults) {
                 object.x = 0;
                 object.y = 0;
+                object.lineWidth = 0;
+                object.color = "";
             }
             if (message.x != null && message.hasOwnProperty("x"))
                 object.x = message.x;
             if (message.y != null && message.hasOwnProperty("y"))
                 object.y = message.y;
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                object.lineWidth = message.lineWidth;
+            if (message.color != null && message.hasOwnProperty("color"))
+                object.color = message.color;
             return object;
         };
 
@@ -4877,10 +4921,6 @@ $root.whiteboard = (function() {
          * @interface IDrawingMessage
          * @property {number|null} [x] DrawingMessage x
          * @property {number|null} [y] DrawingMessage y
-         * @property {number|null} [cpX1] DrawingMessage cpX1
-         * @property {number|null} [cpY1] DrawingMessage cpY1
-         * @property {number|null} [cpX2] DrawingMessage cpX2
-         * @property {number|null} [cpY2] DrawingMessage cpY2
          */
 
         /**
@@ -4915,38 +4955,6 @@ $root.whiteboard = (function() {
         DrawingMessage.prototype.y = 0;
 
         /**
-         * DrawingMessage cpX1.
-         * @member {number} cpX1
-         * @memberof whiteboard.DrawingMessage
-         * @instance
-         */
-        DrawingMessage.prototype.cpX1 = 0;
-
-        /**
-         * DrawingMessage cpY1.
-         * @member {number} cpY1
-         * @memberof whiteboard.DrawingMessage
-         * @instance
-         */
-        DrawingMessage.prototype.cpY1 = 0;
-
-        /**
-         * DrawingMessage cpX2.
-         * @member {number} cpX2
-         * @memberof whiteboard.DrawingMessage
-         * @instance
-         */
-        DrawingMessage.prototype.cpX2 = 0;
-
-        /**
-         * DrawingMessage cpY2.
-         * @member {number} cpY2
-         * @memberof whiteboard.DrawingMessage
-         * @instance
-         */
-        DrawingMessage.prototype.cpY2 = 0;
-
-        /**
          * Creates a new DrawingMessage instance using the specified properties.
          * @function create
          * @memberof whiteboard.DrawingMessage
@@ -4974,14 +4982,6 @@ $root.whiteboard = (function() {
                 writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.x);
             if (message.y != null && message.hasOwnProperty("y"))
                 writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.y);
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.cpX1);
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.cpY1);
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.cpX2);
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.cpY2);
             return writer;
         };
 
@@ -5021,18 +5021,6 @@ $root.whiteboard = (function() {
                     break;
                 case 2:
                     message.y = reader.uint32();
-                    break;
-                case 3:
-                    message.cpX1 = reader.uint32();
-                    break;
-                case 4:
-                    message.cpY1 = reader.uint32();
-                    break;
-                case 5:
-                    message.cpX2 = reader.uint32();
-                    break;
-                case 6:
-                    message.cpY2 = reader.uint32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -5075,18 +5063,6 @@ $root.whiteboard = (function() {
             if (message.y != null && message.hasOwnProperty("y"))
                 if (!$util.isInteger(message.y))
                     return "y: integer expected";
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                if (!$util.isInteger(message.cpX1))
-                    return "cpX1: integer expected";
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                if (!$util.isInteger(message.cpY1))
-                    return "cpY1: integer expected";
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                if (!$util.isInteger(message.cpX2))
-                    return "cpX2: integer expected";
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                if (!$util.isInteger(message.cpY2))
-                    return "cpY2: integer expected";
             return null;
         };
 
@@ -5106,14 +5082,6 @@ $root.whiteboard = (function() {
                 message.x = object.x >>> 0;
             if (object.y != null)
                 message.y = object.y >>> 0;
-            if (object.cpX1 != null)
-                message.cpX1 = object.cpX1 >>> 0;
-            if (object.cpY1 != null)
-                message.cpY1 = object.cpY1 >>> 0;
-            if (object.cpX2 != null)
-                message.cpX2 = object.cpX2 >>> 0;
-            if (object.cpY2 != null)
-                message.cpY2 = object.cpY2 >>> 0;
             return message;
         };
 
@@ -5133,23 +5101,11 @@ $root.whiteboard = (function() {
             if (options.defaults) {
                 object.x = 0;
                 object.y = 0;
-                object.cpX1 = 0;
-                object.cpY1 = 0;
-                object.cpX2 = 0;
-                object.cpY2 = 0;
             }
             if (message.x != null && message.hasOwnProperty("x"))
                 object.x = message.x;
             if (message.y != null && message.hasOwnProperty("y"))
                 object.y = message.y;
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                object.cpX1 = message.cpX1;
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                object.cpY1 = message.cpY1;
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                object.cpX2 = message.cpX2;
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                object.cpY2 = message.cpY2;
             return object;
         };
 
@@ -5167,27 +5123,27 @@ $root.whiteboard = (function() {
         return DrawingMessage;
     })();
 
-    whiteboard.EndDrawMessage = (function() {
+    whiteboard.DrawMessage = (function() {
 
         /**
-         * Properties of an EndDrawMessage.
+         * Properties of a DrawMessage.
          * @memberof whiteboard
-         * @interface IEndDrawMessage
-         * @property {number|null} [cpX1] EndDrawMessage cpX1
-         * @property {number|null} [cpY1] EndDrawMessage cpY1
-         * @property {number|null} [cpX2] EndDrawMessage cpX2
-         * @property {number|null} [cpY2] EndDrawMessage cpY2
+         * @interface IDrawMessage
+         * @property {number|null} [lineWidth] DrawMessage lineWidth
+         * @property {string|null} [color] DrawMessage color
+         * @property {Array.<whiteboard.IDrawingMessage>|null} [points] DrawMessage points
          */
 
         /**
-         * Constructs a new EndDrawMessage.
+         * Constructs a new DrawMessage.
          * @memberof whiteboard
-         * @classdesc Represents an EndDrawMessage.
-         * @implements IEndDrawMessage
+         * @classdesc Represents a DrawMessage.
+         * @implements IDrawMessage
          * @constructor
-         * @param {whiteboard.IEndDrawMessage=} [properties] Properties to set
+         * @param {whiteboard.IDrawMessage=} [properties] Properties to set
          */
-        function EndDrawMessage(properties) {
+        function DrawMessage(properties) {
+            this.points = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -5195,114 +5151,104 @@ $root.whiteboard = (function() {
         }
 
         /**
-         * EndDrawMessage cpX1.
-         * @member {number} cpX1
-         * @memberof whiteboard.EndDrawMessage
+         * DrawMessage lineWidth.
+         * @member {number} lineWidth
+         * @memberof whiteboard.DrawMessage
          * @instance
          */
-        EndDrawMessage.prototype.cpX1 = 0;
+        DrawMessage.prototype.lineWidth = 0;
 
         /**
-         * EndDrawMessage cpY1.
-         * @member {number} cpY1
-         * @memberof whiteboard.EndDrawMessage
+         * DrawMessage color.
+         * @member {string} color
+         * @memberof whiteboard.DrawMessage
          * @instance
          */
-        EndDrawMessage.prototype.cpY1 = 0;
+        DrawMessage.prototype.color = "";
 
         /**
-         * EndDrawMessage cpX2.
-         * @member {number} cpX2
-         * @memberof whiteboard.EndDrawMessage
+         * DrawMessage points.
+         * @member {Array.<whiteboard.IDrawingMessage>} points
+         * @memberof whiteboard.DrawMessage
          * @instance
          */
-        EndDrawMessage.prototype.cpX2 = 0;
+        DrawMessage.prototype.points = $util.emptyArray;
 
         /**
-         * EndDrawMessage cpY2.
-         * @member {number} cpY2
-         * @memberof whiteboard.EndDrawMessage
-         * @instance
-         */
-        EndDrawMessage.prototype.cpY2 = 0;
-
-        /**
-         * Creates a new EndDrawMessage instance using the specified properties.
+         * Creates a new DrawMessage instance using the specified properties.
          * @function create
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
-         * @param {whiteboard.IEndDrawMessage=} [properties] Properties to set
-         * @returns {whiteboard.EndDrawMessage} EndDrawMessage instance
+         * @param {whiteboard.IDrawMessage=} [properties] Properties to set
+         * @returns {whiteboard.DrawMessage} DrawMessage instance
          */
-        EndDrawMessage.create = function create(properties) {
-            return new EndDrawMessage(properties);
+        DrawMessage.create = function create(properties) {
+            return new DrawMessage(properties);
         };
 
         /**
-         * Encodes the specified EndDrawMessage message. Does not implicitly {@link whiteboard.EndDrawMessage.verify|verify} messages.
+         * Encodes the specified DrawMessage message. Does not implicitly {@link whiteboard.DrawMessage.verify|verify} messages.
          * @function encode
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
-         * @param {whiteboard.IEndDrawMessage} message EndDrawMessage message or plain object to encode
+         * @param {whiteboard.IDrawMessage} message DrawMessage message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        EndDrawMessage.encode = function encode(message, writer) {
+        DrawMessage.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.cpX1);
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.cpY1);
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.cpX2);
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.cpY2);
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.lineWidth);
+            if (message.color != null && message.hasOwnProperty("color"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.color);
+            if (message.points != null && message.points.length)
+                for (var i = 0; i < message.points.length; ++i)
+                    $root.whiteboard.DrawingMessage.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
             return writer;
         };
 
         /**
-         * Encodes the specified EndDrawMessage message, length delimited. Does not implicitly {@link whiteboard.EndDrawMessage.verify|verify} messages.
+         * Encodes the specified DrawMessage message, length delimited. Does not implicitly {@link whiteboard.DrawMessage.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
-         * @param {whiteboard.IEndDrawMessage} message EndDrawMessage message or plain object to encode
+         * @param {whiteboard.IDrawMessage} message DrawMessage message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        EndDrawMessage.encodeDelimited = function encodeDelimited(message, writer) {
+        DrawMessage.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes an EndDrawMessage message from the specified reader or buffer.
+         * Decodes a DrawMessage message from the specified reader or buffer.
          * @function decode
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+         * @returns {whiteboard.DrawMessage} DrawMessage
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        EndDrawMessage.decode = function decode(reader, length) {
+        DrawMessage.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.EndDrawMessage();
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DrawMessage();
             while (reader.pos < end) {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
-                    message.cpX1 = reader.uint32();
+                    message.lineWidth = reader.uint32();
                     break;
                 case 2:
-                    message.cpY1 = reader.uint32();
+                    message.color = reader.string();
                     break;
                 case 3:
-                    message.cpX2 = reader.uint32();
-                    break;
-                case 4:
-                    message.cpY2 = reader.uint32();
+                    if (!(message.points && message.points.length))
+                        message.points = [];
+                    message.points.push($root.whiteboard.DrawingMessage.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -5313,112 +5259,122 @@ $root.whiteboard = (function() {
         };
 
         /**
-         * Decodes an EndDrawMessage message from the specified reader or buffer, length delimited.
+         * Decodes a DrawMessage message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+         * @returns {whiteboard.DrawMessage} DrawMessage
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        EndDrawMessage.decodeDelimited = function decodeDelimited(reader) {
+        DrawMessage.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies an EndDrawMessage message.
+         * Verifies a DrawMessage message.
          * @function verify
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        EndDrawMessage.verify = function verify(message) {
+        DrawMessage.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                if (!$util.isInteger(message.cpX1))
-                    return "cpX1: integer expected";
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                if (!$util.isInteger(message.cpY1))
-                    return "cpY1: integer expected";
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                if (!$util.isInteger(message.cpX2))
-                    return "cpX2: integer expected";
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                if (!$util.isInteger(message.cpY2))
-                    return "cpY2: integer expected";
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                if (!$util.isInteger(message.lineWidth))
+                    return "lineWidth: integer expected";
+            if (message.color != null && message.hasOwnProperty("color"))
+                if (!$util.isString(message.color))
+                    return "color: string expected";
+            if (message.points != null && message.hasOwnProperty("points")) {
+                if (!Array.isArray(message.points))
+                    return "points: array expected";
+                for (var i = 0; i < message.points.length; ++i) {
+                    var error = $root.whiteboard.DrawingMessage.verify(message.points[i]);
+                    if (error)
+                        return "points." + error;
+                }
+            }
             return null;
         };
 
         /**
-         * Creates an EndDrawMessage message from a plain object. Also converts values to their respective internal types.
+         * Creates a DrawMessage message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {whiteboard.EndDrawMessage} EndDrawMessage
+         * @returns {whiteboard.DrawMessage} DrawMessage
          */
-        EndDrawMessage.fromObject = function fromObject(object) {
-            if (object instanceof $root.whiteboard.EndDrawMessage)
+        DrawMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.DrawMessage)
                 return object;
-            var message = new $root.whiteboard.EndDrawMessage();
-            if (object.cpX1 != null)
-                message.cpX1 = object.cpX1 >>> 0;
-            if (object.cpY1 != null)
-                message.cpY1 = object.cpY1 >>> 0;
-            if (object.cpX2 != null)
-                message.cpX2 = object.cpX2 >>> 0;
-            if (object.cpY2 != null)
-                message.cpY2 = object.cpY2 >>> 0;
+            var message = new $root.whiteboard.DrawMessage();
+            if (object.lineWidth != null)
+                message.lineWidth = object.lineWidth >>> 0;
+            if (object.color != null)
+                message.color = String(object.color);
+            if (object.points) {
+                if (!Array.isArray(object.points))
+                    throw TypeError(".whiteboard.DrawMessage.points: array expected");
+                message.points = [];
+                for (var i = 0; i < object.points.length; ++i) {
+                    if (typeof object.points[i] !== "object")
+                        throw TypeError(".whiteboard.DrawMessage.points: object expected");
+                    message.points[i] = $root.whiteboard.DrawingMessage.fromObject(object.points[i]);
+                }
+            }
             return message;
         };
 
         /**
-         * Creates a plain object from an EndDrawMessage message. Also converts values to other types if specified.
+         * Creates a plain object from a DrawMessage message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @static
-         * @param {whiteboard.EndDrawMessage} message EndDrawMessage
+         * @param {whiteboard.DrawMessage} message DrawMessage
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        EndDrawMessage.toObject = function toObject(message, options) {
+        DrawMessage.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
             var object = {};
+            if (options.arrays || options.defaults)
+                object.points = [];
             if (options.defaults) {
-                object.cpX1 = 0;
-                object.cpY1 = 0;
-                object.cpX2 = 0;
-                object.cpY2 = 0;
+                object.lineWidth = 0;
+                object.color = "";
             }
-            if (message.cpX1 != null && message.hasOwnProperty("cpX1"))
-                object.cpX1 = message.cpX1;
-            if (message.cpY1 != null && message.hasOwnProperty("cpY1"))
-                object.cpY1 = message.cpY1;
-            if (message.cpX2 != null && message.hasOwnProperty("cpX2"))
-                object.cpX2 = message.cpX2;
-            if (message.cpY2 != null && message.hasOwnProperty("cpY2"))
-                object.cpY2 = message.cpY2;
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                object.lineWidth = message.lineWidth;
+            if (message.color != null && message.hasOwnProperty("color"))
+                object.color = message.color;
+            if (message.points && message.points.length) {
+                object.points = [];
+                for (var j = 0; j < message.points.length; ++j)
+                    object.points[j] = $root.whiteboard.DrawingMessage.toObject(message.points[j], options);
+            }
             return object;
         };
 
         /**
-         * Converts this EndDrawMessage to JSON.
+         * Converts this DrawMessage to JSON.
          * @function toJSON
-         * @memberof whiteboard.EndDrawMessage
+         * @memberof whiteboard.DrawMessage
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        EndDrawMessage.prototype.toJSON = function toJSON() {
+        DrawMessage.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
-        return EndDrawMessage;
+        return DrawMessage;
     })();
 
     whiteboard.EraseMessage = (function() {

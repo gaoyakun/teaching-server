@@ -250,6 +250,14 @@
             "y": {
               "type": "uint32",
               "id": 2
+            },
+            "lineWidth": {
+              "type": "uint32",
+              "id": 3
+            },
+            "color": {
+              "type": "string",
+              "id": 4
             }
           }
         },
@@ -262,42 +270,23 @@
             "y": {
               "type": "uint32",
               "id": 2
-            },
-            "cpX1": {
-              "type": "uint32",
-              "id": 3
-            },
-            "cpY1": {
-              "type": "uint32",
-              "id": 4
-            },
-            "cpX2": {
-              "type": "uint32",
-              "id": 5
-            },
-            "cpY2": {
-              "type": "uint32",
-              "id": 6
             }
           }
         },
-        "EndDrawMessage": {
+        "DrawMessage": {
           "fields": {
-            "cpX1": {
+            "lineWidth": {
               "type": "uint32",
               "id": 1
             },
-            "cpY1": {
-              "type": "uint32",
+            "color": {
+              "type": "string",
               "id": 2
             },
-            "cpX2": {
-              "type": "uint32",
+            "points": {
+              "rule": "repeated",
+              "type": "DrawingMessage",
               "id": 3
-            },
-            "cpY2": {
-              "type": "uint32",
-              "id": 4
             }
           }
         },

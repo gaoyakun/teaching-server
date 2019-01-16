@@ -120,14 +120,20 @@ class Client {
         }
     }
     handleMessage(data) {
-        const u8arr = new Uint8Array(data);
-        messageAssembler.put(u8arr);
-        const msg = messageAssembler.getMessage();
-        if (msg) {
-            console.log(`Got message ${protolist_1.MsgType[msg.type]}`);
-            console.log(JSON.stringify(msg.data));
+        if (this._room) {
+            const u8arr = new Uint8Array(data);
+            messageAssembler.put(u8arr);
+            const msg = messageAssembler.getMessage();
+            if (msg) {
+                console.log(`Got message ${protolist_1.MsgType[msg.type]}`);
+                console.log(JSON.stringify(msg.data));
+                const type = msg.type;
+                if (type >= protolist_1.whiteboard.MessageID.Start && type < protolist_1.whiteboard.MessageID.Start + 10000) {
+                    servermgr_1.Server.redis.rpush(`room:${this._room.id}:events`, data);
+                }
+                this.broadCastBuffer('message', data);
+            }
         }
-        this.broadCastBuffer('message', data);
     }
 }
 exports.Client = Client;

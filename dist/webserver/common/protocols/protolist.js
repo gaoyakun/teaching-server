@@ -31,7 +31,7 @@ var MsgType;
     MsgType[MsgType["whiteboard_DeletePageMessage"] = 30019] = "whiteboard_DeletePageMessage";
     MsgType[MsgType["whiteboard_StartDrawMessage"] = 30020] = "whiteboard_StartDrawMessage";
     MsgType[MsgType["whiteboard_DrawingMessage"] = 30021] = "whiteboard_DrawingMessage";
-    MsgType[MsgType["whiteboard_EndDrawMessage"] = 30022] = "whiteboard_EndDrawMessage";
+    MsgType[MsgType["whiteboard_DrawMessage"] = 30022] = "whiteboard_DrawMessage";
     MsgType[MsgType["whiteboard_EraseMessage"] = 30023] = "whiteboard_EraseMessage";
     MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30024] = "whiteboard_SwapObjectMessage";
     MsgType[MsgType["whiteboard_ClearPageMessage"] = 30025] = "whiteboard_ClearPageMessage";
@@ -63,7 +63,7 @@ const msgMap = {
     30019: proto.whiteboard.DeletePageMessage,
     30020: proto.whiteboard.StartDrawMessage,
     30021: proto.whiteboard.DrawingMessage,
-    30022: proto.whiteboard.EndDrawMessage,
+    30022: proto.whiteboard.DrawMessage,
     30023: proto.whiteboard.EraseMessage,
     30024: proto.whiteboard.SwapObjectMessage,
     30025: proto.whiteboard.ClearPageMessage,
