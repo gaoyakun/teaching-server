@@ -61,6 +61,16 @@ export class Client {
             socket.binary(true).emit (event, data);
         }
     }
+    async syncBoardEvents () {
+        if (this._socket && this._room) {
+            const events = await Server.redis.lrange (`room:${this._room.id}:events`, 0, -1);
+            if (events) {
+                for (const ev of events) {
+                    this.sendBuffer ('message', new Buffer(ev, 'base64'));
+                }
+            }
+        }
+    }
     sendText (event:string, data:string) {
         if (this._socket) {
             this._socket.emit (event, data);
@@ -102,7 +112,7 @@ export class Client {
         if (!room) {
             throw new Error ('findOrCreateRoom failed');
         } else {
-            if (!room.addClient (this)) {
+            if (!await room.addClient (this)) {
                 throw new Error ('addClient failed');
             }
         }
@@ -122,7 +132,7 @@ export class Client {
                 console.log (JSON.stringify(msg.data));
                 const type = msg.type as number;
                 if (type >= whiteboard.MessageID.Start && type < whiteboard.MessageID.Start + 10000) {
-                    Server.redis.rpush (`room:${this._room.id}:events`, data);
+                    Server.redis.rpush (`room:${this._room.id}:events`, data.toString('base64'));
                 }
                 this.broadCastBuffer ('message', data);
             }
@@ -158,7 +168,7 @@ export class Room {
             return this._clients[id as number];
         }
     }
-    addClient (client: Client): boolean {
+    async addClient (client: Client) {
         if (client && client.socket) {
             const oldClient = this.findClient (client.userId)
             if (oldClient !== client) {
@@ -179,6 +189,7 @@ export class Room {
                     account: client.userAccount,
                     userId: client.userId
                 }, true);
+                await client.syncBoardEvents ();
             }
             return true;
         }

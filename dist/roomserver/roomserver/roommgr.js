@@ -65,6 +65,18 @@ class Client {
             socket.binary(true).emit(event, data);
         }
     }
+    syncBoardEvents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._socket && this._room) {
+                const events = yield servermgr_1.Server.redis.lrange(`room:${this._room.id}:events`, 0, -1);
+                if (events) {
+                    for (const ev of events) {
+                        this.sendBuffer('message', new Buffer(ev, 'base64'));
+                    }
+                }
+            }
+        });
+    }
     sendText(event, data) {
         if (this._socket) {
             this._socket.emit(event, data);
@@ -108,7 +120,7 @@ class Client {
                 throw new Error('findOrCreateRoom failed');
             }
             else {
-                if (!room.addClient(this)) {
+                if (!(yield room.addClient(this))) {
                     throw new Error('addClient failed');
                 }
             }
@@ -129,7 +141,7 @@ class Client {
                 console.log(JSON.stringify(msg.data));
                 const type = msg.type;
                 if (type >= protolist_1.whiteboard.MessageID.Start && type < protolist_1.whiteboard.MessageID.Start + 10000) {
-                    servermgr_1.Server.redis.rpush(`room:${this._room.id}:events`, data);
+                    servermgr_1.Server.redis.rpush(`room:${this._room.id}:events`, data.toString('base64'));
                 }
                 this.broadCastBuffer('message', data);
             }
@@ -162,30 +174,33 @@ class Room {
         }
     }
     addClient(client) {
-        if (client && client.socket) {
-            const oldClient = this.findClient(client.userId);
-            if (oldClient !== client) {
-                if (oldClient && oldClient.socket) {
-                    // broadcast leave message
-                    oldClient.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
-                        account: oldClient.userAccount,
-                        userId: oldClient.userId
+        return __awaiter(this, void 0, void 0, function* () {
+            if (client && client.socket) {
+                const oldClient = this.findClient(client.userId);
+                if (oldClient !== client) {
+                    if (oldClient && oldClient.socket) {
+                        // broadcast leave message
+                        oldClient.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
+                            account: oldClient.userAccount,
+                            userId: oldClient.userId
+                        }, true);
+                        // kick off the previous connected client
+                        oldClient.disconnect();
+                        oldClient.room = null;
+                        delete this._clients[client.userId];
+                    }
+                    this._clients[client.userId] = client;
+                    client.room = this;
+                    client.broadCastMessage('message', protolist_1.MsgType.room_JoinRoomMessage, {
+                        account: client.userAccount,
+                        userId: client.userId
                     }, true);
-                    // kick off the previous connected client
-                    oldClient.disconnect();
-                    oldClient.room = null;
-                    delete this._clients[client.userId];
+                    yield client.syncBoardEvents();
                 }
-                this._clients[client.userId] = client;
-                client.room = this;
-                client.broadCastMessage('message', protolist_1.MsgType.room_JoinRoomMessage, {
-                    account: client.userAccount,
-                    userId: client.userId
-                }, true);
+                return true;
             }
-            return true;
-        }
-        return false;
+            return false;
+        });
     }
     removeClient(client) {
         if (client && this.findClient(client.userId) === client) {
