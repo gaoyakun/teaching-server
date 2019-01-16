@@ -231,6 +231,7 @@ export class WBMessageEvent extends lib.BaseEvent {
     static readonly type: string = '@WBMessage';
     messageType: MsgType;
     messageData: any;
+    broadcast: boolean;
     results?: any;
     object?: string;
     constructor (type: MsgType, data: any, results?: any, object?: string) {
@@ -239,6 +240,7 @@ export class WBMessageEvent extends lib.BaseEvent {
         this.messageData = data;
         this.results = results;
         this.object = object;
+        this.broadcast = false;
     }
 }
 
@@ -273,7 +275,7 @@ export class WBTool extends lib.EventObserver {
     }
     public deactivateObject(object: lib.SceneObject) {
     }
-    public handleMessage(type:MsgType, args?: any) {
+    public handleMessage(ev: WBMessageEvent) {
     }
 }
 
@@ -307,7 +309,7 @@ export class WhiteBoard extends lib.EventObserver {
             }
         });
         this.on(WBMessageEvent.type, (ev: WBMessageEvent) => {
-            this._handleMessage (ev.messageType, ev.messageData, ev.results, ev.object);
+            this._handleMessage (ev);
         });
         if (this.view) {
             this.view.on (lib.EvtKeyDown.type, (ev: lib.EvtKeyDown) => {
@@ -439,12 +441,15 @@ export class WhiteBoard extends lib.EventObserver {
         }
         return null;
     }
-    _handleMessage (type: MsgType, data: any, results?: any, object?: string) {
+    _handleMessage (ev: WBMessageEvent) {
+        const type = ev.messageType;
+        const data = ev.messageData;
+        const results = ev.results;
         const cmd = data||{};
-        if (object) {
-            const obj = this.findEntity (object);
+        if (ev.object) {
+            const obj = this.findEntity (ev.object);
             if (obj) {
-                obj.triggerEx (new WBMessageEvent(type, data, results, object));
+                obj.triggerEx (ev);
             }
         } else if (type === MsgType.whiteboard_UseToolMessage) {
             if (this._currentTool !== cmd.name) {
@@ -590,7 +595,7 @@ export class WhiteBoard extends lib.EventObserver {
                 this.view && page && page.name && this.view.clearPage (page.name);
             })
         } else if (this._currentTool) {
-            this._tools[this._currentTool].handleMessage (type, cmd);
+            this._tools[this._currentTool].handleMessage (ev);
         } else {
             return;
         }

@@ -224,15 +224,15 @@ export class WBSelectTool extends wb.WBTool {
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
-    public handleMessage(type:MsgType, args?:any) {
-        if (type === MsgType.whiteboard_DeleteSelected) {
+    public handleMessage(ev: wb.WBMessageEvent) {
+        if (ev.messageType === MsgType.whiteboard_DeleteSelected) {
             if (this._selectedObjects.length > 0) {
                 lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_DeleteObjectsMessage, {
                     names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
-        } else if (type === MsgType.whiteboard_AlignSelected) {
-            const mode = args.mode;
+        } else if (ev.messageType === MsgType.whiteboard_AlignSelected) {
+            const mode = ev.messageData.mode;
             if (this._selectedObjects.length > 0) {
                 let msgType: MsgType;
                 if (mode === 'Left') {
@@ -250,14 +250,9 @@ export class WBSelectTool extends wb.WBTool {
                     names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
                 }));
             }
-        } else if (type === MsgType.whiteboard_ArrangeSelected) {
-            const mode = args.mode;
+        } else if (ev.messageType === MsgType.whiteboard_ArrangeSelected) {
+            const mode = ev.messageData.mode;
             if (this._selectedObjects.length > 0) {
-                /*
-                lib.App.triggerEvent (null, new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
-                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                }));
-                */
                 let msgType: MsgType;
                 if (mode === 'Horizontal') {
                     msgType = MsgType.whiteboard_ArrangeObjectsHorizontalMessage;

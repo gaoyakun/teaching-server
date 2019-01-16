@@ -46,7 +46,9 @@ export class SocketCommandServer extends catk.EventObserver {
                     if (msg.type === MsgType.whiteboard_EventMessage) {
                         const msgData = new Packet(msg.data.message).getMsgData();
                         if (msgData) {
-                            this._wb.triggerEx (new WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object));
+                            const ev = new WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
+                            ev.broadcast = true;
+                            this._wb.triggerEx (ev);
                         }
                     } else {
                         catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));

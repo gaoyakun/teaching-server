@@ -12783,6 +12783,7 @@
 	        _this.messageData = data;
 	        _this.results = results;
 	        _this.object = object;
+	        _this.broadcast = false;
 	        return _this;
 	    }
 	    WBMessageEvent.type = '@WBMessage';
@@ -12819,7 +12820,7 @@
 	    };
 	    WBTool.prototype.deactivateObject = function (object) {
 	    };
-	    WBTool.prototype.handleMessage = function (type, args) {
+	    WBTool.prototype.handleMessage = function (ev) {
 	    };
 	    return WBTool;
 	}(catk.EventObserver));
@@ -12851,7 +12852,7 @@
 	            }
 	        });
 	        _this.on(WBMessageEvent.type, function (ev) {
-	            _this._handleMessage(ev.messageType, ev.messageData, ev.results, ev.object);
+	            _this._handleMessage(ev);
 	        });
 	        if (_this.view) {
 	            _this.view.on(catk.EvtKeyDown.type, function (ev) {
@@ -12986,13 +12987,16 @@
 	        }
 	        return null;
 	    };
-	    WhiteBoard.prototype._handleMessage = function (type, data, results, object) {
+	    WhiteBoard.prototype._handleMessage = function (ev) {
 	        var _this = this;
+	        var type = ev.messageType;
+	        var data = ev.messageData;
+	        var results = ev.results;
 	        var cmd = data || {};
-	        if (object) {
-	            var obj = this.findEntity(object);
+	        if (ev.object) {
+	            var obj = this.findEntity(ev.object);
 	            if (obj) {
-	                obj.triggerEx(new WBMessageEvent(type, data, results, object));
+	                obj.triggerEx(ev);
 	            }
 	        }
 	        else if (type === protolist.MsgType.whiteboard_UseToolMessage) {
@@ -13127,8 +13131,8 @@
 	        else if (type === protolist.MsgType.whiteboard_SetObjectPropertyMessage) {
 	            var obj = this.findEntity(cmd.name);
 	            if (obj) {
-	                var ev = new WBSetPropertyEvent(cmd.propName, JSON.parse(cmd.propValueJson));
-	                obj.triggerEx(ev);
+	                var ev_1 = new WBSetPropertyEvent(cmd.propName, JSON.parse(cmd.propValueJson));
+	                obj.triggerEx(ev_1);
 	                if (obj.entityName !== cmd.name) {
 	                    if (this.findEntity(obj.entityName)) {
 	                        obj.entityName = cmd.name;
@@ -13155,7 +13159,7 @@
 	            });
 	        }
 	        else if (this._currentTool) {
-	            this._tools[this._currentTool].handleMessage(type, cmd);
+	            this._tools[this._currentTool].handleMessage(ev);
 	        }
 	        else {
 	            return;
@@ -14902,7 +14906,6 @@
 	        _this._mode = opt.mode || 'draw';
 	        _this._mousePosX = 0;
 	        _this._mousePosY = 0;
-	        _this._notify = false;
 	        _this._strokeInfo = {
 	            lineWidth: _this._lineWidth,
 	            color: _this._color,
@@ -14972,7 +14975,7 @@
 	                        context.lineTo(data.x + 0.5, data.y + 0.5);
 	                        context.stroke();
 	                    }
-	                    else if (type === protolist.MsgType.whiteboard_DrawMessage && !_this._notify) {
+	                    else if (type === protolist.MsgType.whiteboard_DrawMessage && ev.broadcast) {
 	                        if (data.points.length > 1) {
 	                            context.lineWidth = data.lineWidth;
 	                            context.strokeStyle = data.color;
@@ -15165,9 +15168,7 @@
 	    });
 	    WBFreeDraw.prototype.finishDraw = function () {
 	        if (this._strokeInfo.points && this._strokeInfo.points.length > 1) {
-	            this._notify = true;
 	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawMessage, this._strokeInfo, undefined, this.entityName));
-	            this._notify = false;
 	            this._strokeInfo.points = [this._strokeInfo.points[this._strokeInfo.points.length - 1]];
 	        }
 	    };
@@ -15492,16 +15493,16 @@
 	            object.removeComponentsByType(WBSelectComponent.type);
 	        }
 	    };
-	    WBSelectTool.prototype.handleMessage = function (type, args) {
-	        if (type === protolist.MsgType.whiteboard_DeleteSelected) {
+	    WBSelectTool.prototype.handleMessage = function (ev) {
+	        if (ev.messageType === protolist.MsgType.whiteboard_DeleteSelected) {
 	            if (this._selectedObjects.length > 0) {
 	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DeleteObjectsMessage, {
 	                    names: this._selectedObjects.map(function (obj) { return obj.entityName; })
 	                }));
 	            }
 	        }
-	        else if (type === protolist.MsgType.whiteboard_AlignSelected) {
-	            var mode = args.mode;
+	        else if (ev.messageType === protolist.MsgType.whiteboard_AlignSelected) {
+	            var mode = ev.messageData.mode;
 	            if (this._selectedObjects.length > 0) {
 	                var msgType = void 0;
 	                if (mode === 'Left') {
@@ -15524,14 +15525,9 @@
 	                }));
 	            }
 	        }
-	        else if (type === protolist.MsgType.whiteboard_ArrangeSelected) {
-	            var mode = args.mode;
+	        else if (ev.messageType === protolist.MsgType.whiteboard_ArrangeSelected) {
+	            var mode = ev.messageData.mode;
 	            if (this._selectedObjects.length > 0) {
-	                /*
-	                lib.App.triggerEvent (null, new wb.WBCommandEvent(`ArrangeObjects${mode}`, {
-	                    objects: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-	                }));
-	                */
 	                var msgType = void 0;
 	                if (mode === 'Horizontal') {
 	                    msgType = protolist.MsgType.whiteboard_ArrangeObjectsHorizontalMessage;
@@ -15714,12 +15710,19 @@
 	            this._curObject = null;
 	        }
 	    };
-	    WBSwapTool.prototype.handleMessage = function (type, args) {
-	        if (type === protolist.MsgType.whiteboard_SwapObjectMessage) {
-	            var object1 = this._wb.findEntity(args.name1);
-	            var object2 = this._wb.findEntity(args.name2);
+	    WBSwapTool.prototype.handleMessage = function (ev) {
+	        if (ev.messageType === protolist.MsgType.whiteboard_SwapObjectMessage) {
+	            var object1 = this._wb.findEntity(ev.messageData.name1);
+	            var object2 = this._wb.findEntity(ev.messageData.name2);
 	            if (object1 && object2) {
-	                this.swapObject(object1, object2, args.duration);
+	                if (ev.broadcast) {
+	                    var t1 = object1.translation;
+	                    object1.translation = object2.translation;
+	                    object2.translation = t1;
+	                }
+	                else {
+	                    this.swapObject(object1, object2, ev.messageData.duration);
+	                }
 	            }
 	        }
 	    };
@@ -16586,7 +16589,9 @@
 	                    if (msg.type === protolist.MsgType.whiteboard_EventMessage) {
 	                        var msgData = new protoutils.Packet(msg.data.message).getMsgData();
 	                        if (msgData) {
-	                            _this._wb.triggerEx(new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object));
+	                            var ev = new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
+	                            ev.broadcast = true;
+	                            _this._wb.triggerEx(ev);
 	                        }
 	                    }
 	                    else {

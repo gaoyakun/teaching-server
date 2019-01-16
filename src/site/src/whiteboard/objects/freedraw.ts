@@ -11,7 +11,6 @@ export class WBFreeDraw extends lib.SceneObject {
     private _mousePosY: number;
     private _lastMoveTime: number;
     private _action: boolean;
-    private _notify: boolean;
     private _canvas: HTMLCanvasElement|null;
     private _boundingShape: lib.BoundingBox|null;
     private _strokeInfo: proto.whiteboard.IDrawMessage;
@@ -28,7 +27,6 @@ export class WBFreeDraw extends lib.SceneObject {
         this._mode = opt.mode || 'draw';
         this._mousePosX = 0;
         this._mousePosY = 0;
-        this._notify = false;
         this._strokeInfo = {
             lineWidth: this._lineWidth,
             color: this._color,
@@ -96,7 +94,7 @@ export class WBFreeDraw extends lib.SceneObject {
                         this._strokeInfo.points && this._strokeInfo.points.push ({x:data.x, y:data.y});
                         context.lineTo (data.x + 0.5, data.y + 0.5);
                         context.stroke ();
-                    } else if (type === proto.MsgType.whiteboard_DrawMessage && !this._notify) {
+                    } else if (type === proto.MsgType.whiteboard_DrawMessage && ev.broadcast) {
                         if (data.points.length > 1) {
                             context.lineWidth = data.lineWidth;
                             context.strokeStyle = data.color;
@@ -277,9 +275,7 @@ export class WBFreeDraw extends lib.SceneObject {
     }
     private finishDraw () {
         if (this._strokeInfo.points && this._strokeInfo.points.length > 1) {
-            this._notify = true;
             lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawMessage, this._strokeInfo, undefined, this.entityName));
-            this._notify = false;
             this._strokeInfo.points = [this._strokeInfo.points[this._strokeInfo.points.length-1]];
         }
     }

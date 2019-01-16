@@ -78,12 +78,18 @@ export class WBSwapTool extends wb.WBTool {
             this._curObject = null;
         }
     }
-    public handleMessage(type:MsgType, args?:any) {
-        if (type === MsgType.whiteboard_SwapObjectMessage) {
-            const object1 = this._wb.findEntity (args.name1);
-            const object2 = this._wb.findEntity (args.name2);
+    public handleMessage(ev: wb.WBMessageEvent) {
+        if (ev.messageType === MsgType.whiteboard_SwapObjectMessage) {
+            const object1 = this._wb.findEntity (ev.messageData.name1);
+            const object2 = this._wb.findEntity (ev.messageData.name2);
             if (object1 && object2) {
-                this.swapObject (object1, object2, args.duration);
+                if (ev.broadcast) {
+                    const t1 = object1.translation;
+                    object1.translation = object2.translation;
+                    object2.translation = t1;
+                } else {
+                    this.swapObject (object1, object2, ev.messageData.duration);
+                }
             }
         }
     }
