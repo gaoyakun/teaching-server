@@ -23,23 +23,15 @@
     <body>
         <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
             <a class="navbar-brand" href="/">Open Teaching Project</a>
-            <% if (user) { %>
-                <div class="justify-content-end">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item" style="color:#fff;font-weight:bold;"><a href="/trust/settings/profile">欢迎！<%= user.name %></a></li>
-                    </ul>
+            <form class="form-inline">
+                <div class="input-group">
+                    <input type="text" class="form-control mr-1">
                 </div>
-            <% } else { %>
-                <form class="form-inline">
-                    <div class="input-group">
-                        <input type="text" class="form-control mr-1">
-                    </div>
-                    <div class="input-group">
-                        <input type="password" class="form-control mr-1">
-                    </div>
-                    <button type="submit" class="btn btn-success">Sign in</button>
-                </form>
-            <% } %>
+                <div class="input-group">
+                    <input type="password" class="form-control mr-1">
+                </div>
+                <button type="submit" class="btn btn-success">Sign in</button>
+            </form>
         </nav>
         <div class="container">	
             <div class="row pt-2">
@@ -98,10 +90,5 @@
         <script src="/js/bootstrap.min.js"></script>
         <script src="/js/socket.io.js"></script>
         <script src="/js/create_room.js"></script>
-        <script>
-            $(document).ready (function (){
-                create_room.init ("<%= serverinfo.host %>");
-            });
-        </script>
     </body>
 </html>

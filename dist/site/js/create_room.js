@@ -13000,19 +13000,17 @@
 	            }
 	        }
 	        else if (type === protolist.MsgType.whiteboard_UseToolMessage) {
-	            if (this._currentTool !== cmd.name) {
-	                if (this._currentTool !== '') {
-	                    var prevTool = this._tools[this._currentTool];
-	                    prevTool.deactivate();
-	                }
-	                this._currentTool = '';
-	                if (cmd.name) {
-	                    var newTool = this._tools[cmd.name];
-	                    if (newTool) {
-	                        this._currentTool = cmd.name;
-	                        var args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
-	                        newTool.activate(args);
-	                    }
+	            if (this._currentTool !== '') {
+	                var prevTool = this._tools[this._currentTool];
+	                prevTool.deactivate();
+	            }
+	            this._currentTool = '';
+	            if (cmd.name) {
+	                var newTool = this._tools[cmd.name];
+	                if (newTool) {
+	                    this._currentTool = cmd.name;
+	                    var args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
+	                    newTool.activate(args);
 	                }
 	            }
 	        }
@@ -13204,41 +13202,102 @@
 	        this._tools = [];
 	    };
 	    WBToolPalette.prototype.loadToolPalette = function (toolPalette) {
-	        var _this = this;
-	        var _loop_1 = function (toolname) {
-	            var tooldef = this_1.getOpTool(toolPalette, toolname);
-	            var toolButton = this_1.createToolButton(tooldef);
-	            if (toolButton) {
-	                toolButton.addEventListener('click', function () {
-	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
-	                    var tool = _this._tools[toolIndex];
-	                    if (tool !== _this._curTool) {
-	                        if (_this._curTool) {
-	                            var curToolButton = document.querySelector("#" + _this._curTool.elementId);
-	                            curToolButton && curToolButton.classList.remove('active');
-	                            _this._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage);
-	                            _this._curTool = null;
-	                        }
-	                    }
-	                    if (tool) {
-	                        var button = document.querySelector("#" + tool.elementId);
-	                        button && button.classList.add('active');
-	                        _this._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, tool.args);
-	                        _this._curTool = tool;
-	                    }
+	        var that = this;
+	        var toollist = {
+	            '#tb-text': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'Create',
+	                    paramsJson: JSON.stringify({
+	                        createType: 'Label',
+	                        text: '标签',
+	                        textColor: '#000000'
+	                    })
+	                });
+	            },
+	            '#tb-select': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'Select'
+	                });
+	            },
+	            '#tb-swap': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'Swap'
+	                });
+	            },
+	            '#tb-connect': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'Connect'
+	                });
+	            },
+	            '#tb-draw': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'HandWriting',
+	                    paramsJson: JSON.stringify({
+	                        mode: 'draw'
+	                    })
+	                });
+	            },
+	            '#tb-erase': function () {
+	                $(this).siblings().removeClass('selected');
+	                $(this).addClass('selected');
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
+	                    name: 'HandWriting',
+	                    paramsJson: JSON.stringify({
+	                        mode: 'erase'
+	                    })
 	                });
 	            }
 	        };
-	        var this_1 = this;
-	        for (var toolname in toolPalette) {
-	            _loop_1(toolname);
+	        var _loop_1 = function (tool) {
+	            $(tool).on('click', function () {
+	                toollist[tool].call(this);
+	            });
+	        };
+	        for (var tool in toollist) {
+	            _loop_1(tool);
 	        }
+	        /*
+	        for (const toolname in toolPalette) {
+	            const tooldef = this.getOpTool (toolPalette, toolname);
+	            const toolButton = this.createToolButton (tooldef);
+	            if (toolButton) {
+	                toolButton.addEventListener ('click', () => {
+	                    const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
+	                    const tool = this._tools[toolIndex];
+	                    if (tool !== this._curTool) {
+	                        if (this._curTool) {
+	                            const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
+	                            curToolButton && curToolButton.classList.remove ('active');
+	                            this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage);
+	                            this._curTool = null;
+	                        }
+	                    }
+	                    if (tool) {
+	                        const button = document.querySelector(`#${tool.elementId}`);
+	                        button && button.classList.add ('active');
+	                        this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, tool.args);
+	                        this._curTool = tool;
+	                    }
+	                });
+	            }
+	        }
+	        */
 	    };
 	    WBToolPalette.prototype.loadOpPalette = function (opPalette) {
 	        var _this = this;
 	        var _loop_2 = function (op) {
-	            var tooldef = this_2.getOpTool(opPalette, op);
-	            var toolButton = this_2.createToolButton(tooldef);
+	            var tooldef = this_1.getOpTool(opPalette, op);
+	            var toolButton = this_1.createToolButton(tooldef);
 	            if (toolButton) {
 	                toolButton.addEventListener('click', function () {
 	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
@@ -13247,7 +13306,7 @@
 	                });
 	            }
 	        };
-	        var this_2 = this;
+	        var this_1 = this;
 	        for (var op in opPalette) {
 	            _loop_2(op);
 	        }
@@ -13299,7 +13358,8 @@
 	        this._container = container;
 	        this._tableId = id;
 	        this._object = null;
-	        var table = document.createElement('table');
+	        /*
+	        const table = document.createElement ('table');
 	        table.style.border = 'solid 1px #95B8E7';
 	        table.style.borderSpacing = '0px';
 	        table.style.margin = '0px';
@@ -13308,41 +13368,54 @@
 	        table.style.width = '100%';
 	        table.style.tableLayout = 'fixed';
 	        table.style.backgroundColor = '#fff';
-	        table.setAttribute('id', this._tableId);
-	        var tbody = document.createElement('tbody');
-	        table.appendChild(tbody);
-	        this._container.appendChild(table);
+	        table.setAttribute ('id', this._tableId);
+	        const tbody = document.createElement ('tbody');
+	        table.appendChild (tbody);
+	        this._container.appendChild (table);
+	        */
 	    }
 	    WBPropertyGrid.prototype.addGroup = function (name) {
-	        var tr = this.createRow();
+	        /*
+	        const tr = this.createRow ();
 	        tr.style.backgroundColor = '#E0ECFF';
 	        tr.style.fontWeight = 'bold';
-	        this.createGroupCell(tr, name);
+	        this.createGroupCell (tr, name);
+	        */
 	    };
 	    WBPropertyGrid.prototype.addButton = function (text, callback) {
-	        var tr = this.createRow();
-	        var td = this.createCell(tr);
+	        /*
+	        const tr = this.createRow ();
+	        const td = this.createCell (tr);
 	        td.style.padding = '5px';
 	        td.style.textAlign = 'center';
-	        td.setAttribute('colspan', '2');
-	        var btn = document.createElement('button');
+	        td.setAttribute ('colspan', '2');
+	        const btn = document.createElement ('button');
 	        btn.innerText = text;
 	        btn.style.width = '100%';
 	        btn.style.padding = '5px';
+	        btn.onclick = () => {
+	            callback && callback ();
+	        };
+	        td.appendChild (btn);
+	        */
+	        var btn = document.createElement('a');
+	        btn.classList.add('btn');
+	        this._container.appendChild(btn);
+	        btn.innerHTML = text;
+	        btn.href = 'javascript:void(0);';
 	        btn.onclick = function () {
 	            callback && callback();
 	        };
-	        td.appendChild(btn);
 	    };
 	    WBPropertyGrid.prototype.addTextAttribute = function (name, value, readonly, changeCallback, laterChange) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
+	        var label = document.createElement('label');
+	        label.innerHTML = name + ':';
+	        this._container.appendChild(label);
 	        var input = document.createElement('input');
 	        input.type = 'text';
 	        if (value) {
 	            input.value = value;
 	        }
-	        input.style.width = '100%';
 	        input.style.boxSizing = 'border-box';
 	        input.readOnly = readonly;
 	        input.disabled = readonly;
@@ -13358,11 +13431,12 @@
 	                };
 	            }
 	        }
-	        this.createPropCell(tr).appendChild(input);
+	        this._container.appendChild(input);
 	    };
 	    WBPropertyGrid.prototype.addToggleAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
+	        var label = document.createElement('label');
+	        label.innerHTML = name + ':';
+	        this._container.appendChild(label);
 	        var input = document.createElement('input');
 	        input.type = 'checkbox';
 	        input.checked = value;
@@ -13373,28 +13447,29 @@
 	                input.checked = Boolean(changeCallback(input.checked));
 	            };
 	        }
-	        this.createPropCell(tr).appendChild(input);
+	        this._container.appendChild(input);
 	    };
 	    WBPropertyGrid.prototype.addNumberAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
+	        var label = document.createElement('label');
+	        label.innerHTML = name + ':';
+	        this._container.appendChild(label);
 	        var input = document.createElement('input');
 	        input.type = 'number';
 	        input.value = String(value);
 	        input.readOnly = readonly;
 	        input.disabled = readonly;
-	        input.style.width = '100%';
 	        input.style.boxSizing = 'border-box';
 	        if (changeCallback) {
 	            input.oninput = function () {
 	                input.value = String(changeCallback(Number(input.value)));
 	            };
 	        }
-	        this.createPropCell(tr).appendChild(input);
+	        this._container.appendChild(input);
 	    };
 	    WBPropertyGrid.prototype.addChoiceAttribute = function (name, values, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
+	        var label = document.createElement('label');
+	        label.innerHTML = name + ':';
+	        this._container.appendChild(label);
 	        var input = document.createElement('select');
 	        values.forEach(function (opt) {
 	            var option = document.createElement('option');
@@ -13406,31 +13481,30 @@
 	            input.value = String(value);
 	        }
 	        input.disabled = readonly;
-	        input.style.width = '100%';
 	        input.style.boxSizing = 'border-box';
 	        if (changeCallback) {
 	            input.onchange = function () {
 	                input.value = String(changeCallback(input.value));
 	            };
 	        }
-	        this.createPropCell(tr).appendChild(input);
+	        this._container.appendChild(input);
 	    };
 	    WBPropertyGrid.prototype.addColorAttribute = function (name, value, readonly, changeCallback) {
-	        var tr = this.createRow();
-	        this.createPropCell(tr).innerText = name;
+	        var label = document.createElement('label');
+	        label.innerHTML = name + ':';
+	        this._container.appendChild(label);
 	        var input = document.createElement('input');
 	        input.type = 'color';
 	        input.value = value;
 	        input.readOnly = readonly;
 	        input.disabled = readonly;
-	        input.style.width = '100%';
 	        input.style.boxSizing = 'border-box';
 	        if (changeCallback) {
 	            input.onchange = function () {
 	                input.value = String(changeCallback(input.value));
 	            };
 	        }
-	        this.createPropCell(tr).appendChild(input);
+	        this._container.appendChild(input);
 	    };
 	    WBPropertyGrid.prototype.getToolProperty = function (name) {
 	        if (this._object) {
@@ -13566,18 +13640,30 @@
 	        }
 	    };
 	    WBPropertyGrid.prototype.clear = function () {
-	        var inputs = document.querySelectorAll("table#" + this._tableId + " input");
-	        for (var i = 0; i < inputs.length; i++) {
-	            inputs[i].onchange = null;
+	        while (this._container.firstChild) {
+	            var el = this._container.firstChild;
+	            if (el.onchange) {
+	                el.onchange = null;
+	            }
+	            if (el.onclick) {
+	                el.onclick = null;
+	            }
+	            el.remove();
 	        }
-	        var selects = document.querySelectorAll("table#" + this._tableId + " select");
-	        for (var i = 0; i < selects.length; i++) {
-	            selects[i].onchange = null;
+	        /*
+	        const inputs = document.querySelectorAll (`table#${this._tableId} input`);
+	        for (let i = 0; i < inputs.length; i++) {
+	            (inputs[i] as HTMLInputElement).onchange = null;
+	        };
+	        const selects = document.querySelectorAll (`table#${this._tableId} select`);
+	        for (let i = 0; i < selects.length; i++) {
+	            (selects[i] as HTMLSelectElement).onchange = null;
 	        }
-	        var tbody = document.querySelector("table#" + this._tableId + " tbody");
+	        const tbody = document.querySelector (`table#${this._tableId} tbody`);
 	        while (tbody && tbody.hasChildNodes()) {
-	            tbody.removeChild(tbody.firstChild);
+	            tbody.removeChild (tbody.firstChild as Node);
 	        }
+	        */
 	        this._object = null;
 	    };
 	    WBPropertyGrid.prototype.reloadToolProperties = function () {

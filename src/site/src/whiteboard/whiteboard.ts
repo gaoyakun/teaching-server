@@ -452,19 +452,17 @@ export class WhiteBoard extends lib.EventObserver {
                 obj.triggerEx (ev);
             }
         } else if (type === MsgType.whiteboard_UseToolMessage) {
-            if (this._currentTool !== cmd.name) {
-                if (this._currentTool !== '') {
-                    const prevTool = this._tools[this._currentTool];
-                    prevTool.deactivate();
-                }
-                this._currentTool = '';
-                if (cmd.name) {
-                    const newTool = this._tools[cmd.name];
-                    if (newTool) {
-                        this._currentTool = cmd.name;
-                        const args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
-                        newTool.activate(args);
-                    }
+            if (this._currentTool !== '') {
+                const prevTool = this._tools[this._currentTool];
+                prevTool.deactivate();
+            }
+            this._currentTool = '';
+            if (cmd.name) {
+                const newTool = this._tools[cmd.name];
+                if (newTool) {
+                    this._currentTool = cmd.name;
+                    const args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
+                    newTool.activate(args);
                 }
             }
         } else if (type === MsgType.whiteboard_CreateObjectMessage) {

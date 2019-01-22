@@ -41,6 +41,9 @@
         <div class="container">	
             <div class="row" id="room-grid-view">
             </div>
+            <div class="row">
+                <video id="webcam"></video>
+            </div>
         </div>
         <script src="/js/jquery.min.js"></script>
         <script src="/js/bootstrap.min.js"></script>
@@ -48,6 +51,24 @@
         <script>
             $(document).ready(function(){
                 landing.landing_setup ();
+
+                (function(){
+                    var video = document.getElementById('webcam');
+                    var getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia ||  navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+                    if (video.srcObject === undefined || getUserMedia === undefined) {
+                        alert ('your browser not support webrtc');
+                    } else {
+                        getUserMedia.call (navigator, {
+                            video: true,
+                            audio: false
+                        }, function(stream){
+                            video.srcObject = stream;
+                            video.autoplay = true;
+                        }, function(err){
+                            alert ('getUserMedia failed:' + err);
+                        });
+                    }
+                }());
             });
         </script>
     </body>

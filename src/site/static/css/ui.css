@@ -95,3 +95,110 @@ a {
     float: right;
 }
 
+.toolbar {
+    background: #c7c7c7 url(/images/toolbar-bg.jpg) repeat-x;
+    border-bottom: 1px solid #888;
+    padding: 0;
+}
+
+.toolbar .selected {
+    background: #eee;
+    border-color: transparent #aaa transparent #aaa;
+}
+
+.subtoolbar {
+    background: #c7c7c7 url(/images/toolbar-bg2.jpg) repeat-x;
+    background-size: auto 100%;
+    border-bottom: 1px solid #888;
+    padding: 0;
+}
+
+/*
+.toolbar {
+    clear: both;
+    background: #c7c7c7 url(/images/toolbar-bg.jpg) repeat-x;
+    border-bottom: 1px solid #888;
+    padding: 0;
+    width: 100%;
+    overflow-y: hidden;
+}
+
+.toolbar .group {
+    clear: none;
+}
+
+.toolbar .seperator {
+    float: left;
+    clear: none;
+    margin: 6px 2px;
+}
+
+.toolbar a {
+    float: left;
+    clear: none;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    padding: 4px 5px 0px 7px;
+    height: 44px;
+    border: 1px solid transparent;
+    border-width: 0px 1px;
+    cursor: pointer;
+}
+
+.toolbar a.selected {
+    background: #eee;
+    border-color: transparent #aaa transparent #aaa;
+}
+
+.subtoolbar {
+    float: left;
+    clear: both;
+    background: #bcbcbc url(/images/toolbar/toolbar-bg2.jpg) repeat-x;
+    width: 100%;
+    padding: 0px 10px 0px 80px;
+    margin: -2px 0px 0px 0px;
+    border-bottom: 1px solid #888;
+    height: 25px;
+    overflow: hidden;
+}
+
+.subtoolbar img {
+    display: block;
+}
+
+.subtoolbar a, .subtoolbar button, .subtoolbar a:visited {
+    display: block;
+    float: left;
+    vertical-align: baseline;
+    margin: 3px 0px 1px 0px;
+    height: 22px;
+    text-decoration: none;
+    color: #000;
+    line-height: 18px;
+    cursor: pointer;
+}
+
+.subtoolbar a.selected {
+    margin: 0px -1px -1px -1px !important;
+    padding: 2px 0px 0px 0px;
+    background: #eee;
+    border: 1px solid #aaa;
+    border-color: transparent #aaa #888 #aaa;
+}
+
+.subtoolbar .seperator {
+    float: left;
+    clear: none;
+    margin: 1px 5px;
+    width: 2px;
+    height: 23px;
+}
+
+.subtoolbar .label {
+    float: left;
+    clear: none;
+    padding: 6px 0px 0px 0px;
+    color: #555;
+}
+*/

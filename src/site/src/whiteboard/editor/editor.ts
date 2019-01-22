@@ -43,6 +43,68 @@ export class WBToolPalette {
         this._tools = [];
     }
     loadToolPalette (toolPalette: IToolPalette) {
+        const that = this;
+        const toollist:{[id:string]: (this:Element)=>void} = {
+            '#tb-text': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'Create',
+                    paramsJson: JSON.stringify({
+                        createType: 'Label',
+                        text: '标签',
+                        textColor: '#000000'
+                    })
+                });
+            },
+            '#tb-select': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'Select'
+                })
+            },
+            '#tb-swap': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'Swap'
+                })
+            },
+            '#tb-connect': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'Connect'
+                })
+            },
+            '#tb-draw': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'HandWriting',
+                    paramsJson: JSON.stringify({
+                        mode: 'draw'
+                    })
+                })
+            },
+            '#tb-erase': function (this:Element) {
+                $(this).siblings().removeClass ('selected');
+                $(this).addClass ('selected');
+                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
+                    name: 'HandWriting',
+                    paramsJson: JSON.stringify({
+                        mode: 'erase'
+                    })
+                })
+            }
+        }
+        for (const tool in toollist) {
+            $(tool).on ('click', function (){
+                toollist[tool].call (this);
+            });
+        }
+        /*
         for (const toolname in toolPalette) {
             const tooldef = this.getOpTool (toolPalette, toolname);
             const toolButton = this.createToolButton (tooldef);
@@ -67,6 +129,7 @@ export class WBToolPalette {
                 });
             }
         }
+        */
     }
     loadOpPalette (opPalette: IToolPalette) {
         for (const op in opPalette) {
@@ -129,6 +192,7 @@ export class WBPropertyGrid {
         this._container = container;
         this._tableId = id;
         this._object = null;
+        /*
         const table = document.createElement ('table');
         table.style.border = 'solid 1px #95B8E7';
         table.style.borderSpacing = '0px';
@@ -142,14 +206,18 @@ export class WBPropertyGrid {
         const tbody = document.createElement ('tbody');
         table.appendChild (tbody);
         this._container.appendChild (table);
+        */
     }
     addGroup (name: string) {
+        /*
         const tr = this.createRow ();
         tr.style.backgroundColor = '#E0ECFF';
         tr.style.fontWeight = 'bold';
         this.createGroupCell (tr, name);
+        */
     }
     addButton (text: string, callback: () => void) {
+        /*
         const tr = this.createRow ();
         const td = this.createCell (tr);
         td.style.padding = '5px';
@@ -163,16 +231,25 @@ export class WBPropertyGrid {
             callback && callback ();
         };
         td.appendChild (btn);
+        */
+        const btn = document.createElement ('a');
+        btn.classList.add ('btn');
+        this._container.appendChild (btn);
+        btn.innerHTML = text;
+        btn.href = 'javascript:void(0);';
+        btn.onclick = () => {
+            callback && callback ();
+        };
     }
     addTextAttribute (name: string, value: string|null, readonly: boolean, changeCallback: (value: string) => any, laterChange?: boolean) {
-        const tr = this.createRow ();
-        this.createPropCell (tr).innerText = name;
+        const label = document.createElement('label');
+        label.innerHTML = name + ':';
+        this._container.appendChild (label);
         const input: HTMLInputElement = document.createElement ('input');
         input.type = 'text';
         if (value) {
             input.value = value;
         }
-        input.style.width = '100%';
         input.style.boxSizing = 'border-box';
         input.readOnly = readonly;
         input.disabled = readonly;
@@ -187,11 +264,12 @@ export class WBPropertyGrid {
                 }
             }
         }
-        this.createPropCell (tr).appendChild (input);
+        this._container.appendChild (input);
     }
     addToggleAttribute (name: string, value: boolean, readonly: boolean, changeCallback: (value: boolean) => any) {
-        const tr = this.createRow ();
-        this.createPropCell (tr).innerText = name;
+        const label = document.createElement ('label');
+        label.innerHTML = name + ':';
+        this._container.appendChild (label);
         const input: HTMLInputElement = document.createElement ('input');
         input.type = 'checkbox';
         input.checked = value;
@@ -202,28 +280,29 @@ export class WBPropertyGrid {
                 input.checked = Boolean (changeCallback (input.checked));
             }
         }
-        this.createPropCell (tr).appendChild (input);
+        this._container.appendChild (input);
     }
     addNumberAttribute (name: string, value: number, readonly: boolean, changeCallback: (value: number) => any) {
-        const tr = this.createRow ();
-        this.createPropCell (tr).innerText = name;
+        const label = document.createElement ('label');
+        label.innerHTML = name + ':';
+        this._container.appendChild (label);
         const input: HTMLInputElement = document.createElement ('input');
         input.type = 'number';
         input.value = String(value);
         input.readOnly = readonly;
         input.disabled = readonly;
-        input.style.width = '100%';
         input.style.boxSizing = 'border-box';
         if (changeCallback) {
             input.oninput = () => {
                 input.value = String(changeCallback (Number(input.value)));
             }
         }
-        this.createPropCell (tr).appendChild (input);
+        this._container.appendChild (input);
     }
     addChoiceAttribute (name: string, values: any[], value: string|null, readonly: boolean, changeCallback: (value: string) => any) {
-        const tr = this.createRow ();
-        this.createPropCell (tr).innerText = name;
+        const label = document.createElement ('label');
+        label.innerHTML = name + ':';
+        this._container.appendChild (label);
         const input: HTMLSelectElement = document.createElement ('select');
         values.forEach (opt => {
             const option = document.createElement ('option');
@@ -235,31 +314,30 @@ export class WBPropertyGrid {
             input.value = String(value);
         }
         input.disabled = readonly;
-        input.style.width = '100%';
         input.style.boxSizing = 'border-box';
         if (changeCallback) {
             input.onchange = () => {
                 input.value = String(changeCallback (input.value));
             }
         }
-        this.createPropCell (tr).appendChild (input);
+        this._container.appendChild (input);
     }
     addColorAttribute (name: string, value: string, readonly: boolean, changeCallback: (value: string) => any) {
-        const tr = this.createRow ();
-        this.createPropCell (tr).innerText = name;
+        const label = document.createElement ('label');
+        label.innerHTML = name + ':';
+        this._container.appendChild (label);
         const input: HTMLInputElement = document.createElement ('input');
         input.type = 'color';
         input.value = value;
         input.readOnly = readonly;
         input.disabled = readonly;
-        input.style.width = '100%';
         input.style.boxSizing = 'border-box';
         if (changeCallback) {
             input.onchange = () => {
                 input.value = String(changeCallback (input.value));
             }
         }
-        this.createPropCell (tr).appendChild (input);
+        this._container.appendChild (input);
     }
     getToolProperty (name: string): any {
         if (this._object) {
@@ -391,6 +469,17 @@ export class WBPropertyGrid {
         }
     }
     clear () {
+        while (this._container.firstChild) {
+            const el:any = this._container.firstChild;
+            if (el.onchange) {
+                el.onchange = null;
+            }
+            if (el.onclick) {
+                el.onclick = null;
+            }
+            el.remove();
+        }
+        /*
         const inputs = document.querySelectorAll (`table#${this._tableId} input`);
         for (let i = 0; i < inputs.length; i++) {
             (inputs[i] as HTMLInputElement).onchange = null;
@@ -403,6 +492,7 @@ export class WBPropertyGrid {
         while (tbody && tbody.hasChildNodes()) {
             tbody.removeChild (tbody.firstChild as Node);
         }
+        */
         this._object = null;
     }
     reloadToolProperties () {
