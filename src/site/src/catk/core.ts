@@ -1649,9 +1649,9 @@ export class Canvas extends BaseObject {
     }
     private adjustCanvasSize(canvas: HTMLCanvasElement) {
         if (canvas.parentElement) {
-            const computedStyle = window.getComputedStyle(canvas.parentElement);
-            this._width = canvas.parentElement.clientWidth - parseFloat(computedStyle.paddingLeft as string) - parseFloat(computedStyle.paddingRight as string);
-            this._height = canvas.parentElement.clientHeight - parseFloat(computedStyle.paddingTop as string) - parseFloat(computedStyle.paddingBottom as string);
+            const computedStyle = window.getComputedStyle(canvas);
+            this._width = canvas.clientWidth;
+            this._height = canvas.clientHeight;
             this._canvas.width = this._width;
             this._canvas.height = this._height;
             this._screenCtx = this._canvas.getContext('2d');

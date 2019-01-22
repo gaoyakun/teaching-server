@@ -3530,9 +3530,9 @@
 	    };
 	    Canvas.prototype.adjustCanvasSize = function (canvas) {
 	        if (canvas.parentElement) {
-	            var computedStyle = window.getComputedStyle(canvas.parentElement);
-	            this._width = canvas.parentElement.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
-	            this._height = canvas.parentElement.clientHeight - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom);
+	            var computedStyle = window.getComputedStyle(canvas);
+	            this._width = canvas.clientWidth;
+	            this._height = canvas.clientHeight;
 	            this._canvas.width = this._width;
 	            this._canvas.height = this._height;
 	            this._screenCtx = this._canvas.getContext('2d');
