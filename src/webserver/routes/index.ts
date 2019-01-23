@@ -148,6 +148,10 @@ indexRouter.get('/trust/settings/whiteboards', (req:express.Request, res:express
 });
 
 indexRouter.get('/trust/create-whiteboard', (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    res.render ('create_whiteboard');
+    res.render ('create_whiteboard', {
+        user: {
+            name: (req.session as Session).loginUserAccount,
+        }
+    });
 });
 

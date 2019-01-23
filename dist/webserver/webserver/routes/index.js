@@ -146,6 +146,10 @@ exports.indexRouter.get('/trust/settings/whiteboards', (req, res, next) => {
     });
 });
 exports.indexRouter.get('/trust/create-whiteboard', (req, res, next) => {
-    res.render('create_whiteboard');
+    res.render('create_whiteboard', {
+        user: {
+            name: req.session.loginUserAccount,
+        }
+    });
 });
 //# sourceMappingURL=index.js.map
