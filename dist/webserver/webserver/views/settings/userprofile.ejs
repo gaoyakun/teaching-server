@@ -8,6 +8,18 @@
         <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/all.min.css">
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="/css/ui.css">
+        <style>
+            .btn-avatar {
+                border: 1px solid rgba(27, 31, 35, .2);
+                background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
+                color: #24292e;
+            }
+            .btn-avatar:hover {
+                border: 1px solid rgba(27, 31, 35, .2);
+                background-image: linear-gradient(-180deg, #f0f1f2, #e0f3f6 90%);
+                color: #24292e;
+            }
+        </style>
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark navbar-fixed-top">
@@ -29,22 +41,81 @@
                         <div class="row" style="border-bottom: 1px solid #e1e4e8; padding-bottom:8px;">
                             <h2>个人资料</h2>
                         </div>
-                        <form id="form-userprofile" autocomplete="off" role="form" method="POST" action="/api/trust/profile" style="margin-top:10px;">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <div class="form-group">
-                                        <label for="name">名称:</label>
-                                        <input type="text" class="form-control" id="name" placeholder="请输入名称" required>
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-4 pt-4">
+                                <div style="width:100%;margin-bottom:1rem;padding:20px;text-align:center;">
+                                    <img class="rounded-circle" id="avatar-image" style="width:120px; height:120px;" src="/avatar/<%= user.id %>">
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-control-feedback">
-                                        <span class="text-danger align-middle" id="err-msg-profile-name"></span>
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn btn-sm btn-light btn-block btn-avatar" id="btn-upload-avatar">选择头像</button>
+                                    </div>
+                                    <div class="col">
+                                        <button class="btn btn-sm btn-light btn-block btn-avatar" id="btn-clear-avatar">清除头像</button>
                                     </div>
                                 </div>
                             </div>
-                            <button class="btn btn-success" id="btn-update-userprofile"><i class="fa fa-edit"></i>更新资料</button>
-                        </form>
+                            <div class="col-md-8">
+                                <form id="form-userprofile" autocomplete="off" role="form" style="margin-top:10px;">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="name">姓名:</label>
+                                                <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" placeholder="请输入名称" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-control-feedback">
+                                                <span class="text-danger align-middle" id="err-msg-profile-name"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="name">性别:</label>
+                                                <select class="form-control" id="gender" name="gender" value="<%= user.gender %>">
+                                                    <option value="0">男</option>
+                                                    <option value="1">女</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-control-feedback">
+                                                <span class="text-danger align-middle" id="err-msg-profile-name"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="name">电子邮箱:</label>
+                                                <input type="text" class="form-control" id="email" name="email" value="<%= user.email %>" placeholder="请输入电子邮箱">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-control-feedback">
+                                                <span class="text-danger align-middle" id="err-msg-profile-email"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="name">手机号码:</label>
+                                                <input type="number" class="form-control" id="mobile" name="mobile" value="<%= user.mobile %>" placeholder="请输入手机号">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-control-feedback">
+                                                <span class="text-danger align-middle" id="err-msg-profile-mobile"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success" id="btn-update-userprofile"><i class="fa fa-edit"></i>更新资料</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -54,7 +125,7 @@
         <script src="/js/settings.js"></script>
         <script>
             $(document).ready(function() {
-                new settings.Settings ('profile');
+                new settings.Settings ('profile', "<%= user.avatar %>");
             });
         </script>
     </body>

@@ -42,4 +42,16 @@ export async function asset_setup(arg?: any) {
             });
         }
     });
+    $('#test-upload').on('click', function(){
+        const el = $('<input>').appendTo($('body'));
+        el.attr({
+            type: 'file',
+            name: 'xxx'
+        });
+        el.trigger ('click');
+        const e = el[0] as HTMLInputElement;
+        e.onchange = () => {
+            console.log (e.files);
+        }
+    });
 };

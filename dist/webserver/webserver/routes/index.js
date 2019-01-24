@@ -37,13 +37,26 @@ exports.indexRouter.get('/login', (req, res, next) => {
 exports.indexRouter.get('/register', (req, res, next) => {
     res.render('register');
 });
-exports.indexRouter.get('/trust/settings/profile', (req, res, next) => {
+exports.indexRouter.get('/trust/settings/profile', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const session = req.session;
+    const user = yield config_1.GetConfig.engine.query({
+        sql: 'select u.name as name, u.email as email, p.gender as gender, p.mobile as mobile, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
+        param: [session.loginUserId]
+    });
+    if (!user || user.length !== 1) {
+        throw new Error('未找到该用户');
+    }
     res.render('settings/userprofile', {
         user: {
-            name: req.session.loginUserAccount
+            id: session.loginUserId,
+            name: user[0].name,
+            email: user[0].email,
+            gender: user[0].gender,
+            mobile: user[0].mobile,
+            avatar: user[0].avatar
         }
     });
-});
+}));
 exports.indexRouter.get('/trust/settings/reset', (req, res, next) => {
     res.render('settings/resetpass', {
         user: {
@@ -67,6 +80,27 @@ exports.indexRouter.get('/trust/assets/image', (req, res, next) => __awaiter(thi
             'Content-Type': 'image/jpeg'
         });
         res.end(content);
+    }
+}));
+exports.indexRouter.get('/avatar/:id', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const userId = utils_1.Utils.safeParseInt(req.params.id);
+    if (userId === null) {
+        return res.status(404).json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
+    }
+    try {
+        const content = yield assets_1.AssetManager.readAvatarImage(userId);
+        if (!content) {
+            return res.status(404).json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kFileNotFound));
+        }
+        else {
+            res.writeHead(200, {
+                'Content-Type': 'image/jpeg'
+            });
+            res.end(content);
+        }
+    }
+    catch (err) {
+        res.redirect('/images/face.jpg');
     }
 }));
 exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {

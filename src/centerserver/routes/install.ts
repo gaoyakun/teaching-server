@@ -55,6 +55,15 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`server\` varchar(32) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
+            // create user profile table
+            await session.query (`create table \`user_profile\` (
+                \`id\` int auto_increment,
+                \`user_id\` int not null,
+                \`gender\` tinyint not null default 0,
+                \`mobile\` varchar(20) not null default '',
+                \`avatar\` varchar(64) not null default '',
+                primary key (\`id\`)
+            ) engine=InnoDB default charset=utf8mb4`);
             // create room table
             await session.query (`create table \`room\` (
                 \`id\` int auto_increment,
@@ -100,13 +109,21 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
         });
     } else {
         const engine = Config.engine;
+        const session = await engine.beginSession ();
+        const id = 1;
         try {
-            await engine.query ({
-                sql: 'insert into `user` (account, email, passwd, name) values (?, ?, ?, "管理员")',
-                param: [ req.body.account, req.body.email, req.body.md5password ]
+            await session.query ({
+                sql: 'insert into `user` (id, account, email, passwd, name) values (?, ?, ?, ?, "管理员")',
+                param: [ id, req.body.account, req.body.email, req.body.md5password ]
             });
+            await session.query ({
+                sql: 'insert into `user_profile` (user_id, gender, mobile, avatar) values (?, ?, ?, ?)',
+                param: [ id, 0, '', '' ]
+            });
+            await session.end ();
             res.redirect ('/install/storage');
         } catch (err) {
+            session.cancel ();
             console.error (err);
             res.json ({
                 err: ErrorCode.kDatabaseError

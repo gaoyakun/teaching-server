@@ -21,6 +21,9 @@ class AssetManager {
     static getUserAssetPathById(userId) {
         return path.join(config_1.GetConfig.getUserDataPathById(userId), 'assets');
     }
+    static getUserAvatarPathById(userId) {
+        return path.join(config_1.GetConfig.getUserDataPathById(userId), 'avatar');
+    }
     static loadAssetList(userId, relPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const dir = path.join(this.getUserAssetPathById(userId), relPath);
@@ -34,26 +37,18 @@ class AssetManager {
     }
     static uploadAssetBuffer(userId, relPath, buffer, filename) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filePath = path.join(this.getUserAssetPathById(userId), relPath);
-            yield fileutils.mkdirs(filePath);
-            const u = uid_1.UID('FILE');
-            if (this.isImageFile(filename)) {
-                let ext = path.extname(filename).toLowerCase();
-                if (ext === '.jpeg') {
-                    ext = '.jpg';
-                }
-                const fullName = path.join(filePath, u + ext);
-                yield fileutils.writeFile(fullName, buffer);
-                const thumbFileName = path.join(filePath, `.${u}${ext}`);
-                yield sharp(buffer).resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
-                    fit: 'inside',
-                    background: { r: 0, g: 0, b: 0, alpha: 1 },
-                    withoutEnlargement: true
-                }).toFile(thumbFileName);
-            }
-            else {
-                throw new Error('Unknown file type');
-            }
+            return yield this._uploadFile(path.join(this.getUserAssetPathById(userId), relPath), buffer, filename);
+        });
+    }
+    static uploadUserAvatar(userId, buffer, filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._uploadFile(this.getUserAvatarPathById(userId), buffer, filename, 'avatar.jpg');
+        });
+    }
+    static readAvatarImage(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const avatarFileName = `${this.getUserAvatarPathById(userId)}/avatar.jpg`;
+            return yield fileutils.readFile(avatarFileName);
         });
     }
     static readAssetContent(userId, relPath, filename, thumb) {
@@ -67,6 +62,31 @@ class AssetManager {
             }
             catch (err) {
                 return null;
+            }
+        });
+    }
+    static _uploadFile(filePath, buffer, filename, saveName, createThumbnail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield fileutils.mkdirs(filePath);
+            const u = uid_1.UID('FILE');
+            if (this.isImageFile(filename)) {
+                let ext = path.extname(filename).toLowerCase();
+                if (ext === '.jpeg') {
+                    ext = '.jpg';
+                }
+                const fullName = path.join(filePath, saveName || u + ext);
+                yield fileutils.writeFile(fullName, buffer);
+                if (createThumbnail) {
+                    const thumbFileName = path.join(filePath, `.${u}${ext}`);
+                    yield sharp(buffer).resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
+                        fit: 'inside',
+                        background: { r: 0, g: 0, b: 0, alpha: 1 },
+                        withoutEnlargement: true
+                    }).toFile(thumbFileName);
+                }
+            }
+            else {
+                throw new Error('Unknown file type');
             }
         });
     }

@@ -817,13 +817,13 @@
 	    });
 	};
 	exports.ajaxRequest = ajaxRequest;
-	var uploadFileAjax = function (el, name, url) {
+	var uploadBlobAjax = function (blob, name, url) {
 	    return __awaiter(this, void 0, void 0, function () {
 	        return __generator(this, function (_a) {
 	            return [2 /*return*/, new Promise(function (resolve, reject) {
-	                    if (el.files && el.files.length === 1) {
+	                    if (blob) {
 	                        var formData = new FormData();
-	                        formData.append(name, el.files[0]);
+	                        formData.append(name, blob);
 	                        jquery.ajax({
 	                            url: url,
 	                            type: 'POST',
@@ -839,19 +839,47 @@
 	                        });
 	                    }
 	                    else {
-	                        reject('No file to upload');
+	                        reject('No Data to upload');
 	                    }
 	                })];
 	        });
 	    });
 	};
+	var uploadFileAjax = function (el, name, url) {
+	    return __awaiter(this, void 0, void 0, function () {
+	        return __generator(this, function (_a) {
+	            switch (_a.label) {
+	                case 0:
+	                    if (!el.files) return [3 /*break*/, 2];
+	                    return [4 /*yield*/, uploadBlobAjax(el.files[0], name, url)];
+	                case 1:
+	                    _a.sent();
+	                    _a.label = 2;
+	                case 2: return [2 /*return*/];
+	            }
+	        });
+	    });
+	};
 	exports.uploadFileAjax = uploadFileAjax;
+	var convertDataURLToBlob = function (dataURL) {
+	    var groups = dataURL.split(',');
+	    var type = groups[0].split(';')[0].split(':')[1];
+	    var bytes = window.atob(groups[1]);
+	    var ab = new ArrayBuffer(bytes.length);
+	    var ia = new Uint8Array(ab);
+	    for (var i = 0; i < bytes.length; i++) {
+	        ia[i] = bytes.charCodeAt(i);
+	    }
+	    return new Blob([ab], { type: type });
+	};
+	exports.convertDataURLToBlob = convertDataURLToBlob;
 
 	});
 
 	unwrapExports(mod_tools);
 	var mod_tools_1 = mod_tools.ajaxRequest;
 	var mod_tools_2 = mod_tools.uploadFileAjax;
+	var mod_tools_3 = mod_tools.convertDataURLToBlob;
 
 	var landing = createCommonjsModule(function (module, exports) {
 	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {

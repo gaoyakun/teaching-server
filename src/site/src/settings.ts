@@ -3,6 +3,7 @@ import { ITreeData, ITreeNode } from './ui';
 import { Utils } from '../../common/utils';
 import { asset_setup } from './mod_settings/assets';
 import { sessions_setup } from './mod_settings/sessions';
+import { profile_setup } from './mod_settings/profile';
 import { whiteboards_setup } from './mod_settings/whiteboards';
 
 
@@ -97,6 +98,9 @@ export class Settings {
         switch (step) {
         case 'assets':
             asset_setup (arg);
+            break;
+        case 'profile':
+            profile_setup (arg);
             break;
         case 'whiteboards':
             whiteboards_setup (arg);

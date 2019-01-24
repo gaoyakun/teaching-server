@@ -7,6 +7,9 @@ export interface IToolProps {
     text: string;    
 }
 
+export interface ISubToolProps {
+    
+}
 export interface IToolbarData {
     [groupName: string]: IToolProps[];
 }
@@ -17,5 +20,6 @@ export class Toolbar extends Widget {
     protected _init () {
         const that = this;
         this._toolbarMain =$('<div></div>').appendTo(this.$el).addClass(['toolbar']);
+
     }
 }

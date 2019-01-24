@@ -14,6 +14,9 @@ export class AssetManager {
     static getUserAssetPathById (userId: number): string {
         return path.join(GetConfig.getUserDataPathById(userId), 'assets');
     }
+    static getUserAvatarPathById (userId: number): string {
+        return path.join(GetConfig.getUserDataPathById(userId), 'avatar');
+    }
     static async loadAssetList (userId: number, relPath: string) {
         const dir = path.join (this.getUserAssetPathById(userId), relPath);
         return fileutils.loadFileList (dir);
@@ -22,26 +25,14 @@ export class AssetManager {
         return await this.uploadAssetBuffer (userId, relPath, new Buffer(contentBase64, 'base64'), filename);
     }
     static async uploadAssetBuffer (userId: number, relPath: string, buffer: Buffer, filename: string) {
-        const filePath = path.join (this.getUserAssetPathById(userId), relPath);
-        await fileutils.mkdirs (filePath);
-        const u = UID('FILE');
-        if (this.isImageFile (filename)) {
-            let ext = path.extname(filename).toLowerCase();
-            if (ext === '.jpeg') {
-                ext = '.jpg';
-            }
-            const fullName = path.join (filePath, u + ext);
-            await fileutils.writeFile (fullName, buffer);
-
-            const thumbFileName = path.join (filePath, `.${u}${ext}`);
-            await sharp(buffer).resize (THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
-                fit: 'inside',
-                background: {r:0,g:0,b:0,alpha:1},
-                withoutEnlargement: true
-            }).toFile (thumbFileName);
-        } else {
-            throw new Error('Unknown file type');
-        }
+        return await this._uploadFile (path.join (this.getUserAssetPathById(userId), relPath), buffer, filename);
+    }
+    static async uploadUserAvatar (userId: number, buffer: Buffer, filename: string) {
+        return await this._uploadFile (this.getUserAvatarPathById(userId), buffer, filename, 'avatar.jpg');
+    }
+    static async readAvatarImage (userId: number) {
+        const avatarFileName = `${this.getUserAvatarPathById(userId)}/avatar.jpg`;
+        return await fileutils.readFile (avatarFileName);
     }
     static async readAssetContent (userId: number, relPath: string, filename: string, thumb: boolean) {
         try {
@@ -52,6 +43,29 @@ export class AssetManager {
             return await fileutils.readFile (filePath);
         } catch (err) {
             return null;
+        }
+    }
+    private static async _uploadFile (filePath: string, buffer: Buffer, filename: string, saveName?: string, createThumbnail?: boolean) {
+        await fileutils.mkdirs (filePath);
+        const u = UID('FILE');
+        if (this.isImageFile (filename)) {
+            let ext = path.extname(filename).toLowerCase();
+            if (ext === '.jpeg') {
+                ext = '.jpg';
+            }
+            const fullName = path.join (filePath, saveName || u + ext);
+            await fileutils.writeFile (fullName, buffer);
+
+            if (createThumbnail) {
+                const thumbFileName = path.join (filePath, `.${u}${ext}`);
+                await sharp(buffer).resize (THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
+                    fit: 'inside',
+                    background: {r:0,g:0,b:0,alpha:1},
+                    withoutEnlargement: true
+                }).toFile (thumbFileName);
+            }
+        } else {
+            throw new Error('Unknown file type');
         }
     }
 }

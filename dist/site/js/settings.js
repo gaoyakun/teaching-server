@@ -2337,13 +2337,13 @@
 	    });
 	};
 	exports.ajaxRequest = ajaxRequest;
-	var uploadFileAjax = function (el, name, url) {
+	var uploadBlobAjax = function (blob, name, url) {
 	    return __awaiter(this, void 0, void 0, function () {
 	        return __generator(this, function (_a) {
 	            return [2 /*return*/, new Promise(function (resolve, reject) {
-	                    if (el.files && el.files.length === 1) {
+	                    if (blob) {
 	                        var formData = new FormData();
-	                        formData.append(name, el.files[0]);
+	                        formData.append(name, blob);
 	                        jquery.ajax({
 	                            url: url,
 	                            type: 'POST',
@@ -2359,19 +2359,47 @@
 	                        });
 	                    }
 	                    else {
-	                        reject('No file to upload');
+	                        reject('No Data to upload');
 	                    }
 	                })];
 	        });
 	    });
 	};
+	var uploadFileAjax = function (el, name, url) {
+	    return __awaiter(this, void 0, void 0, function () {
+	        return __generator(this, function (_a) {
+	            switch (_a.label) {
+	                case 0:
+	                    if (!el.files) return [3 /*break*/, 2];
+	                    return [4 /*yield*/, uploadBlobAjax(el.files[0], name, url)];
+	                case 1:
+	                    _a.sent();
+	                    _a.label = 2;
+	                case 2: return [2 /*return*/];
+	            }
+	        });
+	    });
+	};
 	exports.uploadFileAjax = uploadFileAjax;
+	var convertDataURLToBlob = function (dataURL) {
+	    var groups = dataURL.split(',');
+	    var type = groups[0].split(';')[0].split(':')[1];
+	    var bytes = window.atob(groups[1]);
+	    var ab = new ArrayBuffer(bytes.length);
+	    var ia = new Uint8Array(ab);
+	    for (var i = 0; i < bytes.length; i++) {
+	        ia[i] = bytes.charCodeAt(i);
+	    }
+	    return new Blob([ab], { type: type });
+	};
+	exports.convertDataURLToBlob = convertDataURLToBlob;
 
 	});
 
 	unwrapExports(mod_tools);
 	var mod_tools_1 = mod_tools.ajaxRequest;
 	var mod_tools_2 = mod_tools.uploadFileAjax;
+	var mod_tools_3 = mod_tools.convertDataURLToBlob;
 
 	var assets = createCommonjsModule(function (module, exports) {
 	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -2478,6 +2506,18 @@
 	                                alert(reason);
 	                            });
 	                        }
+	                    });
+	                    jquery('#test-upload').on('click', function () {
+	                        var el = jquery('<input>').appendTo(jquery('body'));
+	                        el.attr({
+	                            type: 'file',
+	                            name: 'xxx'
+	                        });
+	                        el.trigger('click');
+	                        var e = el[0];
+	                        e.onchange = function () {
+	                            console.log(e.files);
+	                        };
 	                    });
 	                    return [2 /*return*/];
 	            }
@@ -2621,6 +2661,154 @@
 	unwrapExports(sessions);
 	var sessions_1 = sessions.sessions_setup;
 
+	var profile = createCommonjsModule(function (module, exports) {
+	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+	    return new (P || (P = Promise))(function (resolve, reject) {
+	        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+	        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+	        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+	        step((generator = generator.apply(thisArg, _arguments || [])).next());
+	    });
+	};
+	var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+	    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+	    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+	    function verb(n) { return function (v) { return step([n, v]); }; }
+	    function step(op) {
+	        if (f) throw new TypeError("Generator is already executing.");
+	        while (_) try {
+	            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+	            if (y = 0, t) op = [op[0] & 2, t.value];
+	            switch (op[0]) {
+	                case 0: case 1: t = op; break;
+	                case 4: _.label++; return { value: op[1], done: false };
+	                case 5: _.label++; y = op[1]; op = [0]; continue;
+	                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+	                default:
+	                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+	                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+	                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+	                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+	                    if (t[2]) _.ops.pop();
+	                    _.trys.pop(); continue;
+	            }
+	            op = body.call(thisArg, _);
+	        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+	        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+	    }
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+	var temporalFileInput = jquery('<input/>').attr({
+	    type: 'file',
+	}).on('change', function () {
+	    return __awaiter(this, void 0, void 0, function () {
+	        var filePath, fileFormat, fileObj, imgBase64;
+	        return __generator(this, function (_a) {
+	            switch (_a.label) {
+	                case 0:
+	                    if (!(this.files && this.files.length === 1)) return [3 /*break*/, 2];
+	                    filePath = jquery(this).val();
+	                    fileFormat = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+	                    fileObj = this.files[0];
+	                    if (!fileFormat.match(/.jpg|.jpeg/)) {
+	                        alert('文件格式必须是：jpg/jpeg');
+	                        jquery(this).val('');
+	                        return [2 /*return*/];
+	                    }
+	                    if (fileObj.size > 200 * 1024) {
+	                        alert('文件大小不得超过200k');
+	                        jquery(this).val('');
+	                        return [2 /*return*/];
+	                    }
+	                    return [4 /*yield*/, toBase64(fileObj)];
+	                case 1:
+	                    imgBase64 = _a.sent();
+	                    jquery('#avatar-image').attr('src', imgBase64);
+	                    _a.label = 2;
+	                case 2: return [2 /*return*/];
+	            }
+	        });
+	    });
+	});
+	function toBase64(fileObj) {
+	    return __awaiter(this, void 0, void 0, function () {
+	        return __generator(this, function (_a) {
+	            return [2 /*return*/, new Promise(function (resolve) {
+	                    var r = new FileReader();
+	                    r.onload = function () {
+	                        resolve(r.result);
+	                    };
+	                    r.readAsDataURL(fileObj);
+	                })];
+	        });
+	    });
+	}
+	function checkConfig() {
+	    var ok = true;
+	    var name = jquery.trim(String(jquery('#name').val()));
+	    if (!name) {
+	        jquery('#err_msg_profile_name').html('请填写名称');
+	        ok = false;
+	    }
+	    else {
+	        jquery('#err_msg_profile_name').html('');
+	    }
+	    var email = jquery.trim(String(jquery('#email').val()));
+	    if (!email) {
+	        jquery('#err_msg_profile_email').html('请填写电子邮箱');
+	        ok = false;
+	    }
+	    else {
+	        jquery('#err_msg_profile_email').html('');
+	    }
+	    return ok;
+	}
+	function profile_setup(avatar) {
+	    return __awaiter(this, void 0, void 0, function () {
+	        return __generator(this, function (_a) {
+	            jquery('#btn-upload-avatar').on('click', function () {
+	                temporalFileInput.trigger('click');
+	            });
+	            jquery('#btn-update-userprofile').on('click', function (ev) {
+	                ev.preventDefault();
+	                ev.stopPropagation();
+	                if (checkConfig()) {
+	                    var form = document.forms[0];
+	                    var formData = new FormData(form);
+	                    var el = temporalFileInput[0];
+	                    if (el.files && el.files.length === 1) {
+	                        formData.append('avatar', el.files[0]);
+	                    }
+	                    jquery.ajax({
+	                        url: '/api/trust/profile',
+	                        type: 'post',
+	                        data: formData,
+	                        dataType: 'json',
+	                        processData: false,
+	                        contentType: false,
+	                        success: function (result) {
+	                            if (!result.err) {
+	                                window.location.reload();
+	                            }
+	                            else {
+	                                alert('数据提交失败，请检查网络或稍后重试');
+	                            }
+	                        }
+	                    });
+	                }
+	            });
+	            return [2 /*return*/];
+	        });
+	    });
+	}
+	exports.profile_setup = profile_setup;
+
+	});
+
+	unwrapExports(profile);
+	var profile_1 = profile.profile_setup;
+
 	var whiteboards = createCommonjsModule(function (module, exports) {
 	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
 	    return new (P || (P = Promise))(function (resolve, reject) {
@@ -2742,6 +2930,7 @@
 
 
 
+
 	var menuData = {
 	    props: {
 	        icon: null,
@@ -2845,6 +3034,9 @@
 	        switch (step) {
 	            case 'assets':
 	                assets.asset_setup(arg);
+	                break;
+	            case 'profile':
+	                profile.profile_setup(arg);
 	                break;
 	            case 'whiteboards':
 	                whiteboards.whiteboards_setup(arg);

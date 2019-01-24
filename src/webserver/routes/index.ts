@@ -34,10 +34,23 @@ indexRouter.get('/register', (req:express.Request, res:express.Response, next:ex
     res.render ('register');
 });
 
-indexRouter.get('/trust/settings/profile', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+indexRouter.get('/trust/settings/profile', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const session = req.session as Session;
+    const user:any = await GetConfig.engine.query ({
+        sql:'select u.name as name, u.email as email, p.gender as gender, p.mobile as mobile, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
+        param: [session.loginUserId]
+    });
+    if (!user || user.length !== 1) {
+        throw new Error ('未找到该用户');
+    }
     res.render ('settings/userprofile', {
         user: {
-            name: (req.session as Session).loginUserAccount
+            id: session.loginUserId,
+            name: user[0].name,
+            email: user[0].email,
+            gender: user[0].gender,
+            mobile: user[0].mobile,
+            avatar: user[0].avatar
         }
     });
 });
@@ -65,6 +78,26 @@ indexRouter.get('/trust/assets/image', async (req:express.Request, res:express.R
             'Content-Type': 'image/jpeg'
         });
         res.end (content);
+    }
+});
+
+indexRouter.get('/avatar/:id', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    const userId = Utils.safeParseInt(req.params.id);
+    if (userId === null) {
+        return res.status(404).json (Utils.httpResult(ErrorCode.kParamError));
+    }
+    try {
+        const content = await AssetManager.readAvatarImage(userId);
+        if (!content) {
+            return res.status(404).json (Utils.httpResult(ErrorCode.kFileNotFound));
+        } else {
+            res.writeHead (200, {
+                'Content-Type': 'image/jpeg'
+            });
+            res.end (content);
+        }
+    } catch (err) {
+        res.redirect ('/images/face.jpg');
     }
 });
 

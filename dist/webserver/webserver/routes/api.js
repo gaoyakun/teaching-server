@@ -99,6 +99,28 @@ exports.apiRouter.get('/trust/asset', (req, res, next) => __awaiter(this, void 0
     result.data = yield assets_1.AssetManager.loadAssetList(req.session.loginUserId, relPath);
     return res.json(result);
 }));
+exports.apiRouter.post('/trust/profile', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    let session = req.session;
+    const name = req.body.name;
+    const email = req.body.email;
+    const mobile = req.body.mobile || '';
+    const gender = utils_1.Utils.safeParseInt(req.body.gender);
+    if (!name || name !== xss(name) || !email || email !== xss(email) || mobile !== xss(mobile) || (gender !== 0 && gender !== 1)) {
+        return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
+    }
+    const result = yield config_1.GetConfig.engine.query({
+        sql: 'update user u, user_profile p set u.name=?, u.email=?, p.mobile=?, p.gender=? where u.id=? and p.user_id=u.id',
+        param: [name, email, mobile, gender, session.loginUserId]
+    });
+    if (result.affectedRows === 0) {
+        return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kServerError));
+    }
+    if (req.files && req.files.avatar) {
+        const file = req.files.avatar;
+        yield assets_1.AssetManager.uploadUserAvatar(req.session.loginUserId, file.data, 'avatar.jpg');
+    }
+    return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
+}));
 exports.apiRouter.post('/trust/asset', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     if (req.files && req.files.content) {
         const file = req.files.content;

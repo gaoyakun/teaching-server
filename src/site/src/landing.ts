@@ -1,7 +1,7 @@
 import * as $ from 'jquery';
 import './ui';
 import { IGridViewData, IGridViewNode } from './ui';
-import { uploadFileAjax, ajaxRequest } from './mod_tools';
+import { ajaxRequest } from './mod_tools';
 
 export function landing_setup () {
     (async function () {

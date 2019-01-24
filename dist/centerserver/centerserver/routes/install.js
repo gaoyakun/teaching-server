@@ -63,6 +63,15 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
                 \`server\` varchar(32) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
+            // create user profile table
+            yield session.query(`create table \`user_profile\` (
+                \`id\` int auto_increment,
+                \`user_id\` int not null,
+                \`gender\` tinyint not null default 0,
+                \`mobile\` varchar(20) not null default '',
+                \`avatar\` varchar(64) not null default '',
+                primary key (\`id\`)
+            ) engine=InnoDB default charset=utf8mb4`);
             // create room table
             yield session.query(`create table \`room\` (
                 \`id\` int auto_increment,
@@ -108,14 +117,22 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
     }
     else {
         const engine = config_1.Config.engine;
+        const session = yield engine.beginSession();
+        const id = 1;
         try {
-            yield engine.query({
-                sql: 'insert into `user` (account, email, passwd, name) values (?, ?, ?, "管理员")',
-                param: [req.body.account, req.body.email, req.body.md5password]
+            yield session.query({
+                sql: 'insert into `user` (id, account, email, passwd, name) values (?, ?, ?, ?, "管理员")',
+                param: [id, req.body.account, req.body.email, req.body.md5password]
             });
+            yield session.query({
+                sql: 'insert into `user_profile` (user_id, gender, mobile, avatar) values (?, ?, ?, ?)',
+                param: [id, 0, '', '']
+            });
+            yield session.end();
             res.redirect('/install/storage');
         }
         catch (err) {
+            session.cancel();
             console.error(err);
             res.json({
                 err: errcodes_1.ErrorCode.kDatabaseError

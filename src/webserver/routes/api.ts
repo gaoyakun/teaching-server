@@ -89,6 +89,29 @@ apiRouter.get('/trust/asset', async (req:express.Request, res:express.Response, 
     return res.json (result);
 });
 
+apiRouter.post('/trust/profile', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let session: Session = req.session as Session;
+    const name = req.body.name;
+    const email = req.body.email;
+    const mobile = req.body.mobile || '';
+    const gender = Utils.safeParseInt(req.body.gender);
+    if (!name || name !== xss(name) || !email || email !== xss(email) || mobile !== xss(mobile) || (gender !== 0 && gender !== 1)) {
+        return res.json (Utils.httpResult(ErrorCode.kParamError));
+    }
+    const result = await GetConfig.engine.query ({
+        sql: 'update user u, user_profile p set u.name=?, u.email=?, p.mobile=?, p.gender=? where u.id=? and p.user_id=u.id',
+        param: [name, email, mobile, gender, session.loginUserId]
+    });
+    if (result.affectedRows === 0) {
+        return res.json (Utils.httpResult(ErrorCode.kServerError));
+    }
+    if (req.files && req.files.avatar) {
+        const file = req.files.avatar as fileUpload.UploadedFile;
+        await AssetManager.uploadUserAvatar ((req.session as Session).loginUserId, file.data, 'avatar.jpg');
+    }
+    return res.json (Utils.httpResult(ErrorCode.kSuccess));
+});
+
 apiRouter.post('/trust/asset', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     if (req.files && req.files.content) {
         const file = req.files.content as fileUpload.UploadedFile;
