@@ -13253,7 +13253,14 @@
 	                        mode: 'erase'
 	                    })
 	                });
-	            }
+	            },
+	            '#tb-newpage': function () {
+	                var view = that._editor.whiteboard.view;
+	                if (view) {
+	                    var page = view.addPage();
+	                    page && view.selectPage(page);
+	                }
+	            },
 	        };
 	        var _loop_1 = function (tool) {
 	            $(tool).on('click', function () {

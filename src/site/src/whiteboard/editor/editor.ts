@@ -97,7 +97,14 @@ export class WBToolPalette {
                         mode: 'erase'
                     })
                 })
-            }
+            },
+            '#tb-newpage': function (this:Element) {
+                const view = that._editor.whiteboard.view;
+                if (view) {
+                    const page = view.addPage ();
+                    page && view.selectPage (page);
+                }
+            },
         }
         for (const tool in toollist) {
             $(tool).on ('click', function (){
