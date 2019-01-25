@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "downlevelIteration": true,
+        "strictNullChecks": false,
         "moduleResolution": "node",
         "target": "es2015",
         "module": "commonjs",

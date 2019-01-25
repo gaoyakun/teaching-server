@@ -6,35 +6,32 @@ class DoubleList {
         this.length = 0;
     }
     append(data) {
-        return this.head === null ? this.head = new DoubleList.Node(data) : this.insertAt(this.head, data);
-    }
-    prepend(data) {
-        return this.head === null ? this.head = new DoubleList.Node(data) : this.head = this.insertAt(this.head, data);
-    }
-    insertAt(node, data) {
-        if (node) {
-            const newNode = new DoubleList.Node(data);
-            newNode.next = node;
-            newNode.prev = node.prev;
-            node.prev.next = newNode;
-            node.prev = newNode;
+        if (this.head === null) {
+            this.head = new DoubleList.Node(data);
             this.length++;
-            if (node === this.head) {
-                this.head = newNode;
-            }
-            return newNode;
+            return this.head;
         }
         else {
-            return null;
+            return this._insertAt(this.head, data);
         }
+    }
+    prepend(data) {
+        const node = this.append(data);
+        this.head = node;
+        return node;
+    }
+    insertAt(node, data) {
+        const newNode = this._insertAt(node, data);
+        if (node === this.head) {
+            this.head = newNode;
+        }
+        return newNode;
     }
     remove(node) {
         if (this.length === 1) {
-            if (node === this.head) {
-                delete node.next;
-                delete node.prev;
-                this.head = null;
-            }
+            delete node.next;
+            delete node.prev;
+            this.head = null;
         }
         else {
             if (node === this.head) {
@@ -56,6 +53,15 @@ class DoubleList {
                 break;
             }
         }
+    }
+    _insertAt(node, data) {
+        const newNode = new DoubleList.Node(data);
+        newNode.next = node;
+        newNode.prev = node.prev;
+        node.prev.next = newNode;
+        node.prev = newNode;
+        this.length++;
+        return newNode;
     }
 }
 exports.DoubleList = DoubleList;

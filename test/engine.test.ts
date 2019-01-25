@@ -1,4 +1,4 @@
-import { Engine } from '../src/webserver/lib/engine';
+import { Engine } from '../src/lib/engine';
 const testDatabaseName = '__test__';
 const testTableNameA = 'a';
 const testTableNameB = 'b';

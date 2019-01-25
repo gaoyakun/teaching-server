@@ -58,7 +58,6 @@ class Engine {
         else {
             throw new Error('[query_wo_pool]: invalid parameter');
         }
-        console.log('SQL: ' + sql);
         const promise = new Promise((resolve, reject) => {
             conn.query(sql, param, (err, rows) => {
                 if (err) {
@@ -312,7 +311,6 @@ exports.Engine = Engine;
                 let join = this._parseJoin(this._joins, params);
                 let filter = this._filters ? `where ${this._parseFilter(this._filters, params)}` : '';
                 let sql = `DELETE ${tableName} FROM \`${this._objects.tableName}\` ${join} ${filter}`;
-                console.log(sql);
                 return yield this._objects.session.query({
                     sql: sql,
                     param: params

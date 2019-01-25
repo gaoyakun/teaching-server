@@ -6,34 +6,31 @@ export class DoubleList {
         this.length = 0;
     }
     append (data: any) {
-        return this.head === null ? this.head = new DoubleList.Node(data) : this.insertAt (this.head, data);
+        if (this.head === null) {
+            this.head = new DoubleList.Node(data);
+            this.length++;
+            return this.head;
+        } else {
+            return this._insertAt (this.head, data);
+        }
     }
     prepend (data: any) {
-        return this.head === null ? this.head = new DoubleList.Node(data) : this.head = this.insertAt (this.head, data);
+        const node = this.append (data);
+        this.head = node;
+        return node;
     }
     insertAt (node: DoubleList.Node, data: any) {
-        if (node) {
-            const newNode = new DoubleList.Node(data);
-            newNode.next = node;
-            newNode.prev = node.prev;
-            node.prev.next = newNode;
-            node.prev = newNode;
-            this.length++;
-            if (node === this.head) {
-                this.head = newNode;
-            }
-            return newNode;
-        } else {
-            return null;
+        const newNode = this._insertAt (node, data);
+        if (node === this.head) {
+            this.head = newNode;
         }
+        return newNode;
     }
     remove (node: DoubleList.Node) {
         if (this.length === 1) {
-            if (node === this.head) {
-                delete node.next;
-                delete node.prev;
-                this.head = null;
-            }
+            delete node.next;
+            delete node.prev;
+            this.head = null;
         } else {
             if (node === this.head) {
                 this.head = node.next;
@@ -54,6 +51,15 @@ export class DoubleList {
                 break;
             }
         }
+    }
+    private _insertAt (node: DoubleList.Node, data: any) {
+        const newNode = new DoubleList.Node(data);
+        newNode.next = node;
+        newNode.prev = node.prev;
+        node.prev.next = newNode;
+        node.prev = newNode;
+        this.length++;
+        return newNode;
     }
 }
 
