@@ -1,4 +1,3 @@
-// tslint:disable:2531
 import { DoubleList } from '../src/common/linkedlist';
 
 function randomInt () {
@@ -9,15 +8,15 @@ function randomIndex (length: number) {
     return Math.floor(Math.random() * length);
 }
 
-function nth (dl: DoubleList, n: number): DoubleList.Node {
-    if (dl.length === 0) {
+function nth (dl: DoubleList, n: number): DoubleList.Iterator {
+    if (dl.length <= n) {
         throw new Error('Invalid index');
     }
-    let node = dl.head;
+    let it = dl.begin();
     for (let i = 0; i < n; i++) {
-        node = node!.next;
+        it.next();
     }
-    return node!;
+    return it;
 }
 
 interface IOp {
@@ -28,7 +27,6 @@ const op: IOp[] = [
     // prepend
     (arr: number[], dl: DoubleList):boolean => {
         const num = randomInt ();
-        // console.log (`test prepend ${num}`);
         arr.unshift (num);
         dl.prepend (num);
         return true;
@@ -36,7 +34,6 @@ const op: IOp[] = [
     // append
     (arr: number[], dl: DoubleList):boolean => {
         const num = randomInt ();
-        // console.log (`test append ${num}`);
         arr.push (num);
         dl.append (num);
         return true;
@@ -44,17 +41,14 @@ const op: IOp[] = [
     // insert
     (arr: number[], dl: DoubleList):boolean => {
         if (arr.length !== dl.length) {
-            console.log (`Length not equal: arr.length=${arr.length}, list.length=${dl.length}`);
             return false;
         }
         const num = randomInt ();
         if (arr.length === 0) {
-            // console.log (`test insert ${num} to empty list`);
             arr.push (num);
             dl.append (num);
         } else {
             const index = randomIndex (arr.length);
-            // console.log (`test insert ${num} at ${index}`);
             arr.splice (index, 0, num);
             dl.insertAt (nth(dl, index), num);
         }
@@ -63,12 +57,10 @@ const op: IOp[] = [
     // remove
     (arr: number[], dl: DoubleList):boolean => {
         if (arr.length !== dl.length) {
-            console.log (`Length not equal: arr.length=${arr.length}, list.length=${dl.length}`);
             return false;
         }
         if (arr.length > 0) {
             const index = randomIndex (arr.length);
-            // console.log (`test remove at ${index}`);
             arr.splice (index, 1);
             dl.remove (nth(dl, index));
         }
@@ -78,23 +70,11 @@ const op: IOp[] = [
 
 function compare (arr: number[], dl: DoubleList): boolean {
     if (arr.length !== dl.length) {
-        console.log (`Length not equal: arr.length=${arr.length}, list.length=${dl.length}`);
         return false;
     }
-    let node = dl.head;
-    for (let i = 0; i < arr.length; i++, node = node!.next) {
-        if (arr[i] !== node!.data) {
-            /*
-            console.log ('Compare failed');
-            console.log ('*** array ***');
-            arr.forEach (val => {
-                console.log (val);
-            });
-            console.log ('*** list ***');
-            dl.each (val => {
-                console.log (val);
-            });
-            */
+    let index = 0;
+    for (let it = dl.begin(); it.valid(); index++, it.next()) {
+        if (arr[index] !== it.data) {
             return false;
         }
     }
@@ -105,85 +85,30 @@ test('test linked list', () => {
     const list = new DoubleList();
     const arr: number[] = [];
     expect (list.length).toBe (0);
+    expect (list.begin().valid()).toBeFalsy ();
+    expect (list.begin().next().valid()).toBeFalsy ();
+    expect (list.begin().data).toBeUndefined ();
+    expect (list.rbegin().valid()).toBeFalsy ();
+    expect (list.rbegin().next().valid()).toBeFalsy ();
+    expect (list.rbegin().data).toBeUndefined ();
+    list.insertAt (list.begin(), 1);
+    expect (list.length).toBe (1);
+    expect (list.begin().data).toBe (1);
+    list.insertAt (list.begin(), 2);
+    expect (list.length).toBe (2);
+    expect (list.begin().data).toBe (2);
+    expect (list.begin().next().data).toBe (1);
+    list.insertAt (list.rbegin(), 6);
+    expect (list.rbegin().data).toBe (6);
+    const it = list.begin();
+    while (it.valid()) {
+        list.remove (it);
+    }
+    expect (list.length).toBe (0);
+    
     for (let i = 0; i < 10000; i++) {
         const opIndex = Math.floor(Math.random() * op.length);
         op[opIndex] (arr, list);
     }
     expect (compare(arr, list)).toBeTruthy ();
 });
-/*
-test('test create table', async () => {
-    const engine = getEngine (testDatabaseName);
-    try {
-        await engine.query (`create table if not exists ${testTableNameA} (
-            id int not null auto_increment,
-            str_col varchar(32),
-            num_col int,
-            primary key (id)
-        ) engine=InnoDB default charset=utf8mb4`);
-        await engine.query (`create table if not exists ${testTableNameB} (
-            id int not null auto_increment,
-            str_col varchar(32),
-            num_col int,
-            primary key (id)
-        ) engine=InnoDB default charset=utf8mb4`);
-        await engine.close ();
-    } catch (e) {
-        await engine.close ();
-        throw e;
-    }
-});
-
-test('test insert data', async () => {
-    const engine = getEngine (testDatabaseName);
-    try {
-        await engine.objects(testTableNameA).add ([{
-            str_col: 'hello',
-            num_col: 123    
-        }, {
-            str_col: 'world',
-            num_col: 456
-        }]);
-        await engine.close ();
-    } catch (e) {
-        await engine.close ();
-        throw e;
-    }
-});
-
-test('test query data', async () => {
-    const engine = getEngine (testDatabaseName);
-    try {
-        const rows = await engine.objects(testTableNameA).all ();
-        await engine.close ();
-        expect(rows).not.toBeNull();
-        expect(rows.length).toBe(2);
-    } catch (e) {
-        await engine.close ();
-        throw e;
-    }
-});
-
-test('test delete data', async () => {
-    const engine = getEngine (testDatabaseName);
-    try {
-        await engine.objects(testTableNameA).delete (null);
-        await engine.close ();
-    } catch (e) {
-        await engine.close ();
-        throw e;
-    }
-});
-
-test('test drop database', async () => {
-    const engine = getEngine();
-    try {
-        await engine.query (`drop database if exists ${testDatabaseName}`);
-        await engine.close ();
-    } catch (e) {
-        await engine.close ();
-        throw e;
-    }
-});
-
-*/
