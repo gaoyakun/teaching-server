@@ -80,7 +80,7 @@ export class WBFreeDraw extends lib.SceneObject {
                 if (context) {
                     const type = ev.messageType;
                     const data = ev.messageData;
-                    if (type === proto.MsgType.whiteboard_StartDrawMessage) {
+                    if (type === proto.MsgType.whiteboard_StartDrawMessage && ev.object === this.entityName) {
                         this._strokeInfo.lineWidth = data.lineWidth;
                         this._strokeInfo.color = data.color;
                         this._strokeInfo.points = [{x: data.x, y: data.y}];
@@ -90,11 +90,11 @@ export class WBFreeDraw extends lib.SceneObject {
                         context.lineJoin = 'round';
                         context.beginPath ();
                         context.moveTo (data.x + 0.5, data.y + 0.5);
-                    } else if (type === proto.MsgType.whiteboard_DrawingMessage) {
+                    } else if (type === proto.MsgType.whiteboard_DrawingMessage && ev.object === this.entityName) {
                         this._strokeInfo.points && this._strokeInfo.points.push ({x:data.x, y:data.y});
                         context.lineTo (data.x + 0.5, data.y + 0.5);
                         context.stroke ();
-                    } else if (type === proto.MsgType.whiteboard_DrawMessage && ev.broadcast) {
+                    } else if (type === proto.MsgType.whiteboard_DrawMessage && ev.object === this.entityName && ev.broadcast) {
                         if (data.points.length > 1) {
                             context.lineWidth = data.lineWidth;
                             context.strokeStyle = data.color;
@@ -107,7 +107,7 @@ export class WBFreeDraw extends lib.SceneObject {
                             }
                             context.stroke ();
                         }
-                    } else if (type === proto.MsgType.whiteboard_EraseMessage) {
+                    } else if (type === proto.MsgType.whiteboard_EraseMessage && ev.object === this.entityName) {
                         context.clearRect (data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
                     }
                 }

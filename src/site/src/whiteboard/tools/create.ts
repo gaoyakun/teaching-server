@@ -72,7 +72,6 @@ export class WBCreateTool extends wb.WBTool {
     }
     public deactivate() {
         this.off (lib.EvtMouseDown.type);
-        this.options = {};
         super.deactivate ();
     }
 }

@@ -1,12 +1,27 @@
+import { Utils } from './utils';
+
 export class DoubleList {
     private _head: DoubleList.Node;
-    length: number;
+    private _length: number;
     constructor () {
         this._head = new DoubleList.Node(null);
-        this.length = 0;
+        this._length = 0;
     }
     get head () {
         return this._head;
+    }
+    get length () {
+        return this._length;
+    }
+    set length (val: number) {
+        if (Utils.isInt(val) && val >= 0) {
+            while (val < this._length) {
+                this.remove (this.rbegin ());
+            }
+            while (val > this._length) {
+                this.append (null);
+            }
+        }
     }
     append (data: any) {
         this._insertAt (this._head, data);
@@ -53,17 +68,17 @@ export class DoubleList {
         return this.rbegin().data;
     }
     begin (): DoubleList.Iterator {
-        return this.length > 0 ? new DoubleList.Iterator(this, this._head.next, false) : new DoubleList.Iterator(this, this._head, false);
+        return this._length > 0 ? new DoubleList.Iterator(this, this._head.next, false) : new DoubleList.Iterator(this, this._head, false);
     }
     rbegin (): DoubleList.Iterator {
-        return this.length > 0 ? new DoubleList.Iterator(this, this._head.prev, true) : new DoubleList.Iterator(this, this._head, true);
+        return this._length > 0 ? new DoubleList.Iterator(this, this._head.prev, true) : new DoubleList.Iterator(this, this._head, true);
     }
     private _remove (node: DoubleList.Node) {
         node.prev.next = node.next;
         node.next.prev = node.prev;
         delete node.prev;
         delete node.next;
-        this.length--;
+        this._length--;
     }
     private _insertAt (node: DoubleList.Node, data: any) {
         const newNode = new DoubleList.Node(data);
@@ -71,7 +86,7 @@ export class DoubleList {
         newNode.prev = node.prev;
         node.prev.next = newNode;
         node.prev = newNode;
-        this.length++;
+        this._length++;
         return newNode;
     }
 }

@@ -90,6 +90,16 @@ message RenamePageMessage {
 message DeletePageMessage {
 }
 
+message NextPageMessage {
+}
+
+message PrevPageMessage {
+}
+
+message SelectPageMessage {
+    uint32 page = 1;
+}
+
 message StartDrawMessage {
     uint32 x = 1;
     uint32 y = 2;

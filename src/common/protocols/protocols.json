@@ -241,6 +241,20 @@
         "DeletePageMessage": {
           "fields": {}
         },
+        "NextPageMessage": {
+          "fields": {}
+        },
+        "PrevPageMessage": {
+          "fields": {}
+        },
+        "SelectPageMessage": {
+          "fields": {
+            "page": {
+              "type": "uint32",
+              "id": 1
+            }
+          }
+        },
         "StartDrawMessage": {
           "fields": {
             "x": {

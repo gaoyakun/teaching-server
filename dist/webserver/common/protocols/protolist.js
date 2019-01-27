@@ -29,13 +29,16 @@ var MsgType;
     MsgType[MsgType["whiteboard_AddPageMessage"] = 30017] = "whiteboard_AddPageMessage";
     MsgType[MsgType["whiteboard_RenamePageMessage"] = 30018] = "whiteboard_RenamePageMessage";
     MsgType[MsgType["whiteboard_DeletePageMessage"] = 30019] = "whiteboard_DeletePageMessage";
-    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30020] = "whiteboard_StartDrawMessage";
-    MsgType[MsgType["whiteboard_DrawingMessage"] = 30021] = "whiteboard_DrawingMessage";
-    MsgType[MsgType["whiteboard_DrawMessage"] = 30022] = "whiteboard_DrawMessage";
-    MsgType[MsgType["whiteboard_EraseMessage"] = 30023] = "whiteboard_EraseMessage";
-    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30024] = "whiteboard_SwapObjectMessage";
-    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30025] = "whiteboard_ClearPageMessage";
-    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30026] = "whiteboard_ClearBoardMessage";
+    MsgType[MsgType["whiteboard_NextPageMessage"] = 30020] = "whiteboard_NextPageMessage";
+    MsgType[MsgType["whiteboard_PrevPageMessage"] = 30021] = "whiteboard_PrevPageMessage";
+    MsgType[MsgType["whiteboard_SelectPageMessage"] = 30022] = "whiteboard_SelectPageMessage";
+    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30023] = "whiteboard_StartDrawMessage";
+    MsgType[MsgType["whiteboard_DrawingMessage"] = 30024] = "whiteboard_DrawingMessage";
+    MsgType[MsgType["whiteboard_DrawMessage"] = 30025] = "whiteboard_DrawMessage";
+    MsgType[MsgType["whiteboard_EraseMessage"] = 30026] = "whiteboard_EraseMessage";
+    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30027] = "whiteboard_SwapObjectMessage";
+    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30028] = "whiteboard_ClearPageMessage";
+    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30029] = "whiteboard_ClearBoardMessage";
 })(MsgType = exports.MsgType || (exports.MsgType = {}));
 const msgMap = {
     10000: proto.base.UberMessage,
@@ -61,13 +64,16 @@ const msgMap = {
     30017: proto.whiteboard.AddPageMessage,
     30018: proto.whiteboard.RenamePageMessage,
     30019: proto.whiteboard.DeletePageMessage,
-    30020: proto.whiteboard.StartDrawMessage,
-    30021: proto.whiteboard.DrawingMessage,
-    30022: proto.whiteboard.DrawMessage,
-    30023: proto.whiteboard.EraseMessage,
-    30024: proto.whiteboard.SwapObjectMessage,
-    30025: proto.whiteboard.ClearPageMessage,
-    30026: proto.whiteboard.ClearBoardMessage,
+    30020: proto.whiteboard.NextPageMessage,
+    30021: proto.whiteboard.PrevPageMessage,
+    30022: proto.whiteboard.SelectPageMessage,
+    30023: proto.whiteboard.StartDrawMessage,
+    30024: proto.whiteboard.DrawingMessage,
+    30025: proto.whiteboard.DrawMessage,
+    30026: proto.whiteboard.EraseMessage,
+    30027: proto.whiteboard.SwapObjectMessage,
+    30028: proto.whiteboard.ClearPageMessage,
+    30029: proto.whiteboard.ClearBoardMessage,
 };
 exports.msgMap = msgMap;
 __export(require("./protocols"));

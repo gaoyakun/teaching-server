@@ -23,15 +23,11 @@ export function init (uri:string) {
     WB.on (wb.WBObjectSelectedEvent.type, (ev: wb.WBObjectSelectedEvent) => {
         if (ev.objects.length === 1) {
             editor.objectPropertyGrid.loadObjectProperties (ev.objects[0]);
-        } else {
-            editor.objectPropertyGrid.loadPageProperties ();
         }
     });
     WB.on (wb.WBObjectDeselectedEvent.type, (ev: wb.WBObjectDeselectedEvent) => {
         if (ev.objects.length === 1) {
             editor.objectPropertyGrid.loadObjectProperties (ev.objects[0]);
-        } else {
-            editor.objectPropertyGrid.loadPageProperties ();
         }
     });
     WB.on (wb.WBObjectMovedEvent.type, (ev: wb.WBObjectMovedEvent) => {
@@ -39,15 +35,9 @@ export function init (uri:string) {
     });
     WB.on (wb.WBToolActivateEvent.type, (ev: wb.WBToolActivateEvent) => {
         editor.toolPropertyGrid.loadToolProperties (ev.tool);
-        if (ev.tool.name === wb.WBSelectTool.toolname) {
-            editor.objectPropertyGrid.loadPageProperties ();
-        }
     });
     WB.on (wb.WBToolDeactivateEvent.type, (ev: wb.WBToolDeactivateEvent) => {
         editor.toolPropertyGrid.clear ();
-        if (ev.tool.name === wb.WBSelectTool.toolname) {
-            editor.objectPropertyGrid.loadPageProperties ();
-        }
     });
 
     lib.App.run ();

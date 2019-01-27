@@ -4659,6 +4659,513 @@ $root.whiteboard = (function() {
         return DeletePageMessage;
     })();
 
+    whiteboard.NextPageMessage = (function() {
+
+        /**
+         * Properties of a NextPageMessage.
+         * @memberof whiteboard
+         * @interface INextPageMessage
+         */
+
+        /**
+         * Constructs a new NextPageMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a NextPageMessage.
+         * @implements INextPageMessage
+         * @constructor
+         * @param {whiteboard.INextPageMessage=} [properties] Properties to set
+         */
+        function NextPageMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new NextPageMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {whiteboard.INextPageMessage=} [properties] Properties to set
+         * @returns {whiteboard.NextPageMessage} NextPageMessage instance
+         */
+        NextPageMessage.create = function create(properties) {
+            return new NextPageMessage(properties);
+        };
+
+        /**
+         * Encodes the specified NextPageMessage message. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {whiteboard.INextPageMessage} message NextPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        NextPageMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified NextPageMessage message, length delimited. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {whiteboard.INextPageMessage} message NextPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        NextPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a NextPageMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.NextPageMessage} NextPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        NextPageMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.NextPageMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a NextPageMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.NextPageMessage} NextPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        NextPageMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a NextPageMessage message.
+         * @function verify
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        NextPageMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a NextPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.NextPageMessage} NextPageMessage
+         */
+        NextPageMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.NextPageMessage)
+                return object;
+            return new $root.whiteboard.NextPageMessage();
+        };
+
+        /**
+         * Creates a plain object from a NextPageMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.NextPageMessage
+         * @static
+         * @param {whiteboard.NextPageMessage} message NextPageMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        NextPageMessage.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this NextPageMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.NextPageMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        NextPageMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return NextPageMessage;
+    })();
+
+    whiteboard.PrevPageMessage = (function() {
+
+        /**
+         * Properties of a PrevPageMessage.
+         * @memberof whiteboard
+         * @interface IPrevPageMessage
+         */
+
+        /**
+         * Constructs a new PrevPageMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a PrevPageMessage.
+         * @implements IPrevPageMessage
+         * @constructor
+         * @param {whiteboard.IPrevPageMessage=} [properties] Properties to set
+         */
+        function PrevPageMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new PrevPageMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {whiteboard.IPrevPageMessage=} [properties] Properties to set
+         * @returns {whiteboard.PrevPageMessage} PrevPageMessage instance
+         */
+        PrevPageMessage.create = function create(properties) {
+            return new PrevPageMessage(properties);
+        };
+
+        /**
+         * Encodes the specified PrevPageMessage message. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {whiteboard.IPrevPageMessage} message PrevPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PrevPageMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified PrevPageMessage message, length delimited. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {whiteboard.IPrevPageMessage} message PrevPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PrevPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a PrevPageMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PrevPageMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.PrevPageMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a PrevPageMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PrevPageMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a PrevPageMessage message.
+         * @function verify
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        PrevPageMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates a PrevPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+         */
+        PrevPageMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.PrevPageMessage)
+                return object;
+            return new $root.whiteboard.PrevPageMessage();
+        };
+
+        /**
+         * Creates a plain object from a PrevPageMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.PrevPageMessage
+         * @static
+         * @param {whiteboard.PrevPageMessage} message PrevPageMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        PrevPageMessage.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this PrevPageMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.PrevPageMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        PrevPageMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return PrevPageMessage;
+    })();
+
+    whiteboard.SelectPageMessage = (function() {
+
+        /**
+         * Properties of a SelectPageMessage.
+         * @memberof whiteboard
+         * @interface ISelectPageMessage
+         * @property {number|null} [page] SelectPageMessage page
+         */
+
+        /**
+         * Constructs a new SelectPageMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a SelectPageMessage.
+         * @implements ISelectPageMessage
+         * @constructor
+         * @param {whiteboard.ISelectPageMessage=} [properties] Properties to set
+         */
+        function SelectPageMessage(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * SelectPageMessage page.
+         * @member {number} page
+         * @memberof whiteboard.SelectPageMessage
+         * @instance
+         */
+        SelectPageMessage.prototype.page = 0;
+
+        /**
+         * Creates a new SelectPageMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {whiteboard.ISelectPageMessage=} [properties] Properties to set
+         * @returns {whiteboard.SelectPageMessage} SelectPageMessage instance
+         */
+        SelectPageMessage.create = function create(properties) {
+            return new SelectPageMessage(properties);
+        };
+
+        /**
+         * Encodes the specified SelectPageMessage message. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {whiteboard.ISelectPageMessage} message SelectPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        SelectPageMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.page != null && message.hasOwnProperty("page"))
+                writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.page);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified SelectPageMessage message, length delimited. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {whiteboard.ISelectPageMessage} message SelectPageMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        SelectPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a SelectPageMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        SelectPageMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.SelectPageMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.page = reader.uint32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a SelectPageMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        SelectPageMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a SelectPageMessage message.
+         * @function verify
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        SelectPageMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.page != null && message.hasOwnProperty("page"))
+                if (!$util.isInteger(message.page))
+                    return "page: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a SelectPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+         */
+        SelectPageMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.SelectPageMessage)
+                return object;
+            var message = new $root.whiteboard.SelectPageMessage();
+            if (object.page != null)
+                message.page = object.page >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a SelectPageMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.SelectPageMessage
+         * @static
+         * @param {whiteboard.SelectPageMessage} message SelectPageMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        SelectPageMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.page = 0;
+            if (message.page != null && message.hasOwnProperty("page"))
+                object.page = message.page;
+            return object;
+        };
+
+        /**
+         * Converts this SelectPageMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.SelectPageMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        SelectPageMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return SelectPageMessage;
+    })();
+
     whiteboard.StartDrawMessage = (function() {
 
         /**

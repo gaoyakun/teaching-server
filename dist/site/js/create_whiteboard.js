@@ -1733,6 +1733,1526 @@
 	unwrapExports(transform);
 	var transform_1 = transform.Matrix2d;
 
+	var long_1 = Long;
+
+	/**
+	 * wasm optimizations, to do native i64 multiplication and divide
+	 */
+	var wasm = null;
+
+	try {
+	  wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([
+	    0, 97, 115, 109, 1, 0, 0, 0, 1, 13, 2, 96, 0, 1, 127, 96, 4, 127, 127, 127, 127, 1, 127, 3, 7, 6, 0, 1, 1, 1, 1, 1, 6, 6, 1, 127, 1, 65, 0, 11, 7, 50, 6, 3, 109, 117, 108, 0, 1, 5, 100, 105, 118, 95, 115, 0, 2, 5, 100, 105, 118, 95, 117, 0, 3, 5, 114, 101, 109, 95, 115, 0, 4, 5, 114, 101, 109, 95, 117, 0, 5, 8, 103, 101, 116, 95, 104, 105, 103, 104, 0, 0, 10, 191, 1, 6, 4, 0, 35, 0, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 126, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 127, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 128, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 129, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 130, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11
+	  ])), {}).exports;
+	} catch (e) {
+	  // no wasm support :(
+	}
+
+	/**
+	 * Constructs a 64 bit two's-complement integer, given its low and high 32 bit values as *signed* integers.
+	 *  See the from* functions below for more convenient ways of constructing Longs.
+	 * @exports Long
+	 * @class A Long class for representing a 64 bit two's-complement integer value.
+	 * @param {number} low The low (signed) 32 bits of the long
+	 * @param {number} high The high (signed) 32 bits of the long
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @constructor
+	 */
+	function Long(low, high, unsigned) {
+
+	    /**
+	     * The low 32 bits as a signed value.
+	     * @type {number}
+	     */
+	    this.low = low | 0;
+
+	    /**
+	     * The high 32 bits as a signed value.
+	     * @type {number}
+	     */
+	    this.high = high | 0;
+
+	    /**
+	     * Whether unsigned or not.
+	     * @type {boolean}
+	     */
+	    this.unsigned = !!unsigned;
+	}
+
+	Object.defineProperty(Long.prototype, "__isLong__", { value: true });
+
+	/**
+	 * @function
+	 * @param {*} obj Object
+	 * @returns {boolean}
+	 * @inner
+	 */
+	function isLong(obj) {
+	    return (obj && obj["__isLong__"]) === true;
+	}
+
+	/**
+	 * Tests if the specified object is a Long.
+	 * @function
+	 * @param {*} obj Object
+	 * @returns {boolean}
+	 */
+	Long.isLong = isLong;
+
+	/**
+	 * A cache of the Long representations of small integer values.
+	 * @type {!Object}
+	 * @inner
+	 */
+	var INT_CACHE = {};
+
+	/**
+	 * A cache of the Long representations of small unsigned integer values.
+	 * @type {!Object}
+	 * @inner
+	 */
+	var UINT_CACHE = {};
+
+	/**
+	 * @param {number} value
+	 * @param {boolean=} unsigned
+	 * @returns {!Long}
+	 * @inner
+	 */
+	function fromInt(value, unsigned) {
+	    var obj, cachedObj, cache;
+	    if (unsigned) {
+	        value >>>= 0;
+	        if (cache = (0 <= value && value < 256)) {
+	            cachedObj = UINT_CACHE[value];
+	            if (cachedObj)
+	                return cachedObj;
+	        }
+	        obj = fromBits(value, (value | 0) < 0 ? -1 : 0, true);
+	        if (cache)
+	            UINT_CACHE[value] = obj;
+	        return obj;
+	    } else {
+	        value |= 0;
+	        if (cache = (-128 <= value && value < 128)) {
+	            cachedObj = INT_CACHE[value];
+	            if (cachedObj)
+	                return cachedObj;
+	        }
+	        obj = fromBits(value, value < 0 ? -1 : 0, false);
+	        if (cache)
+	            INT_CACHE[value] = obj;
+	        return obj;
+	    }
+	}
+
+	/**
+	 * Returns a Long representing the given 32 bit integer value.
+	 * @function
+	 * @param {number} value The 32 bit integer in question
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {!Long} The corresponding Long value
+	 */
+	Long.fromInt = fromInt;
+
+	/**
+	 * @param {number} value
+	 * @param {boolean=} unsigned
+	 * @returns {!Long}
+	 * @inner
+	 */
+	function fromNumber(value, unsigned) {
+	    if (isNaN(value))
+	        return unsigned ? UZERO : ZERO;
+	    if (unsigned) {
+	        if (value < 0)
+	            return UZERO;
+	        if (value >= TWO_PWR_64_DBL)
+	            return MAX_UNSIGNED_VALUE;
+	    } else {
+	        if (value <= -TWO_PWR_63_DBL)
+	            return MIN_VALUE;
+	        if (value + 1 >= TWO_PWR_63_DBL)
+	            return MAX_VALUE;
+	    }
+	    if (value < 0)
+	        return fromNumber(-value, unsigned).neg();
+	    return fromBits((value % TWO_PWR_32_DBL) | 0, (value / TWO_PWR_32_DBL) | 0, unsigned);
+	}
+
+	/**
+	 * Returns a Long representing the given value, provided that it is a finite number. Otherwise, zero is returned.
+	 * @function
+	 * @param {number} value The number in question
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {!Long} The corresponding Long value
+	 */
+	Long.fromNumber = fromNumber;
+
+	/**
+	 * @param {number} lowBits
+	 * @param {number} highBits
+	 * @param {boolean=} unsigned
+	 * @returns {!Long}
+	 * @inner
+	 */
+	function fromBits(lowBits, highBits, unsigned) {
+	    return new Long(lowBits, highBits, unsigned);
+	}
+
+	/**
+	 * Returns a Long representing the 64 bit integer that comes by concatenating the given low and high bits. Each is
+	 *  assumed to use 32 bits.
+	 * @function
+	 * @param {number} lowBits The low 32 bits
+	 * @param {number} highBits The high 32 bits
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {!Long} The corresponding Long value
+	 */
+	Long.fromBits = fromBits;
+
+	/**
+	 * @function
+	 * @param {number} base
+	 * @param {number} exponent
+	 * @returns {number}
+	 * @inner
+	 */
+	var pow_dbl = Math.pow; // Used 4 times (4*8 to 15+4)
+
+	/**
+	 * @param {string} str
+	 * @param {(boolean|number)=} unsigned
+	 * @param {number=} radix
+	 * @returns {!Long}
+	 * @inner
+	 */
+	function fromString(str, unsigned, radix) {
+	    if (str.length === 0)
+	        throw Error('empty string');
+	    if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
+	        return ZERO;
+	    if (typeof unsigned === 'number') {
+	        // For goog.math.long compatibility
+	        radix = unsigned,
+	        unsigned = false;
+	    } else {
+	        unsigned = !! unsigned;
+	    }
+	    radix = radix || 10;
+	    if (radix < 2 || 36 < radix)
+	        throw RangeError('radix');
+
+	    var p;
+	    if ((p = str.indexOf('-')) > 0)
+	        throw Error('interior hyphen');
+	    else if (p === 0) {
+	        return fromString(str.substring(1), unsigned, radix).neg();
+	    }
+
+	    // Do several (8) digits each time through the loop, so as to
+	    // minimize the calls to the very expensive emulated div.
+	    var radixToPower = fromNumber(pow_dbl(radix, 8));
+
+	    var result = ZERO;
+	    for (var i = 0; i < str.length; i += 8) {
+	        var size = Math.min(8, str.length - i),
+	            value = parseInt(str.substring(i, i + size), radix);
+	        if (size < 8) {
+	            var power = fromNumber(pow_dbl(radix, size));
+	            result = result.mul(power).add(fromNumber(value));
+	        } else {
+	            result = result.mul(radixToPower);
+	            result = result.add(fromNumber(value));
+	        }
+	    }
+	    result.unsigned = unsigned;
+	    return result;
+	}
+
+	/**
+	 * Returns a Long representation of the given string, written using the specified radix.
+	 * @function
+	 * @param {string} str The textual representation of the Long
+	 * @param {(boolean|number)=} unsigned Whether unsigned or not, defaults to signed
+	 * @param {number=} radix The radix in which the text is written (2-36), defaults to 10
+	 * @returns {!Long} The corresponding Long value
+	 */
+	Long.fromString = fromString;
+
+	/**
+	 * @function
+	 * @param {!Long|number|string|!{low: number, high: number, unsigned: boolean}} val
+	 * @param {boolean=} unsigned
+	 * @returns {!Long}
+	 * @inner
+	 */
+	function fromValue(val, unsigned) {
+	    if (typeof val === 'number')
+	        return fromNumber(val, unsigned);
+	    if (typeof val === 'string')
+	        return fromString(val, unsigned);
+	    // Throws for non-objects, converts non-instanceof Long:
+	    return fromBits(val.low, val.high, typeof unsigned === 'boolean' ? unsigned : val.unsigned);
+	}
+
+	/**
+	 * Converts the specified value to a Long using the appropriate from* function for its type.
+	 * @function
+	 * @param {!Long|number|string|!{low: number, high: number, unsigned: boolean}} val Value
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {!Long}
+	 */
+	Long.fromValue = fromValue;
+
+	// NOTE: the compiler should inline these constant values below and then remove these variables, so there should be
+	// no runtime penalty for these.
+
+	/**
+	 * @type {number}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_16_DBL = 1 << 16;
+
+	/**
+	 * @type {number}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_24_DBL = 1 << 24;
+
+	/**
+	 * @type {number}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
+
+	/**
+	 * @type {number}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
+
+	/**
+	 * @type {number}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
+
+	/**
+	 * @type {!Long}
+	 * @const
+	 * @inner
+	 */
+	var TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var ZERO = fromInt(0);
+
+	/**
+	 * Signed zero.
+	 * @type {!Long}
+	 */
+	Long.ZERO = ZERO;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var UZERO = fromInt(0, true);
+
+	/**
+	 * Unsigned zero.
+	 * @type {!Long}
+	 */
+	Long.UZERO = UZERO;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var ONE = fromInt(1);
+
+	/**
+	 * Signed one.
+	 * @type {!Long}
+	 */
+	Long.ONE = ONE;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var UONE = fromInt(1, true);
+
+	/**
+	 * Unsigned one.
+	 * @type {!Long}
+	 */
+	Long.UONE = UONE;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var NEG_ONE = fromInt(-1);
+
+	/**
+	 * Signed negative one.
+	 * @type {!Long}
+	 */
+	Long.NEG_ONE = NEG_ONE;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var MAX_VALUE = fromBits(0xFFFFFFFF|0, 0x7FFFFFFF|0, false);
+
+	/**
+	 * Maximum signed value.
+	 * @type {!Long}
+	 */
+	Long.MAX_VALUE = MAX_VALUE;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var MAX_UNSIGNED_VALUE = fromBits(0xFFFFFFFF|0, 0xFFFFFFFF|0, true);
+
+	/**
+	 * Maximum unsigned value.
+	 * @type {!Long}
+	 */
+	Long.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE;
+
+	/**
+	 * @type {!Long}
+	 * @inner
+	 */
+	var MIN_VALUE = fromBits(0, 0x80000000|0, false);
+
+	/**
+	 * Minimum signed value.
+	 * @type {!Long}
+	 */
+	Long.MIN_VALUE = MIN_VALUE;
+
+	/**
+	 * @alias Long.prototype
+	 * @inner
+	 */
+	var LongPrototype = Long.prototype;
+
+	/**
+	 * Converts the Long to a 32 bit integer, assuming it is a 32 bit integer.
+	 * @returns {number}
+	 */
+	LongPrototype.toInt = function toInt() {
+	    return this.unsigned ? this.low >>> 0 : this.low;
+	};
+
+	/**
+	 * Converts the Long to a the nearest floating-point representation of this value (double, 53 bit mantissa).
+	 * @returns {number}
+	 */
+	LongPrototype.toNumber = function toNumber() {
+	    if (this.unsigned)
+	        return ((this.high >>> 0) * TWO_PWR_32_DBL) + (this.low >>> 0);
+	    return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
+	};
+
+	/**
+	 * Converts the Long to a string written in the specified radix.
+	 * @param {number=} radix Radix (2-36), defaults to 10
+	 * @returns {string}
+	 * @override
+	 * @throws {RangeError} If `radix` is out of range
+	 */
+	LongPrototype.toString = function toString(radix) {
+	    radix = radix || 10;
+	    if (radix < 2 || 36 < radix)
+	        throw RangeError('radix');
+	    if (this.isZero())
+	        return '0';
+	    if (this.isNegative()) { // Unsigned Longs are never negative
+	        if (this.eq(MIN_VALUE)) {
+	            // We need to change the Long value before it can be negated, so we remove
+	            // the bottom-most digit in this base and then recurse to do the rest.
+	            var radixLong = fromNumber(radix),
+	                div = this.div(radixLong),
+	                rem1 = div.mul(radixLong).sub(this);
+	            return div.toString(radix) + rem1.toInt().toString(radix);
+	        } else
+	            return '-' + this.neg().toString(radix);
+	    }
+
+	    // Do several (6) digits each time through the loop, so as to
+	    // minimize the calls to the very expensive emulated div.
+	    var radixToPower = fromNumber(pow_dbl(radix, 6), this.unsigned),
+	        rem = this;
+	    var result = '';
+	    while (true) {
+	        var remDiv = rem.div(radixToPower),
+	            intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0,
+	            digits = intval.toString(radix);
+	        rem = remDiv;
+	        if (rem.isZero())
+	            return digits + result;
+	        else {
+	            while (digits.length < 6)
+	                digits = '0' + digits;
+	            result = '' + digits + result;
+	        }
+	    }
+	};
+
+	/**
+	 * Gets the high 32 bits as a signed integer.
+	 * @returns {number} Signed high bits
+	 */
+	LongPrototype.getHighBits = function getHighBits() {
+	    return this.high;
+	};
+
+	/**
+	 * Gets the high 32 bits as an unsigned integer.
+	 * @returns {number} Unsigned high bits
+	 */
+	LongPrototype.getHighBitsUnsigned = function getHighBitsUnsigned() {
+	    return this.high >>> 0;
+	};
+
+	/**
+	 * Gets the low 32 bits as a signed integer.
+	 * @returns {number} Signed low bits
+	 */
+	LongPrototype.getLowBits = function getLowBits() {
+	    return this.low;
+	};
+
+	/**
+	 * Gets the low 32 bits as an unsigned integer.
+	 * @returns {number} Unsigned low bits
+	 */
+	LongPrototype.getLowBitsUnsigned = function getLowBitsUnsigned() {
+	    return this.low >>> 0;
+	};
+
+	/**
+	 * Gets the number of bits needed to represent the absolute value of this Long.
+	 * @returns {number}
+	 */
+	LongPrototype.getNumBitsAbs = function getNumBitsAbs() {
+	    if (this.isNegative()) // Unsigned Longs are never negative
+	        return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
+	    var val = this.high != 0 ? this.high : this.low;
+	    for (var bit = 31; bit > 0; bit--)
+	        if ((val & (1 << bit)) != 0)
+	            break;
+	    return this.high != 0 ? bit + 33 : bit + 1;
+	};
+
+	/**
+	 * Tests if this Long's value equals zero.
+	 * @returns {boolean}
+	 */
+	LongPrototype.isZero = function isZero() {
+	    return this.high === 0 && this.low === 0;
+	};
+
+	/**
+	 * Tests if this Long's value equals zero. This is an alias of {@link Long#isZero}.
+	 * @returns {boolean}
+	 */
+	LongPrototype.eqz = LongPrototype.isZero;
+
+	/**
+	 * Tests if this Long's value is negative.
+	 * @returns {boolean}
+	 */
+	LongPrototype.isNegative = function isNegative() {
+	    return !this.unsigned && this.high < 0;
+	};
+
+	/**
+	 * Tests if this Long's value is positive.
+	 * @returns {boolean}
+	 */
+	LongPrototype.isPositive = function isPositive() {
+	    return this.unsigned || this.high >= 0;
+	};
+
+	/**
+	 * Tests if this Long's value is odd.
+	 * @returns {boolean}
+	 */
+	LongPrototype.isOdd = function isOdd() {
+	    return (this.low & 1) === 1;
+	};
+
+	/**
+	 * Tests if this Long's value is even.
+	 * @returns {boolean}
+	 */
+	LongPrototype.isEven = function isEven() {
+	    return (this.low & 1) === 0;
+	};
+
+	/**
+	 * Tests if this Long's value equals the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.equals = function equals(other) {
+	    if (!isLong(other))
+	        other = fromValue(other);
+	    if (this.unsigned !== other.unsigned && (this.high >>> 31) === 1 && (other.high >>> 31) === 1)
+	        return false;
+	    return this.high === other.high && this.low === other.low;
+	};
+
+	/**
+	 * Tests if this Long's value equals the specified's. This is an alias of {@link Long#equals}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.eq = LongPrototype.equals;
+
+	/**
+	 * Tests if this Long's value differs from the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.notEquals = function notEquals(other) {
+	    return !this.eq(/* validates */ other);
+	};
+
+	/**
+	 * Tests if this Long's value differs from the specified's. This is an alias of {@link Long#notEquals}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.neq = LongPrototype.notEquals;
+
+	/**
+	 * Tests if this Long's value differs from the specified's. This is an alias of {@link Long#notEquals}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.ne = LongPrototype.notEquals;
+
+	/**
+	 * Tests if this Long's value is less than the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.lessThan = function lessThan(other) {
+	    return this.comp(/* validates */ other) < 0;
+	};
+
+	/**
+	 * Tests if this Long's value is less than the specified's. This is an alias of {@link Long#lessThan}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.lt = LongPrototype.lessThan;
+
+	/**
+	 * Tests if this Long's value is less than or equal the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.lessThanOrEqual = function lessThanOrEqual(other) {
+	    return this.comp(/* validates */ other) <= 0;
+	};
+
+	/**
+	 * Tests if this Long's value is less than or equal the specified's. This is an alias of {@link Long#lessThanOrEqual}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.lte = LongPrototype.lessThanOrEqual;
+
+	/**
+	 * Tests if this Long's value is less than or equal the specified's. This is an alias of {@link Long#lessThanOrEqual}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.le = LongPrototype.lessThanOrEqual;
+
+	/**
+	 * Tests if this Long's value is greater than the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.greaterThan = function greaterThan(other) {
+	    return this.comp(/* validates */ other) > 0;
+	};
+
+	/**
+	 * Tests if this Long's value is greater than the specified's. This is an alias of {@link Long#greaterThan}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.gt = LongPrototype.greaterThan;
+
+	/**
+	 * Tests if this Long's value is greater than or equal the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.greaterThanOrEqual = function greaterThanOrEqual(other) {
+	    return this.comp(/* validates */ other) >= 0;
+	};
+
+	/**
+	 * Tests if this Long's value is greater than or equal the specified's. This is an alias of {@link Long#greaterThanOrEqual}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.gte = LongPrototype.greaterThanOrEqual;
+
+	/**
+	 * Tests if this Long's value is greater than or equal the specified's. This is an alias of {@link Long#greaterThanOrEqual}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {boolean}
+	 */
+	LongPrototype.ge = LongPrototype.greaterThanOrEqual;
+
+	/**
+	 * Compares this Long's value with the specified's.
+	 * @param {!Long|number|string} other Other value
+	 * @returns {number} 0 if they are the same, 1 if the this is greater and -1
+	 *  if the given one is greater
+	 */
+	LongPrototype.compare = function compare(other) {
+	    if (!isLong(other))
+	        other = fromValue(other);
+	    if (this.eq(other))
+	        return 0;
+	    var thisNeg = this.isNegative(),
+	        otherNeg = other.isNegative();
+	    if (thisNeg && !otherNeg)
+	        return -1;
+	    if (!thisNeg && otherNeg)
+	        return 1;
+	    // At this point the sign bits are the same
+	    if (!this.unsigned)
+	        return this.sub(other).isNegative() ? -1 : 1;
+	    // Both are positive if at least one is unsigned
+	    return (other.high >>> 0) > (this.high >>> 0) || (other.high === this.high && (other.low >>> 0) > (this.low >>> 0)) ? -1 : 1;
+	};
+
+	/**
+	 * Compares this Long's value with the specified's. This is an alias of {@link Long#compare}.
+	 * @function
+	 * @param {!Long|number|string} other Other value
+	 * @returns {number} 0 if they are the same, 1 if the this is greater and -1
+	 *  if the given one is greater
+	 */
+	LongPrototype.comp = LongPrototype.compare;
+
+	/**
+	 * Negates this Long's value.
+	 * @returns {!Long} Negated Long
+	 */
+	LongPrototype.negate = function negate() {
+	    if (!this.unsigned && this.eq(MIN_VALUE))
+	        return MIN_VALUE;
+	    return this.not().add(ONE);
+	};
+
+	/**
+	 * Negates this Long's value. This is an alias of {@link Long#negate}.
+	 * @function
+	 * @returns {!Long} Negated Long
+	 */
+	LongPrototype.neg = LongPrototype.negate;
+
+	/**
+	 * Returns the sum of this and the specified Long.
+	 * @param {!Long|number|string} addend Addend
+	 * @returns {!Long} Sum
+	 */
+	LongPrototype.add = function add(addend) {
+	    if (!isLong(addend))
+	        addend = fromValue(addend);
+
+	    // Divide each number into 4 chunks of 16 bits, and then sum the chunks.
+
+	    var a48 = this.high >>> 16;
+	    var a32 = this.high & 0xFFFF;
+	    var a16 = this.low >>> 16;
+	    var a00 = this.low & 0xFFFF;
+
+	    var b48 = addend.high >>> 16;
+	    var b32 = addend.high & 0xFFFF;
+	    var b16 = addend.low >>> 16;
+	    var b00 = addend.low & 0xFFFF;
+
+	    var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+	    c00 += a00 + b00;
+	    c16 += c00 >>> 16;
+	    c00 &= 0xFFFF;
+	    c16 += a16 + b16;
+	    c32 += c16 >>> 16;
+	    c16 &= 0xFFFF;
+	    c32 += a32 + b32;
+	    c48 += c32 >>> 16;
+	    c32 &= 0xFFFF;
+	    c48 += a48 + b48;
+	    c48 &= 0xFFFF;
+	    return fromBits((c16 << 16) | c00, (c48 << 16) | c32, this.unsigned);
+	};
+
+	/**
+	 * Returns the difference of this and the specified Long.
+	 * @param {!Long|number|string} subtrahend Subtrahend
+	 * @returns {!Long} Difference
+	 */
+	LongPrototype.subtract = function subtract(subtrahend) {
+	    if (!isLong(subtrahend))
+	        subtrahend = fromValue(subtrahend);
+	    return this.add(subtrahend.neg());
+	};
+
+	/**
+	 * Returns the difference of this and the specified Long. This is an alias of {@link Long#subtract}.
+	 * @function
+	 * @param {!Long|number|string} subtrahend Subtrahend
+	 * @returns {!Long} Difference
+	 */
+	LongPrototype.sub = LongPrototype.subtract;
+
+	/**
+	 * Returns the product of this and the specified Long.
+	 * @param {!Long|number|string} multiplier Multiplier
+	 * @returns {!Long} Product
+	 */
+	LongPrototype.multiply = function multiply(multiplier) {
+	    if (this.isZero())
+	        return ZERO;
+	    if (!isLong(multiplier))
+	        multiplier = fromValue(multiplier);
+
+	    // use wasm support if present
+	    if (wasm) {
+	        var low = wasm.mul(this.low,
+	                           this.high,
+	                           multiplier.low,
+	                           multiplier.high);
+	        return fromBits(low, wasm.get_high(), this.unsigned);
+	    }
+
+	    if (multiplier.isZero())
+	        return ZERO;
+	    if (this.eq(MIN_VALUE))
+	        return multiplier.isOdd() ? MIN_VALUE : ZERO;
+	    if (multiplier.eq(MIN_VALUE))
+	        return this.isOdd() ? MIN_VALUE : ZERO;
+
+	    if (this.isNegative()) {
+	        if (multiplier.isNegative())
+	            return this.neg().mul(multiplier.neg());
+	        else
+	            return this.neg().mul(multiplier).neg();
+	    } else if (multiplier.isNegative())
+	        return this.mul(multiplier.neg()).neg();
+
+	    // If both longs are small, use float multiplication
+	    if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
+	        return fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
+
+	    // Divide each long into 4 chunks of 16 bits, and then add up 4x4 products.
+	    // We can skip products that would overflow.
+
+	    var a48 = this.high >>> 16;
+	    var a32 = this.high & 0xFFFF;
+	    var a16 = this.low >>> 16;
+	    var a00 = this.low & 0xFFFF;
+
+	    var b48 = multiplier.high >>> 16;
+	    var b32 = multiplier.high & 0xFFFF;
+	    var b16 = multiplier.low >>> 16;
+	    var b00 = multiplier.low & 0xFFFF;
+
+	    var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+	    c00 += a00 * b00;
+	    c16 += c00 >>> 16;
+	    c00 &= 0xFFFF;
+	    c16 += a16 * b00;
+	    c32 += c16 >>> 16;
+	    c16 &= 0xFFFF;
+	    c16 += a00 * b16;
+	    c32 += c16 >>> 16;
+	    c16 &= 0xFFFF;
+	    c32 += a32 * b00;
+	    c48 += c32 >>> 16;
+	    c32 &= 0xFFFF;
+	    c32 += a16 * b16;
+	    c48 += c32 >>> 16;
+	    c32 &= 0xFFFF;
+	    c32 += a00 * b32;
+	    c48 += c32 >>> 16;
+	    c32 &= 0xFFFF;
+	    c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
+	    c48 &= 0xFFFF;
+	    return fromBits((c16 << 16) | c00, (c48 << 16) | c32, this.unsigned);
+	};
+
+	/**
+	 * Returns the product of this and the specified Long. This is an alias of {@link Long#multiply}.
+	 * @function
+	 * @param {!Long|number|string} multiplier Multiplier
+	 * @returns {!Long} Product
+	 */
+	LongPrototype.mul = LongPrototype.multiply;
+
+	/**
+	 * Returns this Long divided by the specified. The result is signed if this Long is signed or
+	 *  unsigned if this Long is unsigned.
+	 * @param {!Long|number|string} divisor Divisor
+	 * @returns {!Long} Quotient
+	 */
+	LongPrototype.divide = function divide(divisor) {
+	    if (!isLong(divisor))
+	        divisor = fromValue(divisor);
+	    if (divisor.isZero())
+	        throw Error('division by zero');
+
+	    // use wasm support if present
+	    if (wasm) {
+	        // guard against signed division overflow: the largest
+	        // negative number / -1 would be 1 larger than the largest
+	        // positive number, due to two's complement.
+	        if (!this.unsigned &&
+	            this.high === -0x80000000 &&
+	            divisor.low === -1 && divisor.high === -1) {
+	            // be consistent with non-wasm code path
+	            return this;
+	        }
+	        var low = (this.unsigned ? wasm.div_u : wasm.div_s)(
+	            this.low,
+	            this.high,
+	            divisor.low,
+	            divisor.high
+	        );
+	        return fromBits(low, wasm.get_high(), this.unsigned);
+	    }
+
+	    if (this.isZero())
+	        return this.unsigned ? UZERO : ZERO;
+	    var approx, rem, res;
+	    if (!this.unsigned) {
+	        // This section is only relevant for signed longs and is derived from the
+	        // closure library as a whole.
+	        if (this.eq(MIN_VALUE)) {
+	            if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
+	                return MIN_VALUE;  // recall that -MIN_VALUE == MIN_VALUE
+	            else if (divisor.eq(MIN_VALUE))
+	                return ONE;
+	            else {
+	                // At this point, we have |other| >= 2, so |this/other| < |MIN_VALUE|.
+	                var halfThis = this.shr(1);
+	                approx = halfThis.div(divisor).shl(1);
+	                if (approx.eq(ZERO)) {
+	                    return divisor.isNegative() ? ONE : NEG_ONE;
+	                } else {
+	                    rem = this.sub(divisor.mul(approx));
+	                    res = approx.add(rem.div(divisor));
+	                    return res;
+	                }
+	            }
+	        } else if (divisor.eq(MIN_VALUE))
+	            return this.unsigned ? UZERO : ZERO;
+	        if (this.isNegative()) {
+	            if (divisor.isNegative())
+	                return this.neg().div(divisor.neg());
+	            return this.neg().div(divisor).neg();
+	        } else if (divisor.isNegative())
+	            return this.div(divisor.neg()).neg();
+	        res = ZERO;
+	    } else {
+	        // The algorithm below has not been made for unsigned longs. It's therefore
+	        // required to take special care of the MSB prior to running it.
+	        if (!divisor.unsigned)
+	            divisor = divisor.toUnsigned();
+	        if (divisor.gt(this))
+	            return UZERO;
+	        if (divisor.gt(this.shru(1))) // 15 >>> 1 = 7 ; with divisor = 8 ; true
+	            return UONE;
+	        res = UZERO;
+	    }
+
+	    // Repeat the following until the remainder is less than other:  find a
+	    // floating-point that approximates remainder / other *from below*, add this
+	    // into the result, and subtract it from the remainder.  It is critical that
+	    // the approximate value is less than or equal to the real value so that the
+	    // remainder never becomes negative.
+	    rem = this;
+	    while (rem.gte(divisor)) {
+	        // Approximate the result of division. This may be a little greater or
+	        // smaller than the actual value.
+	        approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
+
+	        // We will tweak the approximate result by changing it in the 48-th digit or
+	        // the smallest non-fractional digit, whichever is larger.
+	        var log2 = Math.ceil(Math.log(approx) / Math.LN2),
+	            delta = (log2 <= 48) ? 1 : pow_dbl(2, log2 - 48),
+
+	        // Decrease the approximation until it is smaller than the remainder.  Note
+	        // that if it is too large, the product overflows and is negative.
+	            approxRes = fromNumber(approx),
+	            approxRem = approxRes.mul(divisor);
+	        while (approxRem.isNegative() || approxRem.gt(rem)) {
+	            approx -= delta;
+	            approxRes = fromNumber(approx, this.unsigned);
+	            approxRem = approxRes.mul(divisor);
+	        }
+
+	        // We know the answer can't be zero... and actually, zero would cause
+	        // infinite recursion since we would make no progress.
+	        if (approxRes.isZero())
+	            approxRes = ONE;
+
+	        res = res.add(approxRes);
+	        rem = rem.sub(approxRem);
+	    }
+	    return res;
+	};
+
+	/**
+	 * Returns this Long divided by the specified. This is an alias of {@link Long#divide}.
+	 * @function
+	 * @param {!Long|number|string} divisor Divisor
+	 * @returns {!Long} Quotient
+	 */
+	LongPrototype.div = LongPrototype.divide;
+
+	/**
+	 * Returns this Long modulo the specified.
+	 * @param {!Long|number|string} divisor Divisor
+	 * @returns {!Long} Remainder
+	 */
+	LongPrototype.modulo = function modulo(divisor) {
+	    if (!isLong(divisor))
+	        divisor = fromValue(divisor);
+
+	    // use wasm support if present
+	    if (wasm) {
+	        var low = (this.unsigned ? wasm.rem_u : wasm.rem_s)(
+	            this.low,
+	            this.high,
+	            divisor.low,
+	            divisor.high
+	        );
+	        return fromBits(low, wasm.get_high(), this.unsigned);
+	    }
+
+	    return this.sub(this.div(divisor).mul(divisor));
+	};
+
+	/**
+	 * Returns this Long modulo the specified. This is an alias of {@link Long#modulo}.
+	 * @function
+	 * @param {!Long|number|string} divisor Divisor
+	 * @returns {!Long} Remainder
+	 */
+	LongPrototype.mod = LongPrototype.modulo;
+
+	/**
+	 * Returns this Long modulo the specified. This is an alias of {@link Long#modulo}.
+	 * @function
+	 * @param {!Long|number|string} divisor Divisor
+	 * @returns {!Long} Remainder
+	 */
+	LongPrototype.rem = LongPrototype.modulo;
+
+	/**
+	 * Returns the bitwise NOT of this Long.
+	 * @returns {!Long}
+	 */
+	LongPrototype.not = function not() {
+	    return fromBits(~this.low, ~this.high, this.unsigned);
+	};
+
+	/**
+	 * Returns the bitwise AND of this Long and the specified.
+	 * @param {!Long|number|string} other Other Long
+	 * @returns {!Long}
+	 */
+	LongPrototype.and = function and(other) {
+	    if (!isLong(other))
+	        other = fromValue(other);
+	    return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
+	};
+
+	/**
+	 * Returns the bitwise OR of this Long and the specified.
+	 * @param {!Long|number|string} other Other Long
+	 * @returns {!Long}
+	 */
+	LongPrototype.or = function or(other) {
+	    if (!isLong(other))
+	        other = fromValue(other);
+	    return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
+	};
+
+	/**
+	 * Returns the bitwise XOR of this Long and the given one.
+	 * @param {!Long|number|string} other Other Long
+	 * @returns {!Long}
+	 */
+	LongPrototype.xor = function xor(other) {
+	    if (!isLong(other))
+	        other = fromValue(other);
+	    return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
+	};
+
+	/**
+	 * Returns this Long with bits shifted to the left by the given amount.
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shiftLeft = function shiftLeft(numBits) {
+	    if (isLong(numBits))
+	        numBits = numBits.toInt();
+	    if ((numBits &= 63) === 0)
+	        return this;
+	    else if (numBits < 32)
+	        return fromBits(this.low << numBits, (this.high << numBits) | (this.low >>> (32 - numBits)), this.unsigned);
+	    else
+	        return fromBits(0, this.low << (numBits - 32), this.unsigned);
+	};
+
+	/**
+	 * Returns this Long with bits shifted to the left by the given amount. This is an alias of {@link Long#shiftLeft}.
+	 * @function
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shl = LongPrototype.shiftLeft;
+
+	/**
+	 * Returns this Long with bits arithmetically shifted to the right by the given amount.
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shiftRight = function shiftRight(numBits) {
+	    if (isLong(numBits))
+	        numBits = numBits.toInt();
+	    if ((numBits &= 63) === 0)
+	        return this;
+	    else if (numBits < 32)
+	        return fromBits((this.low >>> numBits) | (this.high << (32 - numBits)), this.high >> numBits, this.unsigned);
+	    else
+	        return fromBits(this.high >> (numBits - 32), this.high >= 0 ? 0 : -1, this.unsigned);
+	};
+
+	/**
+	 * Returns this Long with bits arithmetically shifted to the right by the given amount. This is an alias of {@link Long#shiftRight}.
+	 * @function
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shr = LongPrototype.shiftRight;
+
+	/**
+	 * Returns this Long with bits logically shifted to the right by the given amount.
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shiftRightUnsigned = function shiftRightUnsigned(numBits) {
+	    if (isLong(numBits))
+	        numBits = numBits.toInt();
+	    numBits &= 63;
+	    if (numBits === 0)
+	        return this;
+	    else {
+	        var high = this.high;
+	        if (numBits < 32) {
+	            var low = this.low;
+	            return fromBits((low >>> numBits) | (high << (32 - numBits)), high >>> numBits, this.unsigned);
+	        } else if (numBits === 32)
+	            return fromBits(high, 0, this.unsigned);
+	        else
+	            return fromBits(high >>> (numBits - 32), 0, this.unsigned);
+	    }
+	};
+
+	/**
+	 * Returns this Long with bits logically shifted to the right by the given amount. This is an alias of {@link Long#shiftRightUnsigned}.
+	 * @function
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shru = LongPrototype.shiftRightUnsigned;
+
+	/**
+	 * Returns this Long with bits logically shifted to the right by the given amount. This is an alias of {@link Long#shiftRightUnsigned}.
+	 * @function
+	 * @param {number|!Long} numBits Number of bits
+	 * @returns {!Long} Shifted Long
+	 */
+	LongPrototype.shr_u = LongPrototype.shiftRightUnsigned;
+
+	/**
+	 * Converts this Long to signed.
+	 * @returns {!Long} Signed long
+	 */
+	LongPrototype.toSigned = function toSigned() {
+	    if (!this.unsigned)
+	        return this;
+	    return fromBits(this.low, this.high, false);
+	};
+
+	/**
+	 * Converts this Long to unsigned.
+	 * @returns {!Long} Unsigned long
+	 */
+	LongPrototype.toUnsigned = function toUnsigned() {
+	    if (this.unsigned)
+	        return this;
+	    return fromBits(this.low, this.high, true);
+	};
+
+	/**
+	 * Converts this Long to its byte representation.
+	 * @param {boolean=} le Whether little or big endian, defaults to big endian
+	 * @returns {!Array.<number>} Byte representation
+	 */
+	LongPrototype.toBytes = function toBytes(le) {
+	    return le ? this.toBytesLE() : this.toBytesBE();
+	};
+
+	/**
+	 * Converts this Long to its little endian byte representation.
+	 * @returns {!Array.<number>} Little endian byte representation
+	 */
+	LongPrototype.toBytesLE = function toBytesLE() {
+	    var hi = this.high,
+	        lo = this.low;
+	    return [
+	        lo        & 0xff,
+	        lo >>>  8 & 0xff,
+	        lo >>> 16 & 0xff,
+	        lo >>> 24       ,
+	        hi        & 0xff,
+	        hi >>>  8 & 0xff,
+	        hi >>> 16 & 0xff,
+	        hi >>> 24
+	    ];
+	};
+
+	/**
+	 * Converts this Long to its big endian byte representation.
+	 * @returns {!Array.<number>} Big endian byte representation
+	 */
+	LongPrototype.toBytesBE = function toBytesBE() {
+	    var hi = this.high,
+	        lo = this.low;
+	    return [
+	        hi >>> 24       ,
+	        hi >>> 16 & 0xff,
+	        hi >>>  8 & 0xff,
+	        hi        & 0xff,
+	        lo >>> 24       ,
+	        lo >>> 16 & 0xff,
+	        lo >>>  8 & 0xff,
+	        lo        & 0xff
+	    ];
+	};
+
+	/**
+	 * Creates a Long from its byte representation.
+	 * @param {!Array.<number>} bytes Byte representation
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @param {boolean=} le Whether little or big endian, defaults to big endian
+	 * @returns {Long} The corresponding Long value
+	 */
+	Long.fromBytes = function fromBytes(bytes, unsigned, le) {
+	    return le ? Long.fromBytesLE(bytes, unsigned) : Long.fromBytesBE(bytes, unsigned);
+	};
+
+	/**
+	 * Creates a Long from its little endian byte representation.
+	 * @param {!Array.<number>} bytes Little endian byte representation
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {Long} The corresponding Long value
+	 */
+	Long.fromBytesLE = function fromBytesLE(bytes, unsigned) {
+	    return new Long(
+	        bytes[0]       |
+	        bytes[1] <<  8 |
+	        bytes[2] << 16 |
+	        bytes[3] << 24,
+	        bytes[4]       |
+	        bytes[5] <<  8 |
+	        bytes[6] << 16 |
+	        bytes[7] << 24,
+	        unsigned
+	    );
+	};
+
+	/**
+	 * Creates a Long from its big endian byte representation.
+	 * @param {!Array.<number>} bytes Big endian byte representation
+	 * @param {boolean=} unsigned Whether unsigned or not, defaults to signed
+	 * @returns {Long} The corresponding Long value
+	 */
+	Long.fromBytesBE = function fromBytesBE(bytes, unsigned) {
+	    return new Long(
+	        bytes[4] << 24 |
+	        bytes[5] << 16 |
+	        bytes[6] <<  8 |
+	        bytes[7],
+	        bytes[0] << 24 |
+	        bytes[1] << 16 |
+	        bytes[2] <<  8 |
+	        bytes[3],
+	        unsigned
+	    );
+	};
+
+	var errcodes = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var ErrorCode;
+	(function (ErrorCode) {
+	    ErrorCode[ErrorCode["kSuccess"] = 0] = "kSuccess";
+	    ErrorCode[ErrorCode["kInvalidOperation"] = 1] = "kInvalidOperation";
+	    ErrorCode[ErrorCode["kAuthError"] = 2] = "kAuthError";
+	    ErrorCode[ErrorCode["kDatabaseError"] = 3] = "kDatabaseError";
+	    ErrorCode[ErrorCode["kParamError"] = 4] = "kParamError";
+	    ErrorCode[ErrorCode["kValueError"] = 5] = "kValueError";
+	    ErrorCode[ErrorCode["kServerError"] = 6] = "kServerError";
+	    ErrorCode[ErrorCode["kFileNotFound"] = 7] = "kFileNotFound";
+	    ErrorCode[ErrorCode["kNotImplemented"] = 8] = "kNotImplemented";
+	    ErrorCode[ErrorCode["kInvalidContent"] = 9] = "kInvalidContent";
+	})(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
+
+	});
+
+	unwrapExports(errcodes);
+	var errcodes_1 = errcodes.ErrorCode;
+
+	var utils = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var Utils = /** @class */ (function () {
+	    function Utils() {
+	    }
+	    Utils.isNumber = function (obj) {
+	        return typeof obj === 'number';
+	    };
+	    Utils.isInt = function (obj) {
+	        return this.isNumber(obj) && obj % 1 === 0;
+	    };
+	    Utils.isBoolean = function (obj) {
+	        return typeof obj === 'boolean';
+	    };
+	    Utils.isString = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object String]';
+	    };
+	    Utils.isUndefined = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object Undefined]';
+	    };
+	    Utils.isNull = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object Null]';
+	    };
+	    Utils.isObject = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object Object]';
+	    };
+	    Utils.isArray = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object Array]';
+	    };
+	    Utils.isFunction = function (obj) {
+	        return Object.prototype.toString.call(obj) === '[object Function]';
+	    };
+	    Utils.isPrimitive = function (obj) {
+	        return this.isNumber(obj) || this.isString(obj) || this.isBoolean(obj) || this.isNull(obj) || this.isUndefined(obj);
+	    };
+	    Utils.deepCopy = function (obj) {
+	        return this.isPrimitive(obj) ? obj : JSON.parse(JSON.stringify(obj));
+	    };
+	    Utils.equals = function (obj1, obj2) {
+	        for (var propName in obj1) {
+	            if (obj1.hasOwnProperty(propName) !== obj2.hasOwnProperty(propName)) {
+	                return false;
+	            }
+	            else if (typeof obj1[propName] !== typeof obj2[propName]) {
+	                return false;
+	            }
+	        }
+	        for (var propName in obj2) {
+	            if (obj1.hasOwnProperty(propName) !== obj2.hasOwnProperty(propName)) {
+	                return false;
+	            }
+	            else if (typeof obj1[propName] !== typeof obj2[propName]) {
+	                return false;
+	            }
+	            if (!obj1.hasOwnProperty(propName)) {
+	                continue;
+	            }
+	            if (obj1[propName] instanceof Array && obj2[propName] instanceof Array) {
+	                if (!this.equals(obj1[propName], obj2[propName])) {
+	                    return false;
+	                }
+	            }
+	            else if (obj1[propName] instanceof Object && obj2[propName] instanceof Object) {
+	                if (!this.equals(obj1[propName], obj2[propName])) {
+	                    return false;
+	                }
+	            }
+	            else if (obj1[propName] !== obj2[propName]) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    };
+	    Utils.trimLeft = function (str) {
+	        return str.replace(/(^\s*)/g, '');
+	    };
+	    Utils.trimRight = function (str) {
+	        return str.replace(/(\s*$)/g, '');
+	    };
+	    Utils.trim = function (str) {
+	        return str.replace(/(^\s*)|(\s*$)/g, '');
+	    };
+	    Utils.toUnicode = function (str) {
+	        return str.replace(/[\u007F-\uFFFF]/g, function (chr) {
+	            return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4);
+	        });
+	    };
+	    Utils.fromUnicode = function (str) {
+	        return str.replace(/\\u[0-9|a-f|A-F]{4}/g, function (s) {
+	            return String.fromCharCode(parseInt(s.slice(2), 16));
+	        });
+	    };
+	    Utils.safeParseNumber = function (value) {
+	        return isNaN(value) ? null : parseFloat(value);
+	    };
+	    Utils.safeParseInt = function (value, defaultValue) {
+	        var result = value !== null && value !== undefined && /^[-+]?\d+$/.test(value.toString()) ? parseInt(value, 10) : null;
+	        if (result == null && this.isNumber(defaultValue)) {
+	            result = parseInt(defaultValue, 10);
+	        }
+	        return result;
+	    };
+	    Utils.safeParseLong = function (value) {
+	        if (isNaN(value)) {
+	            return null;
+	        }
+	        else if (this.isString(value)) {
+	            return long_1.fromString(value);
+	        }
+	        else if (this.isNumber(value)) {
+	            return long_1.fromNumber(value);
+	        }
+	        else {
+	            return null;
+	        }
+	    };
+	    Utils.isMD5 = function (str) {
+	        return this.isString(str) && /^[0-9a-f]{32}$/.test(str);
+	    };
+	    Utils.longDivToFixed = function (value, n) {
+	        var lval = value;
+	        if (this.isNull(lval) || this.isUndefined(lval)) {
+	            return null;
+	        }
+	        else if (this.isString(lval)) {
+	            lval = long_1.fromString(lval);
+	        }
+	        else if (this.isNumber(lval)) {
+	            lval = long_1.fromNumber(lval);
+	        }
+	        var sign = '';
+	        if (lval.lt(0)) {
+	            lval = lval.neg();
+	            sign = '-';
+	        }
+	        var divisor = long_1.ONE;
+	        for (var i = 0; i < n; i++) {
+	            divisor = divisor.mul(10);
+	        }
+	        var iPart = lval.div(divisor).toString();
+	        var fPart = lval.mod(divisor).toString();
+	        while (fPart.length < n) {
+	            fPart = '0' + fPart;
+	        }
+	        return sign + iPart + '.' + fPart;
+	    };
+	    Utils.genDebugStr = function (str, up) {
+	        var skip = 1 + (up || 0);
+	        var f = arguments.callee;
+	        while (f && skip > 0) {
+	            f = f.caller;
+	            skip--;
+	        }
+	        var funcName = f ? this.getFunctionName(f) + ': ' : '';
+	        return "" + funcName + str;
+	    };
+	    Utils.debugOut = function (str, up) {
+	        if (this.debug) {
+	            console.log(this.genDebugStr(str, up || 0));
+	        }
+	    };
+	    Utils.getFunctionName = function (callee) {
+	        var _callee = callee.toString().replace(/[\s\?]*/g, '');
+	        var comb = _callee.length >= 50 ? 50 : _callee.length;
+	        _callee = _callee.substring(0, comb);
+	        var name = _callee.match(/^function([^\(]+?)\(/);
+	        if (name && name[1]) {
+	            return name[1];
+	        }
+	        var caller = callee.caller;
+	        var _caller = caller.toString().replace(/[\s\?]*/g, '');
+	        var last = _caller.indexOf(_callee);
+	        var str = _caller.substring(last - 30, last);
+	        name = str.match(/var([^\=]+?)\=/);
+	        if (name && name[1]) {
+	            return name[1];
+	        }
+	        return 'anonymous';
+	    };
+	    Utils.httpResult = function (err) {
+	        return {
+	            err: err,
+	            message: errcodes.ErrorCode[err]
+	        };
+	    };
+	    Utils.debug = false;
+	    Utils.mergeBlank = function (str) {
+	        return str.replace(/\s+/g, ' ');
+	    };
+	    return Utils;
+	}());
+	exports.Utils = Utils;
+
+	});
+
+	unwrapExports(utils);
+	var utils_1 = utils.Utils;
+
 	var core = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
 	    var extendStatics = Object.setPrototypeOf ||
@@ -1745,6 +3265,7 @@
 	    };
 	})();
 	Object.defineProperty(exports, "__esModule", { value: true });
+
 
 
 	var EventListenerOrder;
@@ -2950,12 +4471,11 @@
 	        _this._canvas = new Canvas(_this, canvas, doubleBuffer);
 	        _this._captureObject = null;
 	        _this._hitObjects = [];
-	        _this._currentPage = null;
-	        _this._pages = {};
+	        _this._currentPage = -1;
+	        _this._pages = [];
 	        var rootNode = new SceneObject();
 	        rootNode.view = _this;
 	        _this.addPage({
-	            name: 'page1',
 	            rootNode: rootNode,
 	            bkImageUrl: null,
 	            bkImageRepeat: null,
@@ -2963,7 +4483,7 @@
 	            bkImageAttachment: null,
 	            bkColor: '#ffffff'
 	        });
-	        _this.selectPage('page1');
+	        _this.selectPage(0);
 	        _this.on(EvtFrame.type, function (ev) {
 	            var updateEvent = new EvtUpdate(ev.deltaTime, ev.elapsedTime, ev.frameStamp);
 	            if (_this.rootNode) {
@@ -2993,97 +4513,74 @@
 	    }
 	    SceneView.prototype.forEachPage = function (callback) {
 	        if (callback) {
-	            for (var name_1 in this._pages) {
-	                callback({
-	                    name: name_1,
-	                    rootNode: this._pages[name_1].rootNode,
-	                    bkImageUrl: this._pages[name_1].bkImageUrl,
-	                    bkImageRepeat: this._pages[name_1].bkImageRepeat,
-	                    bkImageAttachment: this._pages[name_1].bkImageAttachment,
-	                    bkImageSize: this._pages[name_1].bkImageSize,
-	                    bkColor: this._pages[name_1].bkColor
-	                });
-	            }
+	            this._pages.forEach(callback);
 	        }
 	    };
+	    Object.defineProperty(SceneView.prototype, "numPages", {
+	        get: function () {
+	            return this._pages.length;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    SceneView.prototype.addPage = function (page) {
-	        var defaultPage = {
-	            name: null,
+	        var p = Object.assign({
 	            rootNode: null,
 	            bkImageUrl: null,
 	            bkImageRepeat: 'repeat',
 	            bkImageAttachment: 'scroll',
 	            bkImageSize: 'auto',
 	            bkColor: '#ffffff'
-	        };
-	        var p = page || defaultPage;
-	        var name = p.name || this.genPageName();
-	        if (name in this._pages) {
-	            return null;
+	        }, page || {});
+	        if (this._currentPage < 0) {
+	            this._pages.push(p);
+	            return this._pages.length - 1;
 	        }
-	        this._pages[name] = {
-	            name: name,
-	            rootNode: p.rootNode,
-	            bkImageUrl: p.bkImageUrl,
-	            bkImageRepeat: p.bkImageRepeat || defaultPage.bkImageRepeat,
-	            bkImageAttachment: p.bkImageAttachment || defaultPage.bkImageAttachment,
-	            bkImageSize: p.bkImageSize || defaultPage.bkImageSize,
-	            bkColor: p.bkColor || defaultPage.bkColor
-	        };
-	        return name;
+	        else {
+	            this._pages.splice(this._currentPage, 0, p);
+	            return this._currentPage++;
+	        }
 	    };
-	    SceneView.prototype.removePage = function (name) {
-	        if (name in this._pages) {
-	            if (name === this._currentPage) {
-	                var b = false;
-	                for (var n in this._pages) {
-	                    if (n !== name) {
-	                        this.selectPage(n);
-	                        b = true;
-	                    }
+	    SceneView.prototype.removePage = function (index) {
+	        if (utils.Utils.isInt(index) && index >= 0 && index < this._pages.length && this._pages.length > 1) {
+	            if (index === this._currentPage) {
+	                if (index === this._pages.length - 1) {
+	                    this.selectPage(index - 1);
 	                }
-	                if (!b) {
-	                    return false;
+	                else {
+	                    this.selectPage(index + 1);
 	                }
 	            }
-	            var rootNode = this._pages[name].rootNode;
+	            var rootNode = this._pages[index].rootNode;
 	            if (rootNode) {
 	                rootNode.unrefChildren();
 	                rootNode.view = null;
-	                this._pages[name].rootNode = null;
+	                this._pages[index].rootNode = null;
 	            }
-	            delete this._pages[name];
+	            this._pages.splice(index, 1);
+	            if (this._currentPage > index) {
+	                this._currentPage--;
+	            }
 	            return true;
 	        }
 	        return false;
 	    };
-	    SceneView.prototype.selectPage = function (name) {
-	        var oldName = this._currentPage;
-	        if (name in this._pages && name !== oldName) {
-	            App.triggerEvent(null, new EvtSceneViewPageWillChange(this, oldName, name));
-	            this._currentPage = name;
+	    SceneView.prototype.selectPage = function (index) {
+	        if (utils.Utils.isInt(index) && index >= 0 && index < this._pages.length && index !== this._currentPage) {
+	            var oldPage = this._currentPage;
+	            App.triggerEvent(null, new EvtSceneViewPageWillChange(this, oldPage, index));
+	            this._currentPage = index;
 	            this._captureObject = null;
 	            this._hitObjects.length = 0;
 	            this.applyPage(this._pages[this._currentPage]);
-	            App.triggerEvent(null, new EvtSceneViewPageChanged(this, oldName, name));
+	            App.triggerEvent(null, new EvtSceneViewPageChanged(this, oldPage, index));
 	        }
 	    };
-	    SceneView.prototype.renamePage = function (oldName, newName) {
-	        if (oldName in this._pages && newName && newName !== oldName && !(newName in this._pages)) {
-	            var page = this._pages[oldName];
-	            delete this._pages[oldName];
-	            page.name = newName;
-	            this._pages[newName] = page;
-	            if (oldName === this._currentPage) {
-	                this._currentPage = newName;
-	            }
-	        }
-	    };
-	    SceneView.prototype.clearPage = function (pageName) {
-	        var page = this._pages[pageName];
-	        if (page) {
+	    SceneView.prototype.clearPage = function (index) {
+	        if (utils.Utils.isInt(index) && index >= 0 && index < this._pages.length) {
+	            var page = this._pages[index];
 	            page.rootNode && page.rootNode.unrefChildren();
-	            if (pageName === this._currentPage) {
+	            if (index === this._currentPage) {
 	                this._captureObject = null;
 	                this._hitObjects.length = 0;
 	            }
@@ -3101,7 +4598,7 @@
 	            return this._currentPage ? this._pages[this._currentPage].bkImageUrl : null;
 	        },
 	        set: function (image) {
-	            if (this._currentPage && image !== this._pages[this._currentPage].bkImageUrl) {
+	            if (this._currentPage >= 0 && image !== this._pages[this._currentPage].bkImageUrl) {
 	                this._pages[this._currentPage].bkImageUrl = image;
 	                this.applyPage(this._pages[this._currentPage]);
 	            }
@@ -3111,11 +4608,11 @@
 	    });
 	    Object.defineProperty(SceneView.prototype, "pageImageRepeat", {
 	        get: function () {
-	            return this._currentPage ? this._pages[this._currentPage].bkImageRepeat : null;
+	            return this._currentPage >= 0 ? this._pages[this._currentPage].bkImageRepeat : null;
 	        },
 	        set: function (value) {
 	            var repeat = value || 'repeat';
-	            if (this._currentPage && repeat !== this._pages[this._currentPage].bkImageRepeat) {
+	            if (this._currentPage >= 0 && repeat !== this._pages[this._currentPage].bkImageRepeat) {
 	                this._pages[this._currentPage].bkImageRepeat = repeat;
 	                this.applyPage(this._pages[this._currentPage]);
 	            }
@@ -3125,11 +4622,11 @@
 	    });
 	    Object.defineProperty(SceneView.prototype, "pageImageAttachment", {
 	        get: function () {
-	            return this._currentPage ? this._pages[this._currentPage].bkImageAttachment : null;
+	            return this._currentPage >= 0 ? this._pages[this._currentPage].bkImageAttachment : null;
 	        },
 	        set: function (value) {
 	            var attach = value || 'scroll';
-	            if (this._currentPage && attach !== this._pages[this._currentPage].bkImageAttachment) {
+	            if (this._currentPage >= 0 && attach !== this._pages[this._currentPage].bkImageAttachment) {
 	                this._pages[this._currentPage].bkImageAttachment = attach;
 	                this.applyPage(this._pages[this._currentPage]);
 	            }
@@ -3139,11 +4636,11 @@
 	    });
 	    Object.defineProperty(SceneView.prototype, "pageImageSize", {
 	        get: function () {
-	            return this._currentPage ? this._pages[this._currentPage].bkImageSize : null;
+	            return this._currentPage >= 0 ? this._pages[this._currentPage].bkImageSize : null;
 	        },
 	        set: function (value) {
 	            var size = value || 'auto';
-	            if (this._currentPage && size !== this._pages[this._currentPage].bkImageSize) {
+	            if (this._currentPage >= 0 && size !== this._pages[this._currentPage].bkImageSize) {
 	                this._pages[this._currentPage].bkImageSize = size;
 	                this.applyPage(this._pages[this._currentPage]);
 	            }
@@ -3153,10 +4650,10 @@
 	    });
 	    Object.defineProperty(SceneView.prototype, "pageColor", {
 	        get: function () {
-	            return this._currentPage ? this._pages[this._currentPage].bkColor : null;
+	            return this._currentPage >= 0 ? this._pages[this._currentPage].bkColor : null;
 	        },
 	        set: function (color) {
-	            if (this._currentPage && color !== this._pages[this._currentPage].bkColor) {
+	            if (this._currentPage >= 0 && color !== this._pages[this._currentPage].bkColor) {
 	                this._pages[this._currentPage].bkColor = color;
 	                this.applyPage(this._pages[this._currentPage]);
 	            }
@@ -3187,7 +4684,7 @@
 	    };
 	    Object.defineProperty(SceneView.prototype, "rootNode", {
 	        get: function () {
-	            if (this._currentPage) {
+	            if (this._currentPage >= 0) {
 	                var node = this._pages[this._currentPage].rootNode;
 	                if (!node) {
 	                    node = new SceneObject();
@@ -3201,7 +4698,7 @@
 	            }
 	        },
 	        set: function (node) {
-	            if (this._currentPage && this._pages[this._currentPage].rootNode !== node) {
+	            if (this._currentPage >= 0 && this._pages[this._currentPage].rootNode !== node) {
 	                this._pages[this._currentPage].rootNode = node;
 	                this._hitObjects.length = 0;
 	                this._captureObject = null;
@@ -3359,9 +4856,9 @@
 	    SceneView.prototype.genPageName = function () {
 	        var n = 1;
 	        while (true) {
-	            var name_2 = "page" + n++;
-	            if (!(name_2 in this._pages)) {
-	                return name_2;
+	            var name_1 = "page" + n++;
+	            if (!(name_1 in this._pages)) {
+	                return name_1;
 	            }
 	        }
 	    };
@@ -11032,6 +12529,473 @@
 	        };
 	        return DeletePageMessage;
 	    })();
+	    whiteboard.NextPageMessage = (function () {
+	        /**
+	         * Properties of a NextPageMessage.
+	         * @memberof whiteboard
+	         * @interface INextPageMessage
+	         */
+	        /**
+	         * Constructs a new NextPageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a NextPageMessage.
+	         * @implements INextPageMessage
+	         * @constructor
+	         * @param {whiteboard.INextPageMessage=} [properties] Properties to set
+	         */
+	        function NextPageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new NextPageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {whiteboard.INextPageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.NextPageMessage} NextPageMessage instance
+	         */
+	        NextPageMessage.create = function create(properties) {
+	            return new NextPageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified NextPageMessage message. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {whiteboard.INextPageMessage} message NextPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        NextPageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified NextPageMessage message, length delimited. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {whiteboard.INextPageMessage} message NextPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        NextPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a NextPageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.NextPageMessage} NextPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        NextPageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.NextPageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a NextPageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.NextPageMessage} NextPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        NextPageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a NextPageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        NextPageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a NextPageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.NextPageMessage} NextPageMessage
+	         */
+	        NextPageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.NextPageMessage)
+	                return object;
+	            return new $root.whiteboard.NextPageMessage();
+	        };
+	        /**
+	         * Creates a plain object from a NextPageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.NextPageMessage
+	         * @static
+	         * @param {whiteboard.NextPageMessage} message NextPageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        NextPageMessage.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this NextPageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.NextPageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        NextPageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return NextPageMessage;
+	    })();
+	    whiteboard.PrevPageMessage = (function () {
+	        /**
+	         * Properties of a PrevPageMessage.
+	         * @memberof whiteboard
+	         * @interface IPrevPageMessage
+	         */
+	        /**
+	         * Constructs a new PrevPageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a PrevPageMessage.
+	         * @implements IPrevPageMessage
+	         * @constructor
+	         * @param {whiteboard.IPrevPageMessage=} [properties] Properties to set
+	         */
+	        function PrevPageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * Creates a new PrevPageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {whiteboard.IPrevPageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.PrevPageMessage} PrevPageMessage instance
+	         */
+	        PrevPageMessage.create = function create(properties) {
+	            return new PrevPageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified PrevPageMessage message. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {whiteboard.IPrevPageMessage} message PrevPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        PrevPageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified PrevPageMessage message, length delimited. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {whiteboard.IPrevPageMessage} message PrevPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        PrevPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a PrevPageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        PrevPageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.PrevPageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a PrevPageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        PrevPageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a PrevPageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        PrevPageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a PrevPageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.PrevPageMessage} PrevPageMessage
+	         */
+	        PrevPageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.PrevPageMessage)
+	                return object;
+	            return new $root.whiteboard.PrevPageMessage();
+	        };
+	        /**
+	         * Creates a plain object from a PrevPageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.PrevPageMessage
+	         * @static
+	         * @param {whiteboard.PrevPageMessage} message PrevPageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        PrevPageMessage.toObject = function toObject() {
+	            return {};
+	        };
+	        /**
+	         * Converts this PrevPageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.PrevPageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        PrevPageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return PrevPageMessage;
+	    })();
+	    whiteboard.SelectPageMessage = (function () {
+	        /**
+	         * Properties of a SelectPageMessage.
+	         * @memberof whiteboard
+	         * @interface ISelectPageMessage
+	         * @property {number|null} [page] SelectPageMessage page
+	         */
+	        /**
+	         * Constructs a new SelectPageMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a SelectPageMessage.
+	         * @implements ISelectPageMessage
+	         * @constructor
+	         * @param {whiteboard.ISelectPageMessage=} [properties] Properties to set
+	         */
+	        function SelectPageMessage(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * SelectPageMessage page.
+	         * @member {number} page
+	         * @memberof whiteboard.SelectPageMessage
+	         * @instance
+	         */
+	        SelectPageMessage.prototype.page = 0;
+	        /**
+	         * Creates a new SelectPageMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {whiteboard.ISelectPageMessage=} [properties] Properties to set
+	         * @returns {whiteboard.SelectPageMessage} SelectPageMessage instance
+	         */
+	        SelectPageMessage.create = function create(properties) {
+	            return new SelectPageMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified SelectPageMessage message. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {whiteboard.ISelectPageMessage} message SelectPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SelectPageMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.page != null && message.hasOwnProperty("page"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.page);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified SelectPageMessage message, length delimited. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {whiteboard.ISelectPageMessage} message SelectPageMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        SelectPageMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a SelectPageMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SelectPageMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.SelectPageMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.page = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a SelectPageMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        SelectPageMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a SelectPageMessage message.
+	         * @function verify
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        SelectPageMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.page != null && message.hasOwnProperty("page"))
+	                if (!$util.isInteger(message.page))
+	                    return "page: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a SelectPageMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.SelectPageMessage} SelectPageMessage
+	         */
+	        SelectPageMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.SelectPageMessage)
+	                return object;
+	            var message = new $root.whiteboard.SelectPageMessage();
+	            if (object.page != null)
+	                message.page = object.page >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a SelectPageMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.SelectPageMessage
+	         * @static
+	         * @param {whiteboard.SelectPageMessage} message SelectPageMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        SelectPageMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults)
+	                object.page = 0;
+	            if (message.page != null && message.hasOwnProperty("page"))
+	                object.page = message.page;
+	            return object;
+	        };
+	        /**
+	         * Converts this SelectPageMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.SelectPageMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        SelectPageMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return SelectPageMessage;
+	    })();
 	    whiteboard.StartDrawMessage = (function () {
 	        /**
 	         * Properties of a StartDrawMessage.
@@ -12489,13 +14453,16 @@
 	    MsgType[MsgType["whiteboard_AddPageMessage"] = 30017] = "whiteboard_AddPageMessage";
 	    MsgType[MsgType["whiteboard_RenamePageMessage"] = 30018] = "whiteboard_RenamePageMessage";
 	    MsgType[MsgType["whiteboard_DeletePageMessage"] = 30019] = "whiteboard_DeletePageMessage";
-	    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30020] = "whiteboard_StartDrawMessage";
-	    MsgType[MsgType["whiteboard_DrawingMessage"] = 30021] = "whiteboard_DrawingMessage";
-	    MsgType[MsgType["whiteboard_DrawMessage"] = 30022] = "whiteboard_DrawMessage";
-	    MsgType[MsgType["whiteboard_EraseMessage"] = 30023] = "whiteboard_EraseMessage";
-	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30024] = "whiteboard_SwapObjectMessage";
-	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30025] = "whiteboard_ClearPageMessage";
-	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30026] = "whiteboard_ClearBoardMessage";
+	    MsgType[MsgType["whiteboard_NextPageMessage"] = 30020] = "whiteboard_NextPageMessage";
+	    MsgType[MsgType["whiteboard_PrevPageMessage"] = 30021] = "whiteboard_PrevPageMessage";
+	    MsgType[MsgType["whiteboard_SelectPageMessage"] = 30022] = "whiteboard_SelectPageMessage";
+	    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30023] = "whiteboard_StartDrawMessage";
+	    MsgType[MsgType["whiteboard_DrawingMessage"] = 30024] = "whiteboard_DrawingMessage";
+	    MsgType[MsgType["whiteboard_DrawMessage"] = 30025] = "whiteboard_DrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30026] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30027] = "whiteboard_SwapObjectMessage";
+	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30028] = "whiteboard_ClearPageMessage";
+	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30029] = "whiteboard_ClearBoardMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
@@ -12521,13 +14488,16 @@
 	    30017: protocols.whiteboard.AddPageMessage,
 	    30018: protocols.whiteboard.RenamePageMessage,
 	    30019: protocols.whiteboard.DeletePageMessage,
-	    30020: protocols.whiteboard.StartDrawMessage,
-	    30021: protocols.whiteboard.DrawingMessage,
-	    30022: protocols.whiteboard.DrawMessage,
-	    30023: protocols.whiteboard.EraseMessage,
-	    30024: protocols.whiteboard.SwapObjectMessage,
-	    30025: protocols.whiteboard.ClearPageMessage,
-	    30026: protocols.whiteboard.ClearBoardMessage,
+	    30020: protocols.whiteboard.NextPageMessage,
+	    30021: protocols.whiteboard.PrevPageMessage,
+	    30022: protocols.whiteboard.SelectPageMessage,
+	    30023: protocols.whiteboard.StartDrawMessage,
+	    30024: protocols.whiteboard.DrawingMessage,
+	    30025: protocols.whiteboard.DrawMessage,
+	    30026: protocols.whiteboard.EraseMessage,
+	    30027: protocols.whiteboard.SwapObjectMessage,
+	    30028: protocols.whiteboard.ClearPageMessage,
+	    30029: protocols.whiteboard.ClearBoardMessage,
 	};
 	exports.msgMap = msgMap;
 	__export(protocols);
@@ -13140,17 +15110,26 @@
 	            }
 	        }
 	        else if (type === protolist.MsgType.whiteboard_AddPageMessage) {
-	            this.view && this.view.addPage();
+	            this.view.selectPage(this.view.addPage());
 	        }
-	        else if (type === protolist.MsgType.whiteboard_RenamePageMessage) {
-	            this.view && this.view.currentPage && this.view.renamePage(this.view.currentPage, cmd.newName);
+	        else if (type === protolist.MsgType.whiteboard_DeletePageMessage) {
+	            this.view.removePage(this.view.currentPage);
+	        }
+	        else if (type === protolist.MsgType.whiteboard_NextPageMessage) {
+	            this.view.selectPage(this.view.currentPage + 1);
+	        }
+	        else if (type === protolist.MsgType.whiteboard_PrevPageMessage) {
+	            this.view.selectPage(this.view.currentPage - 1);
+	        }
+	        else if (type === protolist.MsgType.whiteboard_SelectPageMessage) {
+	            this.view.selectPage(cmd.page);
 	        }
 	        else if (type === protolist.MsgType.whiteboard_ClearPageMessage) {
-	            this.view && this.view.clearPage(cmd.pageName || this.view.currentPage);
+	            this.view.clearPage(this.view.currentPage);
 	        }
 	        else if (type === protolist.MsgType.whiteboard_ClearBoardMessage) {
-	            this.view && this.view.forEachPage(function (page) {
-	                _this.view && page && page.name && _this.view.clearPage(page.name);
+	            this.view.forEachPage(function (page, index) {
+	                _this.view.clearPage(index);
 	            });
 	        }
 	        else if (this._currentTool) {
@@ -13255,12 +15234,31 @@
 	                });
 	            },
 	            '#tb-newpage': function () {
-	                var view = that._editor.whiteboard.view;
-	                if (view) {
-	                    var page = view.addPage();
-	                    page && view.selectPage(page);
-	                }
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_AddPageMessage, {});
 	            },
+	            '#tb-deletepage': function () {
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_DeletePageMessage, {});
+	            },
+	            '#tb-firstpage': function () {
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_SelectPageMessage, {
+	                    page: 0
+	                });
+	            },
+	            '#tb-prevpage': function () {
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_SelectPageMessage, {
+	                    page: that._editor.whiteboard.view.currentPage - 1
+	                });
+	            },
+	            '#tb-nextpage': function () {
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_SelectPageMessage, {
+	                    page: that._editor.whiteboard.view.currentPage + 1
+	                });
+	            },
+	            '#tb-lastpage': function () {
+	                that._editor.handleMessage(protolist.MsgType.whiteboard_SelectPageMessage, {
+	                    page: that._editor.whiteboard.view.numPages - 1
+	                });
+	            }
 	        };
 	        var _loop_1 = function (tool) {
 	            $(tool).on('click', function () {
@@ -13720,74 +15718,6 @@
 	            }
 	        }
 	    };
-	    WBPropertyGrid.prototype.loadPageProperties = function () {
-	        var _this = this;
-	        this.clear();
-	        var pageList = [];
-	        var view = this._editor.whiteboard.view;
-	        if (view) {
-	            view.forEachPage(function (page) {
-	                pageList.push({
-	                    value: page.name,
-	                    desc: page.name
-	                });
-	            });
-	            this.addChoiceAttribute('页面列表', pageList, view.currentPage, false, function (value) {
-	                view.selectPage(value);
-	                _this.loadPageProperties();
-	                return view.currentPage;
-	            });
-	            this.addTextAttribute('页面名称', view.currentPage, false, function (value) {
-	                if (value !== view.currentPage) {
-	                    _this._editor.handleMessage(protolist.MsgType.whiteboard_RenamePageMessage, {
-	                        newName: value
-	                    });
-	                    _this.loadPageProperties();
-	                    return view.currentPage;
-	                }
-	            }, true);
-	            this.addTextAttribute('页面背景图像', view.pageImage, false, function (value) {
-	                view.pageImage = (value === '') ? null : value;
-	                return value;
-	            }, true);
-	            this.addChoiceAttribute('页面背景重复', [{
-	                    value: 'repeat',
-	                    desc: '重复'
-	                }, {
-	                    value: 'repeat-x',
-	                    desc: '横向重复'
-	                }, {
-	                    value: 'repeat-y',
-	                    desc: '纵向重复'
-	                }, {
-	                    value: 'no-repeat',
-	                    desc: '不重复'
-	                }], view.pageImageRepeat, false, function (value) {
-	                view.pageImageRepeat = value;
-	                return value;
-	            });
-	            this.addToggleAttribute('页面背景固定', view.pageImageAttachment === 'fixed', false, function (value) {
-	                view.pageImageAttachment = value ? 'fixed' : 'scroll';
-	                return value;
-	            });
-	            this.addTextAttribute('页面背景大小', view.pageImageSize, false, function (value) {
-	                view.pageImageSize = value;
-	                return value;
-	            });
-	            this.addColorAttribute('页面背景颜色', view.pageColor || '', false, function (value) {
-	                view.pageColor = (value === '') ? null : value;
-	                return value;
-	            });
-	            this.addButton('新建页面', function () {
-	                _this._editor.handleMessage(protolist.MsgType.whiteboard_AddPageMessage);
-	                _this.loadPageProperties();
-	            });
-	            this.addButton('删除页面', function () {
-	                _this._editor.handleMessage(protolist.MsgType.whiteboard_DeletePageMessage);
-	                _this.loadPageProperties();
-	            });
-	        }
-	    };
 	    WBPropertyGrid.prototype.createRow = function () {
 	        var tbody = document.querySelector("#" + this._tableId + " tbody");
 	        var tr = document.createElement('tr');
@@ -13837,7 +15767,6 @@
 	        this._opPalette.loadOpPalette(toolset.operations);
 	        this._objectPropGrid = new WBPropertyGrid(this, objectPropGridElement, 'wb-object');
 	        this._toolPropGrid = new WBPropertyGrid(this, toolPropGridElement, 'wb-tool');
-	        this._objectPropGrid.loadPageProperties();
 	    }
 	    Object.defineProperty(WBEditor.prototype, "whiteboard", {
 	        get: function () {
@@ -15049,7 +16978,7 @@
 	                if (context) {
 	                    var type = ev.messageType;
 	                    var data = ev.messageData;
-	                    if (type === protolist.MsgType.whiteboard_StartDrawMessage) {
+	                    if (type === protolist.MsgType.whiteboard_StartDrawMessage && ev.object === _this.entityName) {
 	                        _this._strokeInfo.lineWidth = data.lineWidth;
 	                        _this._strokeInfo.color = data.color;
 	                        _this._strokeInfo.points = [{ x: data.x, y: data.y }];
@@ -15060,12 +16989,12 @@
 	                        context.beginPath();
 	                        context.moveTo(data.x + 0.5, data.y + 0.5);
 	                    }
-	                    else if (type === protolist.MsgType.whiteboard_DrawingMessage) {
+	                    else if (type === protolist.MsgType.whiteboard_DrawingMessage && ev.object === _this.entityName) {
 	                        _this._strokeInfo.points && _this._strokeInfo.points.push({ x: data.x, y: data.y });
 	                        context.lineTo(data.x + 0.5, data.y + 0.5);
 	                        context.stroke();
 	                    }
-	                    else if (type === protolist.MsgType.whiteboard_DrawMessage && ev.broadcast) {
+	                    else if (type === protolist.MsgType.whiteboard_DrawMessage && ev.object === _this.entityName && ev.broadcast) {
 	                        if (data.points.length > 1) {
 	                            context.lineWidth = data.lineWidth;
 	                            context.strokeStyle = data.color;
@@ -15079,7 +17008,7 @@
 	                            context.stroke();
 	                        }
 	                    }
-	                    else if (type === protolist.MsgType.whiteboard_EraseMessage) {
+	                    else if (type === protolist.MsgType.whiteboard_EraseMessage && ev.object === _this.entityName) {
 	                        context.clearRect(data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
 	                    }
 	                }
@@ -15940,7 +17869,6 @@
 	    };
 	    WBCreateTool.prototype.deactivate = function () {
 	        this.off(catk.EvtMouseDown.type);
-	        this.options = {};
 	        _super.prototype.deactivate.call(this);
 	    };
 	    WBCreateTool.toolname = 'Create';
@@ -16507,16 +18435,10 @@
 	        if (ev.objects.length === 1) {
 	            editor.objectPropertyGrid.loadObjectProperties(ev.objects[0]);
 	        }
-	        else {
-	            editor.objectPropertyGrid.loadPageProperties();
-	        }
 	    });
 	    WB.on(whiteboard$2.WBObjectDeselectedEvent.type, function (ev) {
 	        if (ev.objects.length === 1) {
 	            editor.objectPropertyGrid.loadObjectProperties(ev.objects[0]);
-	        }
-	        else {
-	            editor.objectPropertyGrid.loadPageProperties();
 	        }
 	    });
 	    WB.on(whiteboard$2.WBObjectMovedEvent.type, function (ev) {
@@ -16524,15 +18446,9 @@
 	    });
 	    WB.on(whiteboard$2.WBToolActivateEvent.type, function (ev) {
 	        editor.toolPropertyGrid.loadToolProperties(ev.tool);
-	        if (ev.tool.name === whiteboard$2.WBSelectTool.toolname) {
-	            editor.objectPropertyGrid.loadPageProperties();
-	        }
 	    });
 	    WB.on(whiteboard$2.WBToolDeactivateEvent.type, function (ev) {
 	        editor.toolPropertyGrid.clear();
-	        if (ev.tool.name === whiteboard$2.WBSelectTool.toolname) {
-	            editor.objectPropertyGrid.loadPageProperties();
-	        }
 	    });
 	    catk.App.run();
 	}

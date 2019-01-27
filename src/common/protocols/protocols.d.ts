@@ -2137,6 +2137,264 @@ export namespace whiteboard {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a NextPageMessage. */
+    interface INextPageMessage {
+    }
+
+    /** Represents a NextPageMessage. */
+    class NextPageMessage implements INextPageMessage {
+
+        /**
+         * Constructs a new NextPageMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.INextPageMessage);
+
+        /**
+         * Creates a new NextPageMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns NextPageMessage instance
+         */
+        public static create(properties?: whiteboard.INextPageMessage): whiteboard.NextPageMessage;
+
+        /**
+         * Encodes the specified NextPageMessage message. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+         * @param message NextPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.INextPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified NextPageMessage message, length delimited. Does not implicitly {@link whiteboard.NextPageMessage.verify|verify} messages.
+         * @param message NextPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.INextPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a NextPageMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns NextPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.NextPageMessage;
+
+        /**
+         * Decodes a NextPageMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns NextPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.NextPageMessage;
+
+        /**
+         * Verifies a NextPageMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a NextPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns NextPageMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.NextPageMessage;
+
+        /**
+         * Creates a plain object from a NextPageMessage message. Also converts values to other types if specified.
+         * @param message NextPageMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.NextPageMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this NextPageMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a PrevPageMessage. */
+    interface IPrevPageMessage {
+    }
+
+    /** Represents a PrevPageMessage. */
+    class PrevPageMessage implements IPrevPageMessage {
+
+        /**
+         * Constructs a new PrevPageMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IPrevPageMessage);
+
+        /**
+         * Creates a new PrevPageMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PrevPageMessage instance
+         */
+        public static create(properties?: whiteboard.IPrevPageMessage): whiteboard.PrevPageMessage;
+
+        /**
+         * Encodes the specified PrevPageMessage message. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+         * @param message PrevPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IPrevPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PrevPageMessage message, length delimited. Does not implicitly {@link whiteboard.PrevPageMessage.verify|verify} messages.
+         * @param message PrevPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IPrevPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PrevPageMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PrevPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.PrevPageMessage;
+
+        /**
+         * Decodes a PrevPageMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PrevPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.PrevPageMessage;
+
+        /**
+         * Verifies a PrevPageMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PrevPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PrevPageMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.PrevPageMessage;
+
+        /**
+         * Creates a plain object from a PrevPageMessage message. Also converts values to other types if specified.
+         * @param message PrevPageMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.PrevPageMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PrevPageMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a SelectPageMessage. */
+    interface ISelectPageMessage {
+
+        /** SelectPageMessage page */
+        page?: (number|null);
+    }
+
+    /** Represents a SelectPageMessage. */
+    class SelectPageMessage implements ISelectPageMessage {
+
+        /**
+         * Constructs a new SelectPageMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.ISelectPageMessage);
+
+        /** SelectPageMessage page. */
+        public page: number;
+
+        /**
+         * Creates a new SelectPageMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns SelectPageMessage instance
+         */
+        public static create(properties?: whiteboard.ISelectPageMessage): whiteboard.SelectPageMessage;
+
+        /**
+         * Encodes the specified SelectPageMessage message. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+         * @param message SelectPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.ISelectPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified SelectPageMessage message, length delimited. Does not implicitly {@link whiteboard.SelectPageMessage.verify|verify} messages.
+         * @param message SelectPageMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.ISelectPageMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a SelectPageMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns SelectPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.SelectPageMessage;
+
+        /**
+         * Decodes a SelectPageMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns SelectPageMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.SelectPageMessage;
+
+        /**
+         * Verifies a SelectPageMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a SelectPageMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns SelectPageMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.SelectPageMessage;
+
+        /**
+         * Creates a plain object from a SelectPageMessage message. Also converts values to other types if specified.
+         * @param message SelectPageMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.SelectPageMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this SelectPageMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a StartDrawMessage. */
     interface IStartDrawMessage {
 

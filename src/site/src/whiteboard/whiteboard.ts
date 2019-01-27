@@ -583,14 +583,20 @@ export class WhiteBoard extends lib.EventObserver {
                 }
             }
         } else if (type === MsgType.whiteboard_AddPageMessage) {
-            this.view && this.view.addPage ();
-        } else if (type === MsgType.whiteboard_RenamePageMessage) {
-            this.view && this.view.currentPage && this.view.renamePage (this.view.currentPage, cmd.newName);
+            this.view!.selectPage(this.view!.addPage ());
+        } else if (type === MsgType.whiteboard_DeletePageMessage) {
+            this.view!.removePage (this.view!.currentPage);
+        } else if (type === MsgType.whiteboard_NextPageMessage) {
+            this.view!.selectPage (this.view!.currentPage + 1);
+        } else if (type === MsgType.whiteboard_PrevPageMessage) {
+            this.view!.selectPage (this.view!.currentPage - 1);
+        } else if (type === MsgType.whiteboard_SelectPageMessage) {
+            this.view!.selectPage (cmd.page);
         } else if (type === MsgType.whiteboard_ClearPageMessage) {
-            this.view && this.view.clearPage (cmd.pageName||this.view.currentPage);
+            this.view!.clearPage (this.view!.currentPage);
         } else if (type === MsgType.whiteboard_ClearBoardMessage) {
-            this.view && this.view.forEachPage (page => {
-                this.view && page && page.name && this.view.clearPage (page.name);
+            this.view!.forEachPage ((page, index) => {
+                this.view!.clearPage (index);
             })
         } else if (this._currentTool) {
             this._tools[this._currentTool].handleMessage (ev);

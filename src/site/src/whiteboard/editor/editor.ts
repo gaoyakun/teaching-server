@@ -99,12 +99,31 @@ export class WBToolPalette {
                 })
             },
             '#tb-newpage': function (this:Element) {
-                const view = that._editor.whiteboard.view;
-                if (view) {
-                    const page = view.addPage ();
-                    page && view.selectPage (page);
-                }
+                that._editor.handleMessage (proto.MsgType.whiteboard_AddPageMessage, {});
             },
+            '#tb-deletepage': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_DeletePageMessage, {});
+            },
+            '#tb-firstpage': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
+                    page: 0
+                });
+            },
+            '#tb-prevpage': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
+                    page: that._editor.whiteboard.view!.currentPage - 1
+                });
+            },
+            '#tb-nextpage': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
+                    page: that._editor.whiteboard.view!.currentPage + 1
+                });
+            },
+            '#tb-lastpage': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
+                    page: that._editor.whiteboard.view!.numPages - 1
+                });
+            }
         }
         for (const tool in toollist) {
             $(tool).on ('click', function (){
@@ -550,73 +569,6 @@ export class WBPropertyGrid {
             }
         }
     }
-    loadPageProperties () {
-        this.clear ();
-        const pageList: any[] = [];
-        const view = this._editor.whiteboard.view;
-        if (view) {
-            view.forEachPage ((page:any) => {
-                pageList.push ({
-                    value: page.name,
-                    desc: page.name
-                });
-            });
-            this.addChoiceAttribute ('页面列表', pageList, view.currentPage, false, (value:string) => {
-                view.selectPage (value);
-                this.loadPageProperties ();
-                return view.currentPage;
-            });
-            this.addTextAttribute ('页面名称', view.currentPage, false, (value:string) => {
-                if (value !== view.currentPage) {
-                    this._editor.handleMessage (proto.MsgType.whiteboard_RenamePageMessage, {
-                        newName: value
-                    });
-                    this.loadPageProperties ();
-                    return view.currentPage;
-                }
-            }, true);
-            this.addTextAttribute ('页面背景图像', view.pageImage, false, value => {
-                view.pageImage = (value === '') ? null : value;
-                return value;
-            }, true);
-            this.addChoiceAttribute ('页面背景重复', [{
-                value: 'repeat',
-                desc: '重复'
-            }, {
-                value: 'repeat-x',
-                desc: '横向重复'
-            }, {
-                value: 'repeat-y',
-                desc: '纵向重复'
-            }, {
-                value: 'no-repeat',
-                desc: '不重复'
-            }], view.pageImageRepeat, false, value => {
-                view.pageImageRepeat = value;
-                return value;
-            });
-            this.addToggleAttribute ('页面背景固定', view.pageImageAttachment === 'fixed', false, value => {
-                view.pageImageAttachment = value ? 'fixed' : 'scroll';
-                return value;
-            });
-            this.addTextAttribute ('页面背景大小', view.pageImageSize, false, value => {
-                view.pageImageSize = value;
-                return value;
-            });
-            this.addColorAttribute ('页面背景颜色', view.pageColor||'', false, value => {
-                view.pageColor = (value === '') ? null : value;
-                return value;
-            });
-            this.addButton ('新建页面', () => {
-                this._editor.handleMessage (proto.MsgType.whiteboard_AddPageMessage);
-                this.loadPageProperties ();
-            });
-            this.addButton ('删除页面', () => {
-                this._editor.handleMessage (proto.MsgType.whiteboard_DeletePageMessage);
-                this.loadPageProperties ();
-            })
-        }
-    }
     private createRow (): HTMLTableRowElement {
         const tbody = document.querySelector (`#${this._tableId} tbody`);
         const tr: HTMLTableRowElement = document.createElement ('tr');
@@ -674,7 +626,6 @@ export class WBEditor {
         this._opPalette.loadOpPalette (toolset.operations);
         this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'wb-object');
         this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'wb-tool');
-        this._objectPropGrid.loadPageProperties ();
     }
     get whiteboard () {
         return this._wb;
