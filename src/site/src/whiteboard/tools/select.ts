@@ -224,49 +224,6 @@ export class WBSelectTool extends wb.WBTool {
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
-    public handleMessage(ev: wb.WBMessageEvent) {
-        if (ev.messageType === MsgType.whiteboard_DeleteSelected) {
-            if (this._selectedObjects.length > 0) {
-                lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_DeleteObjectsMessage, {
-                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                }));
-            }
-        } else if (ev.messageType === MsgType.whiteboard_AlignSelected) {
-            const mode = ev.messageData.mode;
-            if (this._selectedObjects.length > 0) {
-                let msgType: MsgType;
-                if (mode === 'Left') {
-                    msgType = MsgType.whiteboard_AlignObjectsLeftMessage;
-                } else if (mode === 'Right') {
-                    msgType = MsgType.whiteboard_AlignObjectsRightMessage;
-                } else if (mode === 'Top') {
-                    msgType = MsgType.whiteboard_AlignObjectsTopMessage;
-                } else if (mode === 'Bottom') {
-                    msgType = MsgType.whiteboard_AlignObjectsBottomMessage;
-                } else {
-                    return;
-                }
-                lib.App.triggerEvent (null, new wb.WBMessageEvent(msgType, {
-                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                }));
-            }
-        } else if (ev.messageType === MsgType.whiteboard_ArrangeSelected) {
-            const mode = ev.messageData.mode;
-            if (this._selectedObjects.length > 0) {
-                let msgType: MsgType;
-                if (mode === 'Horizontal') {
-                    msgType = MsgType.whiteboard_ArrangeObjectsHorizontalMessage;
-                } else if (mode === 'Vertical') {
-                    msgType = MsgType.whiteboard_ArrangeObjectsVerticalMessage;
-                } else {
-                    return;
-                }
-                lib.App.triggerEvent (null, new wb.WBMessageEvent(msgType, {
-                    names: this._selectedObjects.map((obj:lib.SceneObject) => obj.entityName)
-                }));
-            }
-        }
-    }
     public selectObject(object: lib.SceneObject, ev: lib.EvtMouse|null) {
         if (this._selectedObjects.indexOf(object) < 0) {
             const metaDown = ev ? lib.EvtSysInfo.isMac() ? ev.metaDown : ev.ctrlDown : true;

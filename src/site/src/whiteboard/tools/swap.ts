@@ -78,49 +78,4 @@ export class WBSwapTool extends wb.WBTool {
             this._curObject = null;
         }
     }
-    public handleMessage(ev: wb.WBMessageEvent) {
-        if (ev.messageType === MsgType.whiteboard_SwapObjectMessage) {
-            const object1 = this._wb.findEntity (ev.messageData.name1);
-            const object2 = this._wb.findEntity (ev.messageData.name2);
-            if (object1 && object2) {
-                if (ev.broadcast) {
-                    const t1 = object1.translation;
-                    object1.translation = object2.translation;
-                    object2.translation = t1;
-                } else {
-                    this.swapObject (object1, object2, ev.messageData.duration);
-                }
-            }
-        }
-    }
-    private swapObject (object1: lib.SceneObject, object2: lib.SceneObject, animationDuration:number) {
-        const t1 = object1.translation;
-        const t2 = object2.translation;
-        (object2.getComponents (lib.CoKeyframeAnimation.type)||[]).forEach (comp=>{
-            (comp as lib.CoKeyframeAnimation).finish ();
-            object2.removeComponentsByType (lib.CoKeyframeAnimation.type);
-        });
-        object2.addComponent (new lib.CoKeyframeAnimation({
-            delay:0,
-            repeat:1,
-            exclusive:true,
-            tracks: {
-                translation: {
-                    cp: [{x:0,y:[t2.x,t2.y]}, {x:animationDuration,y:[t1.x,t1.y]}],
-                    type: lib.SplineType.LINEAR
-                }
-            }
-        }));
-        object1.addComponent (new lib.CoKeyframeAnimation({
-            delay:0,
-            repeat:1,
-            exclusive:true,
-            tracks: {
-                translation: {
-                    cp: [{x:0,y:[t1.x,t1.y]}, {x:animationDuration,y:[t2.x,t2.y]}],
-                    type: lib.SplineType.LINEAR
-                }
-            }
-        }));
-    }
 }

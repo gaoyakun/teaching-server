@@ -97,32 +97,6 @@ export class WBToolPalette {
                         mode: 'erase'
                     })
                 })
-            },
-            '#tb-newpage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_AddPageMessage, {});
-            },
-            '#tb-deletepage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_DeletePageMessage, {});
-            },
-            '#tb-firstpage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
-                    page: 0
-                });
-            },
-            '#tb-prevpage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
-                    page: that._editor.whiteboard.view!.currentPage - 1
-                });
-            },
-            '#tb-nextpage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
-                    page: that._editor.whiteboard.view!.currentPage + 1
-                });
-            },
-            '#tb-lastpage': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_SelectPageMessage, {
-                    page: that._editor.whiteboard.view!.numPages - 1
-                });
             }
         }
         for (const tool in toollist) {

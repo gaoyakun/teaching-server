@@ -2,6 +2,16 @@ import * as lib from '../catk';
 import * as command from './commands';
 import { MsgType } from '../../../common/protocols/protolist';
 
+export interface IWBCommand {
+    event: WBMessageEvent;
+    context: any;    
+}
+
+export interface IWBCommandExecutor {
+    execute: (whiteboard: WhiteBoard, command: IWBCommand, results: any) => void;
+    unexecute: (whiteboard: WhiteBoard, command: IWBCommand) => void;
+}
+
 export interface IProperty {
     name: string;
     desc: string;
@@ -66,10 +76,6 @@ export class WBComponent extends lib.Component {
                     object.anchorPoint = t;
                     break;
                 }
-                case 'entityName': {
-                    object.entityName = ev.value;
-                    break;
-                }
             }
         });
         this.on(WBGetPropertyEvent.type, (ev: WBGetPropertyEvent) => {
@@ -91,10 +97,6 @@ export class WBComponent extends lib.Component {
                     ev.value = object.anchorPoint.y;
                     break;
                 }
-                case 'entityName': {
-                    ev.value = object.entityName;
-                    break;
-                }
                 case 'entityType': {
                     ev.value = object.entityType;
                     break;
@@ -110,13 +112,6 @@ export class WBComponent extends lib.Component {
                 readonly: true,
                 type: 'string',
                 value: this.object ? this.object.entityType : null
-            });
-            ev.properties.general.properties.push ({
-                name: 'entityName',
-                desc: '名称',
-                readonly: false,
-                type: 'string',
-                value: this.object ? this.object.entityName : null
             });
             ev.properties.general.properties.push ({
                 name: 'localx',
@@ -285,28 +280,20 @@ export class WhiteBoard extends lib.EventObserver {
     private _tools: { [name: string]: WBTool };
     private _currentTool: string;
     private _entities: { [name: string]: lib.SceneObject };
+    private _nameIndex: number;
+    private _commandStack: IWBCommand[];
     constructor(canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
         super ();
         this.view = lib.App.addCanvas(canvas, doubleBuffer);
         this._factories = {};
         this._tools = {};
+        this._nameIndex = 1;
+        this._commandStack = [];
 
         this._currentTool = '';
         this._entities = {};
         this.on (WBGetObjectEvent.type, (ev: WBGetObjectEvent) => {
             ev.object = this.findEntity (ev.name);
-        });
-        this.on (lib.EvtSceneViewPageWillChange.type, (ev: lib.EvtSceneViewPageWillChange) => {
-            const tool = this._tools[this._currentTool];
-            if (tool) {
-                tool.deactivate();
-            }
-        });
-        this.on (lib.EvtSceneViewPageChanged.type, (ev: lib.EvtSceneViewPageChanged) => {
-            const tool = this._tools[this._currentTool];
-            if (tool) {
-                tool.activate();
-            }
         });
         this.on(WBMessageEvent.type, (ev: WBMessageEvent) => {
             this._handleMessage (ev);
@@ -377,22 +364,12 @@ export class WhiteBoard extends lib.EventObserver {
     public getFactory(name: string): WBFactory {
         return this._factories[name] || null;
     }
-    public createEntity(type: string, name: string|null, failOnExists: boolean, x: number, y: number, options: any): lib.SceneObject|null {
+    public genEntityName (type: string): string {
+        return `${type.toLowerCase()}${this._nameIndex++}`;
+    }
+    public createEntity(type: string, x: number, y: number, options: any): lib.SceneObject|null {
         let entity = null;
-        if (name === null) {
-            let id = 1;
-            while (true) {
-                name = `${type.toLowerCase()}${id++}`;
-                if (this.findEntity(name) === null) {
-                    break;
-                }
-            }
-        } else {
-            entity = this.findEntity(name);
-            if (entity !== null) {
-                return failOnExists ? null : entity;
-            }
-        }
+        const name = this.genEntityName (type);
         const factory = this._factories[type];
         if (factory) {
             entity = factory.createEntity(x, y, options);
@@ -419,6 +396,13 @@ export class WhiteBoard extends lib.EventObserver {
             entity.remove ();
             delete this._entities[name];
         }
+    }
+    public addEntity(parent: lib.SceneObject, entity: lib.SceneObject) {
+        if (this.findEntity (entity.entityName)) {
+            throw new Error('ERR: [addEntity] Entity already exists');
+        }
+        parent.addChild (entity);
+        this._entities[entity.entityName] = entity;
     }
     public findEntity(name: string): lib.SceneObject {
         return this._entities[name] || null;
@@ -467,10 +451,8 @@ export class WhiteBoard extends lib.EventObserver {
             }
         } else if (type === MsgType.whiteboard_CreateObjectMessage) {
             const type = cmd.type;
-            const name = cmd.name||null;
-            const failOnExists = !!cmd.failOnExists;
             const params = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
-            const obj = this.createEntity (type, name, failOnExists, cmd.x, cmd.y, params);
+            const obj = this.createEntity (type, cmd.x, cmd.y, params);
             if (results) {
                 results.objectCreated = obj;
             }
@@ -582,22 +564,8 @@ export class WhiteBoard extends lib.EventObserver {
                     }
                 }
             }
-        } else if (type === MsgType.whiteboard_AddPageMessage) {
-            this.view!.selectPage(this.view!.addPage ());
-        } else if (type === MsgType.whiteboard_DeletePageMessage) {
-            this.view!.removePage (this.view!.currentPage);
-        } else if (type === MsgType.whiteboard_NextPageMessage) {
-            this.view!.selectPage (this.view!.currentPage + 1);
-        } else if (type === MsgType.whiteboard_PrevPageMessage) {
-            this.view!.selectPage (this.view!.currentPage - 1);
-        } else if (type === MsgType.whiteboard_SelectPageMessage) {
-            this.view!.selectPage (cmd.page);
-        } else if (type === MsgType.whiteboard_ClearPageMessage) {
-            this.view!.clearPage (this.view!.currentPage);
         } else if (type === MsgType.whiteboard_ClearBoardMessage) {
-            this.view!.forEachPage ((page, index) => {
-                this.view!.clearPage (index);
-            })
+            this.view!.rootNode.unrefChildren ();
         } else if (this._currentTool) {
             this._tools[this._currentTool].handleMessage (ev);
         } else {

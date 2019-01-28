@@ -344,32 +344,6 @@ export class EvtSetProp extends BaseEvent {
     }
 }
 
-export class EvtSceneViewPageWillChange extends BaseEvent {
-    static readonly type: string = '@scenviewpagewillchange';
-    readonly view: SceneView;
-    readonly oldPage: number;
-    readonly newPage: number;
-    constructor(view: SceneView, oldPage: number, newPage: number) {
-        super(EvtSceneViewPageWillChange.type);
-        this.view = view;
-        this.oldPage = oldPage;
-        this.newPage = newPage;
-    }
-}
-
-export class EvtSceneViewPageChanged extends BaseEvent {
-    static readonly type: string = '@sceneviewpagechanged';
-    readonly view: SceneView;
-    readonly oldPage: number;
-    readonly newPage: number;
-    constructor(view: SceneView, oldPage: number, newPage: number) {
-        super(EvtSceneViewPageChanged.type);
-        this.view = view;
-        this.oldPage = oldPage;
-        this.newPage = newPage;
-    }
-}
-
 export class EvtSysInfo {
     private static _isWindows = navigator.platform === 'Win32' || navigator.platform === 'Windows';
     private static _isMac = navigator.platform === 'Mac68K' || navigator.platform === 'MacPPC' || navigator.platform === 'Macintosh' || navigator.platform === 'MacIntel';
@@ -1096,185 +1070,40 @@ export class SceneObject extends BaseObject {
     }
 }
 
-export interface ISceneViewPage {
-    rootNode: SceneObject|null;
-    bkImageUrl: string|null;
-    bkImageRepeat: string|null;
-    bkImageAttachment: string|null;
-    bkImageSize: string|null;
-    bkColor: string|null;
-}
-
 export class SceneView extends BaseObject {
     private _canvas: Canvas;
-    private _pages: ISceneViewPage[];
-    private _currentPage: number;
     private _captureObject: SceneObject|null;
     private _hitObjects: SceneObject[];
+    private _rootNode: SceneObject;
     constructor(canvas: HTMLCanvasElement, doubleBuffer: boolean = false) {
         super();
         this._canvas = new Canvas(this, canvas, doubleBuffer);
         this._captureObject = null;
         this._hitObjects = [];
-        this._currentPage = -1;
-        this._pages = [];
-        const rootNode = new SceneObject();
-        rootNode.view = this;
-        this.addPage({
-            rootNode: rootNode,
-            bkImageUrl: null,
-            bkImageRepeat: null,
-            bkImageSize: null,
-            bkImageAttachment: null,
-            bkColor: '#ffffff'
-        });
-        this.selectPage(0);
+        this._rootNode = new SceneObject();
+        this._rootNode.view = this;
 
         this.on(EvtFrame.type, (ev: EvtFrame) => {
             let updateEvent = new EvtUpdate(ev.deltaTime, ev.elapsedTime, ev.frameStamp);
-            if (this.rootNode) {
-                this.rootNode.triggerRecursiveEx(updateEvent);
-            }
+            this.rootNode.triggerRecursiveEx(updateEvent);
             this.canvas.clear();
             this.triggerEx(new EvtDraw(this.canvas, 0, new Matrix2d()));
             this.canvas.flip();
         });
         this.on(EvtDraw.type, (ev: EvtDraw) => {
-            if (this.rootNode) {
-                let cullEvent = new EvtCull(ev.canvas.width, ev.canvas.height);
-                this.rootNode.triggerRecursiveEx(cullEvent);
-                for (let i in cullEvent.result) {
-                    let group = cullEvent.result[i];
-                    for (let j = 0; j < group.length; j++) {
-                        ev.canvas.context.save();
-                        ev.canvas.applyTransform(group[j].transform);
-                        ev.canvas.context.translate(0.5, 0.5);
-                        group[j].object.triggerEx(new EvtDraw(ev.canvas, group[j].z, group[j].transform));
-                        ev.canvas.context.restore();
-                    }
+            let cullEvent = new EvtCull(ev.canvas.width, ev.canvas.height);
+            this.rootNode.triggerRecursiveEx(cullEvent);
+            for (let i in cullEvent.result) {
+                let group = cullEvent.result[i];
+                for (let j = 0; j < group.length; j++) {
+                    ev.canvas.context.save();
+                    ev.canvas.applyTransform(group[j].transform);
+                    ev.canvas.context.translate(0.5, 0.5);
+                    group[j].object.triggerEx(new EvtDraw(ev.canvas, group[j].z, group[j].transform));
+                    ev.canvas.context.restore();
                 }
             }
         });
-    }
-    forEachPage(callback: (page: ISceneViewPage, index: number) => void) {
-        if (callback) {
-            this._pages.forEach (callback);
-        }
-    }
-    get numPages () {
-        return this._pages.length;
-    }
-    addPage(page?: ISceneViewPage): number {
-        const p: ISceneViewPage = Object.assign ({
-            rootNode: null,
-            bkImageUrl: null,
-            bkImageRepeat: 'repeat',
-            bkImageAttachment: 'scroll',
-            bkImageSize: 'auto',
-            bkColor: '#ffffff'
-        }, page || {});
-        if (this._currentPage < 0) {
-            this._pages.push (p);
-            return this._pages.length - 1;
-        } else {
-            this._pages.splice (this._currentPage, 0, p);
-            return this._currentPage++;
-        }
-    }
-    removePage(index: number): boolean {
-        if (Utils.isInt(index) && index >= 0 && index < this._pages.length && this._pages.length > 1) {
-            if (index === this._currentPage) {
-                if (index === this._pages.length - 1) {
-                    this.selectPage (index - 1);
-                } else {
-                    this.selectPage (index + 1);
-                }
-            }
-            const rootNode = this._pages[index].rootNode;
-            if (rootNode) {
-                rootNode.unrefChildren();
-                rootNode.view = null;
-                this._pages[index].rootNode = null;
-            }
-            this._pages.splice (index, 1);
-            if (this._currentPage > index) {
-                this._currentPage--;
-            }
-            return true;
-        }
-        return false;
-    }
-    selectPage(index: number) {
-        if (Utils.isInt(index) && index >= 0 && index < this._pages.length && index !== this._currentPage) {
-            const oldPage = this._currentPage;
-            App.triggerEvent(null, new EvtSceneViewPageWillChange(this, oldPage, index));
-            this._currentPage = index;
-            this._captureObject = null;
-            this._hitObjects.length = 0;
-            this.applyPage(this._pages[this._currentPage]);
-            App.triggerEvent(null, new EvtSceneViewPageChanged(this, oldPage, index));
-        }
-    }
-    clearPage(index: number) {
-        if (Utils.isInt(index) && index >= 0 && index < this._pages.length) {
-            const page = this._pages[index];
-            page.rootNode && page.rootNode.unrefChildren ();
-            if (index === this._currentPage) {
-                this._captureObject = null;
-                this._hitObjects.length = 0;
-            }
-        }
-    }
-    get currentPage() {
-        return this._currentPage;
-    }
-    get pageImage() {
-        return this._currentPage ? this._pages[this._currentPage].bkImageUrl : null;
-    }
-    set pageImage(image: string|null) {
-        if (this._currentPage>=0 && image !== this._pages[this._currentPage].bkImageUrl) {
-            this._pages[this._currentPage].bkImageUrl = image;
-            this.applyPage(this._pages[this._currentPage]);
-        }
-    }
-    get pageImageRepeat() {
-        return this._currentPage>=0 ? this._pages[this._currentPage].bkImageRepeat : null;
-    }
-    set pageImageRepeat(value: string|null) {
-        const repeat = value || 'repeat';
-        if (this._currentPage>=0 && repeat !== this._pages[this._currentPage].bkImageRepeat) {
-            this._pages[this._currentPage].bkImageRepeat = repeat;
-            this.applyPage(this._pages[this._currentPage]);
-        }
-    }
-    get pageImageAttachment() {
-        return this._currentPage>=0 ? this._pages[this._currentPage].bkImageAttachment : null;
-    }
-    set pageImageAttachment(value: string|null) {
-        const attach = value || 'scroll';
-        if (this._currentPage>=0 && attach !== this._pages[this._currentPage].bkImageAttachment) {
-            this._pages[this._currentPage].bkImageAttachment = attach;
-            this.applyPage(this._pages[this._currentPage]);
-        }
-    }
-    get pageImageSize() {
-        return this._currentPage>=0 ? this._pages[this._currentPage].bkImageSize : null;
-    }
-    set pageImageSize(value: string|null) {
-        const size = value || 'auto';
-        if (this._currentPage>=0 && size !== this._pages[this._currentPage].bkImageSize) {
-            this._pages[this._currentPage].bkImageSize = size;
-            this.applyPage(this._pages[this._currentPage]);
-        }
-    }
-    get pageColor() {
-        return this._currentPage>=0 ? this._pages[this._currentPage].bkColor : null;
-    }
-    set pageColor(color: string|null) {
-        if (this._currentPage>=0 && color !== this._pages[this._currentPage].bkColor) {
-            this._pages[this._currentPage].bkColor = color;
-            this.applyPage(this._pages[this._currentPage]);
-        }
     }
     public updateHitObjects(x: number, y: number) {
         const hitTestResult = this.hitTest(x, y);
@@ -1292,29 +1121,10 @@ export class SceneView extends BaseObject {
             }
         }
         this._hitObjects = hitTestResult;
-        if (this.rootNode) {
-            this._hitObjects.push(this.rootNode);
-        }
+        this._hitObjects.push(this.rootNode);
     }
-    get rootNode(): SceneObject|null {
-        if (this._currentPage >= 0) {
-            let node = this._pages[this._currentPage].rootNode;
-            if (!node) {
-                node = new SceneObject();
-                node.view = this;
-                this._pages[this._currentPage].rootNode = node;
-            }
-            return node;
-        } else {
-            return null;
-        }
-    }
-    set rootNode(node: SceneObject|null) {
-        if (this._currentPage >= 0 && this._pages[this._currentPage].rootNode !== node) {
-            this._pages[this._currentPage].rootNode = node;
-            this._hitObjects.length = 0;
-            this._captureObject = null;
-        }
+    get rootNode() {
+        return this._rootNode;
     }
     get canvas(): Canvas {
         return this._canvas;
@@ -1436,36 +1246,16 @@ export class SceneView extends BaseObject {
             });
         }
         const hitTestResult: HitTestResult = [];
-        if (this.rootNode) {
-            hitTest_r(this.rootNode, hitTestResult);
-            hitTestResult.sort(
-                (a: SceneObject, b: SceneObject): number => {
-                    return b.z - a.z;
-                }
-            );
-        }
+        hitTest_r(this.rootNode, hitTestResult);
+        hitTestResult.sort(
+            (a: SceneObject, b: SceneObject): number => {
+                return b.z - a.z;
+            }
+        );
         return hitTestResult;
     }
     private isValidObject(object: SceneObject|null) {
         return object && object.view === this;
-    }
-    private genPageName(): string {
-        let n = 1;
-        while (true) {
-            const name = `page${n++}`;
-            if (!(name in this._pages)) {
-                return name;
-            }
-        }
-    }
-    private applyPage(page: ISceneViewPage) {
-        const color = page.bkColor || '';
-        const url = (page.bkImageUrl && `url(${page.bkImageUrl})`) || '';
-        const bkrepeat = page.bkImageRepeat || 'repeat';
-        const bkattach = page.bkImageAttachment || 'scroll';
-        const bkpos = '0% 0%';
-        const bksize = page.bkImageSize || 'auto';
-        this._canvas.canvas.style.background = `${color} ${url} ${bkrepeat} ${bkattach} ${bkpos} / ${bksize}`;
     }
 }
 

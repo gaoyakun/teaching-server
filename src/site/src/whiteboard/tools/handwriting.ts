@@ -91,7 +91,6 @@ export class WBHandWritingTool extends wb.WBTool {
             */
             lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
                 type: 'FreeDraw',
-                name: null,
                 x: 0,
                 y: 0
             }, results));

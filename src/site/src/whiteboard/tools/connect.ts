@@ -148,7 +148,6 @@ export class WBConnectTool extends wb.WBTool {
             */
            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
                type: 'Arrow',
-               name: null,
                x: x,
                y: y,
                paramsJson: JSON.stringify(this._createParams)

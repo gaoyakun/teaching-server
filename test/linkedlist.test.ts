@@ -1,4 +1,4 @@
-import { DoubleList } from '../src/common/linkedlist';
+import { DoubleList, DoubleListIterator } from '../src/common/linkedlist';
 
 function randomInt () {
     return Math.floor(Math.random () * 10000);
@@ -8,7 +8,7 @@ function randomIndex (length: number) {
     return Math.floor(Math.random() * length);
 }
 
-function nth (dl: DoubleList, n: number): DoubleList.Iterator {
+function nth (dl: DoubleList, n: number): DoubleListIterator {
     if (dl.length <= n) {
         throw new Error('Invalid index');
     }
@@ -82,7 +82,7 @@ function compare (arr: number[], dl: DoubleList): boolean {
 }
 
 test('test linked list', () => {
-    const list = new DoubleList();
+    const list = new DoubleList<number>();
     const arr: number[] = [];
     expect (list.length).toBe (0);
     expect (list.begin().valid()).toBeFalsy ();

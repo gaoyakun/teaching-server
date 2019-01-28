@@ -60,56 +60,6 @@ export const WBDefaultToolSet = {
         }
     },
     operations: {
-        Delete: {
-            iconClass: 'fas fa-trash-alt fa-fw',
-            command: MsgType.whiteboard_DeleteSelected
-        },
-        Clone: {
-            iconClass: 'fas fa-clone fa-fw',
-            command: MsgType.whiteboard_CloneSelected
-        },
-        AlignLeft: {
-            iconClass: 'fas fa-align-left fa-fw',
-            command: MsgType.whiteboard_AlignSelected,
-            args: {
-                mode: 'Left'
-            }
-        },
-        AlignRight: {
-            iconClass: 'fas fa-align-right fa-fw',
-            command: MsgType.whiteboard_AlignSelected,
-            args: {
-                mode: 'Right'
-            }
-        },
-        AlignTop: {
-            iconClass: 'fas fa-align-right fa-rotate-270 fa-fw',
-            command: MsgType.whiteboard_AlignSelected,
-            args: {
-                mode: 'Top'
-            }
-        },
-        AlignBottom: {
-            iconClass: 'fas fa-align-right fa-rotate-90 fa-fw',
-            command: MsgType.whiteboard_AlignSelected,
-            args: {
-                mode: 'Bottom'
-            }
-        },
-        ArrangeH: {
-            iconClass: 'fas fa-arrows-alt-h fa-fw',
-            command: MsgType.whiteboard_ArrangeSelected,
-            args: {
-                mode: 'Horizontal'
-            }
-        },
-        ArrangeV: {
-            iconClass: 'fas fa-arrows-alt-v fa-fw',
-            command: MsgType.whiteboard_ArrangeSelected,
-            args: {
-                mode: 'Vertical'
-            }
-        },
         ClearPage: {
             iconClass: 'fas fa-minus-circle fa-fw',
             command: MsgType.whiteboard_ClearBoardMessage

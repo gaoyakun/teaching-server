@@ -45,7 +45,6 @@ export class WBCreateTool extends wb.WBTool {
             */
             lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_CreateObjectMessage, {
                 type: this.options.createType,
-                name: null,
                 x: ev.x,
                 y: ev.y,
                 paramsJson: JSON.stringify(this._creationParams[this.options.createType])

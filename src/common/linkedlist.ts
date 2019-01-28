@@ -1,10 +1,58 @@
 import { Utils } from './utils';
 
-export class DoubleList {
-    private _head: DoubleList.Node;
+export class DoubleListIterator<T = any> {
+    private _node: DoubleListNodeImpl;
+    private _reverse: boolean;
+    private _dl: DoubleList<T>;
+    constructor (dl:DoubleList<T>, node:DoubleListNodeImpl, reverse:boolean) {
+        this._dl = dl;
+        this._node = node;
+        this._reverse = reverse;
+    }
+    valid (): boolean {
+        return this._node !== this._dl.head;
+    }
+    next (): DoubleListIterator<T> {
+        if (this.valid()) {
+            this._node = (this._reverse ? this._node.prev : this._node = this._node.next);
+        }
+        return this;
+    }
+    prev (): DoubleListIterator<T> {
+        if (this.valid()) {
+            this._node = (this._reverse ? this._node.next : this._node = this._node.prev);
+        }
+        return this;
+    }
+    get node () {
+        return this._node;
+    }
+    set node (n: DoubleListNodeImpl) {
+        this._node = n;
+    }
+    get reversed () {
+        return this._reverse;
+    }
+    get list () {
+        return this._dl;
+    }
+    get data () {
+        if (this.valid()) {
+            return (this._node as DoubleListNode<T>).data;
+        }
+    }
+    set data (val: T) {
+        if (this.valid()) {
+            (this._node as DoubleListNode<T>).data = val;
+        }
+    }
+}
+
+export class DoubleList<T = any> {
+    private _head: DoubleListNodeImpl;
     private _length: number;
     constructor () {
-        this._head = new DoubleList.Node(null);
+        this._head = new DoubleListNodeImpl();
         this._length = 0;
     }
     get head () {
@@ -13,32 +61,27 @@ export class DoubleList {
     get length () {
         return this._length;
     }
-    set length (val: number) {
-        if (Utils.isInt(val) && val >= 0) {
-            while (val < this._length) {
-                this.remove (this.rbegin ());
-            }
-            while (val > this._length) {
-                this.append (null);
-            }
+    clear () {
+        while (this._length > 0) {
+            this.remove (this.begin ());
         }
     }
-    append (data: any) {
+    append (data: T) {
         this._insertAt (this._head, data);
         return this;
     }
-    prepend (data: any) {
+    prepend (data: T) {
         this._insertAt (this._head.next, data);
         return this;
     }
-    remove (it: DoubleList.Iterator) {
+    remove (it: DoubleListIterator<T>) {
         if (it.valid () && it.list === this) {
             const node = it.node;
             it.next ();
             this._remove (node);
         }
     }
-    insertAt (it: DoubleList.Iterator, data: any) {
+    insertAt (it: DoubleListIterator<T>, data: T) {
         if (it.list === this) {
             if (it.valid ()) {
                 if (it.reversed) {
@@ -51,37 +94,37 @@ export class DoubleList {
             }
         }
     }
-    forEach (callback: (data:any) => void) {
+    forEach (callback: (data:T) => void) {
         for (let it = this.begin(); it.valid(); it.next()) {
             callback && callback (it.data);
         }
     }
-    forEachReverse (callback: (data:any) => void) {
+    forEachReverse (callback: (data:T) => void) {
         for (let it = this.rbegin(); it.valid(); it.next()) {
             callback && callback (it.data);
         }
     }
-    front (): any {
+    front (): T {
         return this.begin().data;
     }
-    back (): any {
+    back (): T {
         return this.rbegin().data;
     }
-    begin (): DoubleList.Iterator {
-        return this._length > 0 ? new DoubleList.Iterator(this, this._head.next, false) : new DoubleList.Iterator(this, this._head, false);
+    begin (): DoubleListIterator<T> {
+        return this._length > 0 ? new DoubleListIterator(this, this._head.next, false) : new DoubleListIterator(this, this._head, false);
     }
-    rbegin (): DoubleList.Iterator {
-        return this._length > 0 ? new DoubleList.Iterator(this, this._head.prev, true) : new DoubleList.Iterator(this, this._head, true);
+    rbegin (): DoubleListIterator<T> {
+        return this._length > 0 ? new DoubleListIterator(this, this._head.prev, true) : new DoubleListIterator(this, this._head, true);
     }
-    private _remove (node: DoubleList.Node) {
+    private _remove (node: DoubleListNodeImpl) {
         node.prev.next = node.next;
         node.next.prev = node.prev;
         delete node.prev;
         delete node.next;
         this._length--;
     }
-    private _insertAt (node: DoubleList.Node, data: any) {
-        const newNode = new DoubleList.Node(data);
+    private _insertAt (node: DoubleListNodeImpl, data: T) {
+        const newNode = new DoubleListNode(data);
         newNode.next = node;
         newNode.prev = node.prev;
         node.prev.next = newNode;
@@ -91,63 +134,19 @@ export class DoubleList {
     }
 }
 
-export namespace DoubleList {
-    export class Node {
-        next: Node;
-        prev: Node;
-        data: any;
-        constructor (data: any) {
-            this.next = this;
-            this.prev = this;
-            this.data = data;
-        }
-    }
-    export class Iterator {
-        private _node: Node;
-        private _reverse: boolean;
-        private _dl: DoubleList;
-        constructor (dl:DoubleList, node:Node, reverse:boolean) {
-            this._dl = dl;
-            this._node = node;
-            this._reverse = reverse;
-        }
-        valid (): boolean {
-            return this._node !== this._dl.head;
-        }
-        next (): Iterator {
-            if (this.valid()) {
-                this._node = (this._reverse ? this._node.prev : this._node = this._node.next);
-            }
-            return this;
-        }
-        prev (): Iterator {
-            if (this.valid()) {
-                this._node = (this._reverse ? this._node.next : this._node = this._node.prev);
-            }
-            return this;
-        }
-        get node () {
-            return this._node;
-        }
-        set node (n: Node) {
-            this._node = n;
-        }
-        get reversed () {
-            return this._reverse;
-        }
-        get list () {
-            return this._dl;
-        }
-        get data () {
-            if (this.valid()) {
-                return this._node.data;
-            }
-        }
-        set data (val: any) {
-            if (this.valid()) {
-                this._node.data = val;
-            }
-        }
+class DoubleListNodeImpl {
+    next: DoubleListNodeImpl;
+    prev: DoubleListNodeImpl;
+    constructor () {
+        this.next = this;
+        this.prev = this;
     }
 }
 
+class DoubleListNode<T = any> extends DoubleListNodeImpl {
+    data: T;
+    constructor (data: T) {
+        super ();
+        this.data = data;
+    }
+}

@@ -23,23 +23,7 @@ message CreateObjectMessage {
     string type = 1;
     uint32 x = 2;
     uint32 y = 3;
-    optional string name = 4;
-    optional bool failOnExists = 5;
-    optional string paramsJson = 6;
-}
-
-message DeleteSelected {
-}
-
-message CloneSelected {
-}
-
-message AlignSelected {
-    string mode = 1;
-}
-
-message ArrangeSelected {
-    string mode = 1;
+    optional string paramsJson = 4;
 }
 
 message DeleteObjectMessage {
@@ -78,26 +62,6 @@ message SetObjectPropertyMessage {
     string name = 1;
     string propName = 2;
     string propValueJson = 3;
-}
-
-message AddPageMessage {
-}
-
-message RenamePageMessage {
-    string newName = 1;
-}
-
-message DeletePageMessage {
-}
-
-message NextPageMessage {
-}
-
-message PrevPageMessage {
-}
-
-message SelectPageMessage {
-    uint32 page = 1;
 }
 
 message StartDrawMessage {

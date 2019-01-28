@@ -104,39 +104,9 @@
               "type": "uint32",
               "id": 3
             },
-            "name": {
-              "type": "string",
-              "id": 4
-            },
-            "failOnExists": {
-              "type": "bool",
-              "id": 5
-            },
             "paramsJson": {
               "type": "string",
-              "id": 6
-            }
-          }
-        },
-        "DeleteSelected": {
-          "fields": {}
-        },
-        "CloneSelected": {
-          "fields": {}
-        },
-        "AlignSelected": {
-          "fields": {
-            "mode": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "ArrangeSelected": {
-          "fields": {
-            "mode": {
-              "type": "string",
-              "id": 1
+              "id": 4
             }
           }
         },
@@ -224,34 +194,6 @@
             "propValueJson": {
               "type": "string",
               "id": 3
-            }
-          }
-        },
-        "AddPageMessage": {
-          "fields": {}
-        },
-        "RenamePageMessage": {
-          "fields": {
-            "newName": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "DeletePageMessage": {
-          "fields": {}
-        },
-        "NextPageMessage": {
-          "fields": {}
-        },
-        "PrevPageMessage": {
-          "fields": {}
-        },
-        "SelectPageMessage": {
-          "fields": {
-            "page": {
-              "type": "uint32",
-              "id": 1
             }
           }
         },
