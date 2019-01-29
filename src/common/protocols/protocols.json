@@ -127,60 +127,6 @@
             }
           }
         },
-        "AlignObjectsLeftMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "AlignObjectsRightMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "AlignObjectsTopMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "AlignObjectsBottomMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "ArrangeObjectsHorizontalMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "ArrangeObjectsVerticalMessage": {
-          "fields": {
-            "names": {
-              "rule": "repeated",
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
         "SetObjectPropertyMessage": {
           "fields": {
             "name": {
@@ -278,6 +224,30 @@
             }
           }
         },
+        "MoveObjectMessage": {
+          "fields": {
+            "name": {
+              "type": "string",
+              "id": 1
+            },
+            "x1": {
+              "type": "int32",
+              "id": 2
+            },
+            "y1": {
+              "type": "int32",
+              "id": 3
+            },
+            "x2": {
+              "type": "int32",
+              "id": 4
+            },
+            "y2": {
+              "type": "int32",
+              "id": 5
+            }
+          }
+        },
         "ClearPageMessage": {
           "fields": {
             "pageName": {
@@ -287,6 +257,9 @@
           }
         },
         "ClearBoardMessage": {
+          "fields": {}
+        },
+        "UndoMessage": {
           "fields": {}
         }
       }

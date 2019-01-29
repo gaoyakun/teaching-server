@@ -1126,6 +1126,13 @@ export class SceneView extends BaseObject {
     get rootNode() {
         return this._rootNode;
     }
+    set rootNode (node: SceneObject) {
+        if (node !== this._rootNode) {
+            this._captureObject = null;
+            this._hitObjects.length = 0;
+            this._rootNode = node;
+        }
+    }
     get canvas(): Canvas {
         return this._canvas;
     }
@@ -1366,7 +1373,7 @@ export class Canvas extends BaseObject {
             }
         }
         this._mouseOver = false;
-        this._doubleBuffer = doubleBuffer;
+        this._doubleBuffer = false;// doubleBuffer;
     }
     get canvas(): HTMLCanvasElement {
         return this._canvas;

@@ -1,8 +1,6 @@
 import * as lib from '../../catk';
-import * as commands from '../commands';
 import * as wb from '../whiteboard';
 import { MsgType } from '../../../../common/protocols/protolist';
-import { outputJsonSync } from 'fs-extra';
 
 export class WBConnectTool extends wb.WBTool {
     public static readonly toolname: string = 'Connect';

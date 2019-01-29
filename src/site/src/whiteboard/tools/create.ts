@@ -1,6 +1,5 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
-import * as commands from '../commands';
 import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBCreateTool extends wb.WBTool {

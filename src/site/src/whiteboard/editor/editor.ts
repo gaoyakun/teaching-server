@@ -96,7 +96,10 @@ export class WBToolPalette {
                     paramsJson: JSON.stringify({
                         mode: 'erase'
                     })
-                })
+                });
+            },
+            '#tb-undo': function (this:Element) {
+                that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
             }
         }
         for (const tool in toollist) {

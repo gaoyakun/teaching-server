@@ -1,5 +1,4 @@
 import * as wb from '../whiteboard';
-import * as commands from '../commands';
 
 export interface IToolDef {
     iconClass?: string;

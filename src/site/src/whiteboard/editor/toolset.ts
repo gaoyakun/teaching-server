@@ -1,6 +1,3 @@
-import * as lib from '../../catk';
-import * as editor from './editor';
-import * as commands from '../commands';
 import { MsgType } from '../../../../common/protocols/protolist';
 
 export const WBDefaultToolSet = {

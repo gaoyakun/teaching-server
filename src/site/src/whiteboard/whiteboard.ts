@@ -1,8 +1,8 @@
 import * as lib from '../catk';
-import * as command from './commands';
 import { MsgType } from '../../../common/protocols/protolist';
 
 export interface IWBCommand {
+    type: MsgType;
     event: WBMessageEvent;
     context: any;    
 }
@@ -10,6 +10,164 @@ export interface IWBCommand {
 export interface IWBCommandExecutor {
     execute: (whiteboard: WhiteBoard, command: IWBCommand, results: any) => void;
     unexecute: (whiteboard: WhiteBoard, command: IWBCommand) => void;
+}
+
+const executors: { [msgType: number]: IWBCommandExecutor } = {};
+executors[MsgType.whiteboard_CreateObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        const data = command.event.messageData;
+        command.context = whiteboard.createEntity (data.type, data.x, data.y, data.paramsJson ? JSON.parse(data.paramsJson) : {});
+        if (results) {
+            results.objectCreated = command.context;
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        if (command.context) {
+            (command.context as lib.SceneObject).unrefChildren ();
+            (command.context as lib.SceneObject).remove ();
+        }
+    },
+};
+executors[MsgType.whiteboard_DeleteObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        const data = command.event.messageData;
+        const obj = whiteboard.findEntity (data.name);
+        if (obj && obj.parent) {
+            command.context = {
+                parent: obj.parent,
+                object: obj
+            }
+            whiteboard.deleteEntity (data.name);
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        whiteboard.addEntity (command.context.parent, command.context.object);
+    }
+};
+executors[MsgType.whiteboard_DeleteObjectsMessage] = {
+    execute: (whiteboard, command, results) => {
+        const data = command.event.messageData;
+        command.context.parents = [];
+        command.context.objects = [];
+        data.names.forEach ((name:string) => {
+            const obj = whiteboard.findEntity (name);
+            if (obj && obj.parent) {
+                command.context.parents.push(obj.parent);
+                command.context.objects.push(obj);
+                whiteboard.deleteEntity (name);
+            }
+        });
+    },
+    unexecute: (whiteboard, command) => {
+        for (let i = 0; i < command.context.objects.length; i++) {
+            whiteboard.addEntity (command.context.parents[i], command.context.objects[i]);
+        }
+    }
+};
+executors[MsgType.whiteboard_SwapObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        const object1 = whiteboard.findEntity (command.event.messageData.name1);
+        const object2 = whiteboard.findEntity (command.event.messageData.name2);
+        if (object1 && object2) {
+            command.context = {
+                object1: object1,
+                translation1: object1.translation,
+                object2: object2,
+                translation2: object2.translation
+            };
+            if (command.event.broadcast) {
+                const t1 = object1.translation;
+                object1.translation = object2.translation;
+                object2.translation = t1;
+            } else {
+                const t1 = object1.translation;
+                const t2 = object2.translation;
+                (object2.getComponents (lib.CoKeyframeAnimation.type)||[]).forEach (comp=>{
+                    (comp as lib.CoKeyframeAnimation).finish ();
+                    object2.removeComponentsByType (lib.CoKeyframeAnimation.type);
+                });
+                object2.addComponent (new lib.CoKeyframeAnimation({
+                    delay:0,
+                    repeat:1,
+                    exclusive:true,
+                    tracks: {
+                        translation: {
+                            cp: [{x:0,y:[t2.x,t2.y]}, {x:command.event.messageData.duration,y:[t1.x,t1.y]}],
+                            type: lib.SplineType.LINEAR
+                        }
+                    }
+                }));
+                object1.addComponent (new lib.CoKeyframeAnimation({
+                    delay:0,
+                    repeat:1,
+                    exclusive:true,
+                    tracks: {
+                        translation: {
+                            cp: [{x:0,y:[t1.x,t1.y]}, {x:command.event.messageData.duration,y:[t2.x,t2.y]}],
+                            type: lib.SplineType.LINEAR
+                        }
+                    }
+                }));
+            }
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        command.context.object1.translation = command.context.translation1;
+        command.context.object2.translation = command.context.translation2;
+    }
+};
+executors[MsgType.whiteboard_MoveObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        const obj = whiteboard.findEntity (command.event.messageData.name);
+        if (obj) {
+            command.context = {
+                object: obj,
+                x1: command.event.messageData.x1,
+                y1: command.event.messageData.y1,
+                x2: command.event.messageData.x2,
+                y2: command.event.messageData.y2
+            }
+            obj.translation = { x: command.event.messageData.x2, y: command.event.messageData.y2 };
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        if (command.context) {
+            command.context.object.translation = { x: command.context.x1, y: command.context.y1 };
+        }
+    }
+};
+executors[MsgType.whiteboard_SetObjectPropertyMessage] = {
+    execute: (whiteboard, command, results) => {
+        const data = command.event.messageData;
+        const obj = whiteboard.findEntity (data.name);
+        if (obj) {
+            const evGet = new WBGetPropertyEvent (data.propName);
+            obj.triggerEx (evGet);
+            command.context = {
+                object: obj,
+                propName: data.propName,
+                value: evGet.value
+            };
+            const ev = new WBSetPropertyEvent (data.propName, JSON.parse(data.propValueJson));
+            obj.triggerEx (ev);
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        const ev = new WBSetPropertyEvent (command.context.propName, command.context.value);
+        command.context.object.triggerEx (ev);
+    }
+};
+executors[MsgType.whiteboard_ClearBoardMessage] = {
+    execute: (whiteboard, command, results) => {
+        command.context = whiteboard.view!.rootNode;
+        command.context.view = null;
+        whiteboard.view!.rootNode = new lib.SceneObject();
+        whiteboard.view!.rootNode.view = whiteboard.view;
+    },
+    unexecute: (whiteboard, command) => {
+        whiteboard.view!.rootNode = command.context;
+        whiteboard.view!.rootNode.view = whiteboard.view;
+    }
 }
 
 export interface IProperty {
@@ -426,6 +584,40 @@ export class WhiteBoard extends lib.EventObserver {
         return null;
     }
     _handleMessage (ev: WBMessageEvent) {
+        if (ev.object) {
+            const obj = this.findEntity (ev.object);
+            if (obj) {
+                obj.triggerEx (ev);
+            }
+        } else if (ev.messageType === MsgType.whiteboard_UseToolMessage) {
+            if (this._currentTool !== '') {
+                const prevTool = this._tools[this._currentTool];
+                prevTool.deactivate();
+            }
+            this._currentTool = '';
+            if (ev.messageData.name) {
+                const newTool = this._tools[ev.messageData.name];
+                if (newTool) {
+                    this._currentTool = ev.messageData.name;
+                    const args = ev.messageData.paramsJson ? JSON.parse(ev.messageData.paramsJson) : {};
+                    newTool.activate(args);
+                }
+            }
+        } else if (ev.messageType === MsgType.whiteboard_UndoMessage) {
+            if (this._commandStack.length > 0) {
+                const cmd = this._commandStack.pop ();
+                executors[cmd!.type].unexecute (this, cmd!);
+            }
+        } else if (executors[ev.messageType]){
+            const cmd: IWBCommand = {
+                type: ev.messageType,
+                event: ev,
+                context: null
+            };
+            this._commandStack.push (cmd);
+            executors[ev.messageType].execute (this, cmd, ev.results);
+        }
+        /*
         const type = ev.messageType;
         const data = ev.messageData;
         const results = ev.results;
@@ -571,5 +763,6 @@ export class WhiteBoard extends lib.EventObserver {
         } else {
             return;
         }
+        */
     }
 }

@@ -34,30 +34,6 @@ message DeleteObjectsMessage {
     repeated string names = 1;
 }
 
-message AlignObjectsLeftMessage {
-    repeated string names = 1;
-}
-
-message AlignObjectsRightMessage {
-    repeated string names = 1;
-}
-
-message AlignObjectsTopMessage {
-    repeated string names = 1;
-}
-
-message AlignObjectsBottomMessage {
-    repeated string names = 1;
-}
-
-message ArrangeObjectsHorizontalMessage {
-    repeated string names = 1;
-}
-
-message ArrangeObjectsVerticalMessage {
-    repeated string names = 1;
-}
-
 message SetObjectPropertyMessage {
     string name = 1;
     string propName = 2;
@@ -94,9 +70,20 @@ message SwapObjectMessage {
     uint32 duration = 3;
 }
 
+message MoveObjectMessage {
+    string name = 1;
+    int32 x1 = 2;
+    int32 y1 = 3;
+    int32 x2 = 4;
+    int32 y2 = 5;
+}
+
 message ClearPageMessage {
     optional string pageName = 1;
 }
 
 message ClearBoardMessage {
+}
+
+message UndoMessage {
 }

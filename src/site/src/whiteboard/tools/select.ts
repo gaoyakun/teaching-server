@@ -1,14 +1,11 @@
 import * as lib from '../../catk';
-import * as commands from '../commands';
 import * as wb from '../whiteboard';
 import { MsgType } from '../../../../common/protocols/protolist';
 
 export class WBSelectEvent extends lib.BaseEvent {
     static readonly type: string = '@WBSelect';
-    public readonly selectIndex: number;
-    constructor(selectIndex: number) {
+    constructor() {
         super(WBSelectEvent.type);
-        this.selectIndex = selectIndex;
     }
 }
 
@@ -21,30 +18,19 @@ export class WBDeselectEvent extends lib.BaseEvent {
 
 export class WBObjectSelectedEvent extends lib.BaseEvent {
     static readonly type: string = '@WBObjectSelected';
-    readonly objects: lib.SceneObject[];
-    constructor (objects: lib.SceneObject[]) {
+    readonly object: lib.SceneObject;
+    constructor (object: lib.SceneObject) {
         super (WBObjectSelectedEvent.type);
-        this.objects = objects;
-    }
-}
-
-export class WBObjectMovedEvent extends lib.BaseEvent {
-    static readonly type: string = '@WBObjectMoved';
-    readonly objects: lib.SceneObject[];
-    constructor (objects: lib.SceneObject[]) {
-        super (WBObjectMovedEvent.type);
-        this.objects = objects;
+        this.object = object;
     }
 }
 
 export class WBObjectDeselectedEvent extends lib.BaseEvent {
     static readonly type: string = '@WBObjectDeselected';
     readonly object: lib.SceneObject;
-    readonly objects: lib.SceneObject[];
-    constructor (object: lib.SceneObject, objects: lib.SceneObject[]) {
+    constructor (object: lib.SceneObject) {
         super (WBObjectDeselectedEvent.type);
         this.object = object;
-        this.objects = objects;
     }
 }
 export class WBSelectComponent extends lib.Component {
@@ -79,42 +65,44 @@ export class WBSelectComponent extends lib.Component {
 
 export class WBSelectTool extends wb.WBTool {
     public static readonly toolname: string = 'Select';
-    private _selectedObjects: lib.SceneObject[];
+    private _selectedObject: lib.SceneObject|null;
     private _moving: boolean;
-    private _rangeSelecting: boolean;
     private _mouseStartPosX: number;
     private _mouseStartPosY: number;
     private _mouseCurrentPosX: number;
     private _mouseCurrentPosY: number;
+    private _objectLastPos: { x:number,y:number };
+    private _lastMoveTime: number;
     constructor(whiteboard: wb.WhiteBoard) {
         super(WBSelectTool.toolname, whiteboard);
-        this._selectedObjects = [];
+        this._selectedObject = null;
         this._moving = false;
-        this._rangeSelecting = false;
         this._mouseStartPosX = 0;
         this._mouseStartPosY = 0;
         this._mouseCurrentPosX = 0;
         this._mouseCurrentPosY = 0;
+        this._objectLastPos = { x:0, y:0 };
+        this._lastMoveTime = 0;
     }
-    get selectedObjects () {
-        return this._selectedObjects;
+    get selectedObject () {
+        return this._selectedObject;
     }
     activate(options?: any) {
         super.activate (options);
-        this._selectedObjects.length = 0;
+        this._selectedObject = null;
         this.on (lib.EvtKeyDown.type, (ev: lib.EvtKeyDown) => {
-            if (this._selectedObjects.length === 1) {
-                this._selectedObjects[0].triggerEx (ev);
+            if (this._selectedObject) {
+                this._selectedObject.triggerEx (ev);
             }
         });
         this.on (lib.EvtKeyUp.type, (ev: lib.EvtKeyUp) => {
-            if (this._selectedObjects.length === 1) {
-                this._selectedObjects[0].triggerEx (ev);
+            if (this._selectedObject) {
+                this._selectedObject.triggerEx (ev);
             }
         });
         this.on (lib.EvtKeyPress.type, (ev: lib.EvtKeyPress) => {
-            if (this._selectedObjects.length === 1) {
-                this._selectedObjects[0].triggerEx (ev);
+            if (this._selectedObject) {
+                this._selectedObject.triggerEx (ev);
             }
         });
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
@@ -126,10 +114,10 @@ export class WBSelectTool extends wb.WBTool {
                 if (hitObjects.length > 1) {
                     this.selectObject (hitObjects[0], ev);
                     this._moving = true;
-                    this._rangeSelecting = false;
+                    this._lastMoveTime = Date.now();
+                    this._objectLastPos = this._selectedObject!.translation;
                 } else {
-                    this.deselectAll ();
-                    this._rangeSelecting = true;
+                    this.deselect ();
                     this._moving = false;
                     this._mouseCurrentPosX = ev.x;
                     this._mouseCurrentPosY = ev.y;
@@ -142,65 +130,51 @@ export class WBSelectTool extends wb.WBTool {
                 const dy = ev.y - this._mouseStartPosY;
                 this._mouseStartPosX = ev.x;
                 this._mouseStartPosY = ev.y;
-                this._selectedObjects.forEach ((obj: lib.SceneObject) => {
-                    const t = obj.translation;
-                    // obj.translation = { x: t.x + dx, y: t.y + dy };
-                    /*
-                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
-                        objectName: obj.entityName,
-                        propName: 'localx',
-                        propValue: t.x + dx
-                    }));
-                    lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
-                        objectName: obj.entityName,
-                        propName: 'localy',
-                        propValue: t.y + dy
-                    }));
-                    */
+                if (this._selectedObject) {
+                    const { x, y } = this._selectedObject.translation;
+                    this._selectedObject.translation = { x: x + dx, y: y + dy };
+                    const ts = Date.now();
+                    if (ts > this._lastMoveTime + 1000) {
+                        this._lastMoveTime = ts;
+                        lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_MoveObjectMessage, {
+                            name: this._selectedObject.entityName,
+                            x1: this._objectLastPos.x,
+                            y1: this._objectLastPos.y,
+                            x2: x + dx,
+                            y2: y + dy
+                        }));
+                        this._objectLastPos.x = x + dx;
+                        this._objectLastPos.y = y + dy;
+                    }
+/*
                     lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-                        name: obj.entityName,
+                        name: this._selectedObject.entityName,
                         propName: 'localx',
                         propValueJson: JSON.stringify(t.x + dx)
                     }));
                     lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-                        name: obj.entityName,
+                        name: this._selectedObject.entityName,
                         propName: 'localy',
                         propValueJson: JSON.stringify(t.y + dy)
                     }));
-                });
-            } else if (this._rangeSelecting) {
-                const view = this._wb.view;
-                if (view && view.rootNode) {
-                    this.rangeSelectR (view.rootNode, this._mouseStartPosX, this._mouseStartPosY, ev.x-this._mouseStartPosX, ev.y-this._mouseStartPosY);
-                    this._mouseCurrentPosX = ev.x;
-                    this._mouseCurrentPosY = ev.y;
+*/
                 }
             }
         });
         this.on (lib.EvtMouseUp.type, (ev: lib.EvtMouseUp) => {
-            if (this._moving && this._selectedObjects && this._selectedObjects.length > 0) {
-                lib.App.triggerEvent (null, new WBObjectMovedEvent (this._selectedObjects));
+            if (this._moving && this._selectedObject) {
+                const { x, y } = this._selectedObject.translation;
+                if (x !== this._objectLastPos.x || y !== this._objectLastPos.y) {
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_MoveObjectMessage, {
+                        name: this._selectedObject.entityName,
+                        x1: this._objectLastPos.x,
+                        y1: this._objectLastPos.y,
+                        x2: x,
+                        y2: y
+                    }));
+                }
             }
             this._moving = false;
-            this._rangeSelecting = false;
-        });
-        this.on (lib.EvtDraw.type, (ev: lib.EvtDraw) => {
-            if (this._rangeSelecting) {
-                ev.canvas.context.save ();
-                ev.canvas.context.setTransform(1, 0, 0, 1, 0.5, 0.5);
-                ev.canvas.context.strokeStyle = '#000';
-                ev.canvas.context.lineWidth = 1;
-                ev.canvas.context.setLineDash ([6,3]);
-                ev.canvas.context.beginPath ();
-                ev.canvas.context.moveTo (this._mouseStartPosX, this._mouseStartPosY);
-                ev.canvas.context.lineTo (this._mouseCurrentPosX, this._mouseStartPosY);
-                ev.canvas.context.lineTo (this._mouseCurrentPosX, this._mouseCurrentPosY);
-                ev.canvas.context.moveTo (this._mouseStartPosX, this._mouseStartPosY);
-                ev.canvas.context.lineTo (this._mouseStartPosX, this._mouseCurrentPosY);
-                ev.canvas.context.lineTo (this._mouseCurrentPosX, this._mouseCurrentPosY);
-                ev.canvas.context.stroke ();
-                ev.canvas.context.restore ();
-            }
         });
     }
     public deactivate() {
@@ -211,6 +185,7 @@ export class WBSelectTool extends wb.WBTool {
         this.off (lib.EvtMouseMove.type);
         this.off (lib.EvtMouseUp.type);
         this.off (lib.EvtDraw.type);
+        this.deselect ();
         super.deactivate ();
     }
     public activateObject(object: lib.SceneObject) {
@@ -220,56 +195,22 @@ export class WBSelectTool extends wb.WBTool {
     public deactivateObject(object: lib.SceneObject) {
         const components = object.getComponents(WBSelectComponent.type);
         if (components && components.length > 0) {
-            this.deselectObject (object);
             object.removeComponentsByType(WBSelectComponent.type);
         }
     }
     public selectObject(object: lib.SceneObject, ev: lib.EvtMouse|null) {
-        if (this._selectedObjects.indexOf(object) < 0) {
-            const metaDown = ev ? lib.EvtSysInfo.isMac() ? ev.metaDown : ev.ctrlDown : true;
-            if (!metaDown) {
-                this.deselectAll();
-            }
-            this.selectedObjects.push(object);
-            object.triggerEx(new WBSelectEvent(this.selectedObjects.length));
-            lib.App.triggerEvent (null, new WBObjectSelectedEvent (this._selectedObjects));
+        if (this._selectedObject !== object) {
+            this.deselect ();
+            this._selectedObject = object;
+            object.triggerEx(new WBSelectEvent());
+            lib.App.triggerEvent (null, new WBObjectSelectedEvent (this._selectedObject));
         }
     }
-    public deselectObject(object: lib.SceneObject) {
-        const index = this._selectedObjects.indexOf(object);
-        if (index >= 0) {
-            object.triggerEx(new WBDeselectEvent());
-            this.selectedObjects.splice(index, 1);
-            lib.App.triggerEvent (null, new WBObjectDeselectedEvent (object, this._selectedObjects));
+    public deselect() {
+        if (this._selectedObject) {
+            this._selectedObject.triggerEx(new WBDeselectEvent());
+            lib.App.triggerEvent (null, new WBObjectDeselectedEvent (this._selectedObject));
+            this._selectedObject = null;
         }
-    }
-    public deselectAll() {
-        while (this.selectedObjects.length > 0) {
-            this.deselectObject (this.selectedObjects[this.selectedObjects.length - 1]);
-        }
-    }
-    private rangeSelectR (root:lib.SceneObject, x:number, y:number, w:number, h:number) {
-        root.forEachChild (child => {
-            if (w === 0 || h === 0) {
-                this.deselectObject (child);
-            } else {
-                const shape = child.boundingShape;
-                if (shape) {
-                    const t = lib.Matrix2d.invert(child.worldTransform);
-                    const rectObject = [
-                        t.transformPoint({x:x, y:y}),
-                        t.transformPoint({x:x ,y:y+h}),
-                        t.transformPoint({x:x+w, y:y+h}),
-                        t.transformPoint({x:x+w, y:y})
-                    ];
-                    if (lib.IntersectionTestShapeHull (shape, rectObject)) {
-                        this.selectObject (child, null);
-                    } else {
-                        this.deselectObject (child);
-                    }
-                }
-                this.rangeSelectR (child, x, y, w, h);
-            }
-        });
     }
 }

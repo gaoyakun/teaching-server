@@ -70,6 +70,8 @@ export class WBLabel extends lib.SceneObject {
                 let x = (boundingWidth - width)/2 - boundingWidth * this.anchorPoint.x;
                 let y = (boundingHeight - height)/2 - boundingHeight * this.anchorPoint.y;
                 evt.canvas.context.fillStyle = this._textcolor;
+                evt.canvas.context.textAlign = 'left';
+                evt.canvas.context.textBaseline = 'hanging';
                 evt.canvas.context.font = this._font;
                 evt.canvas.context.fillText(this._text, x, y, width);
             }    
@@ -352,11 +354,11 @@ export class WBLabel extends lib.SceneObject {
             this._font = `${this._fontStyle} ${this._fontVariant} ${this._fontWeight} ${this._fontSize}px ${this._fontFamily}`;
             this._boundingShape = null;
         }
-        if (this.view && this._measure === null) {
-            this.view.canvas.context.textAlign = 'left';
-            this.view.canvas.context.textBaseline = 'hanging';
-            this.view.canvas.context.font = this._font;
-            this._measure = this.view.canvas.context.measureText (this._text);
+        if (this._measure === null) {
+            this.view!.canvas.context.textAlign = 'left';
+            this.view!.canvas.context.textBaseline = 'hanging';
+            this.view!.canvas.context.font = this._font;
+            this._measure = this.view!.canvas.context.measureText (this._text);
             this._boundingShape = null;
         }
         if (this._measure && !this._boundingShape) {

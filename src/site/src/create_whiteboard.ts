@@ -13,17 +13,14 @@ export function init () {
     const editor = new wb.WBEditor (WB, wb.WBDefaultToolSet, toolToolboxDiv, opToolboxDiv, objPropGridDiv, toolPropGridDiv);
 
     WB.on (wb.WBObjectSelectedEvent.type, (ev: wb.WBObjectSelectedEvent) => {
-        if (ev.objects.length === 1) {
-            editor.objectPropertyGrid.loadObjectProperties (ev.objects[0]);
+        if (ev.object) {
+            editor.objectPropertyGrid.loadObjectProperties (ev.object);
         }
     });
     WB.on (wb.WBObjectDeselectedEvent.type, (ev: wb.WBObjectDeselectedEvent) => {
-        if (ev.objects.length === 1) {
-            editor.objectPropertyGrid.loadObjectProperties (ev.objects[0]);
+        if (ev.object) {
+            editor.objectPropertyGrid.loadObjectProperties (ev.object);
         }
-    });
-    WB.on (wb.WBObjectMovedEvent.type, (ev: wb.WBObjectMovedEvent) => {
-        editor.objectPropertyGrid.reloadObjectProperties ();
     });
     WB.on (wb.WBToolActivateEvent.type, (ev: wb.WBToolActivateEvent) => {
         editor.toolPropertyGrid.loadToolProperties (ev.tool);

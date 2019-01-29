@@ -877,546 +877,6 @@ export namespace whiteboard {
         public toJSON(): { [k: string]: any };
     }
 
-    /** Properties of an AlignObjectsLeftMessage. */
-    interface IAlignObjectsLeftMessage {
-
-        /** AlignObjectsLeftMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an AlignObjectsLeftMessage. */
-    class AlignObjectsLeftMessage implements IAlignObjectsLeftMessage {
-
-        /**
-         * Constructs a new AlignObjectsLeftMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IAlignObjectsLeftMessage);
-
-        /** AlignObjectsLeftMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new AlignObjectsLeftMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns AlignObjectsLeftMessage instance
-         */
-        public static create(properties?: whiteboard.IAlignObjectsLeftMessage): whiteboard.AlignObjectsLeftMessage;
-
-        /**
-         * Encodes the specified AlignObjectsLeftMessage message. Does not implicitly {@link whiteboard.AlignObjectsLeftMessage.verify|verify} messages.
-         * @param message AlignObjectsLeftMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IAlignObjectsLeftMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified AlignObjectsLeftMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsLeftMessage.verify|verify} messages.
-         * @param message AlignObjectsLeftMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IAlignObjectsLeftMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an AlignObjectsLeftMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns AlignObjectsLeftMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.AlignObjectsLeftMessage;
-
-        /**
-         * Decodes an AlignObjectsLeftMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns AlignObjectsLeftMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.AlignObjectsLeftMessage;
-
-        /**
-         * Verifies an AlignObjectsLeftMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an AlignObjectsLeftMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns AlignObjectsLeftMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.AlignObjectsLeftMessage;
-
-        /**
-         * Creates a plain object from an AlignObjectsLeftMessage message. Also converts values to other types if specified.
-         * @param message AlignObjectsLeftMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.AlignObjectsLeftMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this AlignObjectsLeftMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of an AlignObjectsRightMessage. */
-    interface IAlignObjectsRightMessage {
-
-        /** AlignObjectsRightMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an AlignObjectsRightMessage. */
-    class AlignObjectsRightMessage implements IAlignObjectsRightMessage {
-
-        /**
-         * Constructs a new AlignObjectsRightMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IAlignObjectsRightMessage);
-
-        /** AlignObjectsRightMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new AlignObjectsRightMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns AlignObjectsRightMessage instance
-         */
-        public static create(properties?: whiteboard.IAlignObjectsRightMessage): whiteboard.AlignObjectsRightMessage;
-
-        /**
-         * Encodes the specified AlignObjectsRightMessage message. Does not implicitly {@link whiteboard.AlignObjectsRightMessage.verify|verify} messages.
-         * @param message AlignObjectsRightMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IAlignObjectsRightMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified AlignObjectsRightMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsRightMessage.verify|verify} messages.
-         * @param message AlignObjectsRightMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IAlignObjectsRightMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an AlignObjectsRightMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns AlignObjectsRightMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.AlignObjectsRightMessage;
-
-        /**
-         * Decodes an AlignObjectsRightMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns AlignObjectsRightMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.AlignObjectsRightMessage;
-
-        /**
-         * Verifies an AlignObjectsRightMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an AlignObjectsRightMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns AlignObjectsRightMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.AlignObjectsRightMessage;
-
-        /**
-         * Creates a plain object from an AlignObjectsRightMessage message. Also converts values to other types if specified.
-         * @param message AlignObjectsRightMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.AlignObjectsRightMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this AlignObjectsRightMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of an AlignObjectsTopMessage. */
-    interface IAlignObjectsTopMessage {
-
-        /** AlignObjectsTopMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an AlignObjectsTopMessage. */
-    class AlignObjectsTopMessage implements IAlignObjectsTopMessage {
-
-        /**
-         * Constructs a new AlignObjectsTopMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IAlignObjectsTopMessage);
-
-        /** AlignObjectsTopMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new AlignObjectsTopMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns AlignObjectsTopMessage instance
-         */
-        public static create(properties?: whiteboard.IAlignObjectsTopMessage): whiteboard.AlignObjectsTopMessage;
-
-        /**
-         * Encodes the specified AlignObjectsTopMessage message. Does not implicitly {@link whiteboard.AlignObjectsTopMessage.verify|verify} messages.
-         * @param message AlignObjectsTopMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IAlignObjectsTopMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified AlignObjectsTopMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsTopMessage.verify|verify} messages.
-         * @param message AlignObjectsTopMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IAlignObjectsTopMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an AlignObjectsTopMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns AlignObjectsTopMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.AlignObjectsTopMessage;
-
-        /**
-         * Decodes an AlignObjectsTopMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns AlignObjectsTopMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.AlignObjectsTopMessage;
-
-        /**
-         * Verifies an AlignObjectsTopMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an AlignObjectsTopMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns AlignObjectsTopMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.AlignObjectsTopMessage;
-
-        /**
-         * Creates a plain object from an AlignObjectsTopMessage message. Also converts values to other types if specified.
-         * @param message AlignObjectsTopMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.AlignObjectsTopMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this AlignObjectsTopMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of an AlignObjectsBottomMessage. */
-    interface IAlignObjectsBottomMessage {
-
-        /** AlignObjectsBottomMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an AlignObjectsBottomMessage. */
-    class AlignObjectsBottomMessage implements IAlignObjectsBottomMessage {
-
-        /**
-         * Constructs a new AlignObjectsBottomMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IAlignObjectsBottomMessage);
-
-        /** AlignObjectsBottomMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new AlignObjectsBottomMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns AlignObjectsBottomMessage instance
-         */
-        public static create(properties?: whiteboard.IAlignObjectsBottomMessage): whiteboard.AlignObjectsBottomMessage;
-
-        /**
-         * Encodes the specified AlignObjectsBottomMessage message. Does not implicitly {@link whiteboard.AlignObjectsBottomMessage.verify|verify} messages.
-         * @param message AlignObjectsBottomMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IAlignObjectsBottomMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified AlignObjectsBottomMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectsBottomMessage.verify|verify} messages.
-         * @param message AlignObjectsBottomMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IAlignObjectsBottomMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an AlignObjectsBottomMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns AlignObjectsBottomMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.AlignObjectsBottomMessage;
-
-        /**
-         * Decodes an AlignObjectsBottomMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns AlignObjectsBottomMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.AlignObjectsBottomMessage;
-
-        /**
-         * Verifies an AlignObjectsBottomMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an AlignObjectsBottomMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns AlignObjectsBottomMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.AlignObjectsBottomMessage;
-
-        /**
-         * Creates a plain object from an AlignObjectsBottomMessage message. Also converts values to other types if specified.
-         * @param message AlignObjectsBottomMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.AlignObjectsBottomMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this AlignObjectsBottomMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of an ArrangeObjectsHorizontalMessage. */
-    interface IArrangeObjectsHorizontalMessage {
-
-        /** ArrangeObjectsHorizontalMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an ArrangeObjectsHorizontalMessage. */
-    class ArrangeObjectsHorizontalMessage implements IArrangeObjectsHorizontalMessage {
-
-        /**
-         * Constructs a new ArrangeObjectsHorizontalMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IArrangeObjectsHorizontalMessage);
-
-        /** ArrangeObjectsHorizontalMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new ArrangeObjectsHorizontalMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns ArrangeObjectsHorizontalMessage instance
-         */
-        public static create(properties?: whiteboard.IArrangeObjectsHorizontalMessage): whiteboard.ArrangeObjectsHorizontalMessage;
-
-        /**
-         * Encodes the specified ArrangeObjectsHorizontalMessage message. Does not implicitly {@link whiteboard.ArrangeObjectsHorizontalMessage.verify|verify} messages.
-         * @param message ArrangeObjectsHorizontalMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IArrangeObjectsHorizontalMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified ArrangeObjectsHorizontalMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectsHorizontalMessage.verify|verify} messages.
-         * @param message ArrangeObjectsHorizontalMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IArrangeObjectsHorizontalMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an ArrangeObjectsHorizontalMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns ArrangeObjectsHorizontalMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.ArrangeObjectsHorizontalMessage;
-
-        /**
-         * Decodes an ArrangeObjectsHorizontalMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns ArrangeObjectsHorizontalMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.ArrangeObjectsHorizontalMessage;
-
-        /**
-         * Verifies an ArrangeObjectsHorizontalMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an ArrangeObjectsHorizontalMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns ArrangeObjectsHorizontalMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.ArrangeObjectsHorizontalMessage;
-
-        /**
-         * Creates a plain object from an ArrangeObjectsHorizontalMessage message. Also converts values to other types if specified.
-         * @param message ArrangeObjectsHorizontalMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.ArrangeObjectsHorizontalMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this ArrangeObjectsHorizontalMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of an ArrangeObjectsVerticalMessage. */
-    interface IArrangeObjectsVerticalMessage {
-
-        /** ArrangeObjectsVerticalMessage names */
-        names?: (string[]|null);
-    }
-
-    /** Represents an ArrangeObjectsVerticalMessage. */
-    class ArrangeObjectsVerticalMessage implements IArrangeObjectsVerticalMessage {
-
-        /**
-         * Constructs a new ArrangeObjectsVerticalMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IArrangeObjectsVerticalMessage);
-
-        /** ArrangeObjectsVerticalMessage names. */
-        public names: string[];
-
-        /**
-         * Creates a new ArrangeObjectsVerticalMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns ArrangeObjectsVerticalMessage instance
-         */
-        public static create(properties?: whiteboard.IArrangeObjectsVerticalMessage): whiteboard.ArrangeObjectsVerticalMessage;
-
-        /**
-         * Encodes the specified ArrangeObjectsVerticalMessage message. Does not implicitly {@link whiteboard.ArrangeObjectsVerticalMessage.verify|verify} messages.
-         * @param message ArrangeObjectsVerticalMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IArrangeObjectsVerticalMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified ArrangeObjectsVerticalMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectsVerticalMessage.verify|verify} messages.
-         * @param message ArrangeObjectsVerticalMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IArrangeObjectsVerticalMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes an ArrangeObjectsVerticalMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns ArrangeObjectsVerticalMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.ArrangeObjectsVerticalMessage;
-
-        /**
-         * Decodes an ArrangeObjectsVerticalMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns ArrangeObjectsVerticalMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.ArrangeObjectsVerticalMessage;
-
-        /**
-         * Verifies an ArrangeObjectsVerticalMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates an ArrangeObjectsVerticalMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns ArrangeObjectsVerticalMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.ArrangeObjectsVerticalMessage;
-
-        /**
-         * Creates a plain object from an ArrangeObjectsVerticalMessage message. Also converts values to other types if specified.
-         * @param message ArrangeObjectsVerticalMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.ArrangeObjectsVerticalMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this ArrangeObjectsVerticalMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
     /** Properties of a SetObjectPropertyMessage. */
     interface ISetObjectPropertyMessage {
 
@@ -2029,6 +1489,120 @@ export namespace whiteboard {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a MoveObjectMessage. */
+    interface IMoveObjectMessage {
+
+        /** MoveObjectMessage name */
+        name?: (string|null);
+
+        /** MoveObjectMessage x1 */
+        x1?: (number|null);
+
+        /** MoveObjectMessage y1 */
+        y1?: (number|null);
+
+        /** MoveObjectMessage x2 */
+        x2?: (number|null);
+
+        /** MoveObjectMessage y2 */
+        y2?: (number|null);
+    }
+
+    /** Represents a MoveObjectMessage. */
+    class MoveObjectMessage implements IMoveObjectMessage {
+
+        /**
+         * Constructs a new MoveObjectMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IMoveObjectMessage);
+
+        /** MoveObjectMessage name. */
+        public name: string;
+
+        /** MoveObjectMessage x1. */
+        public x1: number;
+
+        /** MoveObjectMessage y1. */
+        public y1: number;
+
+        /** MoveObjectMessage x2. */
+        public x2: number;
+
+        /** MoveObjectMessage y2. */
+        public y2: number;
+
+        /**
+         * Creates a new MoveObjectMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns MoveObjectMessage instance
+         */
+        public static create(properties?: whiteboard.IMoveObjectMessage): whiteboard.MoveObjectMessage;
+
+        /**
+         * Encodes the specified MoveObjectMessage message. Does not implicitly {@link whiteboard.MoveObjectMessage.verify|verify} messages.
+         * @param message MoveObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IMoveObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified MoveObjectMessage message, length delimited. Does not implicitly {@link whiteboard.MoveObjectMessage.verify|verify} messages.
+         * @param message MoveObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IMoveObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a MoveObjectMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns MoveObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.MoveObjectMessage;
+
+        /**
+         * Decodes a MoveObjectMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns MoveObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.MoveObjectMessage;
+
+        /**
+         * Verifies a MoveObjectMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a MoveObjectMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns MoveObjectMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.MoveObjectMessage;
+
+        /**
+         * Creates a plain object from a MoveObjectMessage message. Also converts values to other types if specified.
+         * @param message MoveObjectMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.MoveObjectMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this MoveObjectMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a ClearPageMessage. */
     interface IClearPageMessage {
 
@@ -2198,6 +1772,90 @@ export namespace whiteboard {
 
         /**
          * Converts this ClearBoardMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of an UndoMessage. */
+    interface IUndoMessage {
+    }
+
+    /** Represents an UndoMessage. */
+    class UndoMessage implements IUndoMessage {
+
+        /**
+         * Constructs a new UndoMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IUndoMessage);
+
+        /**
+         * Creates a new UndoMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns UndoMessage instance
+         */
+        public static create(properties?: whiteboard.IUndoMessage): whiteboard.UndoMessage;
+
+        /**
+         * Encodes the specified UndoMessage message. Does not implicitly {@link whiteboard.UndoMessage.verify|verify} messages.
+         * @param message UndoMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IUndoMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified UndoMessage message, length delimited. Does not implicitly {@link whiteboard.UndoMessage.verify|verify} messages.
+         * @param message UndoMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IUndoMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an UndoMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns UndoMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.UndoMessage;
+
+        /**
+         * Decodes an UndoMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns UndoMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.UndoMessage;
+
+        /**
+         * Verifies an UndoMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an UndoMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns UndoMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.UndoMessage;
+
+        /**
+         * Creates a plain object from an UndoMessage message. Also converts values to other types if specified.
+         * @param message UndoMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.UndoMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this UndoMessage to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
