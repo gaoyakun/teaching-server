@@ -1186,6 +1186,9 @@ export namespace whiteboard {
     /** Properties of a DrawMessage. */
     interface IDrawMessage {
 
+        /** DrawMessage entityName */
+        entityName?: (string|null);
+
         /** DrawMessage lineWidth */
         lineWidth?: (number|null);
 
@@ -1204,6 +1207,9 @@ export namespace whiteboard {
          * @param [properties] Properties to set
          */
         constructor(properties?: whiteboard.IDrawMessage);
+
+        /** DrawMessage entityName. */
+        public entityName: string;
 
         /** DrawMessage lineWidth. */
         public lineWidth: number;

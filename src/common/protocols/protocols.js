@@ -2666,6 +2666,7 @@ $root.whiteboard = (function() {
          * Properties of a DrawMessage.
          * @memberof whiteboard
          * @interface IDrawMessage
+         * @property {string|null} [entityName] DrawMessage entityName
          * @property {number|null} [lineWidth] DrawMessage lineWidth
          * @property {string|null} [color] DrawMessage color
          * @property {Array.<whiteboard.IDrawingMessage>|null} [points] DrawMessage points
@@ -2686,6 +2687,14 @@ $root.whiteboard = (function() {
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
+
+        /**
+         * DrawMessage entityName.
+         * @member {string} entityName
+         * @memberof whiteboard.DrawMessage
+         * @instance
+         */
+        DrawMessage.prototype.entityName = "";
 
         /**
          * DrawMessage lineWidth.
@@ -2735,13 +2744,15 @@ $root.whiteboard = (function() {
         DrawMessage.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.entityName);
             if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
-                writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.lineWidth);
+                writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.lineWidth);
             if (message.color != null && message.hasOwnProperty("color"))
-                writer.uint32(/* id 2, wireType 2 =*/18).string(message.color);
+                writer.uint32(/* id 3, wireType 2 =*/26).string(message.color);
             if (message.points != null && message.points.length)
                 for (var i = 0; i < message.points.length; ++i)
-                    $root.whiteboard.DrawingMessage.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    $root.whiteboard.DrawingMessage.encode(message.points[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
             return writer;
         };
 
@@ -2777,12 +2788,15 @@ $root.whiteboard = (function() {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1:
-                    message.lineWidth = reader.uint32();
+                    message.entityName = reader.string();
                     break;
                 case 2:
-                    message.color = reader.string();
+                    message.lineWidth = reader.uint32();
                     break;
                 case 3:
+                    message.color = reader.string();
+                    break;
+                case 4:
                     if (!(message.points && message.points.length))
                         message.points = [];
                     message.points.push($root.whiteboard.DrawingMessage.decode(reader, reader.uint32()));
@@ -2822,6 +2836,9 @@ $root.whiteboard = (function() {
         DrawMessage.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                if (!$util.isString(message.entityName))
+                    return "entityName: string expected";
             if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
                 if (!$util.isInteger(message.lineWidth))
                     return "lineWidth: integer expected";
@@ -2852,6 +2869,8 @@ $root.whiteboard = (function() {
             if (object instanceof $root.whiteboard.DrawMessage)
                 return object;
             var message = new $root.whiteboard.DrawMessage();
+            if (object.entityName != null)
+                message.entityName = String(object.entityName);
             if (object.lineWidth != null)
                 message.lineWidth = object.lineWidth >>> 0;
             if (object.color != null)
@@ -2885,9 +2904,12 @@ $root.whiteboard = (function() {
             if (options.arrays || options.defaults)
                 object.points = [];
             if (options.defaults) {
+                object.entityName = "";
                 object.lineWidth = 0;
                 object.color = "";
             }
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                object.entityName = message.entityName;
             if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
                 object.lineWidth = message.lineWidth;
             if (message.color != null && message.hasOwnProperty("color"))

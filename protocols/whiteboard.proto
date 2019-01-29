@@ -53,9 +53,10 @@ message DrawingMessage {
 }
 
 message DrawMessage {
-    uint32 lineWidth = 1;
-    string color = 2;
-    repeated DrawingMessage points = 3;
+    string entityName = 1;
+    uint32 lineWidth = 2;
+    string color = 3;
+    repeated DrawingMessage points = 4;
 }
 
 message EraseMessage {

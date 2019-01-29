@@ -168,6 +168,14 @@ executors[MsgType.whiteboard_ClearBoardMessage] = {
         whiteboard.view!.rootNode = command.context;
         whiteboard.view!.rootNode.view = whiteboard.view;
     }
+};
+executors[MsgType.whiteboard_DrawMessage] = {
+    execute: (whiteboard, command, results) => {
+
+    },
+    unexecute: (whiteboard, command) => {
+        
+    }
 }
 
 export interface IProperty {
