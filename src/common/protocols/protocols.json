@@ -143,27 +143,7 @@
             }
           }
         },
-        "StartDrawMessage": {
-          "fields": {
-            "x": {
-              "type": "uint32",
-              "id": 1
-            },
-            "y": {
-              "type": "uint32",
-              "id": 2
-            },
-            "lineWidth": {
-              "type": "uint32",
-              "id": 3
-            },
-            "color": {
-              "type": "string",
-              "id": 4
-            }
-          }
-        },
-        "DrawingMessage": {
+        "Point": {
           "fields": {
             "x": {
               "type": "uint32",
@@ -189,10 +169,14 @@
               "type": "string",
               "id": 3
             },
+            "new": {
+              "type": "bool",
+              "id": 4
+            },
             "points": {
               "rule": "repeated",
-              "type": "DrawingMessage",
-              "id": 4
+              "type": "Point",
+              "id": 5
             }
           }
         },

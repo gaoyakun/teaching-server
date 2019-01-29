@@ -8502,300 +8502,63 @@
 	        };
 	        return SetObjectPropertyMessage;
 	    })();
-	    whiteboard.StartDrawMessage = (function () {
+	    whiteboard.Point = (function () {
 	        /**
-	         * Properties of a StartDrawMessage.
+	         * Properties of a Point.
 	         * @memberof whiteboard
-	         * @interface IStartDrawMessage
-	         * @property {number|null} [x] StartDrawMessage x
-	         * @property {number|null} [y] StartDrawMessage y
-	         * @property {number|null} [lineWidth] StartDrawMessage lineWidth
-	         * @property {string|null} [color] StartDrawMessage color
+	         * @interface IPoint
+	         * @property {number|null} [x] Point x
+	         * @property {number|null} [y] Point y
 	         */
 	        /**
-	         * Constructs a new StartDrawMessage.
+	         * Constructs a new Point.
 	         * @memberof whiteboard
-	         * @classdesc Represents a StartDrawMessage.
-	         * @implements IStartDrawMessage
+	         * @classdesc Represents a Point.
+	         * @implements IPoint
 	         * @constructor
-	         * @param {whiteboard.IStartDrawMessage=} [properties] Properties to set
+	         * @param {whiteboard.IPoint=} [properties] Properties to set
 	         */
-	        function StartDrawMessage(properties) {
+	        function Point(properties) {
 	            if (properties)
 	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
 	                    if (properties[keys[i]] != null)
 	                        this[keys[i]] = properties[keys[i]];
 	        }
 	        /**
-	         * StartDrawMessage x.
+	         * Point x.
 	         * @member {number} x
-	         * @memberof whiteboard.StartDrawMessage
+	         * @memberof whiteboard.Point
 	         * @instance
 	         */
-	        StartDrawMessage.prototype.x = 0;
+	        Point.prototype.x = 0;
 	        /**
-	         * StartDrawMessage y.
+	         * Point y.
 	         * @member {number} y
-	         * @memberof whiteboard.StartDrawMessage
+	         * @memberof whiteboard.Point
 	         * @instance
 	         */
-	        StartDrawMessage.prototype.y = 0;
+	        Point.prototype.y = 0;
 	        /**
-	         * StartDrawMessage lineWidth.
-	         * @member {number} lineWidth
-	         * @memberof whiteboard.StartDrawMessage
-	         * @instance
-	         */
-	        StartDrawMessage.prototype.lineWidth = 0;
-	        /**
-	         * StartDrawMessage color.
-	         * @member {string} color
-	         * @memberof whiteboard.StartDrawMessage
-	         * @instance
-	         */
-	        StartDrawMessage.prototype.color = "";
-	        /**
-	         * Creates a new StartDrawMessage instance using the specified properties.
+	         * Creates a new Point instance using the specified properties.
 	         * @function create
-	         * @memberof whiteboard.StartDrawMessage
+	         * @memberof whiteboard.Point
 	         * @static
-	         * @param {whiteboard.IStartDrawMessage=} [properties] Properties to set
-	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage instance
+	         * @param {whiteboard.IPoint=} [properties] Properties to set
+	         * @returns {whiteboard.Point} Point instance
 	         */
-	        StartDrawMessage.create = function create(properties) {
-	            return new StartDrawMessage(properties);
+	        Point.create = function create(properties) {
+	            return new Point(properties);
 	        };
 	        /**
-	         * Encodes the specified StartDrawMessage message. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
+	         * Encodes the specified Point message. Does not implicitly {@link whiteboard.Point.verify|verify} messages.
 	         * @function encode
-	         * @memberof whiteboard.StartDrawMessage
+	         * @memberof whiteboard.Point
 	         * @static
-	         * @param {whiteboard.IStartDrawMessage} message StartDrawMessage message or plain object to encode
+	         * @param {whiteboard.IPoint} message Point message or plain object to encode
 	         * @param {$protobuf.Writer} [writer] Writer to encode to
 	         * @returns {$protobuf.Writer} Writer
 	         */
-	        StartDrawMessage.encode = function encode(message, writer) {
-	            if (!writer)
-	                writer = $Writer.create();
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
-	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
-	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.lineWidth);
-	            if (message.color != null && message.hasOwnProperty("color"))
-	                writer.uint32(/* id 4, wireType 2 =*/ 34).string(message.color);
-	            return writer;
-	        };
-	        /**
-	         * Encodes the specified StartDrawMessage message, length delimited. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
-	         * @function encodeDelimited
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {whiteboard.IStartDrawMessage} message StartDrawMessage message or plain object to encode
-	         * @param {$protobuf.Writer} [writer] Writer to encode to
-	         * @returns {$protobuf.Writer} Writer
-	         */
-	        StartDrawMessage.encodeDelimited = function encodeDelimited(message, writer) {
-	            return this.encode(message, writer).ldelim();
-	        };
-	        /**
-	         * Decodes a StartDrawMessage message from the specified reader or buffer.
-	         * @function decode
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-	         * @param {number} [length] Message length if known beforehand
-	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
-	         * @throws {Error} If the payload is not a reader or valid buffer
-	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-	         */
-	        StartDrawMessage.decode = function decode(reader, length) {
-	            if (!(reader instanceof $Reader))
-	                reader = $Reader.create(reader);
-	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.StartDrawMessage();
-	            while (reader.pos < end) {
-	                var tag = reader.uint32();
-	                switch (tag >>> 3) {
-	                    case 1:
-	                        message.x = reader.uint32();
-	                        break;
-	                    case 2:
-	                        message.y = reader.uint32();
-	                        break;
-	                    case 3:
-	                        message.lineWidth = reader.uint32();
-	                        break;
-	                    case 4:
-	                        message.color = reader.string();
-	                        break;
-	                    default:
-	                        reader.skipType(tag & 7);
-	                        break;
-	                }
-	            }
-	            return message;
-	        };
-	        /**
-	         * Decodes a StartDrawMessage message from the specified reader or buffer, length delimited.
-	         * @function decodeDelimited
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
-	         * @throws {Error} If the payload is not a reader or valid buffer
-	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-	         */
-	        StartDrawMessage.decodeDelimited = function decodeDelimited(reader) {
-	            if (!(reader instanceof $Reader))
-	                reader = new $Reader(reader);
-	            return this.decode(reader, reader.uint32());
-	        };
-	        /**
-	         * Verifies a StartDrawMessage message.
-	         * @function verify
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {Object.<string,*>} message Plain object to verify
-	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
-	         */
-	        StartDrawMessage.verify = function verify(message) {
-	            if (typeof message !== "object" || message === null)
-	                return "object expected";
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                if (!$util.isInteger(message.x))
-	                    return "x: integer expected";
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                if (!$util.isInteger(message.y))
-	                    return "y: integer expected";
-	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
-	                if (!$util.isInteger(message.lineWidth))
-	                    return "lineWidth: integer expected";
-	            if (message.color != null && message.hasOwnProperty("color"))
-	                if (!$util.isString(message.color))
-	                    return "color: string expected";
-	            return null;
-	        };
-	        /**
-	         * Creates a StartDrawMessage message from a plain object. Also converts values to their respective internal types.
-	         * @function fromObject
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {Object.<string,*>} object Plain object
-	         * @returns {whiteboard.StartDrawMessage} StartDrawMessage
-	         */
-	        StartDrawMessage.fromObject = function fromObject(object) {
-	            if (object instanceof $root.whiteboard.StartDrawMessage)
-	                return object;
-	            var message = new $root.whiteboard.StartDrawMessage();
-	            if (object.x != null)
-	                message.x = object.x >>> 0;
-	            if (object.y != null)
-	                message.y = object.y >>> 0;
-	            if (object.lineWidth != null)
-	                message.lineWidth = object.lineWidth >>> 0;
-	            if (object.color != null)
-	                message.color = String(object.color);
-	            return message;
-	        };
-	        /**
-	         * Creates a plain object from a StartDrawMessage message. Also converts values to other types if specified.
-	         * @function toObject
-	         * @memberof whiteboard.StartDrawMessage
-	         * @static
-	         * @param {whiteboard.StartDrawMessage} message StartDrawMessage
-	         * @param {$protobuf.IConversionOptions} [options] Conversion options
-	         * @returns {Object.<string,*>} Plain object
-	         */
-	        StartDrawMessage.toObject = function toObject(message, options) {
-	            if (!options)
-	                options = {};
-	            var object = {};
-	            if (options.defaults) {
-	                object.x = 0;
-	                object.y = 0;
-	                object.lineWidth = 0;
-	                object.color = "";
-	            }
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                object.x = message.x;
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                object.y = message.y;
-	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
-	                object.lineWidth = message.lineWidth;
-	            if (message.color != null && message.hasOwnProperty("color"))
-	                object.color = message.color;
-	            return object;
-	        };
-	        /**
-	         * Converts this StartDrawMessage to JSON.
-	         * @function toJSON
-	         * @memberof whiteboard.StartDrawMessage
-	         * @instance
-	         * @returns {Object.<string,*>} JSON object
-	         */
-	        StartDrawMessage.prototype.toJSON = function toJSON() {
-	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
-	        };
-	        return StartDrawMessage;
-	    })();
-	    whiteboard.DrawingMessage = (function () {
-	        /**
-	         * Properties of a DrawingMessage.
-	         * @memberof whiteboard
-	         * @interface IDrawingMessage
-	         * @property {number|null} [x] DrawingMessage x
-	         * @property {number|null} [y] DrawingMessage y
-	         */
-	        /**
-	         * Constructs a new DrawingMessage.
-	         * @memberof whiteboard
-	         * @classdesc Represents a DrawingMessage.
-	         * @implements IDrawingMessage
-	         * @constructor
-	         * @param {whiteboard.IDrawingMessage=} [properties] Properties to set
-	         */
-	        function DrawingMessage(properties) {
-	            if (properties)
-	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-	                    if (properties[keys[i]] != null)
-	                        this[keys[i]] = properties[keys[i]];
-	        }
-	        /**
-	         * DrawingMessage x.
-	         * @member {number} x
-	         * @memberof whiteboard.DrawingMessage
-	         * @instance
-	         */
-	        DrawingMessage.prototype.x = 0;
-	        /**
-	         * DrawingMessage y.
-	         * @member {number} y
-	         * @memberof whiteboard.DrawingMessage
-	         * @instance
-	         */
-	        DrawingMessage.prototype.y = 0;
-	        /**
-	         * Creates a new DrawingMessage instance using the specified properties.
-	         * @function create
-	         * @memberof whiteboard.DrawingMessage
-	         * @static
-	         * @param {whiteboard.IDrawingMessage=} [properties] Properties to set
-	         * @returns {whiteboard.DrawingMessage} DrawingMessage instance
-	         */
-	        DrawingMessage.create = function create(properties) {
-	            return new DrawingMessage(properties);
-	        };
-	        /**
-	         * Encodes the specified DrawingMessage message. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
-	         * @function encode
-	         * @memberof whiteboard.DrawingMessage
-	         * @static
-	         * @param {whiteboard.IDrawingMessage} message DrawingMessage message or plain object to encode
-	         * @param {$protobuf.Writer} [writer] Writer to encode to
-	         * @returns {$protobuf.Writer} Writer
-	         */
-	        DrawingMessage.encode = function encode(message, writer) {
+	        Point.encode = function encode(message, writer) {
 	            if (!writer)
 	                writer = $Writer.create();
 	            if (message.x != null && message.hasOwnProperty("x"))
@@ -8805,32 +8568,32 @@
 	            return writer;
 	        };
 	        /**
-	         * Encodes the specified DrawingMessage message, length delimited. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
+	         * Encodes the specified Point message, length delimited. Does not implicitly {@link whiteboard.Point.verify|verify} messages.
 	         * @function encodeDelimited
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
-	         * @param {whiteboard.IDrawingMessage} message DrawingMessage message or plain object to encode
+	         * @param {whiteboard.IPoint} message Point message or plain object to encode
 	         * @param {$protobuf.Writer} [writer] Writer to encode to
 	         * @returns {$protobuf.Writer} Writer
 	         */
-	        DrawingMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	        Point.encodeDelimited = function encodeDelimited(message, writer) {
 	            return this.encode(message, writer).ldelim();
 	        };
 	        /**
-	         * Decodes a DrawingMessage message from the specified reader or buffer.
+	         * Decodes a Point message from the specified reader or buffer.
 	         * @function decode
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
 	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
 	         * @param {number} [length] Message length if known beforehand
-	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         * @returns {whiteboard.Point} Point
 	         * @throws {Error} If the payload is not a reader or valid buffer
 	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
 	         */
-	        DrawingMessage.decode = function decode(reader, length) {
+	        Point.decode = function decode(reader, length) {
 	            if (!(reader instanceof $Reader))
 	                reader = $Reader.create(reader);
-	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.DrawingMessage();
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.Point();
 	            while (reader.pos < end) {
 	                var tag = reader.uint32();
 	                switch (tag >>> 3) {
@@ -8848,29 +8611,29 @@
 	            return message;
 	        };
 	        /**
-	         * Decodes a DrawingMessage message from the specified reader or buffer, length delimited.
+	         * Decodes a Point message from the specified reader or buffer, length delimited.
 	         * @function decodeDelimited
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
 	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         * @returns {whiteboard.Point} Point
 	         * @throws {Error} If the payload is not a reader or valid buffer
 	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
 	         */
-	        DrawingMessage.decodeDelimited = function decodeDelimited(reader) {
+	        Point.decodeDelimited = function decodeDelimited(reader) {
 	            if (!(reader instanceof $Reader))
 	                reader = new $Reader(reader);
 	            return this.decode(reader, reader.uint32());
 	        };
 	        /**
-	         * Verifies a DrawingMessage message.
+	         * Verifies a Point message.
 	         * @function verify
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
 	         * @param {Object.<string,*>} message Plain object to verify
 	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
 	         */
-	        DrawingMessage.verify = function verify(message) {
+	        Point.verify = function verify(message) {
 	            if (typeof message !== "object" || message === null)
 	                return "object expected";
 	            if (message.x != null && message.hasOwnProperty("x"))
@@ -8882,17 +8645,17 @@
 	            return null;
 	        };
 	        /**
-	         * Creates a DrawingMessage message from a plain object. Also converts values to their respective internal types.
+	         * Creates a Point message from a plain object. Also converts values to their respective internal types.
 	         * @function fromObject
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
 	         * @param {Object.<string,*>} object Plain object
-	         * @returns {whiteboard.DrawingMessage} DrawingMessage
+	         * @returns {whiteboard.Point} Point
 	         */
-	        DrawingMessage.fromObject = function fromObject(object) {
-	            if (object instanceof $root.whiteboard.DrawingMessage)
+	        Point.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.Point)
 	                return object;
-	            var message = new $root.whiteboard.DrawingMessage();
+	            var message = new $root.whiteboard.Point();
 	            if (object.x != null)
 	                message.x = object.x >>> 0;
 	            if (object.y != null)
@@ -8900,15 +8663,15 @@
 	            return message;
 	        };
 	        /**
-	         * Creates a plain object from a DrawingMessage message. Also converts values to other types if specified.
+	         * Creates a plain object from a Point message. Also converts values to other types if specified.
 	         * @function toObject
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @static
-	         * @param {whiteboard.DrawingMessage} message DrawingMessage
+	         * @param {whiteboard.Point} message Point
 	         * @param {$protobuf.IConversionOptions} [options] Conversion options
 	         * @returns {Object.<string,*>} Plain object
 	         */
-	        DrawingMessage.toObject = function toObject(message, options) {
+	        Point.toObject = function toObject(message, options) {
 	            if (!options)
 	                options = {};
 	            var object = {};
@@ -8923,25 +8686,27 @@
 	            return object;
 	        };
 	        /**
-	         * Converts this DrawingMessage to JSON.
+	         * Converts this Point to JSON.
 	         * @function toJSON
-	         * @memberof whiteboard.DrawingMessage
+	         * @memberof whiteboard.Point
 	         * @instance
 	         * @returns {Object.<string,*>} JSON object
 	         */
-	        DrawingMessage.prototype.toJSON = function toJSON() {
+	        Point.prototype.toJSON = function toJSON() {
 	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
 	        };
-	        return DrawingMessage;
+	        return Point;
 	    })();
 	    whiteboard.DrawMessage = (function () {
 	        /**
 	         * Properties of a DrawMessage.
 	         * @memberof whiteboard
 	         * @interface IDrawMessage
+	         * @property {string|null} [entityName] DrawMessage entityName
 	         * @property {number|null} [lineWidth] DrawMessage lineWidth
 	         * @property {string|null} [color] DrawMessage color
-	         * @property {Array.<whiteboard.IDrawingMessage>|null} [points] DrawMessage points
+	         * @property {boolean|null} ["new"] DrawMessage new
+	         * @property {Array.<whiteboard.IPoint>|null} [points] DrawMessage points
 	         */
 	        /**
 	         * Constructs a new DrawMessage.
@@ -8959,6 +8724,13 @@
 	                        this[keys[i]] = properties[keys[i]];
 	        }
 	        /**
+	         * DrawMessage entityName.
+	         * @member {string} entityName
+	         * @memberof whiteboard.DrawMessage
+	         * @instance
+	         */
+	        DrawMessage.prototype.entityName = "";
+	        /**
 	         * DrawMessage lineWidth.
 	         * @member {number} lineWidth
 	         * @memberof whiteboard.DrawMessage
@@ -8973,8 +8745,15 @@
 	         */
 	        DrawMessage.prototype.color = "";
 	        /**
+	         * DrawMessage new.
+	         * @member {boolean} new
+	         * @memberof whiteboard.DrawMessage
+	         * @instance
+	         */
+	        DrawMessage.prototype["new"] = false;
+	        /**
 	         * DrawMessage points.
-	         * @member {Array.<whiteboard.IDrawingMessage>} points
+	         * @member {Array.<whiteboard.IPoint>} points
 	         * @memberof whiteboard.DrawMessage
 	         * @instance
 	         */
@@ -9002,13 +8781,17 @@
 	        DrawMessage.encode = function encode(message, writer) {
 	            if (!writer)
 	                writer = $Writer.create();
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.entityName);
 	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
-	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.lineWidth);
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.lineWidth);
 	            if (message.color != null && message.hasOwnProperty("color"))
-	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.color);
+	                writer.uint32(/* id 3, wireType 2 =*/ 26).string(message.color);
+	            if (message["new"] != null && message.hasOwnProperty("new"))
+	                writer.uint32(/* id 4, wireType 0 =*/ 32).bool(message["new"]);
 	            if (message.points != null && message.points.length)
 	                for (var i = 0; i < message.points.length; ++i)
-	                    $root.whiteboard.DrawingMessage.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/ 26).fork()).ldelim();
+	                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 5, wireType 2 =*/ 42).fork()).ldelim();
 	            return writer;
 	        };
 	        /**
@@ -9042,15 +8825,21 @@
 	                var tag = reader.uint32();
 	                switch (tag >>> 3) {
 	                    case 1:
-	                        message.lineWidth = reader.uint32();
+	                        message.entityName = reader.string();
 	                        break;
 	                    case 2:
-	                        message.color = reader.string();
+	                        message.lineWidth = reader.uint32();
 	                        break;
 	                    case 3:
+	                        message.color = reader.string();
+	                        break;
+	                    case 4:
+	                        message["new"] = reader.bool();
+	                        break;
+	                    case 5:
 	                        if (!(message.points && message.points.length))
 	                            message.points = [];
-	                        message.points.push($root.whiteboard.DrawingMessage.decode(reader, reader.uint32()));
+	                        message.points.push($root.whiteboard.Point.decode(reader, reader.uint32()));
 	                        break;
 	                    default:
 	                        reader.skipType(tag & 7);
@@ -9085,17 +8874,23 @@
 	        DrawMessage.verify = function verify(message) {
 	            if (typeof message !== "object" || message === null)
 	                return "object expected";
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                if (!$util.isString(message.entityName))
+	                    return "entityName: string expected";
 	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
 	                if (!$util.isInteger(message.lineWidth))
 	                    return "lineWidth: integer expected";
 	            if (message.color != null && message.hasOwnProperty("color"))
 	                if (!$util.isString(message.color))
 	                    return "color: string expected";
+	            if (message["new"] != null && message.hasOwnProperty("new"))
+	                if (typeof message["new"] !== "boolean")
+	                    return "new: boolean expected";
 	            if (message.points != null && message.hasOwnProperty("points")) {
 	                if (!Array.isArray(message.points))
 	                    return "points: array expected";
 	                for (var i = 0; i < message.points.length; ++i) {
-	                    var error = $root.whiteboard.DrawingMessage.verify(message.points[i]);
+	                    var error = $root.whiteboard.Point.verify(message.points[i]);
 	                    if (error)
 	                        return "points." + error;
 	                }
@@ -9114,10 +8909,14 @@
 	            if (object instanceof $root.whiteboard.DrawMessage)
 	                return object;
 	            var message = new $root.whiteboard.DrawMessage();
+	            if (object.entityName != null)
+	                message.entityName = String(object.entityName);
 	            if (object.lineWidth != null)
 	                message.lineWidth = object.lineWidth >>> 0;
 	            if (object.color != null)
 	                message.color = String(object.color);
+	            if (object["new"] != null)
+	                message["new"] = Boolean(object["new"]);
 	            if (object.points) {
 	                if (!Array.isArray(object.points))
 	                    throw TypeError(".whiteboard.DrawMessage.points: array expected");
@@ -9125,7 +8924,7 @@
 	                for (var i = 0; i < object.points.length; ++i) {
 	                    if (typeof object.points[i] !== "object")
 	                        throw TypeError(".whiteboard.DrawMessage.points: object expected");
-	                    message.points[i] = $root.whiteboard.DrawingMessage.fromObject(object.points[i]);
+	                    message.points[i] = $root.whiteboard.Point.fromObject(object.points[i]);
 	                }
 	            }
 	            return message;
@@ -9146,17 +8945,23 @@
 	            if (options.arrays || options.defaults)
 	                object.points = [];
 	            if (options.defaults) {
+	                object.entityName = "";
 	                object.lineWidth = 0;
 	                object.color = "";
+	                object["new"] = false;
 	            }
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                object.entityName = message.entityName;
 	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
 	                object.lineWidth = message.lineWidth;
 	            if (message.color != null && message.hasOwnProperty("color"))
 	                object.color = message.color;
+	            if (message["new"] != null && message.hasOwnProperty("new"))
+	                object["new"] = message["new"];
 	            if (message.points && message.points.length) {
 	                object.points = [];
 	                for (var j = 0; j < message.points.length; ++j)
-	                    object.points[j] = $root.whiteboard.DrawingMessage.toObject(message.points[j], options);
+	                    object.points[j] = $root.whiteboard.Point.toObject(message.points[j], options);
 	            }
 	            return object;
 	        };
@@ -10351,15 +10156,14 @@
 	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30004] = "whiteboard_DeleteObjectMessage";
 	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30005] = "whiteboard_DeleteObjectsMessage";
 	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30006] = "whiteboard_SetObjectPropertyMessage";
-	    MsgType[MsgType["whiteboard_StartDrawMessage"] = 30007] = "whiteboard_StartDrawMessage";
-	    MsgType[MsgType["whiteboard_DrawingMessage"] = 30008] = "whiteboard_DrawingMessage";
-	    MsgType[MsgType["whiteboard_DrawMessage"] = 30009] = "whiteboard_DrawMessage";
-	    MsgType[MsgType["whiteboard_EraseMessage"] = 30010] = "whiteboard_EraseMessage";
-	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30011] = "whiteboard_SwapObjectMessage";
-	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30012] = "whiteboard_MoveObjectMessage";
-	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30013] = "whiteboard_ClearPageMessage";
-	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30014] = "whiteboard_ClearBoardMessage";
-	    MsgType[MsgType["whiteboard_UndoMessage"] = 30015] = "whiteboard_UndoMessage";
+	    MsgType[MsgType["whiteboard_Point"] = 30007] = "whiteboard_Point";
+	    MsgType[MsgType["whiteboard_DrawMessage"] = 30008] = "whiteboard_DrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30009] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30010] = "whiteboard_SwapObjectMessage";
+	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30011] = "whiteboard_MoveObjectMessage";
+	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30012] = "whiteboard_ClearPageMessage";
+	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30013] = "whiteboard_ClearBoardMessage";
+	    MsgType[MsgType["whiteboard_UndoMessage"] = 30014] = "whiteboard_UndoMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
@@ -10372,15 +10176,14 @@
 	    30004: protocols.whiteboard.DeleteObjectMessage,
 	    30005: protocols.whiteboard.DeleteObjectsMessage,
 	    30006: protocols.whiteboard.SetObjectPropertyMessage,
-	    30007: protocols.whiteboard.StartDrawMessage,
-	    30008: protocols.whiteboard.DrawingMessage,
-	    30009: protocols.whiteboard.DrawMessage,
-	    30010: protocols.whiteboard.EraseMessage,
-	    30011: protocols.whiteboard.SwapObjectMessage,
-	    30012: protocols.whiteboard.MoveObjectMessage,
-	    30013: protocols.whiteboard.ClearPageMessage,
-	    30014: protocols.whiteboard.ClearBoardMessage,
-	    30015: protocols.whiteboard.UndoMessage,
+	    30007: protocols.whiteboard.Point,
+	    30008: protocols.whiteboard.DrawMessage,
+	    30009: protocols.whiteboard.EraseMessage,
+	    30010: protocols.whiteboard.SwapObjectMessage,
+	    30011: protocols.whiteboard.MoveObjectMessage,
+	    30012: protocols.whiteboard.ClearPageMessage,
+	    30013: protocols.whiteboard.ClearBoardMessage,
+	    30014: protocols.whiteboard.UndoMessage,
 	};
 	exports.msgMap = msgMap;
 	__export(protocols);
@@ -10561,6 +10364,16 @@
 	    unexecute: function (whiteboard, command) {
 	        whiteboard.view.rootNode = command.context;
 	        whiteboard.view.rootNode.view = whiteboard.view;
+	    }
+	};
+	executors[protolist.MsgType.whiteboard_DrawMessage] = {
+	    execute: function (whiteboard, command, results) {
+	    },
+	    unexecute: function (whiteboard, command) {
+	        var freedrawNode = whiteboard.findEntity(command.event.messageData.entityName);
+	        if (freedrawNode) {
+	            freedrawNode.unstroke(command.event);
+	        }
 	    }
 	};
 	var EvtSocketMessage = /** @class */ (function (_super) {
@@ -12847,6 +12660,16 @@
 	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	    };
 	})();
+	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
+	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	    if (m) return m.call(o);
+	    return {
+	        next: function () {
+	            if (o && i >= o.length) o = void 0;
+	            return { value: o && o[i++], done: !o };
+	        }
+	    };
+	};
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 
@@ -12858,7 +12681,6 @@
 	        var _this = _super.call(this, parent || undefined) || this;
 	        _this._canvas = null;
 	        _this._boundingShape = null;
-	        _this._lastMoveTime = 0;
 	        _this._action = false;
 	        var opt = params || {};
 	        _this._lineWidth = Number(opt.lineWidth || 1);
@@ -12866,11 +12688,10 @@
 	        _this._mode = opt.mode || 'draw';
 	        _this._mousePosX = 0;
 	        _this._mousePosY = 0;
-	        _this._strokeInfo = {
-	            lineWidth: _this._lineWidth,
-	            color: _this._color,
-	            points: []
-	        };
+	        _this._strokeInfo = [];
+	        _this._lastStrokeIndex = 0;
+	        _this._lastPointIndex = 0;
+	        _this._finishDrawTimer = null;
 	        _this._eraseSize = opt.eraseSize || 20;
 	        _this.on(catk.EvtCanvasResize.type, function (evt) {
 	            if (evt.view === _this.view && _this._canvas) {
@@ -12882,7 +12703,7 @@
 	            }
 	        });
 	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
-	            if (_this._boundingShape === null && _this.canvas) {
+	            if (_this._boundingShape === null) {
 	                _this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: _this.canvas.width, h: _this.canvas.height });
 	            }
 	            if (_this._boundingShape) {
@@ -12891,103 +12712,77 @@
 	        });
 	        _this.on(catk.EvtHitTest.type, function (evt) {
 	            var canvas = _this.canvas;
-	            if (canvas && evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
+	            if (evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
 	                var ctx = canvas.getContext('2d');
-	                if (ctx) {
-	                    var data = ctx.getImageData(evt.x, evt.y, 1, 1);
-	                    if (data && data.data[3] > 0) {
-	                        evt.result = true;
-	                    }
+	                var data = ctx.getImageData(evt.x, evt.y, 1, 1);
+	                if (data && data.data[3] > 0) {
+	                    evt.result = true;
 	                }
 	            }
 	            evt.eat();
 	        });
 	        _this.on(catk.EvtDraw.type, function (evt) {
-	            if (_this.canvas) {
-	                var w = _this.canvas.width;
-	                var h = _this.canvas.height;
-	                evt.canvas.context.drawImage(_this.canvas, -Math.round(w * _this.anchorPoint.x) - 0.5, -Math.round(h * _this.anchorPoint.y) - 0.5, w, h);
-	                if (_this._mode === 'erase') {
-	                    evt.canvas.context.strokeStyle = '#000000';
-	                    evt.canvas.context.strokeRect(Math.round(_this._mousePosX - _this._eraseSize / 2), Math.round(_this._mousePosY - _this._eraseSize / 2), _this._eraseSize, _this._eraseSize);
-	                }
+	            var w = _this.canvas.width;
+	            var h = _this.canvas.height;
+	            evt.canvas.context.drawImage(_this.canvas, -Math.round(w * _this.anchorPoint.x) - 0.5, -Math.round(h * _this.anchorPoint.y) - 0.5, w, h);
+	            if (_this._mode === 'erase') {
+	                evt.canvas.context.strokeStyle = '#000000';
+	                evt.canvas.context.strokeRect(Math.round(_this._mousePosX - _this._eraseSize / 2), Math.round(_this._mousePosY - _this._eraseSize / 2), _this._eraseSize, _this._eraseSize);
 	            }
 	        });
 	        _this.on(whiteboard.WBMessageEvent.type, function (ev) {
-	            if (_this.canvas) {
-	                var context = _this.canvas.getContext('2d');
-	                if (context) {
-	                    var type = ev.messageType;
-	                    var data = ev.messageData;
-	                    if (type === protolist.MsgType.whiteboard_StartDrawMessage && ev.object === _this.entityName) {
-	                        _this._strokeInfo.lineWidth = data.lineWidth;
-	                        _this._strokeInfo.color = data.color;
-	                        _this._strokeInfo.points = [{ x: data.x, y: data.y }];
-	                        context.lineWidth = data.lineWidth;
-	                        context.strokeStyle = data.color;
-	                        context.lineCap = 'round';
-	                        context.lineJoin = 'round';
-	                        context.beginPath();
-	                        context.moveTo(data.x + 0.5, data.y + 0.5);
-	                    }
-	                    else if (type === protolist.MsgType.whiteboard_DrawingMessage && ev.object === _this.entityName) {
-	                        _this._strokeInfo.points && _this._strokeInfo.points.push({ x: data.x, y: data.y });
-	                        context.lineTo(data.x + 0.5, data.y + 0.5);
-	                        context.stroke();
-	                    }
-	                    else if (type === protolist.MsgType.whiteboard_DrawMessage && ev.object === _this.entityName && ev.broadcast) {
-	                        if (data.points.length > 1) {
-	                            context.lineWidth = data.lineWidth;
-	                            context.strokeStyle = data.color;
-	                            context.lineCap = 'round';
-	                            context.lineJoin = 'round';
-	                            context.beginPath();
-	                            context.moveTo(data.points[0].x + 0.5, data.points[0].y + 0.5);
-	                            for (var i = 1; i < data.points.length; i++) {
-	                                context.lineTo(data.points[i].x + 0.5, data.points[i].y + 0.5);
-	                            }
-	                            context.stroke();
-	                        }
-	                    }
-	                    else if (type === protolist.MsgType.whiteboard_EraseMessage && ev.object === _this.entityName) {
-	                        context.clearRect(data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
-	                    }
+	            var context = _this.canvas.getContext('2d');
+	            if (context) {
+	                var type = ev.messageType;
+	                var data = ev.messageData;
+	                if (type === protolist.MsgType.whiteboard_DrawMessage && ev.broadcast) {
+	                    _this.stroke(ev);
+	                }
+	                else if (type === protolist.MsgType.whiteboard_EraseMessage && ev.object === _this.entityName) {
+	                    context.clearRect(data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
 	                }
 	            }
 	        });
 	        _this.on(catk.EvtMouseDown.type, function (ev) {
 	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
-	            if (_this.canvas) {
-	                if (_this._mode === 'draw') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_StartDrawMessage, {
-	                        x: pt.x,
-	                        y: pt.y,
-	                        lineWidth: _this._lineWidth,
-	                        color: _this._color
-	                    }, undefined, _this.entityName));
-	                    _this._action = true;
+	            if (_this._mode === 'draw') {
+	                var stroke = {
+	                    lineWidth: _this._lineWidth,
+	                    color: _this._color,
+	                    points: [{ x: pt.x, y: pt.y }]
+	                };
+	                _this._strokeInfo.push(stroke);
+	                var ctx = _this.canvas.getContext('2d');
+	                ctx.lineWidth = stroke.lineWidth;
+	                ctx.strokeStyle = stroke.color;
+	                ctx.lineCap = 'round';
+	                ctx.lineJoin = 'round';
+	                ctx.beginPath();
+	                ctx.moveTo(pt.x + 0.5, pt.y + 0.5);
+	                _this._action = true;
+	                if (_this._finishDrawTimer === null) {
+	                    _this._finishDrawTimer = window.setInterval(_this.finishDraw.bind(_this), 1000);
 	                }
-	                else if (_this._mode === 'erase') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
-	                        x: pt.x,
-	                        y: pt.y,
-	                        size: _this._eraseSize
-	                    }, undefined, _this.entityName));
-	                    _this._action = true;
-	                }
+	            }
+	            else if (_this._mode === 'erase') {
+	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
+	                    x: pt.x,
+	                    y: pt.y,
+	                    size: _this._eraseSize
+	                }, undefined, _this.entityName));
+	                _this._action = true;
 	            }
 	        });
 	        _this.on(catk.EvtMouseMove.type, function (ev) {
 	            _this._mousePosX = ev.x;
 	            _this._mousePosY = ev.y;
-	            if (_this._action && _this.canvas) {
+	            if (_this._action) {
 	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
 	                if (_this._mode === 'draw') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawingMessage, {
-	                        x: pt.x,
-	                        y: pt.y
-	                    }, undefined, _this.entityName));
-	                    _this._lastMoveTime = Date.now();
+	                    var context = _this._canvas.getContext('2d');
+	                    context.lineTo(pt.x + 0.5, pt.y + 0.5);
+	                    context.stroke();
+	                    _this._strokeInfo[_this._strokeInfo.length - 1].points.push(pt);
 	                }
 	                else if (_this._mode === 'erase') {
 	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
@@ -12996,12 +12791,6 @@
 	                        size: _this._eraseSize
 	                    }, undefined, _this.entityName));
 	                }
-	            }
-	        });
-	        _this.on(catk.EvtFrame.type, function (ev) {
-	            var t = Date.now();
-	            if (t > _this._lastMoveTime + 250) {
-	                _this.finishDraw();
 	            }
 	        });
 	        _this.on(catk.EvtMouseUp.type, function (ev) {
@@ -13009,6 +12798,11 @@
 	                _this.finishDraw();
 	            }
 	            _this._action = false;
+	            _this._lastPointIndex = 0;
+	            if (_this._finishDrawTimer !== null) {
+	                window.clearInterval(_this._finishDrawTimer);
+	                _this._finishDrawTimer = null;
+	            }
 	        });
 	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
 	            switch (ev.name) {
@@ -13112,7 +12906,7 @@
 	    });
 	    Object.defineProperty(WBFreeDraw.prototype, "canvas", {
 	        get: function () {
-	            if (this._canvas === null && this.view) {
+	            if (this._canvas === null) {
 	                this._canvas = document.createElement('canvas');
 	                this._canvas.style.backgroundColor = '#00000000';
 	                this._canvas.width = this.view.canvas.width;
@@ -13126,10 +12920,97 @@
 	        enumerable: true,
 	        configurable: true
 	    });
+	    WBFreeDraw.prototype.clear = function () {
+	        if (this._canvas) {
+	            var context = this._canvas.getContext('2d');
+	            context && context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+	        }
+	    };
+	    WBFreeDraw.prototype.unstroke = function (ev) {
+	        var e_1, _a;
+	        this.clear();
+	        var points = this._strokeInfo[this._strokeInfo.length - 1].points;
+	        points.length = points.length - ev.messageData.points.length;
+	        if (points.length === 0) {
+	            this._strokeInfo.pop();
+	        }
+	        var ctx = this.canvas.getContext('2d');
+	        try {
+	            for (var _b = __values(this._strokeInfo), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                var stroke = _c.value;
+	                var points_1 = stroke.points;
+	                if (points_1.length > 0) {
+	                    ctx.lineWidth = stroke.lineWidth;
+	                    ctx.strokeStyle = stroke.color;
+	                    ctx.lineCap = 'round';
+	                    ctx.lineJoin = 'round';
+	                    ctx.beginPath();
+	                    ctx.moveTo(points_1[0].x + 0.5, points_1[0].y + 0.5);
+	                    for (var i = 1; i < points_1.length; i++) {
+	                        ctx.lineTo(points_1[i].x + 0.5, points_1[i].y + 0.5);
+	                    }
+	                    ctx.stroke();
+	                }
+	            }
+	        }
+	        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+	        finally {
+	            try {
+	                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	            }
+	            finally { if (e_1) throw e_1.error; }
+	        }
+	    };
+	    WBFreeDraw.prototype.stroke = function (ev) {
+	        var start;
+	        var stroke;
+	        if (ev.messageData.new) {
+	            start = 0;
+	            stroke = {
+	                lineWidth: ev.messageData.lineWidth,
+	                color: ev.messageData.color,
+	                points: ev.messageData.points.map(function (pt) { return { x: pt.x, y: pt.y }; })
+	            };
+	            this._strokeInfo.push(stroke);
+	        }
+	        else {
+	            stroke = this._strokeInfo[this._strokeInfo.length - 1];
+	            start = stroke.points.length - 1;
+	            this._strokeInfo[this._strokeInfo.length - 1].points.concat(ev.messageData.points.map(function (pt) { return { x: pt.x, y: pt.y }; }));
+	        }
+	        var context = this.canvas.getContext('2d');
+	        context.lineWidth = stroke.lineWidth;
+	        context.strokeStyle = stroke.color;
+	        context.lineCap = 'round';
+	        context.lineJoin = 'round';
+	        context.beginPath();
+	        context.moveTo(stroke.points[start].x + 0.5, stroke.points[start].y + 0.5);
+	        for (var i = start + 1; i < stroke.points.length; i++) {
+	            context.lineTo(stroke.points[i].x + 0.5, stroke.points[i].y + 0.5);
+	        }
+	        context.stroke();
+	    };
+	    WBFreeDraw.prototype.reset = function () {
+	        this._action = false;
+	        if (this._finishDrawTimer !== null) {
+	            window.clearInterval(this._finishDrawTimer);
+	            this._finishDrawTimer = null;
+	        }
+	    };
 	    WBFreeDraw.prototype.finishDraw = function () {
-	        if (this._strokeInfo.points && this._strokeInfo.points.length > 1) {
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawMessage, this._strokeInfo, undefined, this.entityName));
-	            this._strokeInfo.points = [this._strokeInfo.points[this._strokeInfo.points.length - 1]];
+	        var stroke = this._strokeInfo[this._strokeInfo.length - 1];
+	        if (this._lastPointIndex < stroke.points.length) {
+	            var messageData = {
+	                entityName: this.entityName,
+	                new: this._lastPointIndex === 0,
+	                points: stroke.points.slice(this._lastPointIndex)
+	            };
+	            if (messageData.new) {
+	                messageData.lineWidth = this._lineWidth,
+	                    messageData.color = this._color;
+	            }
+	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawMessage, messageData));
+	            this._lastPointIndex = stroke.points.length;
 	        }
 	    };
 	    return WBFreeDraw;
@@ -13968,59 +13849,30 @@
 	        }
 	        this._freedrawNode = this.findFreedrawNode();
 	        if (!this._freedrawNode) {
-	            var results = {};
-	            /*
-	            const args: any = {
-	                type: 'FreeDraw',
-	                name: null,
-	                x: 0,
-	                y: 0
-	            };
-	            lib.App.triggerEvent (null, new wb.WBCommandEvent('CreateObject', args, results));
-	            */
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_CreateObjectMessage, {
-	                type: 'FreeDraw',
-	                x: 0,
-	                y: 0
-	            }, results));
-	            this._freedrawNode = results.objectCreated;
+	            this._freedrawNode = this._wb.createEntity('FreeDraw', 0, 0, {});
 	        }
-	        if (this._freedrawNode) {
-	            /*
-	            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValue: this._mode
-	            }));
-	            */
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
-	                name: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValueJson: JSON.stringify(this._mode)
-	            }));
-	            // this._freedrawNode.mode = this._mode;
-	            this._freedrawNode.setCapture();
-	            this.applyProperties(this._paramsDraw);
-	            this.applyProperties(this._paramsErase);
-	            _super.prototype.activate.call(this, options);
+	        else {
+	            this._freedrawNode.reset();
 	        }
+	        catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
+	            name: this._freedrawNode.entityName,
+	            propName: 'mode',
+	            propValueJson: JSON.stringify(this._mode)
+	        }));
+	        this._freedrawNode.setCapture();
+	        this.applyProperties(this._paramsDraw);
+	        this.applyProperties(this._paramsErase);
+	        _super.prototype.activate.call(this, options);
 	    };
 	    WBHandWritingTool.prototype.deactivate = function () {
 	        if (this._freedrawNode) {
 	            this._freedrawNode.releaseCapture();
-	            /*
-	            lib.App.triggerEvent (null, new wb.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValue: 'none'
-	            }));
-	            */
+	            this._freedrawNode.reset();
 	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
 	                name: this._freedrawNode.entityName,
 	                propName: 'mode',
 	                propValueJson: JSON.stringify('none')
 	            }));
-	            // this._freedrawNode.mode = 'none';
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);
@@ -14335,16 +14187,14 @@
 	        });
 	        this.on(whiteboard.WBMessageEvent.type, function (ev) {
 	            if (_this._socket && _this._socket.connected) {
-	                if (ev.messageType !== protolist.MsgType.whiteboard_StartDrawMessage && ev.messageType !== protolist.MsgType.whiteboard_DrawingMessage) {
-	                    var data = {
-	                        message: protoutils.Packet.create(ev.messageType, ev.messageData).buffer
-	                    };
-	                    if (ev.object) {
-	                        data.object = ev.object;
-	                    }
-	                    var wrapPacket = protoutils.Packet.create(protolist.MsgType.whiteboard_EventMessage, data);
-	                    _this._socket.binary(true).emit('message', wrapPacket.buffer);
+	                var data = {
+	                    message: protoutils.Packet.create(ev.messageType, ev.messageData).buffer
+	                };
+	                if (ev.object) {
+	                    data.object = ev.object;
 	                }
+	                var wrapPacket = protoutils.Packet.create(protolist.MsgType.whiteboard_EventMessage, data);
+	                _this._socket.binary(true).emit('message', wrapPacket.buffer);
 	            }
 	        });
 	        // (function(){

@@ -9,17 +9,17 @@ export class WBFreeDraw extends lib.SceneObject {
     private _mode: string;
     private _mousePosX: number;
     private _mousePosY: number;
-    private _lastMoveTime: number;
     private _action: boolean;
     private _canvas: HTMLCanvasElement|null;
     private _boundingShape: lib.BoundingBox|null;
-    private _strokeInfo: proto.whiteboard.IDrawMessage;
+    private _strokeInfo: proto.whiteboard.IDrawMessage[];
+    private _lastPointIndex: number;
+    private _finishDrawTimer: number|null;
 
     constructor(parent: lib.SceneObject|null, params:any = null) {
         super(parent||undefined);
         this._canvas = null;
         this._boundingShape = null;
-        this._lastMoveTime = 0;
         this._action = false;
         const opt = params||{}
         this._lineWidth = Number(opt.lineWidth || 1);
@@ -27,11 +27,10 @@ export class WBFreeDraw extends lib.SceneObject {
         this._mode = opt.mode || 'draw';
         this._mousePosX = 0;
         this._mousePosY = 0;
-        this._strokeInfo = {
-            lineWidth: this._lineWidth,
-            color: this._color,
-            points: []
-        };
+        this._strokeInfo = [];
+        this._lastStrokeIndex = 0;
+        this._lastPointIndex = 0;
+        this._finishDrawTimer = null;
         this._eraseSize = opt.eraseSize || 20;
         this.on(lib.EvtCanvasResize.type, (evt: lib.EvtCanvasResize) => {
             if (evt.view === this.view && this._canvas) {
@@ -43,7 +42,7 @@ export class WBFreeDraw extends lib.SceneObject {
             }
         })
         this.on(lib.EvtGetBoundingShape.type, (evt: lib.EvtGetBoundingShape) => {
-            if (this._boundingShape === null && this.canvas) {
+            if (this._boundingShape === null) {
                 this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this.canvas.width, h:this.canvas.height});
             }
             if (this._boundingShape) {
@@ -52,101 +51,82 @@ export class WBFreeDraw extends lib.SceneObject {
         });
         this.on(lib.EvtHitTest.type, (evt: lib.EvtHitTest) => {
             const canvas = this.canvas;
-            if (canvas && evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
+            if (evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
                 const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    const data = ctx.getImageData (evt.x, evt.y, 1, 1);
-                    if (data && data.data[3] > 0) {
-                        evt.result = true;
-                    }
+                const data = ctx!.getImageData (evt.x, evt.y, 1, 1);
+                if (data && data.data[3] > 0) {
+                    evt.result = true;
                 }
             }
             evt.eat ();
         });
         this.on(lib.EvtDraw.type, (evt: lib.EvtDraw) => {
-            if (this.canvas) {
-                const w = this.canvas.width;
-                const h = this.canvas.height;
-                evt.canvas.context.drawImage (this.canvas, -Math.round(w * this.anchorPoint.x)-0.5, -Math.round(h * this.anchorPoint.y)-0.5, w, h);
-                if (this._mode === 'erase') {
-                    evt.canvas.context.strokeStyle = '#000000';
-                    evt.canvas.context.strokeRect (Math.round(this._mousePosX - this._eraseSize/2), Math.round(this._mousePosY - this._eraseSize/2), this._eraseSize, this._eraseSize);
-                }
+            const w = this.canvas.width;
+            const h = this.canvas.height;
+            evt.canvas.context.drawImage (this.canvas, -Math.round(w * this.anchorPoint.x)-0.5, -Math.round(h * this.anchorPoint.y)-0.5, w, h);
+            if (this._mode === 'erase') {
+                evt.canvas.context.strokeStyle = '#000000';
+                evt.canvas.context.strokeRect (Math.round(this._mousePosX - this._eraseSize/2), Math.round(this._mousePosY - this._eraseSize/2), this._eraseSize, this._eraseSize);
             }
         });
         this.on (wb.WBMessageEvent.type, (ev: wb.WBMessageEvent) => {
-            if (this.canvas) {
-                const context = this.canvas.getContext('2d');
-                if (context) {
-                    const type = ev.messageType;
-                    const data = ev.messageData;
-                    if (type === proto.MsgType.whiteboard_StartDrawMessage && ev.object === this.entityName) {
-                        this._strokeInfo.lineWidth = data.lineWidth;
-                        this._strokeInfo.color = data.color;
-                        this._strokeInfo.points = [{x: data.x, y: data.y}];
-                        context.lineWidth = data.lineWidth;
-                        context.strokeStyle = data.color;
-                        context.lineCap = 'round';
-                        context.lineJoin = 'round';
-                        context.beginPath ();
-                        context.moveTo (data.x + 0.5, data.y + 0.5);
-                    } else if (type === proto.MsgType.whiteboard_DrawingMessage && ev.object === this.entityName) {
-                        this._strokeInfo.points && this._strokeInfo.points.push ({x:data.x, y:data.y});
-                        context.lineTo (data.x + 0.5, data.y + 0.5);
-                        context.stroke ();
-                    } else if (type === proto.MsgType.whiteboard_DrawMessage && ev.broadcast) {
-                        this.stroke (ev);
-                    } else if (type === proto.MsgType.whiteboard_EraseMessage && ev.object === this.entityName) {
-                        context.clearRect (data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
-                    }
+            const context = this.canvas.getContext('2d');
+            if (context) {
+                const type = ev.messageType;
+                const data = ev.messageData;
+                if (type === proto.MsgType.whiteboard_DrawMessage && ev.broadcast) {
+                    this.stroke (ev);
+                } else if (type === proto.MsgType.whiteboard_EraseMessage && ev.object === this.entityName) {
+                    context.clearRect (data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
                 }
             }
         });
         this.on (lib.EvtMouseDown.type, (ev: lib.EvtMouseDown) => {
             const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
-            if (this.canvas) {
-                if (this._mode === 'draw') {
-                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_StartDrawMessage, {
-                        x: pt.x,
-                        y: pt.y,
-                        lineWidth: this._lineWidth,
-                        color: this._color
-                    }, undefined, this.entityName))
-                    this._action = true;
-                } else if (this._mode === 'erase') {
-                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
-                        x: pt.x,
-                        y: pt.y,
-                        size: this._eraseSize
-                    }, undefined, this.entityName));
-                    this._action = true;
+            if (this._mode === 'draw') {
+                const stroke = {
+                    lineWidth: this._lineWidth,
+                    color: this._color,
+                    points: [{ x: pt.x, y: pt.y }]
+                };
+                this._strokeInfo.push (stroke);
+                const ctx = this.canvas!.getContext('2d');
+                ctx!.lineWidth = stroke.lineWidth;
+                ctx!.strokeStyle = stroke.color;
+                ctx!.lineCap = 'round';
+                ctx!.lineJoin = 'round';
+                ctx!.beginPath ();
+                ctx!.moveTo (pt.x + 0.5, pt.y + 0.5);
+                this._action = true;
+                if (this._finishDrawTimer === null) {
+                    this._finishDrawTimer = window.setInterval (this.finishDraw.bind(this), 1000)
                 }
+            } else if (this._mode === 'erase') {
+                lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
+                    x: pt.x,
+                    y: pt.y,
+                    size: this._eraseSize
+                }, undefined, this.entityName));
+                this._action = true;
             }
         });
         this.on (lib.EvtMouseMove.type, (ev: lib.EvtMouseMove) => {
             this._mousePosX = ev.x;
             this._mousePosY = ev.y;
-            if (this._action && this.canvas) {
+            if (this._action) {
                 const pt = lib.Matrix2d.invert(this.worldTransform).transformPoint({x:ev.x, y:ev.y});
                 if (this._mode === 'draw') {
-                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawingMessage, {
-                        x: pt.x,
-                        y: pt.y
-                    }, undefined, this.entityName));
-                    this._lastMoveTime = Date.now();
+                    const context = this._canvas!.getContext ('2d');
+                    context!.lineTo (pt.x + 0.5, pt.y + 0.5);
+                    context!.stroke ();
+                    this._strokeInfo[this._strokeInfo.length-1].points!.push (pt);
                 } else if (this._mode === 'erase') {
-                   lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
+                    lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_EraseMessage, {
                        x: pt.x, 
                        y: pt.y,
                        size: this._eraseSize
-                   }, undefined, this.entityName));
+                    }, undefined, this.entityName));
                 }
-            }
-        });
-        this.on (lib.EvtFrame.type, (ev: lib.EvtFrame) => {            
-            const t = Date.now();
-            if (t > this._lastMoveTime + 250) {
-                this.finishDraw ();
             }
         });
         this.on (lib.EvtMouseUp.type, (ev: lib.EvtMouseUp) => {
@@ -154,6 +134,11 @@ export class WBFreeDraw extends lib.SceneObject {
                 this.finishDraw ();
             }
             this._action = false;
+            this._lastPointIndex = 0;
+            if (this._finishDrawTimer !== null) {
+                window.clearInterval (this._finishDrawTimer);
+                this._finishDrawTimer = null;
+            }
         });
         this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
             switch (ev.name) {
@@ -268,26 +253,79 @@ export class WBFreeDraw extends lib.SceneObject {
             context && context.clearRect (0, 0, this._canvas.width, this._canvas.height);
         }
     }
-    stroke (ev: wb.WBMessageEvent) {
-        if (this._canvas && ev.messageData.points.length > 1) {
-            const context = this._canvas.getContext ('2d');
-            context!.lineWidth = ev.messageData.lineWidth;
-            context!.strokeStyle = ev.messageData.color;
-            context!.lineCap = 'round';
-            context!.lineJoin = 'round';
-            context!.beginPath ();
-            context!.moveTo (ev.messageData.points[0].x + 0.5, ev.messageData.points[0].y + 0.5);
-            for (let i = 1; i < ev.messageData.points.length; i++) {
-                context!.lineTo (ev.messageData.points[i].x + 0.5, ev.messageData.points[i].y + 0.5);
+    unstroke (ev: wb.WBMessageEvent) {
+        this.clear ();
+        const points = this._strokeInfo[this._strokeInfo.length - 1].points;
+        points!.length = points!.length - ev.messageData.points.length;
+        if (points!.length === 0) {
+            this._strokeInfo.pop ();
+        }
+        const ctx = this.canvas.getContext ('2d');
+        for (const stroke of this._strokeInfo) {
+            const points = stroke.points as any;
+            if (points.length > 0) {
+                ctx!.lineWidth = stroke.lineWidth!;
+                ctx!.strokeStyle! = stroke.color!;
+                ctx!.lineCap = 'round';
+                ctx!.lineJoin = 'round';
+                ctx!.beginPath ();
+                ctx!.moveTo (points[0].x + 0.5, points[0].y + 0.5);
+                for (let i = 1; i < points.length; i++) {
+                    ctx!.lineTo (points[i].x + 0.5, points[i].y + 0.5);
+                }
+                ctx!.stroke ();
             }
-            context!.stroke ();
+        }
+    }
+    stroke (ev: wb.WBMessageEvent) {
+        let start;
+        let stroke;
+        if (ev.messageData.new) {
+            start = 0;
+            stroke = {
+                lineWidth: ev.messageData.lineWidth,
+                color: ev.messageData.color,
+                points: ev.messageData.points.map ((pt: any) => { return { x: pt.x, y: pt.y } })
+            };
+            this._strokeInfo.push (stroke);
+        } else {
+            stroke = this._strokeInfo[this._strokeInfo.length-1];
+            start = stroke.points!.length - 1;
+            this._strokeInfo[this._strokeInfo.length-1].points!.concat (ev.messageData.points.map ((pt: any) => { return { x: pt.x, y: pt.y }}));
+        }
+        const context = this.canvas.getContext ('2d');
+        context!.lineWidth = stroke.lineWidth;
+        context!.strokeStyle = stroke.color;
+        context!.lineCap = 'round';
+        context!.lineJoin = 'round';
+        context!.beginPath ();
+        context!.moveTo (stroke.points[start].x + 0.5, stroke.points[start].y + 0.5);
+        for (let i = start + 1; i < stroke.points.length; i++) {
+            context!.lineTo (stroke.points[i].x + 0.5, stroke.points[i].y + 0.5);
+        }
+        context!.stroke ();
+    }
+    reset () {
+        this._action = false;
+        if (this._finishDrawTimer !== null) {
+            window.clearInterval (this._finishDrawTimer);
+            this._finishDrawTimer = null;
         }
     }
     private finishDraw () {
-        if (this._strokeInfo.points && this._strokeInfo.points.length > 1) {
-            this._strokeInfo.entityName = this.entityName;
-            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawMessage, this._strokeInfo));
-            this._strokeInfo.points = [this._strokeInfo.points[this._strokeInfo.points.length-1]];
+        const stroke = this._strokeInfo[this._strokeInfo.length - 1];
+        if (this._lastPointIndex < stroke.points!.length) {
+            const messageData: any = {
+                entityName: this.entityName,
+                new: this._lastPointIndex === 0,
+                points: stroke.points!.slice (this._lastPointIndex)
+            };
+            if (messageData.new) {
+                messageData.lineWidth = this._lineWidth,
+                messageData.color = this._color;
+            }
+            lib.App.triggerEvent (null, new wb.WBMessageEvent(proto.MsgType.whiteboard_DrawMessage, messageData));
+            this._lastPointIndex = stroke.points!.length;
         }
     }
 }

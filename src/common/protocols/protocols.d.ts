@@ -979,205 +979,97 @@ export namespace whiteboard {
         public toJSON(): { [k: string]: any };
     }
 
-    /** Properties of a StartDrawMessage. */
-    interface IStartDrawMessage {
+    /** Properties of a Point. */
+    interface IPoint {
 
-        /** StartDrawMessage x */
+        /** Point x */
         x?: (number|null);
 
-        /** StartDrawMessage y */
+        /** Point y */
         y?: (number|null);
-
-        /** StartDrawMessage lineWidth */
-        lineWidth?: (number|null);
-
-        /** StartDrawMessage color */
-        color?: (string|null);
     }
 
-    /** Represents a StartDrawMessage. */
-    class StartDrawMessage implements IStartDrawMessage {
+    /** Represents a Point. */
+    class Point implements IPoint {
 
         /**
-         * Constructs a new StartDrawMessage.
+         * Constructs a new Point.
          * @param [properties] Properties to set
          */
-        constructor(properties?: whiteboard.IStartDrawMessage);
+        constructor(properties?: whiteboard.IPoint);
 
-        /** StartDrawMessage x. */
+        /** Point x. */
         public x: number;
 
-        /** StartDrawMessage y. */
+        /** Point y. */
         public y: number;
 
-        /** StartDrawMessage lineWidth. */
-        public lineWidth: number;
-
-        /** StartDrawMessage color. */
-        public color: string;
-
         /**
-         * Creates a new StartDrawMessage instance using the specified properties.
+         * Creates a new Point instance using the specified properties.
          * @param [properties] Properties to set
-         * @returns StartDrawMessage instance
+         * @returns Point instance
          */
-        public static create(properties?: whiteboard.IStartDrawMessage): whiteboard.StartDrawMessage;
+        public static create(properties?: whiteboard.IPoint): whiteboard.Point;
 
         /**
-         * Encodes the specified StartDrawMessage message. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
-         * @param message StartDrawMessage message or plain object to encode
+         * Encodes the specified Point message. Does not implicitly {@link whiteboard.Point.verify|verify} messages.
+         * @param message Point message or plain object to encode
          * @param [writer] Writer to encode to
          * @returns Writer
          */
-        public static encode(message: whiteboard.IStartDrawMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static encode(message: whiteboard.IPoint, writer?: $protobuf.Writer): $protobuf.Writer;
 
         /**
-         * Encodes the specified StartDrawMessage message, length delimited. Does not implicitly {@link whiteboard.StartDrawMessage.verify|verify} messages.
-         * @param message StartDrawMessage message or plain object to encode
+         * Encodes the specified Point message, length delimited. Does not implicitly {@link whiteboard.Point.verify|verify} messages.
+         * @param message Point message or plain object to encode
          * @param [writer] Writer to encode to
          * @returns Writer
          */
-        public static encodeDelimited(message: whiteboard.IStartDrawMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static encodeDelimited(message: whiteboard.IPoint, writer?: $protobuf.Writer): $protobuf.Writer;
 
         /**
-         * Decodes a StartDrawMessage message from the specified reader or buffer.
+         * Decodes a Point message from the specified reader or buffer.
          * @param reader Reader or buffer to decode from
          * @param [length] Message length if known beforehand
-         * @returns StartDrawMessage
+         * @returns Point
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.StartDrawMessage;
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.Point;
 
         /**
-         * Decodes a StartDrawMessage message from the specified reader or buffer, length delimited.
+         * Decodes a Point message from the specified reader or buffer, length delimited.
          * @param reader Reader or buffer to decode from
-         * @returns StartDrawMessage
+         * @returns Point
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.StartDrawMessage;
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.Point;
 
         /**
-         * Verifies a StartDrawMessage message.
+         * Verifies a Point message.
          * @param message Plain object to verify
          * @returns `null` if valid, otherwise the reason why it is not
          */
         public static verify(message: { [k: string]: any }): (string|null);
 
         /**
-         * Creates a StartDrawMessage message from a plain object. Also converts values to their respective internal types.
+         * Creates a Point message from a plain object. Also converts values to their respective internal types.
          * @param object Plain object
-         * @returns StartDrawMessage
+         * @returns Point
          */
-        public static fromObject(object: { [k: string]: any }): whiteboard.StartDrawMessage;
+        public static fromObject(object: { [k: string]: any }): whiteboard.Point;
 
         /**
-         * Creates a plain object from a StartDrawMessage message. Also converts values to other types if specified.
-         * @param message StartDrawMessage
+         * Creates a plain object from a Point message. Also converts values to other types if specified.
+         * @param message Point
          * @param [options] Conversion options
          * @returns Plain object
          */
-        public static toObject(message: whiteboard.StartDrawMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+        public static toObject(message: whiteboard.Point, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
         /**
-         * Converts this StartDrawMessage to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-    }
-
-    /** Properties of a DrawingMessage. */
-    interface IDrawingMessage {
-
-        /** DrawingMessage x */
-        x?: (number|null);
-
-        /** DrawingMessage y */
-        y?: (number|null);
-    }
-
-    /** Represents a DrawingMessage. */
-    class DrawingMessage implements IDrawingMessage {
-
-        /**
-         * Constructs a new DrawingMessage.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: whiteboard.IDrawingMessage);
-
-        /** DrawingMessage x. */
-        public x: number;
-
-        /** DrawingMessage y. */
-        public y: number;
-
-        /**
-         * Creates a new DrawingMessage instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns DrawingMessage instance
-         */
-        public static create(properties?: whiteboard.IDrawingMessage): whiteboard.DrawingMessage;
-
-        /**
-         * Encodes the specified DrawingMessage message. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
-         * @param message DrawingMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: whiteboard.IDrawingMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified DrawingMessage message, length delimited. Does not implicitly {@link whiteboard.DrawingMessage.verify|verify} messages.
-         * @param message DrawingMessage message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: whiteboard.IDrawingMessage, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes a DrawingMessage message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns DrawingMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.DrawingMessage;
-
-        /**
-         * Decodes a DrawingMessage message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns DrawingMessage
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.DrawingMessage;
-
-        /**
-         * Verifies a DrawingMessage message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates a DrawingMessage message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns DrawingMessage
-         */
-        public static fromObject(object: { [k: string]: any }): whiteboard.DrawingMessage;
-
-        /**
-         * Creates a plain object from a DrawingMessage message. Also converts values to other types if specified.
-         * @param message DrawingMessage
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: whiteboard.DrawingMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this DrawingMessage to JSON.
+         * Converts this Point to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
@@ -1195,8 +1087,11 @@ export namespace whiteboard {
         /** DrawMessage color */
         color?: (string|null);
 
+        /** DrawMessage new */
+        "new"?: (boolean|null);
+
         /** DrawMessage points */
-        points?: (whiteboard.IDrawingMessage[]|null);
+        points?: (whiteboard.IPoint[]|null);
     }
 
     /** Represents a DrawMessage. */
@@ -1217,8 +1112,11 @@ export namespace whiteboard {
         /** DrawMessage color. */
         public color: string;
 
+        /** DrawMessage new. */
+        public new: boolean;
+
         /** DrawMessage points. */
-        public points: whiteboard.IDrawingMessage[];
+        public points: whiteboard.IPoint[];
 
         /**
          * Creates a new DrawMessage instance using the specified properties.

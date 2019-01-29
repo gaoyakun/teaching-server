@@ -171,10 +171,12 @@ executors[MsgType.whiteboard_ClearBoardMessage] = {
 };
 executors[MsgType.whiteboard_DrawMessage] = {
     execute: (whiteboard, command, results) => {
-
     },
     unexecute: (whiteboard, command) => {
-        
+        const freedrawNode: any = whiteboard.findEntity (command.event.messageData.entityName);
+        if (freedrawNode) {
+            freedrawNode.unstroke (command.event);
+        }
     }
 }
 
