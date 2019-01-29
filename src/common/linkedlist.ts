@@ -1,5 +1,3 @@
-import { Utils } from './utils';
-
 export class DoubleListIterator<T = any> {
     private _node: DoubleListNodeImpl;
     private _reverse: boolean;
