@@ -111,10 +111,10 @@ export class DoubleList<T = any> {
         return this.rbegin().data;
     }
     begin (): DoubleListIterator<T> {
-        return this._length > 0 ? new DoubleListIterator(this, this._head.next, false) : new DoubleListIterator(this, this._head, false);
+        return new DoubleListIterator(this, this._length > 0 ? this._head.next : this._head, false);
     }
     rbegin (): DoubleListIterator<T> {
-        return this._length > 0 ? new DoubleListIterator(this, this._head.prev, true) : new DoubleListIterator(this, this._head, true);
+        return new DoubleListIterator(this, this._length > 0 ? this._head.prev : this._head, true);
     }
     private _remove (node: DoubleListNodeImpl) {
         node.prev.next = node.next;
