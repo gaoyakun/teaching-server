@@ -9,93 +9,57 @@ interface ITool {
     elementId?: string;
 }
 
-interface IToolPalette {
-    [name: string]: {
-        iconClass: string;
-        command: proto.MsgType;
-        args?: {
-            [name: string]: any;
-        }
-    }
-}
-
-interface IToolSet {
-    tools: IToolPalette;
-    operations: IToolPalette;
-}
-
 export class WBToolPalette {
-    private static uniqueId: number = 1;
     private _editor: WBEditor;
     private _container: HTMLElement;
-    private _tools: ITool[];
-    private _curTool: ITool|null;
     constructor (editor: WBEditor, container: HTMLElement) {
         this._editor = editor;
         this._container = container;
-        this._tools = [];
-        this._curTool = null;
     }
     unload () {
         while (this._container.hasChildNodes()) {
             this._container.removeChild(this._container.firstChild as Node);
         }
-        this._tools = [];
     }
-    loadToolPalette (toolPalette: IToolPalette) {
+    loadToolPalette () {
         const that = this;
         const toollist:{[id:string]: (this:Element)=>void} = {
             '#tb-text': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'Create',
-                    paramsJson: JSON.stringify({
-                        createType: 'Label',
-                        text: '标签',
-                        textColor: '#000000'
-                    })
+                that._editor.whiteboard.useTool ('Create', {
+                    createType: 'Label',
+                    text: '标签',
+                    textColor: '#000000'
                 });
             },
             '#tb-select': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'Select'
-                })
+                that._editor.whiteboard.useTool ('Select');
             },
             '#tb-swap': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'Swap'
-                })
+                that._editor.whiteboard.useTool ('Swap');
             },
             '#tb-connect': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'Connect'
-                })
+                that._editor.whiteboard.useTool ('Connect');
             },
             '#tb-draw': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'HandWriting',
-                    paramsJson: JSON.stringify({
-                        mode: 'draw'
-                    })
-                })
+                that._editor.whiteboard.useTool ('HandWriting', {
+                    mode: 'draw'
+                });
             },
             '#tb-erase': function (this:Element) {
                 $(this).siblings().removeClass ('selected');
                 $(this).addClass ('selected');
-                that._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, {
-                    name: 'HandWriting',
-                    paramsJson: JSON.stringify({
-                        mode: 'erase'
-                    })
+                that._editor.whiteboard.useTool ('HandWriting', {
+                    mode: 'erase'
                 });
             },
             '#tb-undo': function (this:Element) {
@@ -107,81 +71,6 @@ export class WBToolPalette {
                 toollist[tool].call (this);
             });
         }
-        /*
-        for (const toolname in toolPalette) {
-            const tooldef = this.getOpTool (toolPalette, toolname);
-            const toolButton = this.createToolButton (tooldef);
-            if (toolButton) {
-                toolButton.addEventListener ('click', () => {
-                    const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
-                    const tool = this._tools[toolIndex];
-                    if (tool !== this._curTool) {
-                        if (this._curTool) {
-                            const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
-                            curToolButton && curToolButton.classList.remove ('active');
-                            this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage);
-                            this._curTool = null;
-                        }
-                    }
-                    if (tool) {
-                        const button = document.querySelector(`#${tool.elementId}`);
-                        button && button.classList.add ('active');
-                        this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, tool.args);
-                        this._curTool = tool;
-                    }
-                });
-            }
-        }
-        */
-    }
-    loadOpPalette (opPalette: IToolPalette) {
-        for (const op in opPalette) {
-            const tooldef = this.getOpTool (opPalette, op);
-            const toolButton = this.createToolButton (tooldef);
-            if (toolButton) {
-                toolButton.addEventListener ('click', () => {
-                    const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
-                    const tool = this._tools[toolIndex];
-                    this._editor.handleMessage (tool.command, tool.args);
-                });
-            }
-        }
-    }
-    private getOpTool (tool: IToolPalette, name: string): ITool {
-        return {
-            command: tool[name].command,
-            args: tool[name].args,
-            iconClass: tool[name].iconClass
-        }
-    }
-    private createToolButton (tooldef: ITool): HTMLElement|null {
-        this._tools.push (tooldef);
-        const buttonSize = this._editor.toolFontSize + 6; 
-        let toolButton: HTMLElement|null = null;
-        if (typeof tooldef.iconClass === 'function') {
-            toolButton = (tooldef.iconClass as Function)(this._editor);
-            toolButton && toolButton.classList.add ('toolbutton');
-        } else {
-            toolButton = document.createElement ('div');
-            toolButton.classList.add ('flex-h', 'flex-align-x-center', 'flex-align-y-center');
-            toolButton.classList.add ('toolbutton');
-            const toolIcon: HTMLElement = document.createElement ('i');
-            toolIcon.style.fontSize = `${this._editor.toolFontSize}px`;
-            toolIcon.style.color = '#fff';
-            tooldef.iconClass.split (' ').forEach ((cls: string) => {
-                toolIcon.classList.add (cls);
-            });
-            toolButton.appendChild (toolIcon);
-        }
-        if (toolButton) {
-            tooldef.elementId = `toolbutton-${WBToolPalette.uniqueId++}`;
-            toolButton.setAttribute ('id', tooldef.elementId);
-            toolButton.style.width = `${buttonSize}px`;
-            toolButton.style.height = `${buttonSize}px`;
-            toolButton.setAttribute ('toolIndex', String(this._tools.length-1));
-            this._container.appendChild (toolButton);
-        }
-        return toolButton;
     }
 }
 
@@ -195,46 +84,10 @@ export class WBPropertyGrid {
         this._container = container;
         this._tableId = id;
         this._object = null;
-        /*
-        const table = document.createElement ('table');
-        table.style.border = 'solid 1px #95B8E7';
-        table.style.borderSpacing = '0px';
-        table.style.margin = '0px';
-        table.style.fontSize = '12px';
-        table.style.fontFamily = 'verdana';
-        table.style.width = '100%';
-        table.style.tableLayout = 'fixed';
-        table.style.backgroundColor = '#fff';
-        table.setAttribute ('id', this._tableId);
-        const tbody = document.createElement ('tbody');
-        table.appendChild (tbody);
-        this._container.appendChild (table);
-        */
     }
     addGroup (name: string) {
-        /*
-        const tr = this.createRow ();
-        tr.style.backgroundColor = '#E0ECFF';
-        tr.style.fontWeight = 'bold';
-        this.createGroupCell (tr, name);
-        */
     }
     addButton (text: string, callback: () => void) {
-        /*
-        const tr = this.createRow ();
-        const td = this.createCell (tr);
-        td.style.padding = '5px';
-        td.style.textAlign = 'center';
-        td.setAttribute ('colspan', '2');
-        const btn = document.createElement ('button');
-        btn.innerText = text;
-        btn.style.width = '100%';
-        btn.style.padding = '5px';
-        btn.onclick = () => {
-            callback && callback ();
-        };
-        td.appendChild (btn);
-        */
         const btn = document.createElement ('a');
         btn.classList.add ('btn');
         this._container.appendChild (btn);
@@ -586,32 +439,21 @@ export class WBEditor {
     private _fillColor: string;
     private _toolFontSize: number;
     private _wb: wb.WhiteBoard;
-    private _toolset: IToolSet;
     private _toolPalette: WBToolPalette;
-    private _opPalette: WBToolPalette;
     private _objectPropGrid: WBPropertyGrid;
     private _toolPropGrid: WBPropertyGrid;
-    constructor (WB: wb.WhiteBoard, toolset: IToolSet, toolPaletteElement:HTMLElement, opPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
+    constructor (WB: wb.WhiteBoard, toolPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
         this._strokeColor = '#00000000';
         this._fillColor = 'red';
         this._toolFontSize = 14;
         this._wb = WB;
-        this._toolset = toolset;
         this._toolPalette = new WBToolPalette (this, toolPaletteElement);
-        this._toolPalette.loadToolPalette (toolset.tools);
-        this._opPalette = new WBToolPalette (this, opPaletteElement);
-        this._opPalette.loadOpPalette (toolset.operations);
+        this._toolPalette.loadToolPalette ();
         this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'wb-object');
         this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'wb-tool');
     }
     get whiteboard () {
         return this._wb;
-    }
-    get toolSet () {
-        return this._toolset;
-    }
-    get opPalette () {
-        return this._opPalette;
     }
     get toolPalette () {
         return this._toolPalette;

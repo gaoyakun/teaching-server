@@ -34,31 +34,27 @@ export class WBFreeDraw extends lib.SceneObject {
         this._eraseSize = opt.eraseSize || 20;
         this.on(lib.EvtCanvasResize.type, (evt: lib.EvtCanvasResize) => {
             if (evt.view === this.view && this._canvas) {
+                let context = this._canvas.getContext ('2d');
+                const imageData = context!.getImageData (0, 0, this._canvas.width, this._canvas.height);
                 this._canvas.width = evt.view.canvas.width;
                 this._canvas.height = evt.view.canvas.height;
-                if (this._boundingShape) {
-                    this._boundingShape.rect = {x:0, y:0, w:this._canvas.width, h:this._canvas.height};
-                }
+                context = this._canvas.getContext ('2d');
+                context!.putImageData (imageData, 0, 0);
+                this._boundingShape!.rect = {x:0, y:0, w:this._canvas.width, h:this._canvas.height};
             }
         })
         this.on(lib.EvtGetBoundingShape.type, (evt: lib.EvtGetBoundingShape) => {
+            return null;
+            /*
             if (this._boundingShape === null) {
                 this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this.canvas.width, h:this.canvas.height});
             }
-            if (this._boundingShape) {
-                evt.shape = this._boundingShape;
-            }
+            evt.shape = this._boundingShape;
+            */
         });
         this.on(lib.EvtHitTest.type, (evt: lib.EvtHitTest) => {
-            const canvas = this.canvas;
-            if (evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
-                const ctx = canvas.getContext('2d');
-                const data = ctx!.getImageData (evt.x, evt.y, 1, 1);
-                if (data && data.data[3] > 0) {
-                    evt.result = true;
-                }
-            }
-            evt.eat ();
+            // Disable hit test
+            // evt.eat ();
         });
         this.on(lib.EvtDraw.type, (evt: lib.EvtDraw) => {
             const w = this.canvas.width;
@@ -140,88 +136,24 @@ export class WBFreeDraw extends lib.SceneObject {
                 this._finishDrawTimer = null;
             }
         });
-        this.on(wb.WBGetPropertyEvent.type, (ev: wb.WBGetPropertyEvent) => {
-            switch (ev.name) {
-                case 'lineWidth': {
-                    ev.value = this._lineWidth;
-                    break;
-                }
-                case 'color': {
-                    ev.value = this._color;
-                    break;
-                }
-                case 'eraseSize': {
-                    ev.value = this._eraseSize;
-                    break;
-                }
-                case 'mode': {
-                    ev.value = this._mode;
-                    break;
-                }
-            }
-        });
-        this.on(wb.WBSetPropertyEvent.type, (ev: wb.WBSetPropertyEvent) => {
-            switch (ev.name) {
-                case 'lineWidth': {
-                    this._lineWidth = Number(ev.value);
-                    break;
-                }
-                case 'color': {
-                    this._color = String(ev.value);
-                    break;
-                }
-                case 'eraseSize': {
-                    this._eraseSize = Number(ev.value);
-                    break;
-                }
-                case 'mode': {
-                    this._mode = String(ev.value);
-                    break;
-                }
-            }
-        });
-        this.on(wb.WBGetPropertyListEvent.type, (ev: wb.WBGetPropertyListEvent) => {
-            ev.properties = ev.properties || {};
-            ev.properties[this.entityType] = ev.properties[this.entityType] || { desc: this.entityType, properties: [] };
-            ev.properties[this.entityType].properties.push ({
-                name: 'lineWidth',
-                desc: '画笔宽度',
-                readonly: false,
-                type: 'number',
-                value: this._lineWidth
-            });
-            ev.properties[this.entityType].properties.push ({
-                name: 'color',
-                desc: '画笔颜色',
-                readonly: false,
-                type: 'color',
-                value: this._color
-            });
-            ev.properties[this.entityType].properties.push ({
-                name: 'eraseSize',
-                desc: '橡皮宽度',
-                readonly: false,
-                type: 'number',
-                value: this._eraseSize
-            });
-            ev.properties[this.entityType].properties.push ({
-                name: 'mode',
-                desc: '操作模式',
-                readonly: false,
-                type: 'string',
-                value: this._mode,
-                enum: [{
-                    value: 'draw',
-                    desc: '绘制'
-                }, {
-                    value: 'erase',
-                    desc: '擦除'
-                }, {
-                    value: 'none',
-                    desc: '无'
-                }]
-            });
-        });
+    }
+    get lineWidth () {
+        return this._lineWidth;
+    }
+    set lineWidth (val: number) {
+        this._lineWidth = val;
+    }
+    get color () {
+        return this._color;
+    }
+    set color (val: string) {
+        this._color = val;
+    }
+    get eraseSize () {
+        return this._eraseSize;
+    }
+    set eraseSize (val: number) {
+        this._eraseSize = val;
     }
     get mode () {
         return this._mode;
@@ -241,9 +173,7 @@ export class WBFreeDraw extends lib.SceneObject {
             this._canvas.style.backgroundColor = '#00000000';
             this._canvas.width = this.view!.canvas.width;
             this._canvas.height = this.view!.canvas.height;
-            if (this._boundingShape) {
-                this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this._canvas.width, h:this._canvas.height});
-            }
+            this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this._canvas.width, h:this._canvas.height});
         }
         return this._canvas;
     }
@@ -331,27 +261,6 @@ export class WBFreeDraw extends lib.SceneObject {
 }
 
 export class WBFreeDrawFactory extends wb.WBFactory {
-    public getCreationProperties (): wb.IProperty[] {
-        return [{
-            name: 'lineWidth',
-            desc: '画笔宽度',
-            readonly: false,
-            type: 'number',
-            value: 3
-        }, {
-            name: 'color',
-            desc: '颜色',
-            readonly: false,
-            type: 'color',
-            value: '#000000'
-        }, {
-            name: 'eraseSize',
-            desc: '橡皮宽度',
-            readonly: false,
-            type: 'number',
-            value: 20
-        }];
-    }
     protected _createEntity (options?:any): lib.SceneObject {
         return new WBFreeDraw (null, options);
     }

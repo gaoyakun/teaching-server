@@ -40,7 +40,7 @@ export class WBHandWritingTool extends wb.WBTool {
             }
             if (params && ev.name in params) {
                 params[ev.name] = ev.value;
-                this.applyProperty (ev.name, ev.value);
+                this.applyProperties (params);
             }
         });
         this.on(wb.WBGetPropertyListEvent.type, (ev: wb.WBGetPropertyListEvent) => {
@@ -83,11 +83,7 @@ export class WBHandWritingTool extends wb.WBTool {
         } else {
             this._freedrawNode.reset ();
         }
-        lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-            name: this._freedrawNode!.entityName,
-            propName: 'mode',
-            propValueJson: JSON.stringify(this._mode)
-        }));
+        this._freedrawNode!.mode = this._mode;
         this._freedrawNode!.setCapture ();
         this.applyProperties (this._paramsDraw);
         this.applyProperties (this._paramsErase);
@@ -97,11 +93,6 @@ export class WBHandWritingTool extends wb.WBTool {
         if (this._freedrawNode) {
             this._freedrawNode.releaseCapture();
             this._freedrawNode.reset ();
-            lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-                name: this._freedrawNode.entityName,
-                propName: 'mode',
-                propValueJson: JSON.stringify('none')
-            }));
             this._freedrawNode = null;
         }
         super.deactivate ();
@@ -112,26 +103,11 @@ export class WBHandWritingTool extends wb.WBTool {
     public deactivateObject(object: lib.SceneObject) {
         super.deactivateObject (object);
     }
-    private applyProperty (name:string, value:any) {
-        if (this._freedrawNode) {
-            /*
-            lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
-                objectName: this._freedrawNode.entityName,
-                propName: name,
-                propValue: value
-            }));
-            */
-           lib.App.triggerEvent(null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-               name: this._freedrawNode.entityName,
-               propName: name,
-               propValueJson: JSON.stringify(value)
-           }));
-            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
-        }
-    }
     private applyProperties (props: any) {
-        for (const prop in props) {
-            this.applyProperty (prop, props[prop]);
+        if (this._freedrawNode) {
+            props.lineWidth !== undefined && (this._freedrawNode.lineWidth = props.lineWidth);
+            props.color !== undefined && (this._freedrawNode.color = props.color);
+            props.eraseSize !== undefined && (this._freedrawNode.eraseSize = props.eraseSize);
         }
     }
     private findFreedrawNode (): objects.WBFreeDraw|null {

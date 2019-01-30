@@ -108,10 +108,10 @@ class DoubleList {
         return this.rbegin().data;
     }
     begin() {
-        return this._length > 0 ? new DoubleListIterator(this, this._head.next, false) : new DoubleListIterator(this, this._head, false);
+        return new DoubleListIterator(this, this._length > 0 ? this._head.next : this._head, false);
     }
     rbegin() {
-        return this._length > 0 ? new DoubleListIterator(this, this._head.prev, true) : new DoubleListIterator(this, this._head, true);
+        return new DoubleListIterator(this, this._length > 0 ? this._head.prev : this._head, true);
     }
     _remove(node) {
         node.prev.next = node.next;

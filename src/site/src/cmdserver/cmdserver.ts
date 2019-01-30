@@ -82,31 +82,6 @@ export class SocketCommandServer extends catk.EventObserver {
                 (this._socket as any).binary(true).emit ('message', wrapPacket.buffer);
             }    
         });
-        // (function(){
-        //     const tmp1:Packet = Packet.create(MsgType.whiteboard_UseToolMessage, {
-        //         name: 'Test',
-        //         paramsJson: google.protobuf.Any.fromObject({
-        //             value: {
-        //                 a: 'hello',
-        //                 b: {
-        //                     c: 'hello',
-        //                     d: 'world'
-        //                 }
-        //             }
-        //         })
-        //     });
-        //     const tmp2:Packet = Packet.create(MsgType.whiteboard_CommandMessage, {
-        //         command: 'World'
-        //     });
-        //     const uber:Packet = Packet.create(MsgType.base_UberMessage, {
-        //         subMessages: [tmp1.buffer, tmp2.buffer]
-        //     });
-        //     const verify = uber.getMsgData () as IMsgData;
-        //     const t1 = new Packet(verify.data.subMessages[0]).getMsgData ();
-        //     const t2 = new Packet(verify.data.subMessages[1]).getMsgData ();
-        //     console.log (t1);
-        //     console.log (t2);
-        // }());
         return true;
     }
     stop (): boolean {

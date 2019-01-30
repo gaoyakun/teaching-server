@@ -7489,201 +7489,6 @@
 	        };
 	        return EventMessage;
 	    })();
-	    whiteboard.UseToolMessage = (function () {
-	        /**
-	         * Properties of a UseToolMessage.
-	         * @memberof whiteboard
-	         * @interface IUseToolMessage
-	         * @property {string|null} [name] UseToolMessage name
-	         * @property {string|null} [paramsJson] UseToolMessage paramsJson
-	         */
-	        /**
-	         * Constructs a new UseToolMessage.
-	         * @memberof whiteboard
-	         * @classdesc Represents a UseToolMessage.
-	         * @implements IUseToolMessage
-	         * @constructor
-	         * @param {whiteboard.IUseToolMessage=} [properties] Properties to set
-	         */
-	        function UseToolMessage(properties) {
-	            if (properties)
-	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-	                    if (properties[keys[i]] != null)
-	                        this[keys[i]] = properties[keys[i]];
-	        }
-	        /**
-	         * UseToolMessage name.
-	         * @member {string} name
-	         * @memberof whiteboard.UseToolMessage
-	         * @instance
-	         */
-	        UseToolMessage.prototype.name = "";
-	        /**
-	         * UseToolMessage paramsJson.
-	         * @member {string} paramsJson
-	         * @memberof whiteboard.UseToolMessage
-	         * @instance
-	         */
-	        UseToolMessage.prototype.paramsJson = "";
-	        /**
-	         * Creates a new UseToolMessage instance using the specified properties.
-	         * @function create
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {whiteboard.IUseToolMessage=} [properties] Properties to set
-	         * @returns {whiteboard.UseToolMessage} UseToolMessage instance
-	         */
-	        UseToolMessage.create = function create(properties) {
-	            return new UseToolMessage(properties);
-	        };
-	        /**
-	         * Encodes the specified UseToolMessage message. Does not implicitly {@link whiteboard.UseToolMessage.verify|verify} messages.
-	         * @function encode
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {whiteboard.IUseToolMessage} message UseToolMessage message or plain object to encode
-	         * @param {$protobuf.Writer} [writer] Writer to encode to
-	         * @returns {$protobuf.Writer} Writer
-	         */
-	        UseToolMessage.encode = function encode(message, writer) {
-	            if (!writer)
-	                writer = $Writer.create();
-	            if (message.name != null && message.hasOwnProperty("name"))
-	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.name);
-	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
-	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.paramsJson);
-	            return writer;
-	        };
-	        /**
-	         * Encodes the specified UseToolMessage message, length delimited. Does not implicitly {@link whiteboard.UseToolMessage.verify|verify} messages.
-	         * @function encodeDelimited
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {whiteboard.IUseToolMessage} message UseToolMessage message or plain object to encode
-	         * @param {$protobuf.Writer} [writer] Writer to encode to
-	         * @returns {$protobuf.Writer} Writer
-	         */
-	        UseToolMessage.encodeDelimited = function encodeDelimited(message, writer) {
-	            return this.encode(message, writer).ldelim();
-	        };
-	        /**
-	         * Decodes a UseToolMessage message from the specified reader or buffer.
-	         * @function decode
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-	         * @param {number} [length] Message length if known beforehand
-	         * @returns {whiteboard.UseToolMessage} UseToolMessage
-	         * @throws {Error} If the payload is not a reader or valid buffer
-	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-	         */
-	        UseToolMessage.decode = function decode(reader, length) {
-	            if (!(reader instanceof $Reader))
-	                reader = $Reader.create(reader);
-	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.UseToolMessage();
-	            while (reader.pos < end) {
-	                var tag = reader.uint32();
-	                switch (tag >>> 3) {
-	                    case 1:
-	                        message.name = reader.string();
-	                        break;
-	                    case 2:
-	                        message.paramsJson = reader.string();
-	                        break;
-	                    default:
-	                        reader.skipType(tag & 7);
-	                        break;
-	                }
-	            }
-	            return message;
-	        };
-	        /**
-	         * Decodes a UseToolMessage message from the specified reader or buffer, length delimited.
-	         * @function decodeDelimited
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-	         * @returns {whiteboard.UseToolMessage} UseToolMessage
-	         * @throws {Error} If the payload is not a reader or valid buffer
-	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-	         */
-	        UseToolMessage.decodeDelimited = function decodeDelimited(reader) {
-	            if (!(reader instanceof $Reader))
-	                reader = new $Reader(reader);
-	            return this.decode(reader, reader.uint32());
-	        };
-	        /**
-	         * Verifies a UseToolMessage message.
-	         * @function verify
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {Object.<string,*>} message Plain object to verify
-	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
-	         */
-	        UseToolMessage.verify = function verify(message) {
-	            if (typeof message !== "object" || message === null)
-	                return "object expected";
-	            if (message.name != null && message.hasOwnProperty("name"))
-	                if (!$util.isString(message.name))
-	                    return "name: string expected";
-	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
-	                if (!$util.isString(message.paramsJson))
-	                    return "paramsJson: string expected";
-	            return null;
-	        };
-	        /**
-	         * Creates a UseToolMessage message from a plain object. Also converts values to their respective internal types.
-	         * @function fromObject
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {Object.<string,*>} object Plain object
-	         * @returns {whiteboard.UseToolMessage} UseToolMessage
-	         */
-	        UseToolMessage.fromObject = function fromObject(object) {
-	            if (object instanceof $root.whiteboard.UseToolMessage)
-	                return object;
-	            var message = new $root.whiteboard.UseToolMessage();
-	            if (object.name != null)
-	                message.name = String(object.name);
-	            if (object.paramsJson != null)
-	                message.paramsJson = String(object.paramsJson);
-	            return message;
-	        };
-	        /**
-	         * Creates a plain object from a UseToolMessage message. Also converts values to other types if specified.
-	         * @function toObject
-	         * @memberof whiteboard.UseToolMessage
-	         * @static
-	         * @param {whiteboard.UseToolMessage} message UseToolMessage
-	         * @param {$protobuf.IConversionOptions} [options] Conversion options
-	         * @returns {Object.<string,*>} Plain object
-	         */
-	        UseToolMessage.toObject = function toObject(message, options) {
-	            if (!options)
-	                options = {};
-	            var object = {};
-	            if (options.defaults) {
-	                object.name = "";
-	                object.paramsJson = "";
-	            }
-	            if (message.name != null && message.hasOwnProperty("name"))
-	                object.name = message.name;
-	            if (message.paramsJson != null && message.hasOwnProperty("paramsJson"))
-	                object.paramsJson = message.paramsJson;
-	            return object;
-	        };
-	        /**
-	         * Converts this UseToolMessage to JSON.
-	         * @function toJSON
-	         * @memberof whiteboard.UseToolMessage
-	         * @instance
-	         * @returns {Object.<string,*>} JSON object
-	         */
-	        UseToolMessage.prototype.toJSON = function toJSON() {
-	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
-	        };
-	        return UseToolMessage;
-	    })();
 	    whiteboard.CreateObjectMessage = (function () {
 	        /**
 	         * Properties of a CreateObjectMessage.
@@ -10148,19 +9953,18 @@
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20001] = "room_LeaveRoomMessage";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30000] = "whiteboard_CommandMessage";
 	    MsgType[MsgType["whiteboard_EventMessage"] = 30001] = "whiteboard_EventMessage";
-	    MsgType[MsgType["whiteboard_UseToolMessage"] = 30002] = "whiteboard_UseToolMessage";
-	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30003] = "whiteboard_CreateObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30004] = "whiteboard_DeleteObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30005] = "whiteboard_DeleteObjectsMessage";
-	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30006] = "whiteboard_SetObjectPropertyMessage";
-	    MsgType[MsgType["whiteboard_Point"] = 30007] = "whiteboard_Point";
-	    MsgType[MsgType["whiteboard_DrawMessage"] = 30008] = "whiteboard_DrawMessage";
-	    MsgType[MsgType["whiteboard_EraseMessage"] = 30009] = "whiteboard_EraseMessage";
-	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30010] = "whiteboard_SwapObjectMessage";
-	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30011] = "whiteboard_MoveObjectMessage";
-	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30012] = "whiteboard_ClearPageMessage";
-	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30013] = "whiteboard_ClearBoardMessage";
-	    MsgType[MsgType["whiteboard_UndoMessage"] = 30014] = "whiteboard_UndoMessage";
+	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30002] = "whiteboard_CreateObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30003] = "whiteboard_DeleteObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30004] = "whiteboard_DeleteObjectsMessage";
+	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30005] = "whiteboard_SetObjectPropertyMessage";
+	    MsgType[MsgType["whiteboard_Point"] = 30006] = "whiteboard_Point";
+	    MsgType[MsgType["whiteboard_DrawMessage"] = 30007] = "whiteboard_DrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30008] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30009] = "whiteboard_SwapObjectMessage";
+	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30010] = "whiteboard_MoveObjectMessage";
+	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30011] = "whiteboard_ClearPageMessage";
+	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30012] = "whiteboard_ClearBoardMessage";
+	    MsgType[MsgType["whiteboard_UndoMessage"] = 30013] = "whiteboard_UndoMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
@@ -10168,19 +9972,18 @@
 	    20001: protocols.room.LeaveRoomMessage,
 	    30000: protocols.whiteboard.CommandMessage,
 	    30001: protocols.whiteboard.EventMessage,
-	    30002: protocols.whiteboard.UseToolMessage,
-	    30003: protocols.whiteboard.CreateObjectMessage,
-	    30004: protocols.whiteboard.DeleteObjectMessage,
-	    30005: protocols.whiteboard.DeleteObjectsMessage,
-	    30006: protocols.whiteboard.SetObjectPropertyMessage,
-	    30007: protocols.whiteboard.Point,
-	    30008: protocols.whiteboard.DrawMessage,
-	    30009: protocols.whiteboard.EraseMessage,
-	    30010: protocols.whiteboard.SwapObjectMessage,
-	    30011: protocols.whiteboard.MoveObjectMessage,
-	    30012: protocols.whiteboard.ClearPageMessage,
-	    30013: protocols.whiteboard.ClearBoardMessage,
-	    30014: protocols.whiteboard.UndoMessage,
+	    30002: protocols.whiteboard.CreateObjectMessage,
+	    30003: protocols.whiteboard.DeleteObjectMessage,
+	    30004: protocols.whiteboard.DeleteObjectsMessage,
+	    30005: protocols.whiteboard.SetObjectPropertyMessage,
+	    30006: protocols.whiteboard.Point,
+	    30007: protocols.whiteboard.DrawMessage,
+	    30008: protocols.whiteboard.EraseMessage,
+	    30009: protocols.whiteboard.SwapObjectMessage,
+	    30010: protocols.whiteboard.MoveObjectMessage,
+	    30011: protocols.whiteboard.ClearPageMessage,
+	    30012: protocols.whiteboard.ClearBoardMessage,
+	    30013: protocols.whiteboard.UndoMessage,
 	};
 	exports.msgMap = msgMap;
 	__export(protocols);
@@ -10708,6 +10511,21 @@
 	    WhiteBoard.prototype.addTool = function (tool) {
 	        this._tools[tool.name] = tool;
 	    };
+	    WhiteBoard.prototype.useTool = function (name, params) {
+	        if (this._currentTool !== '') {
+	            var prevTool = this._tools[this._currentTool];
+	            prevTool.deactivate();
+	        }
+	        this._currentTool = '';
+	        if (name) {
+	            var newTool = this._tools[name];
+	            if (newTool) {
+	                this._currentTool = name;
+	                // const args = ev.messageData.paramsJson ? JSON.parse(ev.messageData.paramsJson) : {};
+	                newTool.activate(params);
+	            }
+	        }
+	    };
 	    WhiteBoard.prototype.addFactory = function (factory) {
 	        this._factories[factory.name] = factory;
 	    };
@@ -10781,21 +10599,6 @@
 	            var obj = this.findEntity(ev.object);
 	            if (obj) {
 	                obj.triggerEx(ev);
-	            }
-	        }
-	        else if (ev.messageType === protolist.MsgType.whiteboard_UseToolMessage) {
-	            if (this._currentTool !== '') {
-	                var prevTool = this._tools[this._currentTool];
-	                prevTool.deactivate();
-	            }
-	            this._currentTool = '';
-	            if (ev.messageData.name) {
-	                var newTool = this._tools[ev.messageData.name];
-	                if (newTool) {
-	                    this._currentTool = ev.messageData.name;
-	                    var args = ev.messageData.paramsJson ? JSON.parse(ev.messageData.paramsJson) : {};
-	                    newTool.activate(args);
-	                }
 	            }
 	        }
 	        else if (ev.messageType === protolist.MsgType.whiteboard_UndoMessage) {
@@ -10990,69 +10793,51 @@
 	    function WBToolPalette(editor, container) {
 	        this._editor = editor;
 	        this._container = container;
-	        this._tools = [];
-	        this._curTool = null;
 	    }
 	    WBToolPalette.prototype.unload = function () {
 	        while (this._container.hasChildNodes()) {
 	            this._container.removeChild(this._container.firstChild);
 	        }
-	        this._tools = [];
 	    };
-	    WBToolPalette.prototype.loadToolPalette = function (toolPalette) {
+	    WBToolPalette.prototype.loadToolPalette = function () {
 	        var that = this;
 	        var toollist = {
 	            '#tb-text': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'Create',
-	                    paramsJson: JSON.stringify({
-	                        createType: 'Label',
-	                        text: '标签',
-	                        textColor: '#000000'
-	                    })
+	                that._editor.whiteboard.useTool('Create', {
+	                    createType: 'Label',
+	                    text: '标签',
+	                    textColor: '#000000'
 	                });
 	            },
 	            '#tb-select': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'Select'
-	                });
+	                that._editor.whiteboard.useTool('Select');
 	            },
 	            '#tb-swap': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'Swap'
-	                });
+	                that._editor.whiteboard.useTool('Swap');
 	            },
 	            '#tb-connect': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'Connect'
-	                });
+	                that._editor.whiteboard.useTool('Connect');
 	            },
 	            '#tb-draw': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'HandWriting',
-	                    paramsJson: JSON.stringify({
-	                        mode: 'draw'
-	                    })
+	                that._editor.whiteboard.useTool('HandWriting', {
+	                    mode: 'draw'
 	                });
 	            },
 	            '#tb-erase': function () {
 	                $(this).siblings().removeClass('selected');
 	                $(this).addClass('selected');
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UseToolMessage, {
-	                    name: 'HandWriting',
-	                    paramsJson: JSON.stringify({
-	                        mode: 'erase'
-	                    })
+	                that._editor.whiteboard.useTool('HandWriting', {
+	                    mode: 'erase'
 	                });
 	            },
 	            '#tb-undo': function () {
@@ -11067,89 +10852,7 @@
 	        for (var tool in toollist) {
 	            _loop_1(tool);
 	        }
-	        /*
-	        for (const toolname in toolPalette) {
-	            const tooldef = this.getOpTool (toolPalette, toolname);
-	            const toolButton = this.createToolButton (tooldef);
-	            if (toolButton) {
-	                toolButton.addEventListener ('click', () => {
-	                    const toolIndex = Number(toolButton.getAttribute ('toolIndex'));
-	                    const tool = this._tools[toolIndex];
-	                    if (tool !== this._curTool) {
-	                        if (this._curTool) {
-	                            const curToolButton = document.querySelector(`#${this._curTool.elementId}`);
-	                            curToolButton && curToolButton.classList.remove ('active');
-	                            this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage);
-	                            this._curTool = null;
-	                        }
-	                    }
-	                    if (tool) {
-	                        const button = document.querySelector(`#${tool.elementId}`);
-	                        button && button.classList.add ('active');
-	                        this._editor.handleMessage (proto.MsgType.whiteboard_UseToolMessage, tool.args);
-	                        this._curTool = tool;
-	                    }
-	                });
-	            }
-	        }
-	        */
 	    };
-	    WBToolPalette.prototype.loadOpPalette = function (opPalette) {
-	        var _this = this;
-	        var _loop_2 = function (op) {
-	            var tooldef = this_1.getOpTool(opPalette, op);
-	            var toolButton = this_1.createToolButton(tooldef);
-	            if (toolButton) {
-	                toolButton.addEventListener('click', function () {
-	                    var toolIndex = Number(toolButton.getAttribute('toolIndex'));
-	                    var tool = _this._tools[toolIndex];
-	                    _this._editor.handleMessage(tool.command, tool.args);
-	                });
-	            }
-	        };
-	        var this_1 = this;
-	        for (var op in opPalette) {
-	            _loop_2(op);
-	        }
-	    };
-	    WBToolPalette.prototype.getOpTool = function (tool, name) {
-	        return {
-	            command: tool[name].command,
-	            args: tool[name].args,
-	            iconClass: tool[name].iconClass
-	        };
-	    };
-	    WBToolPalette.prototype.createToolButton = function (tooldef) {
-	        this._tools.push(tooldef);
-	        var buttonSize = this._editor.toolFontSize + 6;
-	        var toolButton = null;
-	        if (typeof tooldef.iconClass === 'function') {
-	            toolButton = tooldef.iconClass(this._editor);
-	            toolButton && toolButton.classList.add('toolbutton');
-	        }
-	        else {
-	            toolButton = document.createElement('div');
-	            toolButton.classList.add('flex-h', 'flex-align-x-center', 'flex-align-y-center');
-	            toolButton.classList.add('toolbutton');
-	            var toolIcon_1 = document.createElement('i');
-	            toolIcon_1.style.fontSize = this._editor.toolFontSize + "px";
-	            toolIcon_1.style.color = '#fff';
-	            tooldef.iconClass.split(' ').forEach(function (cls) {
-	                toolIcon_1.classList.add(cls);
-	            });
-	            toolButton.appendChild(toolIcon_1);
-	        }
-	        if (toolButton) {
-	            tooldef.elementId = "toolbutton-" + WBToolPalette.uniqueId++;
-	            toolButton.setAttribute('id', tooldef.elementId);
-	            toolButton.style.width = buttonSize + "px";
-	            toolButton.style.height = buttonSize + "px";
-	            toolButton.setAttribute('toolIndex', String(this._tools.length - 1));
-	            this._container.appendChild(toolButton);
-	        }
-	        return toolButton;
-	    };
-	    WBToolPalette.uniqueId = 1;
 	    return WBToolPalette;
 	}());
 	exports.WBToolPalette = WBToolPalette;
@@ -11159,46 +10862,10 @@
 	        this._container = container;
 	        this._tableId = id;
 	        this._object = null;
-	        /*
-	        const table = document.createElement ('table');
-	        table.style.border = 'solid 1px #95B8E7';
-	        table.style.borderSpacing = '0px';
-	        table.style.margin = '0px';
-	        table.style.fontSize = '12px';
-	        table.style.fontFamily = 'verdana';
-	        table.style.width = '100%';
-	        table.style.tableLayout = 'fixed';
-	        table.style.backgroundColor = '#fff';
-	        table.setAttribute ('id', this._tableId);
-	        const tbody = document.createElement ('tbody');
-	        table.appendChild (tbody);
-	        this._container.appendChild (table);
-	        */
 	    }
 	    WBPropertyGrid.prototype.addGroup = function (name) {
-	        /*
-	        const tr = this.createRow ();
-	        tr.style.backgroundColor = '#E0ECFF';
-	        tr.style.fontWeight = 'bold';
-	        this.createGroupCell (tr, name);
-	        */
 	    };
 	    WBPropertyGrid.prototype.addButton = function (text, callback) {
-	        /*
-	        const tr = this.createRow ();
-	        const td = this.createCell (tr);
-	        td.style.padding = '5px';
-	        td.style.textAlign = 'center';
-	        td.setAttribute ('colspan', '2');
-	        const btn = document.createElement ('button');
-	        btn.innerText = text;
-	        btn.style.width = '100%';
-	        btn.style.padding = '5px';
-	        btn.onclick = () => {
-	            callback && callback ();
-	        };
-	        td.appendChild (btn);
-	        */
 	        var btn = document.createElement('a');
 	        btn.classList.add('btn');
 	        this._container.appendChild(btn);
@@ -11554,36 +11221,19 @@
 	}());
 	exports.WBPropertyGrid = WBPropertyGrid;
 	var WBEditor = /** @class */ (function () {
-	    function WBEditor(WB, toolset, toolPaletteElement, opPaletteElement, objectPropGridElement, toolPropGridElement) {
+	    function WBEditor(WB, toolPaletteElement, objectPropGridElement, toolPropGridElement) {
 	        this._strokeColor = '#00000000';
 	        this._fillColor = 'red';
 	        this._toolFontSize = 14;
 	        this._wb = WB;
-	        this._toolset = toolset;
 	        this._toolPalette = new WBToolPalette(this, toolPaletteElement);
-	        this._toolPalette.loadToolPalette(toolset.tools);
-	        this._opPalette = new WBToolPalette(this, opPaletteElement);
-	        this._opPalette.loadOpPalette(toolset.operations);
+	        this._toolPalette.loadToolPalette();
 	        this._objectPropGrid = new WBPropertyGrid(this, objectPropGridElement, 'wb-object');
 	        this._toolPropGrid = new WBPropertyGrid(this, toolPropGridElement, 'wb-tool');
 	    }
 	    Object.defineProperty(WBEditor.prototype, "whiteboard", {
 	        get: function () {
 	            return this._wb;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "toolSet", {
-	        get: function () {
-	            return this._toolset;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(WBEditor.prototype, "opPalette", {
-	        get: function () {
-	            return this._opPalette;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -11653,78 +11303,6 @@
 	var editor_2 = editor.WBPropertyGrid;
 	var editor_3 = editor.WBEditor;
 
-	var toolset = createCommonjsModule(function (module, exports) {
-	Object.defineProperty(exports, "__esModule", { value: true });
-
-	exports.WBDefaultToolSet = {
-	    tools: {
-	        CreateLabel: {
-	            iconClass: 'fas fa-font fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'Create',
-	                paramsJson: JSON.stringify({
-	                    createType: 'Label',
-	                    text: '标签',
-	                    textColor: '#000000'
-	                })
-	            }
-	        },
-	        Select: {
-	            iconClass: 'fas fa-mouse-pointer fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'Select'
-	            }
-	        },
-	        Swap: {
-	            iconClass: 'fas fa-exchange-alt fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'Swap'
-	            }
-	        },
-	        Connect: {
-	            iconClass: 'fas fa-arrow-right fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'Connect'
-	            }
-	        },
-	        Write: {
-	            iconClass: 'fas fa-pen fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'HandWriting',
-	                paramsJson: JSON.stringify({
-	                    mode: 'draw'
-	                })
-	            }
-	        },
-	        Erase: {
-	            iconClass: 'fas fa-eraser fa-fw',
-	            command: protolist.MsgType.whiteboard_UseToolMessage,
-	            args: {
-	                name: 'HandWriting',
-	                paramsJson: JSON.stringify({
-	                    mode: 'erase'
-	                })
-	            }
-	        }
-	    },
-	    operations: {
-	        ClearPage: {
-	            iconClass: 'fas fa-minus-circle fa-fw',
-	            command: protolist.MsgType.whiteboard_ClearBoardMessage
-	        }
-	    }
-	};
-
-	});
-
-	unwrapExports(toolset);
-	var toolset_1 = toolset.WBDefaultToolSet;
-
 	var editor$2 = createCommonjsModule(function (module, exports) {
 	function __export(m) {
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -11732,7 +11310,6 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	__export(toolbox);
 	__export(editor);
-	__export(toolset);
 
 	});
 
@@ -12692,31 +12269,27 @@
 	        _this._eraseSize = opt.eraseSize || 20;
 	        _this.on(catk.EvtCanvasResize.type, function (evt) {
 	            if (evt.view === _this.view && _this._canvas) {
+	                var context = _this._canvas.getContext('2d');
+	                var imageData = context.getImageData(0, 0, _this._canvas.width, _this._canvas.height);
 	                _this._canvas.width = evt.view.canvas.width;
 	                _this._canvas.height = evt.view.canvas.height;
-	                if (_this._boundingShape) {
-	                    _this._boundingShape.rect = { x: 0, y: 0, w: _this._canvas.width, h: _this._canvas.height };
-	                }
+	                context = _this._canvas.getContext('2d');
+	                context.putImageData(imageData, 0, 0);
+	                _this._boundingShape.rect = { x: 0, y: 0, w: _this._canvas.width, h: _this._canvas.height };
 	            }
 	        });
 	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
-	            if (_this._boundingShape === null) {
-	                _this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: _this.canvas.width, h: _this.canvas.height });
+	            return null;
+	            /*
+	            if (this._boundingShape === null) {
+	                this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this.canvas.width, h:this.canvas.height});
 	            }
-	            if (_this._boundingShape) {
-	                evt.shape = _this._boundingShape;
-	            }
+	            evt.shape = this._boundingShape;
+	            */
 	        });
 	        _this.on(catk.EvtHitTest.type, function (evt) {
-	            var canvas = _this.canvas;
-	            if (evt.x >= 0 && evt.x < canvas.width && evt.y >= 0 && evt.y < canvas.height) {
-	                var ctx = canvas.getContext('2d');
-	                var data = ctx.getImageData(evt.x, evt.y, 1, 1);
-	                if (data && data.data[3] > 0) {
-	                    evt.result = true;
-	                }
-	            }
-	            evt.eat();
+	            // Disable hit test
+	            // evt.eat ();
 	        });
 	        _this.on(catk.EvtDraw.type, function (evt) {
 	            var w = _this.canvas.width;
@@ -12801,90 +12374,38 @@
 	                _this._finishDrawTimer = null;
 	            }
 	        });
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    ev.value = _this._lineWidth;
-	                    break;
-	                }
-	                case 'color': {
-	                    ev.value = _this._color;
-	                    break;
-	                }
-	                case 'eraseSize': {
-	                    ev.value = _this._eraseSize;
-	                    break;
-	                }
-	                case 'mode': {
-	                    ev.value = _this._mode;
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
-	            switch (ev.name) {
-	                case 'lineWidth': {
-	                    _this._lineWidth = Number(ev.value);
-	                    break;
-	                }
-	                case 'color': {
-	                    _this._color = String(ev.value);
-	                    break;
-	                }
-	                case 'eraseSize': {
-	                    _this._eraseSize = Number(ev.value);
-	                    break;
-	                }
-	                case 'mode': {
-	                    _this._mode = String(ev.value);
-	                    break;
-	                }
-	            }
-	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
-	            ev.properties = ev.properties || {};
-	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'lineWidth',
-	                desc: '画笔宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._lineWidth
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'color',
-	                desc: '画笔颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: _this._color
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'eraseSize',
-	                desc: '橡皮宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: _this._eraseSize
-	            });
-	            ev.properties[_this.entityType].properties.push({
-	                name: 'mode',
-	                desc: '操作模式',
-	                readonly: false,
-	                type: 'string',
-	                value: _this._mode,
-	                enum: [{
-	                        value: 'draw',
-	                        desc: '绘制'
-	                    }, {
-	                        value: 'erase',
-	                        desc: '擦除'
-	                    }, {
-	                        value: 'none',
-	                        desc: '无'
-	                    }]
-	            });
-	        });
 	        return _this;
 	    }
+	    Object.defineProperty(WBFreeDraw.prototype, "lineWidth", {
+	        get: function () {
+	            return this._lineWidth;
+	        },
+	        set: function (val) {
+	            this._lineWidth = val;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBFreeDraw.prototype, "color", {
+	        get: function () {
+	            return this._color;
+	        },
+	        set: function (val) {
+	            this._color = val;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBFreeDraw.prototype, "eraseSize", {
+	        get: function () {
+	            return this._eraseSize;
+	        },
+	        set: function (val) {
+	            this._eraseSize = val;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    Object.defineProperty(WBFreeDraw.prototype, "mode", {
 	        get: function () {
 	            return this._mode;
@@ -12908,9 +12429,7 @@
 	                this._canvas.style.backgroundColor = '#00000000';
 	                this._canvas.width = this.view.canvas.width;
 	                this._canvas.height = this.view.canvas.height;
-	                if (this._boundingShape) {
-	                    this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: this._canvas.width, h: this._canvas.height });
-	                }
+	                this._boundingShape = new catk.BoundingBox({ x: 0, y: 0, w: this._canvas.width, h: this._canvas.height });
 	            }
 	            return this._canvas;
 	        },
@@ -13018,27 +12537,6 @@
 	    function WBFreeDrawFactory() {
 	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
-	    WBFreeDrawFactory.prototype.getCreationProperties = function () {
-	        return [{
-	                name: 'lineWidth',
-	                desc: '画笔宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: 3
-	            }, {
-	                name: 'color',
-	                desc: '颜色',
-	                readonly: false,
-	                type: 'color',
-	                value: '#000000'
-	            }, {
-	                name: 'eraseSize',
-	                desc: '橡皮宽度',
-	                readonly: false,
-	                type: 'number',
-	                value: 20
-	            }];
-	    };
 	    WBFreeDrawFactory.prototype._createEntity = function (options) {
 	        return new WBFreeDraw(null, options);
 	    };
@@ -13768,8 +13266,6 @@
 	})();
 	Object.defineProperty(exports, "__esModule", { value: true });
 
-
-
 	var WBHandWritingTool = /** @class */ (function (_super) {
 	    __extends(WBHandWritingTool, _super);
 	    function WBHandWritingTool(whiteboard$$1) {
@@ -13805,7 +13301,7 @@
 	            }
 	            if (params && ev.name in params) {
 	                params[ev.name] = ev.value;
-	                _this.applyProperty(ev.name, ev.value);
+	                _this.applyProperties(params);
 	            }
 	        });
 	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
@@ -13851,11 +13347,7 @@
 	        else {
 	            this._freedrawNode.reset();
 	        }
-	        catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
-	            name: this._freedrawNode.entityName,
-	            propName: 'mode',
-	            propValueJson: JSON.stringify(this._mode)
-	        }));
+	        this._freedrawNode.mode = this._mode;
 	        this._freedrawNode.setCapture();
 	        this.applyProperties(this._paramsDraw);
 	        this.applyProperties(this._paramsErase);
@@ -13865,11 +13357,6 @@
 	        if (this._freedrawNode) {
 	            this._freedrawNode.releaseCapture();
 	            this._freedrawNode.reset();
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
-	                name: this._freedrawNode.entityName,
-	                propName: 'mode',
-	                propValueJson: JSON.stringify('none')
-	            }));
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);
@@ -13880,26 +13367,11 @@
 	    WBHandWritingTool.prototype.deactivateObject = function (object) {
 	        _super.prototype.deactivateObject.call(this, object);
 	    };
-	    WBHandWritingTool.prototype.applyProperty = function (name, value) {
-	        if (this._freedrawNode) {
-	            /*
-	            lib.App.triggerEvent(null, new wb.WBCommandEvent('SetObjectProperty', {
-	                objectName: this._freedrawNode.entityName,
-	                propName: name,
-	                propValue: value
-	            }));
-	            */
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_SetObjectPropertyMessage, {
-	                name: this._freedrawNode.entityName,
-	                propName: name,
-	                propValueJson: JSON.stringify(value)
-	            }));
-	            // this._freedrawNode.triggerEx (new wb.WBSetPropertyEvent (name, value));
-	        }
-	    };
 	    WBHandWritingTool.prototype.applyProperties = function (props) {
-	        for (var prop in props) {
-	            this.applyProperty(prop, props[prop]);
+	        if (this._freedrawNode) {
+	            props.lineWidth !== undefined && (this._freedrawNode.lineWidth = props.lineWidth);
+	            props.color !== undefined && (this._freedrawNode.color = props.color);
+	            props.eraseSize !== undefined && (this._freedrawNode.eraseSize = props.eraseSize);
 	        }
 	    };
 	    WBHandWritingTool.prototype.findFreedrawNode = function () {
@@ -13979,7 +13451,7 @@
 	    var opToolboxDiv = document.querySelector('#op-toolbox');
 	    var objPropGridDiv = document.querySelector('#object-options');
 	    var toolPropGridDiv = document.querySelector('#tool-options');
-	    var editor = new whiteboard$2.WBEditor(WB, whiteboard$2.WBDefaultToolSet, toolToolboxDiv, opToolboxDiv, objPropGridDiv, toolPropGridDiv);
+	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
 	    WB.on(whiteboard$2.WBObjectSelectedEvent.type, function (ev) {
 	        if (ev.object) {
 	            editor.objectPropertyGrid.loadObjectProperties(ev.object);

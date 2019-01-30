@@ -178,7 +178,7 @@ executors[MsgType.whiteboard_DrawMessage] = {
             freedrawNode.unstroke (command.event);
         }
     }
-}
+};
 
 export interface IProperty {
     name: string;
@@ -314,11 +314,11 @@ export class WBComponent extends lib.Component {
 }
 
 export abstract class WBFactory {
-    public readonly name: string;
+    readonly name: string;
     constructor(name: string) {
         this.name = name;
     }
-    public createEntity(x:number, y:number, options?: any): lib.SceneObject|null {
+    createEntity(x:number, y:number, options?: any): lib.SceneObject|null {
         const entity = this._createEntity (options);
         if (entity === null) {
             return null;
@@ -327,7 +327,7 @@ export abstract class WBFactory {
         entity.translation = { x:x, y:y };
         return entity;
     }
-    public getCreationProperties (): IProperty[] {
+    getCreationProperties (): IProperty[] {
         return [];
     }
     protected abstract _createEntity(options?:any): lib.SceneObject;
@@ -408,8 +408,8 @@ export class WBMessageEvent extends lib.BaseEvent {
 }
 
 export class WBTool extends lib.EventObserver {
-    public readonly name: string;
-    public readonly desc: string;
+    readonly name: string;
+    readonly desc: string;
     protected readonly _wb: WhiteBoard;
     constructor (name: string, whiteboard: WhiteBoard, desc?: string) {
         super ();
@@ -428,22 +428,22 @@ export class WBTool extends lib.EventObserver {
             ev.properties = ev.properties || {};
         });
     }
-    public activate(options?: any) {
+    activate(options?: any) {
         lib.App.triggerEvent(null, new WBToolActivateEvent(this));
     }
-    public deactivate() {
+    deactivate() {
         lib.App.triggerEvent(null, new WBToolDeactivateEvent(this));
     }
-    public activateObject(object: lib.SceneObject) {
+    activateObject(object: lib.SceneObject) {
     }
-    public deactivateObject(object: lib.SceneObject) {
+    deactivateObject(object: lib.SceneObject) {
     }
-    public handleMessage(ev: WBMessageEvent) {
+    handleMessage(ev: WBMessageEvent) {
     }
 }
 
 export class WhiteBoard extends lib.EventObserver {
-    public readonly view: lib.SceneView|null = null;
+    readonly view: lib.SceneView|null = null;
     private _factories: { [name: string]: WBFactory };
     private _tools: { [name: string]: WBTool };
     private _currentTool: string;
@@ -457,7 +457,6 @@ export class WhiteBoard extends lib.EventObserver {
         this._tools = {};
         this._nameIndex = 1;
         this._commandStack = [];
-
         this._currentTool = '';
         this._entities = {};
         this.on (WBGetObjectEvent.type, (ev: WBGetObjectEvent) => {
@@ -523,19 +522,34 @@ export class WhiteBoard extends lib.EventObserver {
             }, lib.EventListenerOrder.LAST);
         }
     }
-    public addTool (tool: WBTool): void {
+    addTool (tool: WBTool): void {
         this._tools[tool.name] = tool;
     }
-    public addFactory(factory: WBFactory): void {
+    useTool (name?: string, params?: any) {
+        if (this._currentTool !== '') {
+            const prevTool = this._tools[this._currentTool];
+            prevTool.deactivate();
+        }
+        this._currentTool = '';
+        if (name) {
+            const newTool = this._tools[name];
+            if (newTool) {
+                this._currentTool = name;
+                // const args = ev.messageData.paramsJson ? JSON.parse(ev.messageData.paramsJson) : {};
+                newTool.activate(params);
+            }
+        }
+    }
+    addFactory(factory: WBFactory): void {
         this._factories[factory.name] = factory;
     }
-    public getFactory(name: string): WBFactory {
+    getFactory(name: string): WBFactory {
         return this._factories[name] || null;
     }
-    public genEntityName (type: string): string {
+    genEntityName (type: string): string {
         return `${type.toLowerCase()}${this._nameIndex++}`;
     }
-    public createEntity(type: string, x: number, y: number, options: any): lib.SceneObject|null {
+    createEntity(type: string, x: number, y: number, options: any): lib.SceneObject|null {
         let entity = null;
         const name = this.genEntityName (type);
         const factory = this._factories[type];
@@ -558,24 +572,24 @@ export class WhiteBoard extends lib.EventObserver {
         }
         return entity;
     }
-    public deleteEntity(name: string): void {
+    deleteEntity(name: string): void {
         const entity = this.findEntity (name);
         if (entity) {
             entity.remove ();
             delete this._entities[name];
         }
     }
-    public addEntity(parent: lib.SceneObject, entity: lib.SceneObject) {
+    addEntity(parent: lib.SceneObject, entity: lib.SceneObject) {
         if (this.findEntity (entity.entityName)) {
             throw new Error('ERR: [addEntity] Entity already exists');
         }
         parent.addChild (entity);
         this._entities[entity.entityName] = entity;
     }
-    public findEntity(name: string): lib.SceneObject {
+    findEntity(name: string): lib.SceneObject {
         return this._entities[name] || null;
     }
-    public findEntityByType (type: string, rootNode?: lib.SceneObject): lib.SceneObject|null {
+    findEntityByType (type: string, rootNode?: lib.SceneObject): lib.SceneObject|null {
         if (this.view) {
             const root = rootNode || this.view.rootNode;
             if (root) {
@@ -598,20 +612,6 @@ export class WhiteBoard extends lib.EventObserver {
             const obj = this.findEntity (ev.object);
             if (obj) {
                 obj.triggerEx (ev);
-            }
-        } else if (ev.messageType === MsgType.whiteboard_UseToolMessage) {
-            if (this._currentTool !== '') {
-                const prevTool = this._tools[this._currentTool];
-                prevTool.deactivate();
-            }
-            this._currentTool = '';
-            if (ev.messageData.name) {
-                const newTool = this._tools[ev.messageData.name];
-                if (newTool) {
-                    this._currentTool = ev.messageData.name;
-                    const args = ev.messageData.paramsJson ? JSON.parse(ev.messageData.paramsJson) : {};
-                    newTool.activate(args);
-                }
             }
         } else if (ev.messageType === MsgType.whiteboard_UndoMessage) {
             if (this._commandStack.length > 0) {

@@ -78,18 +78,6 @@
             }
           }
         },
-        "UseToolMessage": {
-          "fields": {
-            "name": {
-              "type": "string",
-              "id": 1
-            },
-            "paramsJson": {
-              "type": "string",
-              "id": 2
-            }
-          }
-        },
         "CreateObjectMessage": {
           "fields": {
             "type": {

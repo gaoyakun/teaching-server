@@ -14,11 +14,6 @@ message EventMessage {
     optional string object = 2;
 }
 
-message UseToolMessage {
-    optional string name = 1;
-    optional string paramsJson = 2;
-}
-
 message CreateObjectMessage {
     string type = 1;
     uint32 x = 2;
