@@ -307,6 +307,12 @@ export namespace whiteboard {
         Start = 30000
     }
 
+    /** StrokeType enum. */
+    enum StrokeType {
+        Draw = 1,
+        Erase = 2
+    }
+
     /** Properties of a CommandMessage. */
     interface ICommandMessage {
 
@@ -979,6 +985,126 @@ export namespace whiteboard {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a StrokeMessage. */
+    interface IStrokeMessage {
+
+        /** StrokeMessage entityName */
+        entityName?: (string|null);
+
+        /** StrokeMessage type */
+        type?: (whiteboard.StrokeType|null);
+
+        /** StrokeMessage points */
+        points?: (whiteboard.IPoint[]|null);
+
+        /** StrokeMessage lineWidth */
+        lineWidth?: (number|null);
+
+        /** StrokeMessage color */
+        color?: (string|null);
+
+        /** StrokeMessage size */
+        size?: (number|null);
+    }
+
+    /** Represents a StrokeMessage. */
+    class StrokeMessage implements IStrokeMessage {
+
+        /**
+         * Constructs a new StrokeMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IStrokeMessage);
+
+        /** StrokeMessage entityName. */
+        public entityName: string;
+
+        /** StrokeMessage type. */
+        public type: whiteboard.StrokeType;
+
+        /** StrokeMessage points. */
+        public points: whiteboard.IPoint[];
+
+        /** StrokeMessage lineWidth. */
+        public lineWidth: number;
+
+        /** StrokeMessage color. */
+        public color: string;
+
+        /** StrokeMessage size. */
+        public size: number;
+
+        /**
+         * Creates a new StrokeMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns StrokeMessage instance
+         */
+        public static create(properties?: whiteboard.IStrokeMessage): whiteboard.StrokeMessage;
+
+        /**
+         * Encodes the specified StrokeMessage message. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+         * @param message StrokeMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IStrokeMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified StrokeMessage message, length delimited. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+         * @param message StrokeMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IStrokeMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a StrokeMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns StrokeMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.StrokeMessage;
+
+        /**
+         * Decodes a StrokeMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns StrokeMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.StrokeMessage;
+
+        /**
+         * Verifies a StrokeMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a StrokeMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns StrokeMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.StrokeMessage;
+
+        /**
+         * Creates a plain object from a StrokeMessage message. Also converts values to other types if specified.
+         * @param message StrokeMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.StrokeMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this StrokeMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a DrawMessage. */
     interface IDrawMessage {
 
@@ -991,8 +1117,8 @@ export namespace whiteboard {
         /** DrawMessage color */
         color?: (string|null);
 
-        /** DrawMessage new */
-        "new"?: (boolean|null);
+        /** DrawMessage newStroke */
+        newStroke?: (boolean|null);
 
         /** DrawMessage points */
         points?: (whiteboard.IPoint[]|null);
@@ -1016,8 +1142,8 @@ export namespace whiteboard {
         /** DrawMessage color. */
         public color: string;
 
-        /** DrawMessage new. */
-        public new: boolean;
+        /** DrawMessage newStroke. */
+        public newStroke: boolean;
 
         /** DrawMessage points. */
         public points: whiteboard.IPoint[];
@@ -1096,14 +1222,17 @@ export namespace whiteboard {
     /** Properties of an EraseMessage. */
     interface IEraseMessage {
 
-        /** EraseMessage x */
-        x?: (number|null);
-
-        /** EraseMessage y */
-        y?: (number|null);
+        /** EraseMessage entityName */
+        entityName?: (string|null);
 
         /** EraseMessage size */
         size?: (number|null);
+
+        /** EraseMessage newErase */
+        newErase?: (boolean|null);
+
+        /** EraseMessage points */
+        points?: (whiteboard.IPoint[]|null);
     }
 
     /** Represents an EraseMessage. */
@@ -1115,14 +1244,17 @@ export namespace whiteboard {
          */
         constructor(properties?: whiteboard.IEraseMessage);
 
-        /** EraseMessage x. */
-        public x: number;
-
-        /** EraseMessage y. */
-        public y: number;
+        /** EraseMessage entityName. */
+        public entityName: string;
 
         /** EraseMessage size. */
         public size: number;
+
+        /** EraseMessage newErase. */
+        public newErase: boolean;
+
+        /** EraseMessage points. */
+        public points: whiteboard.IPoint[];
 
         /**
          * Creates a new EraseMessage instance using the specified properties.

@@ -7112,6 +7112,19 @@
 	        values[valuesById[30000] = "Start"] = 30000;
 	        return values;
 	    })();
+	    /**
+	     * StrokeType enum.
+	     * @name whiteboard.StrokeType
+	     * @enum {string}
+	     * @property {number} Draw=1 Draw value
+	     * @property {number} Erase=2 Erase value
+	     */
+	    whiteboard.StrokeType = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[1] = "Draw"] = 1;
+	        values[valuesById[2] = "Erase"] = 2;
+	        return values;
+	    })();
 	    whiteboard.CommandMessage = (function () {
 	        /**
 	         * Properties of a CommandMessage.
@@ -8499,6 +8512,320 @@
 	        };
 	        return Point;
 	    })();
+	    whiteboard.StrokeMessage = (function () {
+	        /**
+	         * Properties of a StrokeMessage.
+	         * @memberof whiteboard
+	         * @interface IStrokeMessage
+	         * @property {string|null} [entityName] StrokeMessage entityName
+	         * @property {whiteboard.StrokeType|null} [type] StrokeMessage type
+	         * @property {Array.<whiteboard.IPoint>|null} [points] StrokeMessage points
+	         * @property {number|null} [lineWidth] StrokeMessage lineWidth
+	         * @property {string|null} [color] StrokeMessage color
+	         * @property {number|null} [size] StrokeMessage size
+	         */
+	        /**
+	         * Constructs a new StrokeMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents a StrokeMessage.
+	         * @implements IStrokeMessage
+	         * @constructor
+	         * @param {whiteboard.IStrokeMessage=} [properties] Properties to set
+	         */
+	        function StrokeMessage(properties) {
+	            this.points = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * StrokeMessage entityName.
+	         * @member {string} entityName
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.entityName = "";
+	        /**
+	         * StrokeMessage type.
+	         * @member {whiteboard.StrokeType} type
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.type = 1;
+	        /**
+	         * StrokeMessage points.
+	         * @member {Array.<whiteboard.IPoint>} points
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.points = $util.emptyArray;
+	        /**
+	         * StrokeMessage lineWidth.
+	         * @member {number} lineWidth
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.lineWidth = 0;
+	        /**
+	         * StrokeMessage color.
+	         * @member {string} color
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.color = "";
+	        /**
+	         * StrokeMessage size.
+	         * @member {number} size
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         */
+	        StrokeMessage.prototype.size = 0;
+	        /**
+	         * Creates a new StrokeMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {whiteboard.IStrokeMessage=} [properties] Properties to set
+	         * @returns {whiteboard.StrokeMessage} StrokeMessage instance
+	         */
+	        StrokeMessage.create = function create(properties) {
+	            return new StrokeMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified StrokeMessage message. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {whiteboard.IStrokeMessage} message StrokeMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        StrokeMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.entityName);
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).int32(message.type);
+	            if (message.points != null && message.points.length)
+	                for (var i = 0; i < message.points.length; ++i)
+	                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/ 26).fork()).ldelim();
+	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+	                writer.uint32(/* id 4, wireType 0 =*/ 32).uint32(message.lineWidth);
+	            if (message.color != null && message.hasOwnProperty("color"))
+	                writer.uint32(/* id 5, wireType 2 =*/ 42).string(message.color);
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                writer.uint32(/* id 6, wireType 0 =*/ 48).uint32(message.size);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified StrokeMessage message, length delimited. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {whiteboard.IStrokeMessage} message StrokeMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        StrokeMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a StrokeMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.StrokeMessage} StrokeMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        StrokeMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.StrokeMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.entityName = reader.string();
+	                        break;
+	                    case 2:
+	                        message.type = reader.int32();
+	                        break;
+	                    case 3:
+	                        if (!(message.points && message.points.length))
+	                            message.points = [];
+	                        message.points.push($root.whiteboard.Point.decode(reader, reader.uint32()));
+	                        break;
+	                    case 4:
+	                        message.lineWidth = reader.uint32();
+	                        break;
+	                    case 5:
+	                        message.color = reader.string();
+	                        break;
+	                    case 6:
+	                        message.size = reader.uint32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a StrokeMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.StrokeMessage} StrokeMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        StrokeMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a StrokeMessage message.
+	         * @function verify
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        StrokeMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                if (!$util.isString(message.entityName))
+	                    return "entityName: string expected";
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                switch (message.type) {
+	                    default:
+	                        return "type: enum value expected";
+	                    case 1:
+	                    case 2:
+	                        break;
+	                }
+	            if (message.points != null && message.hasOwnProperty("points")) {
+	                if (!Array.isArray(message.points))
+	                    return "points: array expected";
+	                for (var i = 0; i < message.points.length; ++i) {
+	                    var error = $root.whiteboard.Point.verify(message.points[i]);
+	                    if (error)
+	                        return "points." + error;
+	                }
+	            }
+	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+	                if (!$util.isInteger(message.lineWidth))
+	                    return "lineWidth: integer expected";
+	            if (message.color != null && message.hasOwnProperty("color"))
+	                if (!$util.isString(message.color))
+	                    return "color: string expected";
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                if (!$util.isInteger(message.size))
+	                    return "size: integer expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a StrokeMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.StrokeMessage} StrokeMessage
+	         */
+	        StrokeMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.StrokeMessage)
+	                return object;
+	            var message = new $root.whiteboard.StrokeMessage();
+	            if (object.entityName != null)
+	                message.entityName = String(object.entityName);
+	            switch (object.type) {
+	                case "Draw":
+	                case 1:
+	                    message.type = 1;
+	                    break;
+	                case "Erase":
+	                case 2:
+	                    message.type = 2;
+	                    break;
+	            }
+	            if (object.points) {
+	                if (!Array.isArray(object.points))
+	                    throw TypeError(".whiteboard.StrokeMessage.points: array expected");
+	                message.points = [];
+	                for (var i = 0; i < object.points.length; ++i) {
+	                    if (typeof object.points[i] !== "object")
+	                        throw TypeError(".whiteboard.StrokeMessage.points: object expected");
+	                    message.points[i] = $root.whiteboard.Point.fromObject(object.points[i]);
+	                }
+	            }
+	            if (object.lineWidth != null)
+	                message.lineWidth = object.lineWidth >>> 0;
+	            if (object.color != null)
+	                message.color = String(object.color);
+	            if (object.size != null)
+	                message.size = object.size >>> 0;
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a StrokeMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.StrokeMessage
+	         * @static
+	         * @param {whiteboard.StrokeMessage} message StrokeMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        StrokeMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.points = [];
+	            if (options.defaults) {
+	                object.entityName = "";
+	                object.type = options.enums === String ? "Draw" : 1;
+	                object.lineWidth = 0;
+	                object.color = "";
+	                object.size = 0;
+	            }
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                object.entityName = message.entityName;
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                object.type = options.enums === String ? $root.whiteboard.StrokeType[message.type] : message.type;
+	            if (message.points && message.points.length) {
+	                object.points = [];
+	                for (var j = 0; j < message.points.length; ++j)
+	                    object.points[j] = $root.whiteboard.Point.toObject(message.points[j], options);
+	            }
+	            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+	                object.lineWidth = message.lineWidth;
+	            if (message.color != null && message.hasOwnProperty("color"))
+	                object.color = message.color;
+	            if (message.size != null && message.hasOwnProperty("size"))
+	                object.size = message.size;
+	            return object;
+	        };
+	        /**
+	         * Converts this StrokeMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.StrokeMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        StrokeMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return StrokeMessage;
+	    })();
 	    whiteboard.DrawMessage = (function () {
 	        /**
 	         * Properties of a DrawMessage.
@@ -8507,7 +8834,7 @@
 	         * @property {string|null} [entityName] DrawMessage entityName
 	         * @property {number|null} [lineWidth] DrawMessage lineWidth
 	         * @property {string|null} [color] DrawMessage color
-	         * @property {boolean|null} ["new"] DrawMessage new
+	         * @property {boolean|null} [newStroke] DrawMessage newStroke
 	         * @property {Array.<whiteboard.IPoint>|null} [points] DrawMessage points
 	         */
 	        /**
@@ -8547,12 +8874,12 @@
 	         */
 	        DrawMessage.prototype.color = "";
 	        /**
-	         * DrawMessage new.
-	         * @member {boolean} new
+	         * DrawMessage newStroke.
+	         * @member {boolean} newStroke
 	         * @memberof whiteboard.DrawMessage
 	         * @instance
 	         */
-	        DrawMessage.prototype["new"] = false;
+	        DrawMessage.prototype.newStroke = false;
 	        /**
 	         * DrawMessage points.
 	         * @member {Array.<whiteboard.IPoint>} points
@@ -8589,8 +8916,8 @@
 	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.lineWidth);
 	            if (message.color != null && message.hasOwnProperty("color"))
 	                writer.uint32(/* id 3, wireType 2 =*/ 26).string(message.color);
-	            if (message["new"] != null && message.hasOwnProperty("new"))
-	                writer.uint32(/* id 4, wireType 0 =*/ 32).bool(message["new"]);
+	            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+	                writer.uint32(/* id 4, wireType 0 =*/ 32).bool(message.newStroke);
 	            if (message.points != null && message.points.length)
 	                for (var i = 0; i < message.points.length; ++i)
 	                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 5, wireType 2 =*/ 42).fork()).ldelim();
@@ -8636,7 +8963,7 @@
 	                        message.color = reader.string();
 	                        break;
 	                    case 4:
-	                        message["new"] = reader.bool();
+	                        message.newStroke = reader.bool();
 	                        break;
 	                    case 5:
 	                        if (!(message.points && message.points.length))
@@ -8685,9 +9012,9 @@
 	            if (message.color != null && message.hasOwnProperty("color"))
 	                if (!$util.isString(message.color))
 	                    return "color: string expected";
-	            if (message["new"] != null && message.hasOwnProperty("new"))
-	                if (typeof message["new"] !== "boolean")
-	                    return "new: boolean expected";
+	            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+	                if (typeof message.newStroke !== "boolean")
+	                    return "newStroke: boolean expected";
 	            if (message.points != null && message.hasOwnProperty("points")) {
 	                if (!Array.isArray(message.points))
 	                    return "points: array expected";
@@ -8717,8 +9044,8 @@
 	                message.lineWidth = object.lineWidth >>> 0;
 	            if (object.color != null)
 	                message.color = String(object.color);
-	            if (object["new"] != null)
-	                message["new"] = Boolean(object["new"]);
+	            if (object.newStroke != null)
+	                message.newStroke = Boolean(object.newStroke);
 	            if (object.points) {
 	                if (!Array.isArray(object.points))
 	                    throw TypeError(".whiteboard.DrawMessage.points: array expected");
@@ -8750,7 +9077,7 @@
 	                object.entityName = "";
 	                object.lineWidth = 0;
 	                object.color = "";
-	                object["new"] = false;
+	                object.newStroke = false;
 	            }
 	            if (message.entityName != null && message.hasOwnProperty("entityName"))
 	                object.entityName = message.entityName;
@@ -8758,8 +9085,8 @@
 	                object.lineWidth = message.lineWidth;
 	            if (message.color != null && message.hasOwnProperty("color"))
 	                object.color = message.color;
-	            if (message["new"] != null && message.hasOwnProperty("new"))
-	                object["new"] = message["new"];
+	            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+	                object.newStroke = message.newStroke;
 	            if (message.points && message.points.length) {
 	                object.points = [];
 	                for (var j = 0; j < message.points.length; ++j)
@@ -8784,9 +9111,10 @@
 	         * Properties of an EraseMessage.
 	         * @memberof whiteboard
 	         * @interface IEraseMessage
-	         * @property {number|null} [x] EraseMessage x
-	         * @property {number|null} [y] EraseMessage y
+	         * @property {string|null} [entityName] EraseMessage entityName
 	         * @property {number|null} [size] EraseMessage size
+	         * @property {boolean|null} [newErase] EraseMessage newErase
+	         * @property {Array.<whiteboard.IPoint>|null} [points] EraseMessage points
 	         */
 	        /**
 	         * Constructs a new EraseMessage.
@@ -8797,25 +9125,19 @@
 	         * @param {whiteboard.IEraseMessage=} [properties] Properties to set
 	         */
 	        function EraseMessage(properties) {
+	            this.points = [];
 	            if (properties)
 	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
 	                    if (properties[keys[i]] != null)
 	                        this[keys[i]] = properties[keys[i]];
 	        }
 	        /**
-	         * EraseMessage x.
-	         * @member {number} x
+	         * EraseMessage entityName.
+	         * @member {string} entityName
 	         * @memberof whiteboard.EraseMessage
 	         * @instance
 	         */
-	        EraseMessage.prototype.x = 0;
-	        /**
-	         * EraseMessage y.
-	         * @member {number} y
-	         * @memberof whiteboard.EraseMessage
-	         * @instance
-	         */
-	        EraseMessage.prototype.y = 0;
+	        EraseMessage.prototype.entityName = "";
 	        /**
 	         * EraseMessage size.
 	         * @member {number} size
@@ -8823,6 +9145,20 @@
 	         * @instance
 	         */
 	        EraseMessage.prototype.size = 0;
+	        /**
+	         * EraseMessage newErase.
+	         * @member {boolean} newErase
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         */
+	        EraseMessage.prototype.newErase = false;
+	        /**
+	         * EraseMessage points.
+	         * @member {Array.<whiteboard.IPoint>} points
+	         * @memberof whiteboard.EraseMessage
+	         * @instance
+	         */
+	        EraseMessage.prototype.points = $util.emptyArray;
 	        /**
 	         * Creates a new EraseMessage instance using the specified properties.
 	         * @function create
@@ -8846,12 +9182,15 @@
 	        EraseMessage.encode = function encode(message, writer) {
 	            if (!writer)
 	                writer = $Writer.create();
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.entityName);
 	            if (message.size != null && message.hasOwnProperty("size"))
-	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.size);
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.size);
+	            if (message.newErase != null && message.hasOwnProperty("newErase"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).bool(message.newErase);
+	            if (message.points != null && message.points.length)
+	                for (var i = 0; i < message.points.length; ++i)
+	                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 4, wireType 2 =*/ 34).fork()).ldelim();
 	            return writer;
 	        };
 	        /**
@@ -8885,13 +9224,18 @@
 	                var tag = reader.uint32();
 	                switch (tag >>> 3) {
 	                    case 1:
-	                        message.x = reader.uint32();
+	                        message.entityName = reader.string();
 	                        break;
 	                    case 2:
-	                        message.y = reader.uint32();
+	                        message.size = reader.uint32();
 	                        break;
 	                    case 3:
-	                        message.size = reader.uint32();
+	                        message.newErase = reader.bool();
+	                        break;
+	                    case 4:
+	                        if (!(message.points && message.points.length))
+	                            message.points = [];
+	                        message.points.push($root.whiteboard.Point.decode(reader, reader.uint32()));
 	                        break;
 	                    default:
 	                        reader.skipType(tag & 7);
@@ -8926,15 +9270,24 @@
 	        EraseMessage.verify = function verify(message) {
 	            if (typeof message !== "object" || message === null)
 	                return "object expected";
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                if (!$util.isInteger(message.x))
-	                    return "x: integer expected";
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                if (!$util.isInteger(message.y))
-	                    return "y: integer expected";
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                if (!$util.isString(message.entityName))
+	                    return "entityName: string expected";
 	            if (message.size != null && message.hasOwnProperty("size"))
 	                if (!$util.isInteger(message.size))
 	                    return "size: integer expected";
+	            if (message.newErase != null && message.hasOwnProperty("newErase"))
+	                if (typeof message.newErase !== "boolean")
+	                    return "newErase: boolean expected";
+	            if (message.points != null && message.hasOwnProperty("points")) {
+	                if (!Array.isArray(message.points))
+	                    return "points: array expected";
+	                for (var i = 0; i < message.points.length; ++i) {
+	                    var error = $root.whiteboard.Point.verify(message.points[i]);
+	                    if (error)
+	                        return "points." + error;
+	                }
+	            }
 	            return null;
 	        };
 	        /**
@@ -8949,12 +9302,22 @@
 	            if (object instanceof $root.whiteboard.EraseMessage)
 	                return object;
 	            var message = new $root.whiteboard.EraseMessage();
-	            if (object.x != null)
-	                message.x = object.x >>> 0;
-	            if (object.y != null)
-	                message.y = object.y >>> 0;
+	            if (object.entityName != null)
+	                message.entityName = String(object.entityName);
 	            if (object.size != null)
 	                message.size = object.size >>> 0;
+	            if (object.newErase != null)
+	                message.newErase = Boolean(object.newErase);
+	            if (object.points) {
+	                if (!Array.isArray(object.points))
+	                    throw TypeError(".whiteboard.EraseMessage.points: array expected");
+	                message.points = [];
+	                for (var i = 0; i < object.points.length; ++i) {
+	                    if (typeof object.points[i] !== "object")
+	                        throw TypeError(".whiteboard.EraseMessage.points: object expected");
+	                    message.points[i] = $root.whiteboard.Point.fromObject(object.points[i]);
+	                }
+	            }
 	            return message;
 	        };
 	        /**
@@ -8970,17 +9333,24 @@
 	            if (!options)
 	                options = {};
 	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.points = [];
 	            if (options.defaults) {
-	                object.x = 0;
-	                object.y = 0;
+	                object.entityName = "";
 	                object.size = 0;
+	                object.newErase = false;
 	            }
-	            if (message.x != null && message.hasOwnProperty("x"))
-	                object.x = message.x;
-	            if (message.y != null && message.hasOwnProperty("y"))
-	                object.y = message.y;
+	            if (message.entityName != null && message.hasOwnProperty("entityName"))
+	                object.entityName = message.entityName;
 	            if (message.size != null && message.hasOwnProperty("size"))
 	                object.size = message.size;
+	            if (message.newErase != null && message.hasOwnProperty("newErase"))
+	                object.newErase = message.newErase;
+	            if (message.points && message.points.length) {
+	                object.points = [];
+	                for (var j = 0; j < message.points.length; ++j)
+	                    object.points[j] = $root.whiteboard.Point.toObject(message.points[j], options);
+	            }
 	            return object;
 	        };
 	        /**
@@ -9951,39 +10321,43 @@
 	    MsgType[MsgType["base_UberMessage"] = 10000] = "base_UberMessage";
 	    MsgType[MsgType["room_JoinRoomMessage"] = 20000] = "room_JoinRoomMessage";
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20001] = "room_LeaveRoomMessage";
-	    MsgType[MsgType["whiteboard_CommandMessage"] = 30000] = "whiteboard_CommandMessage";
-	    MsgType[MsgType["whiteboard_EventMessage"] = 30001] = "whiteboard_EventMessage";
-	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30002] = "whiteboard_CreateObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30003] = "whiteboard_DeleteObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30004] = "whiteboard_DeleteObjectsMessage";
-	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30005] = "whiteboard_SetObjectPropertyMessage";
-	    MsgType[MsgType["whiteboard_Point"] = 30006] = "whiteboard_Point";
-	    MsgType[MsgType["whiteboard_DrawMessage"] = 30007] = "whiteboard_DrawMessage";
-	    MsgType[MsgType["whiteboard_EraseMessage"] = 30008] = "whiteboard_EraseMessage";
-	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30009] = "whiteboard_SwapObjectMessage";
-	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30010] = "whiteboard_MoveObjectMessage";
-	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30011] = "whiteboard_ClearPageMessage";
-	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30012] = "whiteboard_ClearBoardMessage";
-	    MsgType[MsgType["whiteboard_UndoMessage"] = 30013] = "whiteboard_UndoMessage";
+	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
+	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
+	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
+	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30003] = "whiteboard_CreateObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30004] = "whiteboard_DeleteObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30005] = "whiteboard_DeleteObjectsMessage";
+	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30006] = "whiteboard_SetObjectPropertyMessage";
+	    MsgType[MsgType["whiteboard_Point"] = 30007] = "whiteboard_Point";
+	    MsgType[MsgType["whiteboard_StrokeMessage"] = 30008] = "whiteboard_StrokeMessage";
+	    MsgType[MsgType["whiteboard_DrawMessage"] = 30009] = "whiteboard_DrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30010] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30011] = "whiteboard_SwapObjectMessage";
+	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30012] = "whiteboard_MoveObjectMessage";
+	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30013] = "whiteboard_ClearPageMessage";
+	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30014] = "whiteboard_ClearBoardMessage";
+	    MsgType[MsgType["whiteboard_UndoMessage"] = 30015] = "whiteboard_UndoMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
 	    20000: protocols.room.JoinRoomMessage,
 	    20001: protocols.room.LeaveRoomMessage,
-	    30000: protocols.whiteboard.CommandMessage,
-	    30001: protocols.whiteboard.EventMessage,
-	    30002: protocols.whiteboard.CreateObjectMessage,
-	    30003: protocols.whiteboard.DeleteObjectMessage,
-	    30004: protocols.whiteboard.DeleteObjectsMessage,
-	    30005: protocols.whiteboard.SetObjectPropertyMessage,
-	    30006: protocols.whiteboard.Point,
-	    30007: protocols.whiteboard.DrawMessage,
-	    30008: protocols.whiteboard.EraseMessage,
-	    30009: protocols.whiteboard.SwapObjectMessage,
-	    30010: protocols.whiteboard.MoveObjectMessage,
-	    30011: protocols.whiteboard.ClearPageMessage,
-	    30012: protocols.whiteboard.ClearBoardMessage,
-	    30013: protocols.whiteboard.UndoMessage,
+	    30000: protocols.whiteboard.StrokeType,
+	    30001: protocols.whiteboard.CommandMessage,
+	    30002: protocols.whiteboard.EventMessage,
+	    30003: protocols.whiteboard.CreateObjectMessage,
+	    30004: protocols.whiteboard.DeleteObjectMessage,
+	    30005: protocols.whiteboard.DeleteObjectsMessage,
+	    30006: protocols.whiteboard.SetObjectPropertyMessage,
+	    30007: protocols.whiteboard.Point,
+	    30008: protocols.whiteboard.StrokeMessage,
+	    30009: protocols.whiteboard.DrawMessage,
+	    30010: protocols.whiteboard.EraseMessage,
+	    30011: protocols.whiteboard.SwapObjectMessage,
+	    30012: protocols.whiteboard.MoveObjectMessage,
+	    30013: protocols.whiteboard.ClearPageMessage,
+	    30014: protocols.whiteboard.ClearBoardMessage,
+	    30015: protocols.whiteboard.UndoMessage,
 	};
 	exports.msgMap = msgMap;
 	__export(protocols);
@@ -10166,13 +10540,13 @@
 	        whiteboard.view.rootNode.view = whiteboard.view;
 	    }
 	};
-	executors[protolist.MsgType.whiteboard_DrawMessage] = {
+	executors[protolist.MsgType.whiteboard_StrokeMessage] = {
 	    execute: function (whiteboard, command, results) {
 	    },
 	    unexecute: function (whiteboard, command) {
 	        var freedrawNode = whiteboard.findEntity(command.event.messageData.entityName);
 	        if (freedrawNode) {
-	            freedrawNode.unstroke(command.event);
+	            freedrawNode.unstroke();
 	        }
 	    }
 	};
@@ -12263,9 +12637,7 @@
 	        _this._mousePosX = 0;
 	        _this._mousePosY = 0;
 	        _this._strokeInfo = [];
-	        _this._lastStrokeIndex = 0;
-	        _this._lastPointIndex = 0;
-	        _this._finishDrawTimer = null;
+	        _this._lastPoint = null;
 	        _this._eraseSize = opt.eraseSize || 20;
 	        _this.on(catk.EvtCanvasResize.type, function (evt) {
 	            if (evt.view === _this.view && _this._canvas) {
@@ -12280,16 +12652,6 @@
 	        });
 	        _this.on(catk.EvtGetBoundingShape.type, function (evt) {
 	            return null;
-	            /*
-	            if (this._boundingShape === null) {
-	                this._boundingShape = new lib.BoundingBox ({x:0, y:0, w:this.canvas.width, h:this.canvas.height});
-	            }
-	            evt.shape = this._boundingShape;
-	            */
-	        });
-	        _this.on(catk.EvtHitTest.type, function (evt) {
-	            // Disable hit test
-	            // evt.eat ();
 	        });
 	        _this.on(catk.EvtDraw.type, function (evt) {
 	            var w = _this.canvas.width;
@@ -12305,42 +12667,52 @@
 	            if (context) {
 	                var type = ev.messageType;
 	                var data = ev.messageData;
-	                if (type === protolist.MsgType.whiteboard_DrawMessage && ev.broadcast) {
-	                    _this.stroke(ev);
-	                }
-	                else if (type === protolist.MsgType.whiteboard_EraseMessage && ev.object === _this.entityName) {
-	                    context.clearRect(data.x - data.size / 2, data.y - data.size / 2, data.size, data.size);
+	                if (type === protolist.MsgType.whiteboard_StrokeMessage && ev.broadcast) {
+	                    var stroke = {
+	                        entityName: _this.entityName,
+	                        type: data.type,
+	                        points: data.points,
+	                        lineWidth: data.lineWidth,
+	                        color: data.color,
+	                        size: data.size
+	                    };
+	                    _this._strokeInfo.push(stroke);
+	                    _this.stroke(stroke);
 	                }
 	            }
 	        });
 	        _this.on(catk.EvtMouseDown.type, function (ev) {
-	            var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
-	            if (_this._mode === 'draw') {
-	                var stroke = {
-	                    lineWidth: _this._lineWidth,
-	                    color: _this._color,
-	                    points: [{ x: pt.x, y: pt.y }]
-	                };
-	                _this._strokeInfo.push(stroke);
-	                var ctx = _this.canvas.getContext('2d');
-	                ctx.lineWidth = stroke.lineWidth;
-	                ctx.strokeStyle = stroke.color;
-	                ctx.lineCap = 'round';
-	                ctx.lineJoin = 'round';
-	                ctx.beginPath();
-	                ctx.moveTo(pt.x + 0.5, pt.y + 0.5);
+	            if (!_this._action) {
 	                _this._action = true;
-	                if (_this._finishDrawTimer === null) {
-	                    _this._finishDrawTimer = window.setInterval(_this.finishDraw.bind(_this), 1000);
+	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	                if (_this._mode === 'draw') {
+	                    var stroke = {
+	                        entityName: _this.entityName,
+	                        type: protolist.whiteboard.StrokeType.Draw,
+	                        lineWidth: _this._lineWidth,
+	                        color: _this._color,
+	                        points: [{ x: pt.x, y: pt.y }]
+	                    };
+	                    _this._strokeInfo.push(stroke);
+	                    var ctx = _this.canvas.getContext('2d');
+	                    ctx.lineWidth = stroke.lineWidth;
+	                    ctx.strokeStyle = stroke.color;
+	                    ctx.lineCap = 'round';
+	                    ctx.lineJoin = 'round';
+	                    ctx.beginPath();
+	                    ctx.moveTo(pt.x + 0.5, pt.y + 0.5);
 	                }
-	            }
-	            else if (_this._mode === 'erase') {
-	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
-	                    x: pt.x,
-	                    y: pt.y,
-	                    size: _this._eraseSize
-	                }, undefined, _this.entityName));
-	                _this._action = true;
+	                else {
+	                    var stroke = {
+	                        entityName: _this.entityName,
+	                        type: protolist.whiteboard.StrokeType.Erase,
+	                        size: _this._eraseSize,
+	                        points: [{ x: pt.x, y: pt.y }]
+	                    };
+	                    _this._strokeInfo.push(stroke);
+	                    var ctx = _this.canvas.getContext('2d');
+	                    ctx.clearRect(pt.x - _this._eraseSize / 2, pt.y - _this._eraseSize / 2, _this._eraseSize, _this._eraseSize);
+	                }
 	            }
 	        });
 	        _this.on(catk.EvtMouseMove.type, function (ev) {
@@ -12348,30 +12720,22 @@
 	            _this._mousePosY = ev.y;
 	            if (_this._action) {
 	                var pt = catk.Matrix2d.invert(_this.worldTransform).transformPoint({ x: ev.x, y: ev.y });
+	                _this._strokeInfo[_this._strokeInfo.length - 1].points.push(pt);
+	                var context = _this._canvas.getContext('2d');
 	                if (_this._mode === 'draw') {
-	                    var context = _this._canvas.getContext('2d');
 	                    context.lineTo(pt.x + 0.5, pt.y + 0.5);
 	                    context.stroke();
-	                    _this._strokeInfo[_this._strokeInfo.length - 1].points.push(pt);
 	                }
-	                else if (_this._mode === 'erase') {
-	                    catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_EraseMessage, {
-	                        x: pt.x,
-	                        y: pt.y,
-	                        size: _this._eraseSize
-	                    }, undefined, _this.entityName));
+	                else {
+	                    context.clearRect(pt.x - _this._eraseSize / 2, pt.y - _this._eraseSize / 2, _this._eraseSize, _this._eraseSize);
 	                }
 	            }
 	        });
 	        _this.on(catk.EvtMouseUp.type, function (ev) {
-	            if (_this._mode === 'draw' && _this._action) {
-	                _this.finishDraw();
-	            }
-	            _this._action = false;
-	            _this._lastPointIndex = 0;
-	            if (_this._finishDrawTimer !== null) {
-	                window.clearInterval(_this._finishDrawTimer);
-	                _this._finishDrawTimer = null;
+	            if (_this._action) {
+	                _this._action = false;
+	                _this.repaint();
+	                catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_StrokeMessage, _this._strokeInfo[_this._strokeInfo.length - 1]));
 	            }
 	        });
 	        return _this;
@@ -12411,13 +12775,8 @@
 	            return this._mode;
 	        },
 	        set: function (value) {
-	            if (this._mode !== value) {
-	                if (this._mode === 'draw') {
-	                    this.finishDraw();
-	                }
-	                this._action = false;
-	                this._mode = value;
-	            }
+	            this.reset();
+	            this._mode = value;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -12442,31 +12801,13 @@
 	            context && context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 	        }
 	    };
-	    WBFreeDraw.prototype.unstroke = function (ev) {
+	    WBFreeDraw.prototype.repaint = function () {
 	        var e_1, _a;
 	        this.clear();
-	        var points = this._strokeInfo[this._strokeInfo.length - 1].points;
-	        points.length = points.length - ev.messageData.points.length;
-	        if (points.length === 0) {
-	            this._strokeInfo.pop();
-	        }
-	        var ctx = this.canvas.getContext('2d');
 	        try {
 	            for (var _b = __values(this._strokeInfo), _c = _b.next(); !_c.done; _c = _b.next()) {
 	                var stroke = _c.value;
-	                var points_1 = stroke.points;
-	                if (points_1.length > 0) {
-	                    ctx.lineWidth = stroke.lineWidth;
-	                    ctx.strokeStyle = stroke.color;
-	                    ctx.lineCap = 'round';
-	                    ctx.lineJoin = 'round';
-	                    ctx.beginPath();
-	                    ctx.moveTo(points_1[0].x + 0.5, points_1[0].y + 0.5);
-	                    for (var i = 1; i < points_1.length; i++) {
-	                        ctx.lineTo(points_1[i].x + 0.5, points_1[i].y + 0.5);
-	                    }
-	                    ctx.stroke();
-	                }
+	                this.stroke(stroke);
 	            }
 	        }
 	        catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -12477,57 +12818,46 @@
 	            finally { if (e_1) throw e_1.error; }
 	        }
 	    };
-	    WBFreeDraw.prototype.stroke = function (ev) {
-	        var start;
-	        var stroke;
-	        if (ev.messageData.new) {
-	            start = 0;
-	            stroke = {
-	                lineWidth: ev.messageData.lineWidth,
-	                color: ev.messageData.color,
-	                points: ev.messageData.points.map(function (pt) { return { x: pt.x, y: pt.y }; })
-	            };
-	            this._strokeInfo.push(stroke);
+	    WBFreeDraw.prototype.unstroke = function (ev) {
+	        if (this._strokeInfo.length > 0) {
+	            this._strokeInfo.pop();
+	            this.repaint();
+	        }
+	    };
+	    WBFreeDraw.prototype.stroke = function (data) {
+	        var e_2, _a;
+	        var context = this.canvas.getContext('2d');
+	        var pt = data.points;
+	        if (data.type === protolist.whiteboard.StrokeType.Draw) {
+	            context.lineWidth = data.lineWidth;
+	            context.strokeStyle = data.color;
+	            context.lineCap = 'round';
+	            context.lineJoin = 'round';
+	            context.beginPath();
+	            context.moveTo(pt[0].x + 0.5, pt[0].y + 0.5);
+	            for (var i = 1; i < pt.length; i++) {
+	                context.lineTo(pt[i].x + 0.5, pt[i].y + 0.5);
+	            }
+	            context.stroke();
 	        }
 	        else {
-	            stroke = this._strokeInfo[this._strokeInfo.length - 1];
-	            start = stroke.points.length - 1;
-	            this._strokeInfo[this._strokeInfo.length - 1].points.concat(ev.messageData.points.map(function (pt) { return { x: pt.x, y: pt.y }; }));
+	            try {
+	                for (var pt_1 = __values(pt), pt_1_1 = pt_1.next(); !pt_1_1.done; pt_1_1 = pt_1.next()) {
+	                    var p = pt_1_1.value;
+	                    context.clearRect(p.x - data.size / 2, p.y - data.size / 2, data.size, data.size);
+	                }
+	            }
+	            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	            finally {
+	                try {
+	                    if (pt_1_1 && !pt_1_1.done && (_a = pt_1.return)) _a.call(pt_1);
+	                }
+	                finally { if (e_2) throw e_2.error; }
+	            }
 	        }
-	        var context = this.canvas.getContext('2d');
-	        context.lineWidth = stroke.lineWidth;
-	        context.strokeStyle = stroke.color;
-	        context.lineCap = 'round';
-	        context.lineJoin = 'round';
-	        context.beginPath();
-	        context.moveTo(stroke.points[start].x + 0.5, stroke.points[start].y + 0.5);
-	        for (var i = start + 1; i < stroke.points.length; i++) {
-	            context.lineTo(stroke.points[i].x + 0.5, stroke.points[i].y + 0.5);
-	        }
-	        context.stroke();
 	    };
 	    WBFreeDraw.prototype.reset = function () {
 	        this._action = false;
-	        if (this._finishDrawTimer !== null) {
-	            window.clearInterval(this._finishDrawTimer);
-	            this._finishDrawTimer = null;
-	        }
-	    };
-	    WBFreeDraw.prototype.finishDraw = function () {
-	        var stroke = this._strokeInfo[this._strokeInfo.length - 1];
-	        if (this._lastPointIndex < stroke.points.length) {
-	            var messageData = {
-	                entityName: this.entityName,
-	                new: this._lastPointIndex === 0,
-	                points: stroke.points.slice(this._lastPointIndex)
-	            };
-	            if (messageData.new) {
-	                messageData.lineWidth = this._lineWidth,
-	                    messageData.color = this._color;
-	            }
-	            catk.App.triggerEvent(null, new whiteboard.WBMessageEvent(protolist.MsgType.whiteboard_DrawMessage, messageData));
-	            this._lastPointIndex = stroke.points.length;
-	        }
 	    };
 	    return WBFreeDraw;
 	}(catk.SceneObject));
@@ -12648,13 +12978,26 @@
 	                if (shape) {
 	                    var bbox = shape.getBoundingbox();
 	                    if (bbox) {
+	                        if (!WBSelectComponent.selectPattern && !WBSelectComponent.patternImage) {
+	                            WBSelectComponent.patternImage = new Image();
+	                            WBSelectComponent.patternImage.src = '/images/dragger-4x4.gif';
+	                            WBSelectComponent.patternImage.onload = function () {
+	                                WBSelectComponent.selectPattern = evt.canvas.context.createPattern(WBSelectComponent.patternImage, 'repeat');
+	                                WBSelectComponent.patternImage = null;
+	                            };
+	                        }
 	                        evt.canvas.context.strokeStyle = '#000';
 	                        evt.canvas.context.lineWidth = 1;
+	                        if (WBSelectComponent.selectPattern) {
+	                            evt.canvas.context.imageSmoothingEnabled = false;
+	                            evt.canvas.context.fillStyle = WBSelectComponent.selectPattern;
+	                            evt.canvas.context.fillRect(bbox.x - 16, bbox.y - 16, bbox.w + 32, bbox.h + 32);
+	                        }
 	                        evt.canvas.context.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h);
 	                    }
 	                }
 	            }
-	        });
+	        }, catk.EventListenerOrder.FIRST);
 	        _this.on(WBSelectEvent.type, function (evt) {
 	            _this._selected = true;
 	        });
@@ -12664,6 +13007,8 @@
 	        return _this;
 	    }
 	    WBSelectComponent.type = 'WBSelect';
+	    WBSelectComponent.selectPattern = null;
+	    WBSelectComponent.patternImage = null;
 	    return WBSelectComponent;
 	}(catk.Component));
 	exports.WBSelectComponent = WBSelectComponent;
@@ -12675,8 +13020,6 @@
 	        _this._moving = false;
 	        _this._mouseStartPosX = 0;
 	        _this._mouseStartPosY = 0;
-	        _this._mouseCurrentPosX = 0;
-	        _this._mouseCurrentPosY = 0;
 	        _this._objectLastPos = { x: 0, y: 0 };
 	        _this._lastMoveTime = 0;
 	        return _this;
@@ -12722,8 +13065,6 @@
 	                else {
 	                    _this.deselect();
 	                    _this._moving = false;
-	                    _this._mouseCurrentPosX = ev.x;
-	                    _this._mouseCurrentPosY = ev.y;
 	                }
 	            }
 	        });
@@ -12749,18 +13090,6 @@
 	                        _this._objectLastPos.x = x + dx;
 	                        _this._objectLastPos.y = y + dy;
 	                    }
-	                    /*
-	                                        lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-	                                            name: this._selectedObject.entityName,
-	                                            propName: 'localx',
-	                                            propValueJson: JSON.stringify(t.x + dx)
-	                                        }));
-	                                        lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-	                                            name: this._selectedObject.entityName,
-	                                            propName: 'localy',
-	                                            propValueJson: JSON.stringify(t.y + dy)
-	                                        }));
-	                    */
 	                }
 	            }
 	        });
@@ -13357,6 +13686,7 @@
 	        if (this._freedrawNode) {
 	            this._freedrawNode.releaseCapture();
 	            this._freedrawNode.reset();
+	            this._freedrawNode.mode = 'none';
 	            this._freedrawNode = null;
 	        }
 	        _super.prototype.deactivate.call(this);

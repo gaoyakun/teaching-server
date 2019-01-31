@@ -169,13 +169,13 @@ executors[MsgType.whiteboard_ClearBoardMessage] = {
         whiteboard.view!.rootNode.view = whiteboard.view;
     }
 };
-executors[MsgType.whiteboard_DrawMessage] = {
+executors[MsgType.whiteboard_StrokeMessage] = {
     execute: (whiteboard, command, results) => {
     },
     unexecute: (whiteboard, command) => {
         const freedrawNode: any = whiteboard.findEntity (command.event.messageData.entityName);
         if (freedrawNode) {
-            freedrawNode.unstroke (command.event);
+            freedrawNode.unstroke ();
         }
     }
 };

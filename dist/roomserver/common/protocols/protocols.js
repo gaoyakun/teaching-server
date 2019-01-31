@@ -645,6 +645,19 @@ $root.whiteboard = (function () {
         values[valuesById[30000] = "Start"] = 30000;
         return values;
     })();
+    /**
+     * StrokeType enum.
+     * @name whiteboard.StrokeType
+     * @enum {string}
+     * @property {number} Draw=1 Draw value
+     * @property {number} Erase=2 Erase value
+     */
+    whiteboard.StrokeType = (function () {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[1] = "Draw"] = 1;
+        values[valuesById[2] = "Erase"] = 2;
+        return values;
+    })();
     whiteboard.CommandMessage = (function () {
         /**
          * Properties of a CommandMessage.
@@ -2032,6 +2045,320 @@ $root.whiteboard = (function () {
         };
         return Point;
     })();
+    whiteboard.StrokeMessage = (function () {
+        /**
+         * Properties of a StrokeMessage.
+         * @memberof whiteboard
+         * @interface IStrokeMessage
+         * @property {string|null} [entityName] StrokeMessage entityName
+         * @property {whiteboard.StrokeType|null} [type] StrokeMessage type
+         * @property {Array.<whiteboard.IPoint>|null} [points] StrokeMessage points
+         * @property {number|null} [lineWidth] StrokeMessage lineWidth
+         * @property {string|null} [color] StrokeMessage color
+         * @property {number|null} [size] StrokeMessage size
+         */
+        /**
+         * Constructs a new StrokeMessage.
+         * @memberof whiteboard
+         * @classdesc Represents a StrokeMessage.
+         * @implements IStrokeMessage
+         * @constructor
+         * @param {whiteboard.IStrokeMessage=} [properties] Properties to set
+         */
+        function StrokeMessage(properties) {
+            this.points = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+        /**
+         * StrokeMessage entityName.
+         * @member {string} entityName
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.entityName = "";
+        /**
+         * StrokeMessage type.
+         * @member {whiteboard.StrokeType} type
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.type = 1;
+        /**
+         * StrokeMessage points.
+         * @member {Array.<whiteboard.IPoint>} points
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.points = $util.emptyArray;
+        /**
+         * StrokeMessage lineWidth.
+         * @member {number} lineWidth
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.lineWidth = 0;
+        /**
+         * StrokeMessage color.
+         * @member {string} color
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.color = "";
+        /**
+         * StrokeMessage size.
+         * @member {number} size
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         */
+        StrokeMessage.prototype.size = 0;
+        /**
+         * Creates a new StrokeMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {whiteboard.IStrokeMessage=} [properties] Properties to set
+         * @returns {whiteboard.StrokeMessage} StrokeMessage instance
+         */
+        StrokeMessage.create = function create(properties) {
+            return new StrokeMessage(properties);
+        };
+        /**
+         * Encodes the specified StrokeMessage message. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {whiteboard.IStrokeMessage} message StrokeMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        StrokeMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.entityName);
+            if (message.type != null && message.hasOwnProperty("type"))
+                writer.uint32(/* id 2, wireType 0 =*/ 16).int32(message.type);
+            if (message.points != null && message.points.length)
+                for (var i = 0; i < message.points.length; ++i)
+                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/ 26).fork()).ldelim();
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                writer.uint32(/* id 4, wireType 0 =*/ 32).uint32(message.lineWidth);
+            if (message.color != null && message.hasOwnProperty("color"))
+                writer.uint32(/* id 5, wireType 2 =*/ 42).string(message.color);
+            if (message.size != null && message.hasOwnProperty("size"))
+                writer.uint32(/* id 6, wireType 0 =*/ 48).uint32(message.size);
+            return writer;
+        };
+        /**
+         * Encodes the specified StrokeMessage message, length delimited. Does not implicitly {@link whiteboard.StrokeMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {whiteboard.IStrokeMessage} message StrokeMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        StrokeMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+        /**
+         * Decodes a StrokeMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.StrokeMessage} StrokeMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        StrokeMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.StrokeMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                    case 1:
+                        message.entityName = reader.string();
+                        break;
+                    case 2:
+                        message.type = reader.int32();
+                        break;
+                    case 3:
+                        if (!(message.points && message.points.length))
+                            message.points = [];
+                        message.points.push($root.whiteboard.Point.decode(reader, reader.uint32()));
+                        break;
+                    case 4:
+                        message.lineWidth = reader.uint32();
+                        break;
+                    case 5:
+                        message.color = reader.string();
+                        break;
+                    case 6:
+                        message.size = reader.uint32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                }
+            }
+            return message;
+        };
+        /**
+         * Decodes a StrokeMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.StrokeMessage} StrokeMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        StrokeMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+        /**
+         * Verifies a StrokeMessage message.
+         * @function verify
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        StrokeMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                if (!$util.isString(message.entityName))
+                    return "entityName: string expected";
+            if (message.type != null && message.hasOwnProperty("type"))
+                switch (message.type) {
+                    default:
+                        return "type: enum value expected";
+                    case 1:
+                    case 2:
+                        break;
+                }
+            if (message.points != null && message.hasOwnProperty("points")) {
+                if (!Array.isArray(message.points))
+                    return "points: array expected";
+                for (var i = 0; i < message.points.length; ++i) {
+                    var error = $root.whiteboard.Point.verify(message.points[i]);
+                    if (error)
+                        return "points." + error;
+                }
+            }
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                if (!$util.isInteger(message.lineWidth))
+                    return "lineWidth: integer expected";
+            if (message.color != null && message.hasOwnProperty("color"))
+                if (!$util.isString(message.color))
+                    return "color: string expected";
+            if (message.size != null && message.hasOwnProperty("size"))
+                if (!$util.isInteger(message.size))
+                    return "size: integer expected";
+            return null;
+        };
+        /**
+         * Creates a StrokeMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.StrokeMessage} StrokeMessage
+         */
+        StrokeMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.StrokeMessage)
+                return object;
+            var message = new $root.whiteboard.StrokeMessage();
+            if (object.entityName != null)
+                message.entityName = String(object.entityName);
+            switch (object.type) {
+                case "Draw":
+                case 1:
+                    message.type = 1;
+                    break;
+                case "Erase":
+                case 2:
+                    message.type = 2;
+                    break;
+            }
+            if (object.points) {
+                if (!Array.isArray(object.points))
+                    throw TypeError(".whiteboard.StrokeMessage.points: array expected");
+                message.points = [];
+                for (var i = 0; i < object.points.length; ++i) {
+                    if (typeof object.points[i] !== "object")
+                        throw TypeError(".whiteboard.StrokeMessage.points: object expected");
+                    message.points[i] = $root.whiteboard.Point.fromObject(object.points[i]);
+                }
+            }
+            if (object.lineWidth != null)
+                message.lineWidth = object.lineWidth >>> 0;
+            if (object.color != null)
+                message.color = String(object.color);
+            if (object.size != null)
+                message.size = object.size >>> 0;
+            return message;
+        };
+        /**
+         * Creates a plain object from a StrokeMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.StrokeMessage
+         * @static
+         * @param {whiteboard.StrokeMessage} message StrokeMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        StrokeMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.points = [];
+            if (options.defaults) {
+                object.entityName = "";
+                object.type = options.enums === String ? "Draw" : 1;
+                object.lineWidth = 0;
+                object.color = "";
+                object.size = 0;
+            }
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                object.entityName = message.entityName;
+            if (message.type != null && message.hasOwnProperty("type"))
+                object.type = options.enums === String ? $root.whiteboard.StrokeType[message.type] : message.type;
+            if (message.points && message.points.length) {
+                object.points = [];
+                for (var j = 0; j < message.points.length; ++j)
+                    object.points[j] = $root.whiteboard.Point.toObject(message.points[j], options);
+            }
+            if (message.lineWidth != null && message.hasOwnProperty("lineWidth"))
+                object.lineWidth = message.lineWidth;
+            if (message.color != null && message.hasOwnProperty("color"))
+                object.color = message.color;
+            if (message.size != null && message.hasOwnProperty("size"))
+                object.size = message.size;
+            return object;
+        };
+        /**
+         * Converts this StrokeMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.StrokeMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        StrokeMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+        return StrokeMessage;
+    })();
     whiteboard.DrawMessage = (function () {
         /**
          * Properties of a DrawMessage.
@@ -2040,7 +2367,7 @@ $root.whiteboard = (function () {
          * @property {string|null} [entityName] DrawMessage entityName
          * @property {number|null} [lineWidth] DrawMessage lineWidth
          * @property {string|null} [color] DrawMessage color
-         * @property {boolean|null} ["new"] DrawMessage new
+         * @property {boolean|null} [newStroke] DrawMessage newStroke
          * @property {Array.<whiteboard.IPoint>|null} [points] DrawMessage points
          */
         /**
@@ -2080,12 +2407,12 @@ $root.whiteboard = (function () {
          */
         DrawMessage.prototype.color = "";
         /**
-         * DrawMessage new.
-         * @member {boolean} new
+         * DrawMessage newStroke.
+         * @member {boolean} newStroke
          * @memberof whiteboard.DrawMessage
          * @instance
          */
-        DrawMessage.prototype["new"] = false;
+        DrawMessage.prototype.newStroke = false;
         /**
          * DrawMessage points.
          * @member {Array.<whiteboard.IPoint>} points
@@ -2122,8 +2449,8 @@ $root.whiteboard = (function () {
                 writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.lineWidth);
             if (message.color != null && message.hasOwnProperty("color"))
                 writer.uint32(/* id 3, wireType 2 =*/ 26).string(message.color);
-            if (message["new"] != null && message.hasOwnProperty("new"))
-                writer.uint32(/* id 4, wireType 0 =*/ 32).bool(message["new"]);
+            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+                writer.uint32(/* id 4, wireType 0 =*/ 32).bool(message.newStroke);
             if (message.points != null && message.points.length)
                 for (var i = 0; i < message.points.length; ++i)
                     $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 5, wireType 2 =*/ 42).fork()).ldelim();
@@ -2169,7 +2496,7 @@ $root.whiteboard = (function () {
                         message.color = reader.string();
                         break;
                     case 4:
-                        message["new"] = reader.bool();
+                        message.newStroke = reader.bool();
                         break;
                     case 5:
                         if (!(message.points && message.points.length))
@@ -2218,9 +2545,9 @@ $root.whiteboard = (function () {
             if (message.color != null && message.hasOwnProperty("color"))
                 if (!$util.isString(message.color))
                     return "color: string expected";
-            if (message["new"] != null && message.hasOwnProperty("new"))
-                if (typeof message["new"] !== "boolean")
-                    return "new: boolean expected";
+            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+                if (typeof message.newStroke !== "boolean")
+                    return "newStroke: boolean expected";
             if (message.points != null && message.hasOwnProperty("points")) {
                 if (!Array.isArray(message.points))
                     return "points: array expected";
@@ -2250,8 +2577,8 @@ $root.whiteboard = (function () {
                 message.lineWidth = object.lineWidth >>> 0;
             if (object.color != null)
                 message.color = String(object.color);
-            if (object["new"] != null)
-                message["new"] = Boolean(object["new"]);
+            if (object.newStroke != null)
+                message.newStroke = Boolean(object.newStroke);
             if (object.points) {
                 if (!Array.isArray(object.points))
                     throw TypeError(".whiteboard.DrawMessage.points: array expected");
@@ -2283,7 +2610,7 @@ $root.whiteboard = (function () {
                 object.entityName = "";
                 object.lineWidth = 0;
                 object.color = "";
-                object["new"] = false;
+                object.newStroke = false;
             }
             if (message.entityName != null && message.hasOwnProperty("entityName"))
                 object.entityName = message.entityName;
@@ -2291,8 +2618,8 @@ $root.whiteboard = (function () {
                 object.lineWidth = message.lineWidth;
             if (message.color != null && message.hasOwnProperty("color"))
                 object.color = message.color;
-            if (message["new"] != null && message.hasOwnProperty("new"))
-                object["new"] = message["new"];
+            if (message.newStroke != null && message.hasOwnProperty("newStroke"))
+                object.newStroke = message.newStroke;
             if (message.points && message.points.length) {
                 object.points = [];
                 for (var j = 0; j < message.points.length; ++j)
@@ -2317,9 +2644,10 @@ $root.whiteboard = (function () {
          * Properties of an EraseMessage.
          * @memberof whiteboard
          * @interface IEraseMessage
-         * @property {number|null} [x] EraseMessage x
-         * @property {number|null} [y] EraseMessage y
+         * @property {string|null} [entityName] EraseMessage entityName
          * @property {number|null} [size] EraseMessage size
+         * @property {boolean|null} [newErase] EraseMessage newErase
+         * @property {Array.<whiteboard.IPoint>|null} [points] EraseMessage points
          */
         /**
          * Constructs a new EraseMessage.
@@ -2330,25 +2658,19 @@ $root.whiteboard = (function () {
          * @param {whiteboard.IEraseMessage=} [properties] Properties to set
          */
         function EraseMessage(properties) {
+            this.points = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
         /**
-         * EraseMessage x.
-         * @member {number} x
+         * EraseMessage entityName.
+         * @member {string} entityName
          * @memberof whiteboard.EraseMessage
          * @instance
          */
-        EraseMessage.prototype.x = 0;
-        /**
-         * EraseMessage y.
-         * @member {number} y
-         * @memberof whiteboard.EraseMessage
-         * @instance
-         */
-        EraseMessage.prototype.y = 0;
+        EraseMessage.prototype.entityName = "";
         /**
          * EraseMessage size.
          * @member {number} size
@@ -2356,6 +2678,20 @@ $root.whiteboard = (function () {
          * @instance
          */
         EraseMessage.prototype.size = 0;
+        /**
+         * EraseMessage newErase.
+         * @member {boolean} newErase
+         * @memberof whiteboard.EraseMessage
+         * @instance
+         */
+        EraseMessage.prototype.newErase = false;
+        /**
+         * EraseMessage points.
+         * @member {Array.<whiteboard.IPoint>} points
+         * @memberof whiteboard.EraseMessage
+         * @instance
+         */
+        EraseMessage.prototype.points = $util.emptyArray;
         /**
          * Creates a new EraseMessage instance using the specified properties.
          * @function create
@@ -2379,12 +2715,15 @@ $root.whiteboard = (function () {
         EraseMessage.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.x != null && message.hasOwnProperty("x"))
-                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.x);
-            if (message.y != null && message.hasOwnProperty("y"))
-                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.y);
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.entityName);
             if (message.size != null && message.hasOwnProperty("size"))
-                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.size);
+                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.size);
+            if (message.newErase != null && message.hasOwnProperty("newErase"))
+                writer.uint32(/* id 3, wireType 0 =*/ 24).bool(message.newErase);
+            if (message.points != null && message.points.length)
+                for (var i = 0; i < message.points.length; ++i)
+                    $root.whiteboard.Point.encode(message.points[i], writer.uint32(/* id 4, wireType 2 =*/ 34).fork()).ldelim();
             return writer;
         };
         /**
@@ -2418,13 +2757,18 @@ $root.whiteboard = (function () {
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                     case 1:
-                        message.x = reader.uint32();
+                        message.entityName = reader.string();
                         break;
                     case 2:
-                        message.y = reader.uint32();
+                        message.size = reader.uint32();
                         break;
                     case 3:
-                        message.size = reader.uint32();
+                        message.newErase = reader.bool();
+                        break;
+                    case 4:
+                        if (!(message.points && message.points.length))
+                            message.points = [];
+                        message.points.push($root.whiteboard.Point.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2459,15 +2803,24 @@ $root.whiteboard = (function () {
         EraseMessage.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.x != null && message.hasOwnProperty("x"))
-                if (!$util.isInteger(message.x))
-                    return "x: integer expected";
-            if (message.y != null && message.hasOwnProperty("y"))
-                if (!$util.isInteger(message.y))
-                    return "y: integer expected";
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                if (!$util.isString(message.entityName))
+                    return "entityName: string expected";
             if (message.size != null && message.hasOwnProperty("size"))
                 if (!$util.isInteger(message.size))
                     return "size: integer expected";
+            if (message.newErase != null && message.hasOwnProperty("newErase"))
+                if (typeof message.newErase !== "boolean")
+                    return "newErase: boolean expected";
+            if (message.points != null && message.hasOwnProperty("points")) {
+                if (!Array.isArray(message.points))
+                    return "points: array expected";
+                for (var i = 0; i < message.points.length; ++i) {
+                    var error = $root.whiteboard.Point.verify(message.points[i]);
+                    if (error)
+                        return "points." + error;
+                }
+            }
             return null;
         };
         /**
@@ -2482,12 +2835,22 @@ $root.whiteboard = (function () {
             if (object instanceof $root.whiteboard.EraseMessage)
                 return object;
             var message = new $root.whiteboard.EraseMessage();
-            if (object.x != null)
-                message.x = object.x >>> 0;
-            if (object.y != null)
-                message.y = object.y >>> 0;
+            if (object.entityName != null)
+                message.entityName = String(object.entityName);
             if (object.size != null)
                 message.size = object.size >>> 0;
+            if (object.newErase != null)
+                message.newErase = Boolean(object.newErase);
+            if (object.points) {
+                if (!Array.isArray(object.points))
+                    throw TypeError(".whiteboard.EraseMessage.points: array expected");
+                message.points = [];
+                for (var i = 0; i < object.points.length; ++i) {
+                    if (typeof object.points[i] !== "object")
+                        throw TypeError(".whiteboard.EraseMessage.points: object expected");
+                    message.points[i] = $root.whiteboard.Point.fromObject(object.points[i]);
+                }
+            }
             return message;
         };
         /**
@@ -2503,17 +2866,24 @@ $root.whiteboard = (function () {
             if (!options)
                 options = {};
             var object = {};
+            if (options.arrays || options.defaults)
+                object.points = [];
             if (options.defaults) {
-                object.x = 0;
-                object.y = 0;
+                object.entityName = "";
                 object.size = 0;
+                object.newErase = false;
             }
-            if (message.x != null && message.hasOwnProperty("x"))
-                object.x = message.x;
-            if (message.y != null && message.hasOwnProperty("y"))
-                object.y = message.y;
+            if (message.entityName != null && message.hasOwnProperty("entityName"))
+                object.entityName = message.entityName;
             if (message.size != null && message.hasOwnProperty("size"))
                 object.size = message.size;
+            if (message.newErase != null && message.hasOwnProperty("newErase"))
+                object.newErase = message.newErase;
+            if (message.points && message.points.length) {
+                object.points = [];
+                for (var j = 0; j < message.points.length; ++j)
+                    object.points[j] = $root.whiteboard.Point.toObject(message.points[j], options);
+            }
             return object;
         };
         /**

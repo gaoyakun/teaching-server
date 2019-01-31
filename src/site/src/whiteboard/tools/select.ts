@@ -35,6 +35,8 @@ export class WBObjectDeselectedEvent extends lib.BaseEvent {
 }
 export class WBSelectComponent extends lib.Component {
     static readonly type = 'WBSelect';
+    private static selectPattern: CanvasPattern|null = null;
+    private static patternImage: HTMLImageElement|null = null;
     readonly tool: WBSelectTool;
     private _selected: boolean;
     constructor(tool: WBSelectTool) {
@@ -47,13 +49,26 @@ export class WBSelectComponent extends lib.Component {
                 if (shape) {
                     const bbox = shape.getBoundingbox ();
                     if (bbox) {
+                        if (!WBSelectComponent.selectPattern && !WBSelectComponent.patternImage) {
+                            WBSelectComponent.patternImage = new Image ();
+                            WBSelectComponent.patternImage.src = '/images/dragger-4x4.gif';
+                            WBSelectComponent.patternImage.onload = function () {
+                                WBSelectComponent.selectPattern = evt.canvas.context.createPattern (WBSelectComponent.patternImage!, 'repeat');
+                                WBSelectComponent.patternImage = null;
+                            }
+                        }
                         evt.canvas.context.strokeStyle = '#000';
                         evt.canvas.context.lineWidth = 1;
+                        if (WBSelectComponent.selectPattern) {
+                            evt.canvas.context.imageSmoothingEnabled = false;
+                            evt.canvas.context.fillStyle = WBSelectComponent.selectPattern;
+                            evt.canvas.context.fillRect (bbox.x - 16, bbox.y - 16, bbox.w + 32, bbox.h + 32);
+                        }
                         evt.canvas.context.strokeRect (bbox.x, bbox.y, bbox.w, bbox.h);
                     }
                 }
             }
-        });
+        }, lib.EventListenerOrder.FIRST);
         this.on(WBSelectEvent.type, (evt: WBSelectEvent) => {
             this._selected = true;
         });
@@ -69,8 +84,6 @@ export class WBSelectTool extends wb.WBTool {
     private _moving: boolean;
     private _mouseStartPosX: number;
     private _mouseStartPosY: number;
-    private _mouseCurrentPosX: number;
-    private _mouseCurrentPosY: number;
     private _objectLastPos: { x:number,y:number };
     private _lastMoveTime: number;
     constructor(whiteboard: wb.WhiteBoard) {
@@ -79,8 +92,6 @@ export class WBSelectTool extends wb.WBTool {
         this._moving = false;
         this._mouseStartPosX = 0;
         this._mouseStartPosY = 0;
-        this._mouseCurrentPosX = 0;
-        this._mouseCurrentPosY = 0;
         this._objectLastPos = { x:0, y:0 };
         this._lastMoveTime = 0;
     }
@@ -119,8 +130,6 @@ export class WBSelectTool extends wb.WBTool {
                 } else {
                     this.deselect ();
                     this._moving = false;
-                    this._mouseCurrentPosX = ev.x;
-                    this._mouseCurrentPosY = ev.y;
                 }
             }
         });
@@ -146,18 +155,6 @@ export class WBSelectTool extends wb.WBTool {
                         this._objectLastPos.x = x + dx;
                         this._objectLastPos.y = y + dy;
                     }
-/*
-                    lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-                        name: this._selectedObject.entityName,
-                        propName: 'localx',
-                        propValueJson: JSON.stringify(t.x + dx)
-                    }));
-                    lib.App.triggerEvent (null, new wb.WBMessageEvent(MsgType.whiteboard_SetObjectPropertyMessage, {
-                        name: this._selectedObject.entityName,
-                        propName: 'localy',
-                        propValueJson: JSON.stringify(t.y + dy)
-                    }));
-*/
                 }
             }
         });

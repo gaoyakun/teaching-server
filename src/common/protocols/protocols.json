@@ -58,6 +58,12 @@
             "Start": 30000
           }
         },
+        "StrokeType": {
+          "values": {
+            "Draw": 1,
+            "Erase": 2
+          }
+        },
         "CommandMessage": {
           "fields": {
             "command": {
@@ -143,6 +149,35 @@
             }
           }
         },
+        "StrokeMessage": {
+          "fields": {
+            "entityName": {
+              "type": "string",
+              "id": 1
+            },
+            "type": {
+              "type": "StrokeType",
+              "id": 2
+            },
+            "points": {
+              "rule": "repeated",
+              "type": "Point",
+              "id": 3
+            },
+            "lineWidth": {
+              "type": "uint32",
+              "id": 4
+            },
+            "color": {
+              "type": "string",
+              "id": 5
+            },
+            "size": {
+              "type": "uint32",
+              "id": 6
+            }
+          }
+        },
         "DrawMessage": {
           "fields": {
             "entityName": {
@@ -157,7 +192,7 @@
               "type": "string",
               "id": 3
             },
-            "new": {
+            "newStroke": {
               "type": "bool",
               "id": 4
             },
@@ -170,17 +205,22 @@
         },
         "EraseMessage": {
           "fields": {
-            "x": {
-              "type": "uint32",
+            "entityName": {
+              "type": "string",
               "id": 1
-            },
-            "y": {
-              "type": "uint32",
-              "id": 2
             },
             "size": {
               "type": "uint32",
+              "id": 2
+            },
+            "newErase": {
+              "type": "bool",
               "id": 3
+            },
+            "points": {
+              "rule": "repeated",
+              "type": "Point",
+              "id": 4
             }
           }
         },

@@ -93,6 +93,7 @@ export class WBHandWritingTool extends wb.WBTool {
         if (this._freedrawNode) {
             this._freedrawNode.releaseCapture();
             this._freedrawNode.reset ();
+            this._freedrawNode.mode = 'none';
             this._freedrawNode = null;
         }
         super.deactivate ();

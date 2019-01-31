@@ -5,6 +5,11 @@ enum MessageID {
     Start = 30000;
 }
 
+enum StrokeType {
+    Draw = 1;
+    Erase = 2;
+}
+
 message CommandMessage {
     string command = 1;
 }
@@ -40,18 +45,28 @@ message Point {
     uint32 y = 2;
 }
 
+message StrokeMessage {
+    string entityName = 1;
+    StrokeType type = 2;
+    repeated Point points = 3;
+    optional uint32 lineWidth = 4;
+    optional string color = 5;
+    optional uint32 size = 6;
+}
+
 message DrawMessage {
     string entityName = 1;
     optional uint32 lineWidth = 2;
     optional string color = 3;
-    bool new = 4;
+    bool newStroke = 4;
     repeated Point points = 5;
 }
 
 message EraseMessage {
-    uint32 x = 1;
-    uint32 y = 2;
-    uint32 size = 3;
+    string entityName = 1;
+    optional uint32 size = 2;
+    bool newErase = 3;
+    repeated Point points = 4;
 }
 
 message SwapObjectMessage {
