@@ -1,8 +1,10 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.create_whiteboard = {})));
-}(this, (function (exports) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('socket.io-client')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'socket.io-client'], factory) :
+	(factory((global.create_whiteboard = {}),global.io));
+}(this, (function (exports,socket) { 'use strict';
+
+	socket = socket && socket.hasOwnProperty('default') ? socket['default'] : socket;
 
 	var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -13769,16 +13771,275 @@
 
 	unwrapExports(whiteboard$2);
 
+	var protoutils = createCommonjsModule(function (module, exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+	function getUint32(array, offset) {
+	    var result = array[offset] << 24;
+	    result += array[offset + 1] << 16;
+	    result += array[offset + 2] << 8;
+	    result += array[offset + 3];
+	    return result;
+	}
+	function setUint32(array, offset, num) {
+	    array[offset] = (num >> 24) & 0xff;
+	    array[offset + 1] = (num >> 16) & 0xff;
+	    array[offset + 2] = (num >> 8) & 0xff;
+	    array[offset + 3] = num & 0xff;
+	}
+	var Packet = /** @class */ (function () {
+	    function Packet(buffer) {
+	        this._buffer = buffer || null;
+	    }
+	    Packet.create = function (msgId, data) {
+	        var packet = new Packet();
+	        packet.encode(msgId, data);
+	        return packet;
+	    };
+	    Object.defineProperty(Packet.prototype, "buffer", {
+	        get: function () {
+	            return this._buffer;
+	            // return this._buffer ? this._buffer.buffer.slice (this._buffer.byteOffset, this._buffer.byteOffset + this._buffer.byteLength) : null;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Packet.prototype.getMsgData = function () {
+	        if ((!this._buffer) || this._buffer.byteLength < 8) {
+	            return null;
+	        }
+	        var length = getUint32(this._buffer, 0);
+	        if (this._buffer.byteLength < length + 4) {
+	            return null;
+	        }
+	        var msgId = getUint32(this._buffer, 4);
+	        var msgData = { type: msgId };
+	        if (this._buffer.byteLength > 8) {
+	            var cls = protolist.msgMap[msgId];
+	            var content = cls.decode(this._buffer.subarray(8, length + 4));
+	            if (content) {
+	                msgData.data = cls.toObject(content);
+	            }
+	        }
+	        return msgData;
+	    };
+	    Packet.prototype.encode = function (msgId, data) {
+	        var cls = protolist.msgMap[msgId];
+	        var tmpBuffer = cls.encode(cls.create(data)).finish();
+	        this._buffer = new Uint8Array(4 + 4 + tmpBuffer.length);
+	        setUint32(this._buffer, 0, tmpBuffer.length + 4);
+	        setUint32(this._buffer, 4, msgId);
+	        this._buffer.set(tmpBuffer, 8);
+	    };
+	    return Packet;
+	}());
+	exports.Packet = Packet;
+	var MessageAssembler = /** @class */ (function () {
+	    function MessageAssembler() {
+	        this.BUFFER_INCR_SIZE = 1024;
+	        this._buffer = new Uint8Array(this.BUFFER_INCR_SIZE);
+	        this._offset = 0;
+	        this._length = 0;
+	        this._messages = [];
+	    }
+	    MessageAssembler.prototype.put = function (data) {
+	        if (this._buffer.byteLength - this._offset - this._length >= data.byteLength) {
+	            this._buffer.set(data, this._offset + this._length);
+	        }
+	        else if (this._buffer.byteLength - this._length >= data.byteLength) {
+	            this._buffer.copyWithin(0, this._offset, this._offset + this._length);
+	            this._offset = 0;
+	            this._buffer.set(data, this._length);
+	        }
+	        else {
+	            var len = this._buffer.byteLength;
+	            while (len - this._length < data.byteLength) {
+	                len += this.BUFFER_INCR_SIZE;
+	            }
+	            var newBuffer = new Uint8Array(len);
+	            newBuffer.set(this._buffer.subarray(this._offset, this._offset + this._length), 0);
+	            newBuffer.set(data, this._length);
+	            this._buffer = newBuffer;
+	            this._offset = 0;
+	        }
+	        this._length += data.byteLength;
+	        while (true) {
+	            var message = this._get();
+	            if (!message) {
+	                break;
+	            }
+	            this._messages.push(message);
+	        }
+	    };
+	    MessageAssembler.prototype.getMessage = function () {
+	        return this._messages.shift() || null;
+	    };
+	    MessageAssembler.prototype._get = function () {
+	        if (this._length < 4) {
+	            return null;
+	        }
+	        var packetLen = getUint32(this._buffer, this._offset);
+	        if (!packetLen) {
+	            return null;
+	        }
+	        packetLen += 4;
+	        if (this._length < packetLen) {
+	            return null;
+	        }
+	        var packetData = this._buffer.subarray(this._offset, this._offset + packetLen);
+	        this._offset += packetLen;
+	        this._length -= packetLen;
+	        return new Packet(packetData).getMsgData();
+	    };
+	    return MessageAssembler;
+	}());
+	exports.MessageAssembler = MessageAssembler;
+
+	});
+
+	unwrapExports(protoutils);
+	var protoutils_1 = protoutils.Packet;
+	var protoutils_2 = protoutils.MessageAssembler;
+
+	var cmdserver = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+	var whiteboard_2 = whiteboard;
+
+
+
+
+	var SocketStateEvent = /** @class */ (function (_super) {
+	    __extends(SocketStateEvent, _super);
+	    function SocketStateEvent(state) {
+	        var _this = _super.call(this, SocketStateEvent.type) || this;
+	        _this.state = state;
+	        return _this;
+	    }
+	    SocketStateEvent.type = '@SocketState';
+	    return SocketStateEvent;
+	}(catk.BaseEvent));
+	exports.SocketStateEvent = SocketStateEvent;
+	var SocketCommandServer = /** @class */ (function (_super) {
+	    __extends(SocketCommandServer, _super);
+	    function SocketCommandServer(wb, uri) {
+	        var _this = _super.call(this) || this;
+	        _this._uri = uri;
+	        _this._wb = wb;
+	        _this._socket = null;
+	        _this._assembler = new protoutils.MessageAssembler();
+	        return _this;
+	    }
+	    SocketCommandServer.prototype.start = function () {
+	        var _this = this;
+	        console.log("Trying connect to " + this._uri);
+	        this._socket = socket(this._uri, {
+	            transports: ['websocket'],
+	            reconnection: false
+	        });
+	        this._socket.on('connect', function () {
+	            _this.onConnect();
+	        });
+	        this._socket.on('message', function (data) {
+	            var buf = data;
+	            var u8arr = new Uint8Array(buf);
+	            _this._assembler.put(u8arr);
+	            while (true) {
+	                var msg = _this._assembler.getMessage();
+	                if (msg) {
+	                    if (msg.type === protolist.MsgType.whiteboard_EventMessage) {
+	                        var msgData = new protoutils.Packet(msg.data.message).getMsgData();
+	                        if (msgData) {
+	                            var ev = new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
+	                            ev.broadcast = true;
+	                            console.log("Got sync message " + msgData.type);
+	                            _this._wb.triggerEx(ev);
+	                        }
+	                    }
+	                    else {
+	                        catk.App.triggerEvent(null, new whiteboard_2.EvtSocketMessage(msg.type, msg.data));
+	                    }
+	                    /*
+	                    if (msg.type === MsgType.whiteboard_CommandMessage) {
+	                        const cmd:any = JSON.parse (msg.data.command);
+	                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
+	                    } else {
+	                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
+	                    }
+	                    */
+	                }
+	                else {
+	                    break;
+	                }
+	            }
+	        });
+	        this._socket.on('disconnect', function (reason) {
+	            console.log("Disconnected: " + reason);
+	            _this.onDisconnect();
+	        });
+	        this.on(whiteboard.WBMessageEvent.type, function (ev) {
+	            if (_this._socket && _this._socket.connected) {
+	                var data = {
+	                    message: protoutils.Packet.create(ev.messageType, ev.messageData).buffer
+	                };
+	                if (ev.object) {
+	                    data.object = ev.object;
+	                }
+	                var wrapPacket = protoutils.Packet.create(protolist.MsgType.whiteboard_EventMessage, data);
+	                _this._socket.binary(true).emit('message', wrapPacket.buffer);
+	            }
+	        });
+	        return true;
+	    };
+	    SocketCommandServer.prototype.stop = function () {
+	        if (this._socket) {
+	            this._socket.close();
+	        }
+	        return true;
+	    };
+	    SocketCommandServer.prototype.onConnect = function () {
+	        catk.App.triggerEvent(null, new SocketStateEvent('connected'));
+	    };
+	    SocketCommandServer.prototype.onEvent = function (data) {
+	        catk.App.triggerEvent(null, new SocketStateEvent('event'));
+	    };
+	    SocketCommandServer.prototype.onDisconnect = function () {
+	        catk.App.triggerEvent(null, new SocketStateEvent('disconnected'));
+	    };
+	    return SocketCommandServer;
+	}(catk.EventObserver));
+	exports.SocketCommandServer = SocketCommandServer;
+
+	});
+
+	unwrapExports(cmdserver);
+	var cmdserver_1 = cmdserver.SocketStateEvent;
+	var cmdserver_2 = cmdserver.SocketCommandServer;
+
 	var create_whiteboard = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 
-	function init() {
+
+	function init(uri) {
 	    var WB = new whiteboard$2.WhiteBoard(document.querySelector('#playground-canvas'), true);
 	    whiteboard$2.installTools(WB);
 	    whiteboard$2.installFactories(WB);
+	    if (uri) {
+	        var server = new cmdserver.SocketCommandServer(WB, uri);
+	        server.start();
+	    }
 	    var toolToolboxDiv = document.querySelector('#tool-toolbox');
-	    var opToolboxDiv = document.querySelector('#op-toolbox');
 	    var objPropGridDiv = document.querySelector('#object-options');
 	    var toolPropGridDiv = document.querySelector('#tool-options');
 	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);

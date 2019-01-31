@@ -1,13 +1,18 @@
 import * as wb from './whiteboard';
 import * as lib from './catk';
+import { SocketCommandServer } from './cmdserver/cmdserver';
 
-export function init () {
+export function init (uri: string) {
     const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);
 
+    if (uri) {
+        const server = new SocketCommandServer (WB, uri);
+        server.start ();
+    }
+
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#tool-toolbox') as HTMLDivElement;
-    const opToolboxDiv: HTMLDivElement = document.querySelector('#op-toolbox') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-options') as HTMLDivElement;
     const toolPropGridDiv: HTMLDivElement = document.querySelector('#tool-options') as HTMLDivElement;
     const editor = new wb.WBEditor (WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);

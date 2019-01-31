@@ -78,14 +78,29 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidContent));
     }
     else {
-        const rows = yield config_1.GetConfig.engine.query({
-            sql: 'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
-            param: [account, email, password, account, account, email]
-        });
-        if (rows.affectedRows === 1) {
+        const dbSession = yield config_1.GetConfig.engine.beginSession();
+        try {
+            const res1 = yield dbSession.query({
+                sql: 'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
+                param: [account, email, password, account, account, email]
+            });
+            if (res1.affectedRows === 0) {
+                yield dbSession.cancel();
+                return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
+            }
+            const res2 = yield dbSession.query({
+                sql: 'insert into `user_profile` (user_id, gender, mobile, avatar) values (?, ?, ?, ?)',
+                param: [res1.insertId, 0, '', '']
+            });
+            if (res2.affectedRows === 0) {
+                yield dbSession.cancel();
+                return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
+            }
+            yield dbSession.end();
             return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
         }
-        else {
+        catch (err) {
+            yield dbSession.cancel();
             return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kAuthError));
         }
     }
@@ -192,7 +207,7 @@ exports.apiRouter.post('/trust/close_room', (req, res, next) => __awaiter(this, 
     if (!serverInfo) {
         throw new Error('没有可以结束的房间');
     }
-    const result = yield requestwrapper_1.requestWrapper(`${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+    const result = yield requestwrapper_1.requestWrapper(`http://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
         room: roomId
     });
     console.log(JSON.stringify(result));

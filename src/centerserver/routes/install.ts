@@ -123,7 +123,7 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
             await session.end ();
             res.redirect ('/install/storage');
         } catch (err) {
-            session.cancel ();
+            await session.cancel ();
             console.error (err);
             res.json ({
                 err: ErrorCode.kDatabaseError

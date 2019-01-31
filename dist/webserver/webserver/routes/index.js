@@ -151,7 +151,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
         if (!serverInfo) {
             throw new Error('服务器维护中，目前无法进入房间');
         }
-        yield requestwrapper_1.requestWrapper(`${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
+        yield requestwrapper_1.requestWrapper(`http://${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
             room: roomId
         });
     }
@@ -162,7 +162,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
             throw new Error('服务器维护中，目前无法进入房间');
         }
     }
-    res.render('room.ejs', {
+    res.render('create_whiteboard', {
         user: {
             name: req.session.loginUserAccount
         },

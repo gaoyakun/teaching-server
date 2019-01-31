@@ -37,6 +37,9 @@ class DoubleListIterator {
         if (this.valid()) {
             return this._node.data;
         }
+        else {
+            throw new Error('Invalid interator');
+        }
     }
     set data(val) {
         if (this.valid()) {

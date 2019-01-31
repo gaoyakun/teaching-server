@@ -30,6 +30,8 @@ function initializeApp() {
         servermgr_1.Server.init(constants_1.ServerType.Web, config_1.GetConfig, path.join(__dirname, 'conf', 'config.json'));
         app.set('views', path.join(__dirname, 'views'));
         app.set('view engine', 'ejs');
+        app.set('view cache', false);
+        app.set('etag', false);
         app.use(logger('dev'));
         app.use(express.urlencoded({ extended: false }));
         app.use(fileUpload({ limits: { fileSize: 50 * 1024 * 1024 } }));
@@ -37,6 +39,10 @@ function initializeApp() {
         app.use(cookieParser());
         app.use(express.static(path.join(__dirname, '../../site')));
         app.use(middlewares.middlewareSession);
+        app.use((req, res, next) => {
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            next();
+        });
         app.use('/trust', middlewares.middlewareAuth);
         app.use('/api/trust', middlewares.middlewareAuth);
         app.use('/api', api_1.apiRouter);

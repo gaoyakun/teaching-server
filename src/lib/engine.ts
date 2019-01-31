@@ -574,12 +574,22 @@ export namespace Engine {
                 }
             });
         };
-        cancel () {
-            if (this.connection != null) {
-                this.connection.rollback();
-                this.engine.releaseConnection(this.connection);
-                this.connection = null;
-            }
+        async cancel () {
+            return new Promise<any> ((resolve, reject) => {
+                if (this.connection != null) {
+                    this.connection.rollback(err => {
+                        this.engine.releaseConnection(this.connection!);
+                        this.connection = null;
+                        if (err) {
+                            reject (new Error (ErrorCode[ErrorCode.kDatabaseError]));
+                        } else {
+                            resolve ();
+                        }
+                    });
+                } else {
+                    resolve ();
+                }
+            });
         };
         objects (tableName: string) {
             return new Engine.DBObjects(this, tableName);

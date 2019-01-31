@@ -149,10 +149,18 @@
         <script src="/js/jquery.min.js"></script>
         <script src="/js/socket.io.js"></script>
         <script src="/js/create_whiteboard.js"></script>
+        <% if (serverinfo) { %>
+        <script>
+            $(document).ready (function () {
+                create_whiteboard.init ("<%- serverinfo.host %>");
+            });
+        </script>
+        <% } else { %>
         <script>
             $(document).ready (function () {
                 create_whiteboard.init ();
             });
         </script>
+        <% } %>
     </body>
 </html>

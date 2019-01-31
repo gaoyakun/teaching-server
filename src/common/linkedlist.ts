@@ -37,6 +37,8 @@ export class DoubleListIterator<T = any> {
     get data () {
         if (this.valid()) {
             return (this._node as DoubleListNode<T>).data;
+        } else {
+            throw new Error ('Invalid interator');
         }
     }
     set data (val: T) {

@@ -13963,6 +13963,7 @@
 	                        if (msgData) {
 	                            var ev = new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
 	                            ev.broadcast = true;
+	                            console.log("Got sync message " + msgData.type);
 	                            _this._wb.triggerEx(ev);
 	                        }
 	                    }

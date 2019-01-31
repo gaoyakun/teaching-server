@@ -27,6 +27,11 @@ async function initializeApp () {
     app.use (express.static(path.join(__dirname, '../../site')));
     app.use (middlewares.middlewareSession);
 
+    app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
+        res.set ('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        next ();
+    });
+    
     app.use ('/', indexRouter);
     
     app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {

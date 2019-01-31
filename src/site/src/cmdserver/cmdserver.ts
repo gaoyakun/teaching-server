@@ -48,6 +48,7 @@ export class SocketCommandServer extends catk.EventObserver {
                         if (msgData) {
                             const ev = new WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
                             ev.broadcast = true;
+                            console.log (`Got sync message ${msgData.type}`);
                             this._wb.triggerEx (ev);
                         }
                     } else {

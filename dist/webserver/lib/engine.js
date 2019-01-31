@@ -614,11 +614,25 @@ exports.Engine = Engine;
         }
         ;
         cancel() {
-            if (this.connection != null) {
-                this.connection.rollback();
-                this.engine.releaseConnection(this.connection);
-                this.connection = null;
-            }
+            return __awaiter(this, void 0, void 0, function* () {
+                return new Promise((resolve, reject) => {
+                    if (this.connection != null) {
+                        this.connection.rollback(err => {
+                            this.engine.releaseConnection(this.connection);
+                            this.connection = null;
+                            if (err) {
+                                reject(new Error(errcodes_1.ErrorCode[errcodes_1.ErrorCode.kDatabaseError]));
+                            }
+                            else {
+                                resolve();
+                            }
+                        });
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            });
         }
         ;
         objects(tableName) {

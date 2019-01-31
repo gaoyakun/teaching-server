@@ -65,7 +65,9 @@ export class Client {
         if (this._socket && this._room) {
             const events = await Server.redis.lrange (`room:${this._room.id}:events`, 0, -1);
             if (events) {
+                let i = 0;
                 for (const ev of events) {
+                    console.log (`Sync board event ${i++}`);
                     this.sendBuffer ('message', new Buffer(ev, 'base64'));
                 }
             }

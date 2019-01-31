@@ -22,6 +22,11 @@ app.use (express.json());
 app.use (cookieParser());
 app.use (express.static(path.join(__dirname, '../../site')));
 
+app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.set ('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next ();
+});
+
 app.use ('/api', apiRouter);
 app.use ('/install', installRouter);
 app.use ('/', indexRouter);

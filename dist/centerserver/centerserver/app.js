@@ -20,6 +20,10 @@ exports.app.use(fileUpload({ limits: { fileSize: 50 * 1024 * 1024 } }));
 exports.app.use(express.json());
 exports.app.use(cookieParser());
 exports.app.use(express.static(path.join(__dirname, '../../site')));
+exports.app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
 exports.app.use('/api', api_1.apiRouter);
 exports.app.use('/install', install_1.installRouter);
 exports.app.use('/', index_1.indexRouter);

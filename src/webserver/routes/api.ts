@@ -67,13 +67,28 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     } else if (account !== xss(account) || email !== xss(email) || password !== xss(password)) {
         return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
     } else {
-        const rows = await GetConfig.engine.query({
-            sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
-            param:[account, email, password, account, account, email]
-        });
-        if (rows.affectedRows === 1) {
+        const dbSession = await GetConfig.engine.beginSession ();
+        try {
+            const res1 = await dbSession.query({
+                sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
+                param:[account, email, password, account, account, email]
+            });
+            if (res1.affectedRows === 0) {
+                await dbSession.cancel ();
+                return res.json (Utils.httpResult(ErrorCode.kAuthError));
+            }
+            const res2 = await dbSession.query({
+                sql: 'insert into `user_profile` (user_id, gender, mobile, avatar) values (?, ?, ?, ?)',
+                param: [ res1.insertId, 0, '', '' ]
+            });
+            if (res2.affectedRows === 0) {
+                await dbSession.cancel ();
+                return res.json (Utils.httpResult(ErrorCode.kAuthError));
+            }
+            await dbSession.end ();
             return res.json (Utils.httpResult(ErrorCode.kSuccess));
-        } else {
+        } catch (err) {
+            await dbSession.cancel ();
             return res.json (Utils.httpResult(ErrorCode.kAuthError));
         }
     }
@@ -187,7 +202,7 @@ apiRouter.post('/trust/close_room', async (req:express.Request, res:express.Resp
     if (!serverInfo) {
         throw new Error ('没有可以结束的房间');
     }
-    const result = await requestWrapper (`${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+    const result = await requestWrapper (`http://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
         room: roomId
     });
     console.log (JSON.stringify(result));

@@ -54,17 +54,22 @@
 
                 (function(){
                     var video = document.getElementById('webcam');
-                    var getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia ||  navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+                    getUserMedia = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+                    caller = navigator.mediaDevices;
                     if (video.srcObject === undefined || getUserMedia === undefined) {
                         alert ('your browser not support webrtc');
                     } else {
-                        getUserMedia.call (navigator, {
+                        getUserMedia.call (caller, {
                             video: true,
                             audio: false
-                        }, function(stream){
-                            video.srcObject = stream;
-                            video.autoplay = true;
-                        }, function(err){
+                        }).then (function(stream) {
+                            if (window.webkitURL) {
+                                video.srcObject = stream;
+                            } else {
+                                video.srcObject = stream;
+                            }
+                            video.play ();
+                        }).catch (function(err){
                             alert ('getUserMedia failed:' + err);
                         });
                     }

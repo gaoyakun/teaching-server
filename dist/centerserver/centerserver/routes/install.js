@@ -132,7 +132,7 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
             res.redirect('/install/storage');
         }
         catch (err) {
-            session.cancel();
+            yield session.cancel();
             console.error(err);
             res.json({
                 err: errcodes_1.ErrorCode.kDatabaseError
