@@ -86,22 +86,33 @@
                 line-height: 0.6rem;
                 color: #000;
             }
+            .no-pointer-events {
+                pointer-events:none;
+            }
+            .dropdown-toggle::after {
+                pointer-events:all;
+            }
         </style>
     </head>
     <body class="m-0" style="background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5); height:100%;">
         <div class="container-fluid h-100 d-flex flex-column">
             <div class="row p-0 toolbar btn-toolbar">
                 <div class="btn-group ml-1 mr-1" role="group">
-                    <a class="btn" id="tb-text"><img src="/images/toolbar-text.png" width="28" height="25"><div class="small">标签</div></a>
-                    <a class="btn" id="tb-select"><img src="/images/toolbar-select.png" width="28" height="25"><div class="small">选择</div></a>
-                    <a class="btn" id="tb-swap"><img src="/images/toolbar-swap.png" width="28" height="25"><div class="small">交换</div></a>
-                    <a class="btn" id="tb-connect"><img src="/images/toolbar-connect.png" width="28" height="25"><div class="small">箭头</div></a>
-                    <a class="btn" id="tb-draw"><img src="/images/toolbar-draw.png" width="28" height="25"><div class="small">绘图</div></a>
-                    <a class="btn" id="tb-erase"><img src="/images/toolbar-erase.png" width="28" height="25"><div class="small">擦除</div></a>
+                    <a class="btn" id="tb-text"><div style="display:inline-block;"><img src="/images/toolbar-text.png" width="28" height="25"><div class="small">标签</div></div></a>
+                    <a class="btn" id="tb-select"><div style="display:inline-block;"><img src="/images/toolbar-select.png" width="28" height="25"><div class="small">选择</div></div></a>
+                    <a class="btn" id="tb-swap"><div style="display:inline-block;"><img src="/images/toolbar-swap.png" width="28" height="25"><div class="small">交换</div></div></a>
+                    <a class="btn" id="tb-connect"><div style="display:inline-block;"><img src="/images/toolbar-connect.png" width="28" height="25"><div class="small">箭头</div></div></a>
+                    <a class="btn" id="tb-draw"><div style="display:inline-block;"><img src="/images/toolbar-draw.png" width="28" height="25"><div class="small">绘图</div></div></a>
+                    <a class="btn" id="tb-erase"><div style="display:inline-block;"><img src="/images/toolbar-erase.png" width="28" height="25"><div class="small">擦除</div></div></a>
+                    <a class="btn dropdown-toggle no-pointer-events" data-toggle="dropdown"><div id="tb-shape-dropdown" style="pointer-events:all;display:inline-block;"><img src="/images/toolbar-nextpage.png" width="28" height="25"><div class="small">形状</div></div></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#"><img src="/images/toolbar-erase.png" width="20"><span class="ml-2">矩形</span></a>
+                        <a class="dropdown-item" href="#"><img src="/images/toolbar-draw.png" width="20"><span class="ml-2">圆/椭圆</span></a>
+                    </div>
                 </div>
                 <div class="toolbar-seperator"></div>
                 <div class="btn-group ml-1 mr-1" role="group">
-                    <a class="btn" id="tb-undo"><img src="/images/toolbar-undo.png" width="28" height="25"><div class="small">撤消</div></a>
+                    <a class="btn" id="tb-undo"><div style="display:inline-block;"><img src="/images/toolbar-undo.png" width="28" height="25"><div class="small">撤消</div></div></a>
                 </div>
             </div>
             <div class="row pt-1 pb-1 subtoolbar btn-toolbar">
@@ -147,18 +158,37 @@
             </div>
         </div>
         <script src="/js/jquery.min.js"></script>
+        <script src="/js/popper.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
         <script src="/js/socket.io.js"></script>
         <script src="/js/create_whiteboard.js"></script>
         <% if (serverinfo) { %>
         <script>
             $(document).ready (function () {
                 create_whiteboard.init ("<%- serverinfo.host %>");
+                $('#tb-shape-dropdown').off ('click');
+                $('#tb-shape-dropdown').on ('click', function(ev) {
+                    if (ev.target === this) {
+                        console.log ('click element');
+                    } else {
+                        console.log ('click after');
+                    }
+                    ev.stopPropagation ();
+                });
             });
         </script>
         <% } else { %>
         <script>
             $(document).ready (function () {
                 create_whiteboard.init ();
+                $('#tb-shape-dropdown').on ('click', function(ev) {
+                    if (ev.target === this) {
+                        console.log ('click element');
+                    } else {
+                        console.log ('click after');
+                    }
+                    ev.stopPropagation ();
+                });
             });
         </script>
         <% } %>
