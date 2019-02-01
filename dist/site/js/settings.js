@@ -734,12 +734,111 @@
 	unwrapExports(grid_view);
 	var grid_view_1 = grid_view.GridView;
 
+	var toolbar = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
+	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	    if (m) return m.call(o);
+	    return {
+	        next: function () {
+	            if (o && i >= o.length) o = void 0;
+	            return { value: o && o[i++], done: !o };
+	        }
+	    };
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var Toolbar = /** @class */ (function (_super) {
+	    __extends(Toolbar, _super);
+	    function Toolbar() {
+	        return _super !== null && _super.apply(this, arguments) || this;
+	    }
+	    Toolbar.prototype._init = function () {
+	        var e_1, _a;
+	        this.$el.addClass(['p-0', 'toolbar', 'btn-toolbar']);
+	        for (var groupName in this.options) {
+	            var group = this.options[groupName];
+	            var groupDiv = jquery('<div></div>').addClass(['btn-group', 'ml-1', 'mr-1']).attr('role', 'group').appendTo(this.$el);
+	            try {
+	                for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                    var tool = _c.value;
+	                    this.createToolButton(groupDiv, tool);
+	                }
+	            }
+	            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+	            finally {
+	                try {
+	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                }
+	                finally { if (e_1) throw e_1.error; }
+	            }
+	        }
+	    };
+	    Toolbar.prototype.createToolButton = function (group, tool) {
+	        var e_2, _a;
+	        var button = jquery('<a></a>').addClass('btn').attr({
+	            id: tool.id,
+	        }).appendTo(group);
+	        var clickDiv = jquery('<div></div>').css({
+	            display: 'inline-block'
+	        }).appendTo(button);
+	        var icon = jquery('<img/>').attr({
+	            src: tool.icon,
+	            width: 28,
+	            height: 25
+	        }).appendTo(clickDiv);
+	        var label = jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv);
+	        if (tool.subTools && tool.subTools.length > 0) {
+	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
+	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(group);
+	            try {
+	                for (var _b = __values(tool.subTools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                    var subTool = _c.value;
+	                    var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('id', subTool.id).appendTo(menu);
+	                    var subToolImg = jquery('<img/>').attr({
+	                        src: subTool.icon,
+	                        width: 20
+	                    }).appendTo(subToolButton);
+	                    var subToolLabel = jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
+	                }
+	            }
+	            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	            finally {
+	                try {
+	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                }
+	                finally { if (e_2) throw e_2.error; }
+	            }
+	        }
+	        return button;
+	    };
+	    return Toolbar;
+	}(widget.Widget));
+	exports.Toolbar = Toolbar;
+
+	});
+
+	unwrapExports(toolbar);
+	var toolbar_1 = toolbar.Toolbar;
+
 	var mod_ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
 	exports.FolderTree = folder_tree.FolderTree;
 
 	exports.GridView = grid_view.GridView;
+
+	exports.Toolbar = toolbar.Toolbar;
 
 	exports.Widget = widget.Widget;
 
@@ -748,7 +847,8 @@
 	unwrapExports(mod_ui);
 	var mod_ui_1 = mod_ui.FolderTree;
 	var mod_ui_2 = mod_ui.GridView;
-	var mod_ui_3 = mod_ui.Widget;
+	var mod_ui_3 = mod_ui.Toolbar;
+	var mod_ui_4 = mod_ui.Widget;
 
 	var ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -756,6 +856,7 @@
 	(function () {
 	    mod_ui.Widget.register(mod_ui.FolderTree, 'folderTree');
 	    mod_ui.Widget.register(mod_ui.GridView, 'gridView');
+	    mod_ui.Widget.register(mod_ui.Toolbar, 'toolbar');
 	})();
 
 	});

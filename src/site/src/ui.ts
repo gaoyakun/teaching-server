@@ -4,6 +4,7 @@ export type ITreeData = UI.ITreeData;
 export type ITreeNode = UI.ITreeNode;
 export type IGridViewData = UI.IGridViewData;
 export type IGridViewNode = UI.IGridViewNode;
+export type IToolbarData = UI.IToolbarData;
 
 interface IFolderTree {
     (options?: UI.ITreeData): JQuery;
@@ -18,10 +19,15 @@ interface IGridView {
     (command:'setData', data:UI.IGridViewData): void;
 }
 
+interface IToolbar {
+    (options?: UI.IToolbarData): JQuery;
+}
+
 declare global {
     interface JQuery {
         folderTree: IFolderTree;
         gridView: IGridView;
+        toolbar: IToolbar;
         modal: any;
     }
 }
@@ -29,5 +35,6 @@ declare global {
 (function () {
     UI.Widget.register (UI.FolderTree, 'folderTree');
     UI.Widget.register (UI.GridView, 'gridView');
+    UI.Widget.register (UI.Toolbar, 'toolbar');
 })();
 

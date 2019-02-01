@@ -1,3 +1,6 @@
+import './ui';
+import { IToolbarData } from './ui';
+import * as $ from 'jquery';
 import * as wb from './whiteboard';
 import * as lib from './catk';
 import { SocketCommandServer } from './cmdserver/cmdserver';
@@ -11,6 +14,31 @@ export function init (uri: string) {
         const server = new SocketCommandServer (WB, uri);
         server.start ();
     }
+
+    $('#test-toolbar').toolbar ({
+        group1: {
+            toggle: 'single',
+            name: 'group1',
+            tools: [{
+                id: 'tool-button-1',
+                icon: '/images/toolbar-text.png',
+                text: 'button1'
+            }, {
+                id: 'tool-button-2',
+                icon: '/images/toolbar-undo.png',
+                text: 'button2',
+                subTools: [{
+                    id: 'tool-button-3',
+                    icon: '/images/toolbar-undo.png',
+                    text: 'button3'
+                }, {
+                    id: 'tool-button-4',
+                    icon: '/images/toolbar-undo.png',
+                    text: 'button4'
+                }]
+            }]
+        }
+    });
 
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#tool-toolbox') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-options') as HTMLDivElement;
