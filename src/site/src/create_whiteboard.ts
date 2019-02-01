@@ -29,15 +29,18 @@ export function init (uri: string) {
                 text: 'button2',
                 subTools: [{
                     id: 'tool-button-3',
-                    icon: '/images/toolbar-undo.png',
+                    icon: '/images/toolbar-text.png',
                     text: 'button3'
                 }, {
                     id: 'tool-button-4',
-                    icon: '/images/toolbar-undo.png',
+                    icon: '/images/toolbar-draw.png',
                     text: 'button4'
                 }]
             }]
         }
+    });
+    $('#test-toolbar').on ('itemclick', function (ev, tool) {
+        console.log (JSON.stringify (tool));
     });
 
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#tool-toolbox') as HTMLDivElement;

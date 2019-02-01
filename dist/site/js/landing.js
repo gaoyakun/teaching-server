@@ -764,15 +764,98 @@
 	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    Toolbar.prototype._init = function () {
-	        var e_1, _a;
 	        this.$el.addClass(['p-0', 'toolbar', 'btn-toolbar']);
 	        for (var groupName in this.options) {
 	            var group = this.options[groupName];
 	            var groupDiv = jquery('<div></div>').addClass(['btn-group', 'ml-1', 'mr-1']).attr('role', 'group').appendTo(this.$el);
+	            for (var i = 0; i < group.tools.length; i++) {
+	                this.createToolButton(groupDiv, group, i);
+	            }
+	        }
+	    };
+	    Toolbar.prototype.createToolButton = function (groupDiv, group, index) {
+	        var _this = this;
+	        var e_1, _a;
+	        var tool = group.tools[index];
+	        tool.active = false;
+	        if (tool.subTools && tool.subTools.length > 0) {
+	            tool.id = tool.subTools[0].id;
+	            tool.icon = tool.subTools[0].icon;
+	        }
+	        var button = jquery('<a></a>').addClass('btn').attr({
+	            id: tool.id,
+	        }).appendTo(groupDiv);
+	        var clickDiv = jquery('<div></div>').css({
+	            display: 'inline-block'
+	        }).appendTo(button);
+	        clickDiv.on('click', function (ev) {
+	            ev.stopPropagation();
+	            if (group.toggle !== 'none') {
+	                if (group.toggle === 'single') {
+	                    if (!button.hasClass('selected')) {
+	                        button.siblings('a').removeClass('selected');
+	                        button.addClass('selected');
+	                        tool.active = true;
+	                        _this.$el.trigger('itemclick', tool);
+	                    }
+	                }
+	                else {
+	                    button.toggleClass('selected');
+	                    tool.active = !tool.active;
+	                    _this.$el.trigger('itemclick', tool);
+	                }
+	            }
+	        });
+	        var icon = jquery('<img/>').attr({
+	            src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].icon : tool.icon,
+	            width: 28,
+	            height: 25
+	        }).appendTo(clickDiv);
+	        var label = jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv);
+	        if (group.toggle !== 'multiple' && tool.subTools && tool.subTools.length > 0) {
+	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
+	            clickDiv.css({
+	                pointerEvents: 'all'
+	            });
+	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(groupDiv);
+	            var _loop_1 = function (subTool) {
+	                var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('id', subTool.id).appendTo(menu);
+	                subToolButton.on('click', function () {
+	                    if (group.toggle === 'none') {
+	                        if (tool.id !== subTool.id) {
+	                            tool.id = subTool.id;
+	                            tool.icon = subTool.icon;
+	                            tool.text = subTool.text;
+	                            tool.active = true;
+	                            icon.attr('src', tool.icon);
+	                        }
+	                        _this.$el.trigger('itemclick', tool);
+	                    }
+	                    else {
+	                        if (tool.id !== subTool.id || !tool.active) {
+	                            if (tool.id !== subTool.id) {
+	                                tool.id = subTool.id;
+	                                tool.icon = subTool.icon;
+	                                tool.text = subTool.text;
+	                                icon.attr('src', tool.icon);
+	                            }
+	                            button.siblings('a').removeClass('selected');
+	                            button.addClass('selected');
+	                            tool.active = true;
+	                            _this.$el.trigger('itemclick', tool);
+	                        }
+	                    }
+	                });
+	                var subToolImg = jquery('<img/>').attr({
+	                    src: subTool.icon,
+	                    width: 20
+	                }).appendTo(subToolButton);
+	                var subToolLabel = jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
+	            };
 	            try {
-	                for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
-	                    var tool = _c.value;
-	                    this.createToolButton(groupDiv, tool);
+	                for (var _b = __values(tool.subTools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                    var subTool = _c.value;
+	                    _loop_1(subTool);
 	                }
 	            }
 	            catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -781,43 +864,6 @@
 	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
 	                }
 	                finally { if (e_1) throw e_1.error; }
-	            }
-	        }
-	    };
-	    Toolbar.prototype.createToolButton = function (group, tool) {
-	        var e_2, _a;
-	        var button = jquery('<a></a>').addClass('btn').attr({
-	            id: tool.id,
-	        }).appendTo(group);
-	        var clickDiv = jquery('<div></div>').css({
-	            display: 'inline-block'
-	        }).appendTo(button);
-	        var icon = jquery('<img/>').attr({
-	            src: tool.icon,
-	            width: 28,
-	            height: 25
-	        }).appendTo(clickDiv);
-	        var label = jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv);
-	        if (tool.subTools && tool.subTools.length > 0) {
-	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
-	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(group);
-	            try {
-	                for (var _b = __values(tool.subTools), _c = _b.next(); !_c.done; _c = _b.next()) {
-	                    var subTool = _c.value;
-	                    var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('id', subTool.id).appendTo(menu);
-	                    var subToolImg = jquery('<img/>').attr({
-	                        src: subTool.icon,
-	                        width: 20
-	                    }).appendTo(subToolButton);
-	                    var subToolLabel = jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
-	                }
-	            }
-	            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-	            finally {
-	                try {
-	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-	                }
-	                finally { if (e_2) throw e_2.error; }
 	            }
 	        }
 	        return button;
