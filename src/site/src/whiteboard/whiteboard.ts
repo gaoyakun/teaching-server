@@ -171,6 +171,11 @@ executors[MsgType.whiteboard_ClearBoardMessage] = {
 };
 executors[MsgType.whiteboard_StrokeMessage] = {
     execute: (whiteboard, command, results) => {
+        let freeDraw: lib.SceneObject|null = whiteboard.findEntityByType ('FreeDraw');
+        if (!freeDraw) {
+            freeDraw = whiteboard.createEntity ('FreeDraw', 0, 0, {});
+        }
+        freeDraw!.triggerEx (command.event);
     },
     unexecute: (whiteboard, command) => {
         const freedrawNode: any = whiteboard.findEntity (command.event.messageData.entityName);

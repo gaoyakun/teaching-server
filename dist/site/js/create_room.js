@@ -10545,6 +10545,11 @@
 	};
 	executors[protolist.MsgType.whiteboard_StrokeMessage] = {
 	    execute: function (whiteboard, command, results) {
+	        var freeDraw = whiteboard.findEntityByType('FreeDraw');
+	        if (!freeDraw) {
+	            freeDraw = whiteboard.createEntity('FreeDraw', 0, 0, {});
+	        }
+	        freeDraw.triggerEx(command.event);
 	    },
 	    unexecute: function (whiteboard, command) {
 	        var freedrawNode = whiteboard.findEntity(command.event.messageData.entityName);
