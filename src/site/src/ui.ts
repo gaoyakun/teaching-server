@@ -5,6 +5,9 @@ export type ITreeNode = UI.ITreeNode;
 export type IGridViewData = UI.IGridViewData;
 export type IGridViewNode = UI.IGridViewNode;
 export type IToolbarData = UI.IToolbarData;
+export type IToolProps = UI.IToolProps;
+export type IToolbarCallback = UI.IToolbarCallback;
+export type IToolGroup = UI.IToolGroup;
 
 interface IFolderTree {
     (options?: UI.ITreeData): JQuery;

@@ -771,16 +771,19 @@
 	            for (var i = 0; i < group.tools.length; i++) {
 	                this.createToolButton(groupDiv, group, i);
 	            }
+	            jquery('<div></div>').addClass('toolbar-seperator').appendTo(this.$el);
 	        }
 	    };
 	    Toolbar.prototype.createToolButton = function (groupDiv, group, index) {
 	        var _this = this;
 	        var e_1, _a;
 	        var tool = group.tools[index];
-	        tool.active = false;
+	        tool.active = group.toggle === 'none';
 	        if (tool.subTools && tool.subTools.length > 0) {
 	            tool.id = tool.subTools[0].id;
 	            tool.icon = tool.subTools[0].icon;
+	            tool.text = tool.subTools[0].text;
+	            tool.callback = tool.subTools[0].callback;
 	        }
 	        var button = jquery('<a></a>').addClass('btn').attr({
 	            id: tool.id,
@@ -788,22 +791,60 @@
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
+	        clickDiv.on('mousedown', function () {
+	            console.log('down');
+	        });
+	        clickDiv.on('mouseup', function () {
+	            console.log('up');
+	        });
+	        clickDiv.on('mouseenter', function () {
+	            console.log('enter');
+	        });
+	        clickDiv.on('mouseleave', function () {
+	            console.log('leave');
+	        });
 	        clickDiv.on('click', function (ev) {
+	            var e_2, _a;
 	            ev.stopPropagation();
 	            if (group.toggle !== 'none') {
 	                if (group.toggle === 'single') {
-	                    if (!button.hasClass('selected')) {
+	                    if (!tool.active) {
+	                        try {
+	                            for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                                var t = _c.value;
+	                                t.active = false;
+	                            }
+	                        }
+	                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	                        finally {
+	                            try {
+	                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                            }
+	                            finally { if (e_2) throw e_2.error; }
+	                        }
 	                        button.siblings('a').removeClass('selected');
 	                        button.addClass('selected');
 	                        tool.active = true;
+	                        if (tool.callback) {
+	                            tool.callback.call(button[0], tool);
+	                        }
 	                        _this.$el.trigger('itemclick', tool);
 	                    }
 	                }
 	                else {
 	                    button.toggleClass('selected');
 	                    tool.active = !tool.active;
+	                    if (tool.callback) {
+	                        tool.callback.call(button[0], tool);
+	                    }
 	                    _this.$el.trigger('itemclick', tool);
 	                }
+	            }
+	            else {
+	                if (tool.callback) {
+	                    tool.callback.call(button[0], tool);
+	                }
+	                _this.$el.trigger('itemclick', tool);
 	            }
 	        });
 	        var icon = jquery('<img/>').attr({
@@ -821,13 +862,18 @@
 	            var _loop_1 = function (subTool) {
 	                var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('id', subTool.id).appendTo(menu);
 	                subToolButton.on('click', function () {
+	                    var e_3, _a;
 	                    if (group.toggle === 'none') {
 	                        if (tool.id !== subTool.id) {
 	                            tool.id = subTool.id;
 	                            tool.icon = subTool.icon;
 	                            tool.text = subTool.text;
-	                            tool.active = true;
+	                            tool.callback = subTool.callback;
+	                            label.html(tool.text);
 	                            icon.attr('src', tool.icon);
+	                        }
+	                        if (tool.callback) {
+	                            tool.callback.call(button[0], tool);
 	                        }
 	                        _this.$el.trigger('itemclick', tool);
 	                    }
@@ -837,20 +883,40 @@
 	                                tool.id = subTool.id;
 	                                tool.icon = subTool.icon;
 	                                tool.text = subTool.text;
+	                                tool.callback = subTool.callback;
+	                                label.html(tool.text);
 	                                icon.attr('src', tool.icon);
 	                            }
-	                            button.siblings('a').removeClass('selected');
-	                            button.addClass('selected');
-	                            tool.active = true;
+	                            if (!tool.active) {
+	                                try {
+	                                    for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                                        var t = _c.value;
+	                                        t.active = false;
+	                                    }
+	                                }
+	                                catch (e_3_1) { e_3 = { error: e_3_1 }; }
+	                                finally {
+	                                    try {
+	                                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                                    }
+	                                    finally { if (e_3) throw e_3.error; }
+	                                }
+	                                button.siblings('a').removeClass('selected');
+	                                button.addClass('selected');
+	                                tool.active = true;
+	                            }
+	                            if (tool.callback) {
+	                                tool.callback.call(button[0], tool);
+	                            }
 	                            _this.$el.trigger('itemclick', tool);
 	                        }
 	                    }
 	                });
-	                var subToolImg = jquery('<img/>').attr({
+	                jquery('<img/>').attr({
 	                    src: subTool.icon,
 	                    width: 20
 	                }).appendTo(subToolButton);
-	                var subToolLabel = jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
+	                jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
 	            };
 	            try {
 	                for (var _b = __values(tool.subTools), _c = _b.next(); !_c.done; _c = _b.next()) {

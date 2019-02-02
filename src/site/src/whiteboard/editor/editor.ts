@@ -1,6 +1,7 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
 import * as proto from '../../../../common/protocols/protolist';
+import { IToolProps } from '../../ui';
 
 interface ITool {
     command: proto.MsgType,
@@ -22,6 +23,82 @@ export class WBToolPalette {
         }
     }
     loadToolPalette () {
+        const that = this;
+        $(this._container).toolbar ({
+            groupMain: {
+                toggle: 'single',
+                name: 'main',
+                tools: [{
+                    id: 'tb-text',
+                    icon: '/images/toolbar-text.png',
+                    text: '标签',
+                    callback: function (this:Element, tool: IToolProps) {
+                        that._editor.whiteboard.useTool ('Create', {
+                            createType: 'Label',
+                            text: '标签',
+                            textColor: '#000000'
+                        });
+                    }
+                }, {
+                    id: 'tb-select',
+                    icon: '/images/toolbar-select.png',
+                    text: '选择',
+                    callback: function (this:Element, tool: IToolProps) {
+                        that._editor.whiteboard.useTool ('Select');
+                    }
+                }, {
+                    id: 'tb-swap',
+                    icon: '/images/toolbar-swap.png',
+                    text: '交换',
+                    callback: function (this:Element, tool: IToolProps) {
+                        that._editor.whiteboard.useTool ('Swap');
+                    }
+                }, {
+                    id: 'tb-connect',
+                    icon: '/images/toolbar-connect.png',
+                    text: '联结',
+                    callback: function (this:Element, tool: IToolProps) {
+                        that._editor.whiteboard.useTool ('Connect');
+                    }
+                }, {
+                    id: '',
+                    icon: '',
+                    text: '',
+                    subTools: [{
+                        id: 'tb-draw',
+                        icon: '/images/toolbar-draw.png',
+                        text: '绘图',
+                        callback: function (this:Element, tool: IToolProps) {
+                            that._editor.whiteboard.useTool ('HandWriting', {
+                                mode: 'draw'
+                            });
+                        }
+                    }, {
+                        id: 'tb-erase',
+                        icon: '/images/toolbar-erase.png',
+                        text: '擦除',
+                        callback: function (this:Element, tool: IToolProps) {
+                            that._editor.whiteboard.useTool ('HandWriting', {
+                                mode: 'erase'
+                            });
+                        }
+                    }]
+                }]
+            },
+            groupEdit: {
+                toggle: 'none',
+                name: 'edit',
+                tools: [{
+                    id: 'tb-undo',
+                    icon: '/images/toolbar-undo.png',
+                    text: '撤销',
+                    callback: function (this:Element, tool: IToolProps) {
+                        that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
+                    }
+                }]
+            }
+        });
+        /*
         const that = this;
         const toollist:{[id:string]: (this:Element)=>void} = {
             '#tb-text': function (this:Element) {
@@ -71,6 +148,7 @@ export class WBToolPalette {
                 toollist[tool].call (this);
             });
         }
+        */
     }
 }
 

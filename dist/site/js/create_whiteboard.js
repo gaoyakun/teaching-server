@@ -772,16 +772,19 @@
 	            for (var i = 0; i < group.tools.length; i++) {
 	                this.createToolButton(groupDiv, group, i);
 	            }
+	            jquery('<div></div>').addClass('toolbar-seperator').appendTo(this.$el);
 	        }
 	    };
 	    Toolbar.prototype.createToolButton = function (groupDiv, group, index) {
 	        var _this = this;
 	        var e_1, _a;
 	        var tool = group.tools[index];
-	        tool.active = false;
+	        tool.active = group.toggle === 'none';
 	        if (tool.subTools && tool.subTools.length > 0) {
 	            tool.id = tool.subTools[0].id;
 	            tool.icon = tool.subTools[0].icon;
+	            tool.text = tool.subTools[0].text;
+	            tool.callback = tool.subTools[0].callback;
 	        }
 	        var button = jquery('<a></a>').addClass('btn').attr({
 	            id: tool.id,
@@ -789,22 +792,60 @@
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
+	        clickDiv.on('mousedown', function () {
+	            console.log('down');
+	        });
+	        clickDiv.on('mouseup', function () {
+	            console.log('up');
+	        });
+	        clickDiv.on('mouseenter', function () {
+	            console.log('enter');
+	        });
+	        clickDiv.on('mouseleave', function () {
+	            console.log('leave');
+	        });
 	        clickDiv.on('click', function (ev) {
+	            var e_2, _a;
 	            ev.stopPropagation();
 	            if (group.toggle !== 'none') {
 	                if (group.toggle === 'single') {
-	                    if (!button.hasClass('selected')) {
+	                    if (!tool.active) {
+	                        try {
+	                            for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                                var t = _c.value;
+	                                t.active = false;
+	                            }
+	                        }
+	                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	                        finally {
+	                            try {
+	                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                            }
+	                            finally { if (e_2) throw e_2.error; }
+	                        }
 	                        button.siblings('a').removeClass('selected');
 	                        button.addClass('selected');
 	                        tool.active = true;
+	                        if (tool.callback) {
+	                            tool.callback.call(button[0], tool);
+	                        }
 	                        _this.$el.trigger('itemclick', tool);
 	                    }
 	                }
 	                else {
 	                    button.toggleClass('selected');
 	                    tool.active = !tool.active;
+	                    if (tool.callback) {
+	                        tool.callback.call(button[0], tool);
+	                    }
 	                    _this.$el.trigger('itemclick', tool);
 	                }
+	            }
+	            else {
+	                if (tool.callback) {
+	                    tool.callback.call(button[0], tool);
+	                }
+	                _this.$el.trigger('itemclick', tool);
 	            }
 	        });
 	        var icon = jquery('<img/>').attr({
@@ -822,13 +863,18 @@
 	            var _loop_1 = function (subTool) {
 	                var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('id', subTool.id).appendTo(menu);
 	                subToolButton.on('click', function () {
+	                    var e_3, _a;
 	                    if (group.toggle === 'none') {
 	                        if (tool.id !== subTool.id) {
 	                            tool.id = subTool.id;
 	                            tool.icon = subTool.icon;
 	                            tool.text = subTool.text;
-	                            tool.active = true;
+	                            tool.callback = subTool.callback;
+	                            label.html(tool.text);
 	                            icon.attr('src', tool.icon);
+	                        }
+	                        if (tool.callback) {
+	                            tool.callback.call(button[0], tool);
 	                        }
 	                        _this.$el.trigger('itemclick', tool);
 	                    }
@@ -838,20 +884,40 @@
 	                                tool.id = subTool.id;
 	                                tool.icon = subTool.icon;
 	                                tool.text = subTool.text;
+	                                tool.callback = subTool.callback;
+	                                label.html(tool.text);
 	                                icon.attr('src', tool.icon);
 	                            }
-	                            button.siblings('a').removeClass('selected');
-	                            button.addClass('selected');
-	                            tool.active = true;
+	                            if (!tool.active) {
+	                                try {
+	                                    for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                                        var t = _c.value;
+	                                        t.active = false;
+	                                    }
+	                                }
+	                                catch (e_3_1) { e_3 = { error: e_3_1 }; }
+	                                finally {
+	                                    try {
+	                                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                                    }
+	                                    finally { if (e_3) throw e_3.error; }
+	                                }
+	                                button.siblings('a').removeClass('selected');
+	                                button.addClass('selected');
+	                                tool.active = true;
+	                            }
+	                            if (tool.callback) {
+	                                tool.callback.call(button[0], tool);
+	                            }
 	                            _this.$el.trigger('itemclick', tool);
 	                        }
 	                    }
 	                });
-	                var subToolImg = jquery('<img/>').attr({
+	                jquery('<img/>').attr({
 	                    src: subTool.icon,
 	                    width: 20
 	                }).appendTo(subToolButton);
-	                var subToolLabel = jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
+	                jquery('<span></span>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
 	            };
 	            try {
 	                for (var _b = __values(tool.subTools), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -12076,57 +12142,131 @@
 	    };
 	    WBToolPalette.prototype.loadToolPalette = function () {
 	        var that = this;
-	        var toollist = {
-	            '#tb-text': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Create', {
+	        $(this._container).toolbar({
+	            groupMain: {
+	                toggle: 'single',
+	                name: 'main',
+	                tools: [{
+	                        id: 'tb-text',
+	                        icon: '/images/toolbar-text.png',
+	                        text: '标签',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Create', {
+	                                createType: 'Label',
+	                                text: '标签',
+	                                textColor: '#000000'
+	                            });
+	                        }
+	                    }, {
+	                        id: 'tb-select',
+	                        icon: '/images/toolbar-select.png',
+	                        text: '选择',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Select');
+	                        }
+	                    }, {
+	                        id: 'tb-swap',
+	                        icon: '/images/toolbar-swap.png',
+	                        text: '交换',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Swap');
+	                        }
+	                    }, {
+	                        id: 'tb-connect',
+	                        icon: '/images/toolbar-connect.png',
+	                        text: '联结',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Connect');
+	                        }
+	                    }, {
+	                        id: '',
+	                        icon: '',
+	                        text: '',
+	                        subTools: [{
+	                                id: 'tb-draw',
+	                                icon: '/images/toolbar-draw.png',
+	                                text: '绘图',
+	                                callback: function (tool) {
+	                                    that._editor.whiteboard.useTool('HandWriting', {
+	                                        mode: 'draw'
+	                                    });
+	                                }
+	                            }, {
+	                                id: 'tb-erase',
+	                                icon: '/images/toolbar-erase.png',
+	                                text: '擦除',
+	                                callback: function (tool) {
+	                                    that._editor.whiteboard.useTool('HandWriting', {
+	                                        mode: 'erase'
+	                                    });
+	                                }
+	                            }]
+	                    }]
+	            },
+	            groupEdit: {
+	                toggle: 'none',
+	                name: 'edit',
+	                tools: [{
+	                        id: 'tb-undo',
+	                        icon: '/images/toolbar-undo.png',
+	                        text: '撤销',
+	                        callback: function (tool) {
+	                            that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
+	                        }
+	                    }]
+	            }
+	        });
+	        /*
+	        const that = this;
+	        const toollist:{[id:string]: (this:Element)=>void} = {
+	            '#tb-text': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Create', {
 	                    createType: 'Label',
 	                    text: '标签',
 	                    textColor: '#000000'
 	                });
 	            },
-	            '#tb-select': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Select');
+	            '#tb-select': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Select');
 	            },
-	            '#tb-swap': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Swap');
+	            '#tb-swap': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Swap');
 	            },
-	            '#tb-connect': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Connect');
+	            '#tb-connect': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Connect');
 	            },
-	            '#tb-draw': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('HandWriting', {
+	            '#tb-draw': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('HandWriting', {
 	                    mode: 'draw'
 	                });
 	            },
-	            '#tb-erase': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('HandWriting', {
+	            '#tb-erase': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('HandWriting', {
 	                    mode: 'erase'
 	                });
 	            },
-	            '#tb-undo': function () {
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
+	            '#tb-undo': function (this:Element) {
+	                that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
 	            }
-	        };
-	        var _loop_1 = function (tool) {
-	            $(tool).on('click', function () {
-	                toollist[tool].call(this);
-	            });
-	        };
-	        for (var tool in toollist) {
-	            _loop_1(tool);
 	        }
+	        for (const tool in toollist) {
+	            $(tool).on ('click', function (){
+	                toollist[tool].call (this);
+	            });
+	        }
+	        */
 	    };
 	    return WBToolPalette;
 	}());
@@ -14931,7 +15071,6 @@
 
 
 
-
 	function init(uri) {
 	    var WB = new whiteboard$2.WhiteBoard(document.querySelector('#playground-canvas'), true);
 	    whiteboard$2.installTools(WB);
@@ -14940,34 +15079,7 @@
 	        var server = new cmdserver.SocketCommandServer(WB, uri);
 	        server.start();
 	    }
-	    jquery('#test-toolbar').toolbar({
-	        group1: {
-	            toggle: 'single',
-	            name: 'group1',
-	            tools: [{
-	                    id: 'tool-button-1',
-	                    icon: '/images/toolbar-text.png',
-	                    text: 'button1'
-	                }, {
-	                    id: 'tool-button-2',
-	                    icon: '/images/toolbar-undo.png',
-	                    text: 'button2',
-	                    subTools: [{
-	                            id: 'tool-button-3',
-	                            icon: '/images/toolbar-text.png',
-	                            text: 'button3'
-	                        }, {
-	                            id: 'tool-button-4',
-	                            icon: '/images/toolbar-draw.png',
-	                            text: 'button4'
-	                        }]
-	                }]
-	        }
-	    });
-	    jquery('#test-toolbar').on('itemclick', function (ev, tool) {
-	        console.log(JSON.stringify(tool));
-	    });
-	    var toolToolboxDiv = document.querySelector('#tool-toolbox');
+	    var toolToolboxDiv = document.querySelector('#toolbar-main');
 	    var objPropGridDiv = document.querySelector('#object-options');
 	    var toolPropGridDiv = document.querySelector('#tool-options');
 	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);

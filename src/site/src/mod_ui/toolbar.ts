@@ -1,12 +1,17 @@
 import * as $ from 'jquery';
 import { Widget } from './widget';
 
+export interface IToolbarCallback {
+    (this:Element, tool: IToolProps): void
+}
+
 export interface IToolProps {
     id: string;
     icon: string;
     text: string;
     active?: boolean;   
     subTools?: IToolProps[]; 
+    callback?: IToolbarCallback;
 }
 
 export interface IToolGroup {
@@ -19,10 +24,6 @@ export interface IToolbarData {
     [groupName: string]: IToolGroup;
 }
 
-export interface ToolbarCallback {
-    (this:Element, ev: any): void
-}
-
 export class Toolbar extends Widget {
     protected _init () {
         const that = this;
@@ -33,14 +34,17 @@ export class Toolbar extends Widget {
             for (let i = 0; i < group.tools.length; i++) {
                 this.createToolButton (groupDiv, group, i);
             }
+            $('<div></div>').addClass ('toolbar-seperator').appendTo (this.$el);
         }
     }
     private createToolButton (groupDiv: JQuery, group: IToolGroup, index: number) {
         const tool = group.tools[index];
-        tool.active = false;
+        tool.active = group.toggle === 'none';
         if (tool.subTools && tool.subTools.length > 0) {
             tool.id = tool.subTools[0].id;
             tool.icon = tool.subTools[0].icon;
+            tool.text = tool.subTools[0].text;
+            tool.callback = tool.subTools[0].callback;
         }
         const button = $('<a></a>').addClass('btn').attr({
             id: tool.id,
@@ -48,21 +52,47 @@ export class Toolbar extends Widget {
         const clickDiv = $('<div></div>').css({
             display: 'inline-block'
         }).appendTo (button);
+        clickDiv.on ('mousedown', function(){
+            console.log ('down');
+        });
+        clickDiv.on ('mouseup', function(){
+            console.log ('up');
+        });
+        clickDiv.on ('mouseenter', function(){
+            console.log ('enter');
+        });
+        clickDiv.on ('mouseleave', function(){
+            console.log ('leave');
+        });
         clickDiv.on ('click', (ev) => {
             ev.stopPropagation ();
             if (group.toggle !== 'none') {
                 if (group.toggle === 'single') {
-                    if (!button.hasClass ('selected')) {
+                    if (!tool.active) {
+                        for (const t of group.tools) {
+                            t.active = false;
+                        }
                         button.siblings ('a').removeClass ('selected');
                         button.addClass ('selected');
                         tool.active = true;
+                        if (tool.callback) {
+                            tool.callback.call (button[0], tool);
+                        }
                         this.$el.trigger ('itemclick', tool);
                     }
                 } else {
                     button.toggleClass ('selected');
                     tool.active = !tool.active;
+                    if (tool.callback) {
+                        tool.callback.call (button[0], tool);
+                    }
                     this.$el.trigger ('itemclick', tool);
                 }
+            } else {
+                if (tool.callback) {
+                    tool.callback.call (button[0], tool);
+                }
+                this.$el.trigger ('itemclick', tool);
             }
         });
         const icon = $('<img/>').attr({
@@ -85,8 +115,12 @@ export class Toolbar extends Widget {
                             tool.id = subTool.id;
                             tool.icon = subTool.icon;
                             tool.text = subTool.text;
-                            tool.active = true;
+                            tool.callback = subTool.callback;
+                            label.html (tool.text);
                             icon.attr ('src', tool.icon);
+                        }
+                        if (tool.callback) {
+                            tool.callback.call (button[0], tool);
                         }
                         this.$el.trigger('itemclick', tool);
                     } else {
@@ -95,20 +129,30 @@ export class Toolbar extends Widget {
                                 tool.id = subTool.id;
                                 tool.icon = subTool.icon;
                                 tool.text = subTool.text;
+                                tool.callback = subTool.callback;
+                                label.html (tool.text);
                                 icon.attr ('src', tool.icon);
                             }
-                            button.siblings ('a').removeClass ('selected');
-                            button.addClass ('selected');
-                            tool.active = true;
+                            if (!tool.active) {
+                                for (const t of group.tools) {
+                                    t.active = false;
+                                }
+                                button.siblings ('a').removeClass ('selected');
+                                button.addClass ('selected');
+                                tool.active = true;
+                            }
+                            if (tool.callback) {
+                                tool.callback.call (button[0], tool);
+                            }
                             this.$el.trigger('itemclick', tool);
                         }
                     }
                 });
-                const subToolImg = $('<img/>').attr({
+                $('<img/>').attr({
                     src: subTool.icon,
                     width: 20
                 }).appendTo (subToolButton);
-                const subToolLabel = $('<span></span>').addClass('ml-2').html (subTool.text).appendTo(subToolButton);
+                $('<span></span>').addClass('ml-2').html (subTool.text).appendTo(subToolButton);
             }
         }
         return button;

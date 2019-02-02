@@ -101,6 +101,15 @@ a {
     padding: 0;
 }
 
+.toolbar .btn-group {
+    align-items: center;
+}
+
+.toolbar .btn:focus, .toolbar .btn:active {
+    outline: none !important;
+    box-shadow: none;
+}
+
 .toolbar .selected {
     background: #eee;
     border-color: transparent #aaa transparent #aaa;
@@ -113,12 +122,56 @@ a {
     padding: 0;
 }
 
+.toolbar-seperator {
+    display: inline-block;
+    width: 1px;
+    background-image: url(/images/toolbar-sep1.png);
+    background-size: 100% 100%;
+}
+
 .no-pointer-events {
     pointer-events:none;
 }
 
 .dropdown-toggle::after {
     pointer-events:all;
+}
+
+.chat-list {
+    background:#fff;
+    border:1px solid #c4c4c4;
+}
+.chat-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.chat-list ul li {
+    background: #fff;
+    border-bottom: 1px solid #c4c4c4;
+    padding: 0.3rem;
+    height: 3rem;
+}
+.chat-list ul li:hover {
+    background: #ebebeb;
+}
+.chat-list ul li img {
+    height: 100%;
+    border: 1.5px solid #f5f6fa;
+}
+.chat-list ul li span {
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+    color: #000;
+}
+.chat-list ul li p {
+    padding: 0;
+    margin: 0;
+    font-size: 0.6rem;
+    line-height: 0.6rem;
+    color: #000;
 }
 
 /*

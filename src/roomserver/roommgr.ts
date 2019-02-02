@@ -67,7 +67,6 @@ export class Client {
             if (events) {
                 let i = 0;
                 for (const ev of events) {
-                    console.log (`Sync board event ${i++}`);
                     this.sendBuffer ('message', new Buffer(ev, 'base64'));
                 }
             }
@@ -130,8 +129,6 @@ export class Client {
             messageAssembler.put (u8arr);
             const msg = messageAssembler.getMessage ();
             if (msg) {
-                console.log (`Got message ${MsgType[msg.type]}`);
-                console.log (JSON.stringify(msg.data));
                 const type = msg.type as number;
                 if (type >= whiteboard.MessageID.Start && type < whiteboard.MessageID.Start + 10000) {
                     Server.redis.rpush (`room:${this._room.id}:events`, data.toString('base64'));

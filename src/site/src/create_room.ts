@@ -12,7 +12,6 @@ export function init (uri:string) {
     wb.installFactories (WB);
 
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#tool-toolbox') as HTMLDivElement;
-    const opToolboxDiv: HTMLDivElement = document.querySelector('#op-toolbox') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-propgrid') as HTMLDivElement;
     const toolPropGridDiv: HTMLDivElement = document.querySelector('#tool-propgrid') as HTMLDivElement;
     const editor = new wb.WBEditor (WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);

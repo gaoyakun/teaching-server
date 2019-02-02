@@ -11183,57 +11183,131 @@
 	    };
 	    WBToolPalette.prototype.loadToolPalette = function () {
 	        var that = this;
-	        var toollist = {
-	            '#tb-text': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Create', {
+	        $(this._container).toolbar({
+	            groupMain: {
+	                toggle: 'single',
+	                name: 'main',
+	                tools: [{
+	                        id: 'tb-text',
+	                        icon: '/images/toolbar-text.png',
+	                        text: '标签',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Create', {
+	                                createType: 'Label',
+	                                text: '标签',
+	                                textColor: '#000000'
+	                            });
+	                        }
+	                    }, {
+	                        id: 'tb-select',
+	                        icon: '/images/toolbar-select.png',
+	                        text: '选择',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Select');
+	                        }
+	                    }, {
+	                        id: 'tb-swap',
+	                        icon: '/images/toolbar-swap.png',
+	                        text: '交换',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Swap');
+	                        }
+	                    }, {
+	                        id: 'tb-connect',
+	                        icon: '/images/toolbar-connect.png',
+	                        text: '联结',
+	                        callback: function (tool) {
+	                            that._editor.whiteboard.useTool('Connect');
+	                        }
+	                    }, {
+	                        id: '',
+	                        icon: '',
+	                        text: '',
+	                        subTools: [{
+	                                id: 'tb-draw',
+	                                icon: '/images/toolbar-draw.png',
+	                                text: '绘图',
+	                                callback: function (tool) {
+	                                    that._editor.whiteboard.useTool('HandWriting', {
+	                                        mode: 'draw'
+	                                    });
+	                                }
+	                            }, {
+	                                id: 'tb-erase',
+	                                icon: '/images/toolbar-erase.png',
+	                                text: '擦除',
+	                                callback: function (tool) {
+	                                    that._editor.whiteboard.useTool('HandWriting', {
+	                                        mode: 'erase'
+	                                    });
+	                                }
+	                            }]
+	                    }]
+	            },
+	            groupEdit: {
+	                toggle: 'none',
+	                name: 'edit',
+	                tools: [{
+	                        id: 'tb-undo',
+	                        icon: '/images/toolbar-undo.png',
+	                        text: '撤销',
+	                        callback: function (tool) {
+	                            that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
+	                        }
+	                    }]
+	            }
+	        });
+	        /*
+	        const that = this;
+	        const toollist:{[id:string]: (this:Element)=>void} = {
+	            '#tb-text': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Create', {
 	                    createType: 'Label',
 	                    text: '标签',
 	                    textColor: '#000000'
 	                });
 	            },
-	            '#tb-select': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Select');
+	            '#tb-select': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Select');
 	            },
-	            '#tb-swap': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Swap');
+	            '#tb-swap': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Swap');
 	            },
-	            '#tb-connect': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('Connect');
+	            '#tb-connect': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('Connect');
 	            },
-	            '#tb-draw': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('HandWriting', {
+	            '#tb-draw': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('HandWriting', {
 	                    mode: 'draw'
 	                });
 	            },
-	            '#tb-erase': function () {
-	                $(this).siblings().removeClass('selected');
-	                $(this).addClass('selected');
-	                that._editor.whiteboard.useTool('HandWriting', {
+	            '#tb-erase': function (this:Element) {
+	                $(this).siblings().removeClass ('selected');
+	                $(this).addClass ('selected');
+	                that._editor.whiteboard.useTool ('HandWriting', {
 	                    mode: 'erase'
 	                });
 	            },
-	            '#tb-undo': function () {
-	                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
+	            '#tb-undo': function (this:Element) {
+	                that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
 	            }
-	        };
-	        var _loop_1 = function (tool) {
-	            $(tool).on('click', function () {
-	                toollist[tool].call(this);
-	            });
-	        };
-	        for (var tool in toollist) {
-	            _loop_1(tool);
 	        }
+	        for (const tool in toollist) {
+	            $(tool).on ('click', function (){
+	                toollist[tool].call (this);
+	            });
+	        }
+	        */
 	    };
 	    return WBToolPalette;
 	}());
@@ -14045,7 +14119,6 @@
 	    whiteboard$2.installTools(WB);
 	    whiteboard$2.installFactories(WB);
 	    var toolToolboxDiv = document.querySelector('#tool-toolbox');
-	    var opToolboxDiv = document.querySelector('#op-toolbox');
 	    var objPropGridDiv = document.querySelector('#object-propgrid');
 	    var toolPropGridDiv = document.querySelector('#tool-propgrid');
 	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
