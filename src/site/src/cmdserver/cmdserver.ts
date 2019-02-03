@@ -48,20 +48,13 @@ export class SocketCommandServer extends catk.EventObserver {
                         if (msgData) {
                             const ev = new WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
                             ev.broadcast = true;
-                            console.log (`Got sync message ${msgData.type}`);
                             this._wb.triggerEx (ev);
                         }
                     } else {
-                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
+                        const ev = new WBMessageEvent(msg.type, msg.data, {});
+                        ev.broadcast = true;
+                        this._wb.triggerEx (ev);
                     }
-                    /*
-                    if (msg.type === MsgType.whiteboard_CommandMessage) {
-                        const cmd:any = JSON.parse (msg.data.command);
-                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
-                    } else {
-                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
-                    }
-                    */
                 } else {
                     break;
                 }

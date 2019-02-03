@@ -25,27 +25,40 @@
             "Start": 20000
           }
         },
-        "JoinRoomMessage": {
+        "RoomUser": {
           "fields": {
-            "account": {
-              "type": "string",
-              "id": 1
-            },
             "userId": {
               "type": "uint32",
+              "id": 1
+            },
+            "name": {
+              "type": "string",
               "id": 2
+            }
+          }
+        },
+        "JoinRoomMessage": {
+          "fields": {
+            "user": {
+              "type": "RoomUser",
+              "id": 1
             }
           }
         },
         "LeaveRoomMessage": {
           "fields": {
-            "account": {
-              "type": "string",
+            "user": {
+              "type": "RoomUser",
               "id": 1
-            },
-            "userId": {
-              "type": "uint32",
-              "id": 2
+            }
+          }
+        },
+        "ListUsersMessage": {
+          "fields": {
+            "users": {
+              "rule": "repeated",
+              "type": "RoomUser",
+              "id": 1
             }
           }
         }

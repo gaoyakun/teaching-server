@@ -20,6 +20,8 @@ class Client {
     constructor() {
         this._userId = 0;
         this._userAccount = '';
+        this._userName = '';
+        this._userAvatar = '';
         this._socket = null;
         this._room = null;
     }
@@ -35,6 +37,12 @@ class Client {
     get userAccount() {
         return this._userAccount;
     }
+    get userName() {
+        return this._userName;
+    }
+    get userAvatar() {
+        return this._userAvatar;
+    }
     get socket() {
         return this._socket;
     }
@@ -44,12 +52,17 @@ class Client {
             if (!session) {
                 throw new Error('Invalid connection');
             }
-            const users = yield config_1.GetConfig.engine.objects('user').filter(['id', session.loginUserId]).all();
+            const users = yield config_1.GetConfig.engine.query({
+                sql: 'select u.id as id, u.account as account, u.name as name, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
+                param: [session.loginUserId]
+            });
             if (!users || users.length !== 1) {
                 throw new Error(`Invalid user: ${JSON.stringify(session)}`);
             }
             this._userId = session.loginUserId;
             this._userAccount = users[0].account;
+            this._userName = users[0].name;
+            this._userAvatar = users[0].avatar;
             this._socket = socket;
         });
     }
@@ -180,8 +193,10 @@ class Room {
                     if (oldClient && oldClient.socket) {
                         // broadcast leave message
                         oldClient.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
-                            account: oldClient.userAccount,
-                            userId: oldClient.userId
+                            user: {
+                                userId: oldClient.userId,
+                                name: oldClient.userName
+                            }
                         }, true);
                         // kick off the previous connected client
                         oldClient.disconnect();
@@ -191,9 +206,21 @@ class Room {
                     this._clients[client.userId] = client;
                     client.room = this;
                     client.broadCastMessage('message', protolist_1.MsgType.room_JoinRoomMessage, {
-                        account: client.userAccount,
-                        userId: client.userId
-                    }, true);
+                        user: {
+                            userId: client.userId,
+                            name: client.userName
+                        }
+                    }, false);
+                    const userList = [];
+                    for (const roomUserId in this.clients) {
+                        userList.push({
+                            userId: Number(roomUserId),
+                            name: this.clients[roomUserId].userName
+                        });
+                    }
+                    client.sendMessage('message', protolist_1.MsgType.room_ListUsersMessage, {
+                        users: userList
+                    });
                     yield client.syncBoardEvents();
                 }
                 return true;
@@ -205,8 +232,10 @@ class Room {
         if (client && this.findClient(client.userId) === client) {
             // broadcast leave message
             client.broadCastMessage('message', protolist_1.MsgType.room_LeaveRoomMessage, {
-                account: client.userAccount,
-                userId: client.userId
+                user: {
+                    userId: client.userId,
+                    name: client.userName
+                }
             }, true);
             client.disconnect();
             client.room = null;

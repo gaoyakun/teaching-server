@@ -791,17 +791,13 @@
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
-	        clickDiv.on('mousedown', function () {
-	            console.log('down');
-	        });
-	        clickDiv.on('mouseup', function () {
-	            console.log('up');
-	        });
 	        clickDiv.on('mouseenter', function () {
-	            console.log('enter');
+	            button.addClass('selected');
 	        });
 	        clickDiv.on('mouseleave', function () {
-	            console.log('leave');
+	            if (group.toggle === 'none' || !tool.active) {
+	                button.removeClass('selected');
+	            }
 	        });
 	        clickDiv.on('click', function (ev) {
 	            var e_2, _a;
@@ -943,6 +939,85 @@
 	unwrapExports(toolbar);
 	var toolbar_1 = toolbar.Toolbar;
 
+	var chat_list = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var ChatList = /** @class */ (function (_super) {
+	    __extends(ChatList, _super);
+	    function ChatList() {
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this._numUsers = 0;
+	        _this._users = {};
+	        _this._$header = null;
+	        _this._$users = null;
+	        return _this;
+	    }
+	    ChatList.prototype.getNumUsers = function () {
+	        return this._numUsers;
+	    };
+	    ChatList.prototype.addUser = function (user) {
+	        if (this._users[user.id]) {
+	            console.error("User " + user.id + " is already in room");
+	        }
+	        else {
+	            this._users[user.id] = user;
+	            var li = jquery('<li></li>').attr('user_id', user.id).appendTo(this._$users);
+	            var divUser = jquery('<div></div>').addClass(['d-flex', 'flex-row', 'align-items-stretch']).css({
+	                height: '100%'
+	            }).appendTo(li);
+	            jquery('<img/>').addClass('rounded-circle').attr('src', user.icon).appendTo(divUser);
+	            var userPane = jquery('<div></div>').css({
+	                marginLeft: '15px'
+	            }).appendTo(divUser);
+	            jquery('<span></span>').html(user.name).appendTo(userPane);
+	            this._numUsers++;
+	        }
+	    };
+	    ChatList.prototype.removeUser = function (id) {
+	        if (this._users[id]) {
+	            delete this._users[id];
+	            this._$users.find("li[user_id=\"" + id + "\"]").remove();
+	            this._numUsers--;
+	        }
+	    };
+	    ChatList.prototype.clear = function () {
+	        this._users = {};
+	        this._numUsers = 0;
+	        if (this._$users) {
+	            this._$users.empty();
+	        }
+	        this._$header.html(this.options.name + "(" + this._numUsers + ")");
+	    };
+	    ChatList.prototype._init = function () {
+	        this.$el.addClass(['p-0', 'd-flex', 'flex-column', 'chat-list']);
+	        var header = jquery('<div></div>').css({
+	            padding: '10px',
+	            borderBottom: '1px solid #c4c4c4'
+	        }).appendTo(this.$el);
+	        this._$header = jquery('<p></p>').html(this.options.name + "(" + this._numUsers + ")").appendTo(header);
+	        var body = jquery('<div></div>').addClass('flex-grow-1').appendTo(this.$el);
+	        this._$users = jquery('<ul></ul>').appendTo(body);
+	    };
+	    return ChatList;
+	}(widget.Widget));
+	exports.ChatList = ChatList;
+
+	});
+
+	unwrapExports(chat_list);
+	var chat_list_1 = chat_list.ChatList;
+
 	var mod_ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -952,6 +1027,8 @@
 
 	exports.Toolbar = toolbar.Toolbar;
 
+	exports.ChatList = chat_list.ChatList;
+
 	exports.Widget = widget.Widget;
 
 	});
@@ -960,7 +1037,8 @@
 	var mod_ui_1 = mod_ui.FolderTree;
 	var mod_ui_2 = mod_ui.GridView;
 	var mod_ui_3 = mod_ui.Toolbar;
-	var mod_ui_4 = mod_ui.Widget;
+	var mod_ui_4 = mod_ui.ChatList;
+	var mod_ui_5 = mod_ui.Widget;
 
 	var ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -969,6 +1047,7 @@
 	    mod_ui.Widget.register(mod_ui.FolderTree, 'folderTree');
 	    mod_ui.Widget.register(mod_ui.GridView, 'gridView');
 	    mod_ui.Widget.register(mod_ui.Toolbar, 'toolbar');
+	    mod_ui.Widget.register(mod_ui.ChatList, 'chatList');
 	})();
 
 	});

@@ -8,6 +8,8 @@ export type IToolbarData = UI.IToolbarData;
 export type IToolProps = UI.IToolProps;
 export type IToolbarCallback = UI.IToolbarCallback;
 export type IToolGroup = UI.IToolGroup;
+export type IChatListData = UI.IChatListData;
+export type IChatListUser = UI.IChatListUser;
 
 interface IFolderTree {
     (options?: UI.ITreeData): JQuery;
@@ -26,11 +28,20 @@ interface IToolbar {
     (options?: UI.IToolbarData): JQuery;
 }
 
+interface IChatList {
+    (options?: UI.IChatListData): JQuery;
+    (command:'getNumUsers'): number;
+    (command:'addUser', user:IChatListUser): void;
+    (command:'removeUser', id:number): void;
+    (command:'clear'): void;
+}
+
 declare global {
     interface JQuery {
         folderTree: IFolderTree;
         gridView: IGridView;
         toolbar: IToolbar;
+        chatList: IChatList;
         modal: any;
     }
 }
@@ -39,5 +50,6 @@ declare global {
     UI.Widget.register (UI.FolderTree, 'folderTree');
     UI.Widget.register (UI.GridView, 'gridView');
     UI.Widget.register (UI.Toolbar, 'toolbar');
+    UI.Widget.register (UI.ChatList, 'chatList');
 })();
 

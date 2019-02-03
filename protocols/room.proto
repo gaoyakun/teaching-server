@@ -5,12 +5,19 @@ enum MessageID {
     Start = 20000;
 }
 
+message RoomUser {
+    uint32 userId = 1;
+    string name = 2;
+}
+
 message JoinRoomMessage {
-    string account = 1;
-    uint32 userId = 2;
+    RoomUser user = 1;
 }
 
 message LeaveRoomMessage {
-    string account = 1;
-    uint32 userId = 2;
+    RoomUser user = 1;
+}
+
+message ListUsersMessage {
+    repeated RoomUser users = 1;
 }

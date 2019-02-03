@@ -792,17 +792,13 @@
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
-	        clickDiv.on('mousedown', function () {
-	            console.log('down');
-	        });
-	        clickDiv.on('mouseup', function () {
-	            console.log('up');
-	        });
 	        clickDiv.on('mouseenter', function () {
-	            console.log('enter');
+	            button.addClass('selected');
 	        });
 	        clickDiv.on('mouseleave', function () {
-	            console.log('leave');
+	            if (group.toggle === 'none' || !tool.active) {
+	                button.removeClass('selected');
+	            }
 	        });
 	        clickDiv.on('click', function (ev) {
 	            var e_2, _a;
@@ -944,6 +940,85 @@
 	unwrapExports(toolbar);
 	var toolbar_1 = toolbar.Toolbar;
 
+	var chat_list = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
+	Object.defineProperty(exports, "__esModule", { value: true });
+
+
+	var ChatList = /** @class */ (function (_super) {
+	    __extends(ChatList, _super);
+	    function ChatList() {
+	        var _this = _super !== null && _super.apply(this, arguments) || this;
+	        _this._numUsers = 0;
+	        _this._users = {};
+	        _this._$header = null;
+	        _this._$users = null;
+	        return _this;
+	    }
+	    ChatList.prototype.getNumUsers = function () {
+	        return this._numUsers;
+	    };
+	    ChatList.prototype.addUser = function (user) {
+	        if (this._users[user.id]) {
+	            console.error("User " + user.id + " is already in room");
+	        }
+	        else {
+	            this._users[user.id] = user;
+	            var li = jquery('<li></li>').attr('user_id', user.id).appendTo(this._$users);
+	            var divUser = jquery('<div></div>').addClass(['d-flex', 'flex-row', 'align-items-stretch']).css({
+	                height: '100%'
+	            }).appendTo(li);
+	            jquery('<img/>').addClass('rounded-circle').attr('src', user.icon).appendTo(divUser);
+	            var userPane = jquery('<div></div>').css({
+	                marginLeft: '15px'
+	            }).appendTo(divUser);
+	            jquery('<span></span>').html(user.name).appendTo(userPane);
+	            this._numUsers++;
+	        }
+	    };
+	    ChatList.prototype.removeUser = function (id) {
+	        if (this._users[id]) {
+	            delete this._users[id];
+	            this._$users.find("li[user_id=\"" + id + "\"]").remove();
+	            this._numUsers--;
+	        }
+	    };
+	    ChatList.prototype.clear = function () {
+	        this._users = {};
+	        this._numUsers = 0;
+	        if (this._$users) {
+	            this._$users.empty();
+	        }
+	        this._$header.html(this.options.name + "(" + this._numUsers + ")");
+	    };
+	    ChatList.prototype._init = function () {
+	        this.$el.addClass(['p-0', 'd-flex', 'flex-column', 'chat-list']);
+	        var header = jquery('<div></div>').css({
+	            padding: '10px',
+	            borderBottom: '1px solid #c4c4c4'
+	        }).appendTo(this.$el);
+	        this._$header = jquery('<p></p>').html(this.options.name + "(" + this._numUsers + ")").appendTo(header);
+	        var body = jquery('<div></div>').addClass('flex-grow-1').appendTo(this.$el);
+	        this._$users = jquery('<ul></ul>').appendTo(body);
+	    };
+	    return ChatList;
+	}(widget.Widget));
+	exports.ChatList = ChatList;
+
+	});
+
+	unwrapExports(chat_list);
+	var chat_list_1 = chat_list.ChatList;
+
 	var mod_ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -953,6 +1028,8 @@
 
 	exports.Toolbar = toolbar.Toolbar;
 
+	exports.ChatList = chat_list.ChatList;
+
 	exports.Widget = widget.Widget;
 
 	});
@@ -961,7 +1038,8 @@
 	var mod_ui_1 = mod_ui.FolderTree;
 	var mod_ui_2 = mod_ui.GridView;
 	var mod_ui_3 = mod_ui.Toolbar;
-	var mod_ui_4 = mod_ui.Widget;
+	var mod_ui_4 = mod_ui.ChatList;
+	var mod_ui_5 = mod_ui.Widget;
 
 	var ui = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -970,6 +1048,7 @@
 	    mod_ui.Widget.register(mod_ui.FolderTree, 'folderTree');
 	    mod_ui.Widget.register(mod_ui.GridView, 'gridView');
 	    mod_ui.Widget.register(mod_ui.Toolbar, 'toolbar');
+	    mod_ui.Widget.register(mod_ui.ChatList, 'chatList');
 	})();
 
 	});
@@ -7664,13 +7743,207 @@
 	        values[valuesById[20000] = "Start"] = 20000;
 	        return values;
 	    })();
+	    room.RoomUser = (function () {
+	        /**
+	         * Properties of a RoomUser.
+	         * @memberof room
+	         * @interface IRoomUser
+	         * @property {number|null} [userId] RoomUser userId
+	         * @property {string|null} [name] RoomUser name
+	         */
+	        /**
+	         * Constructs a new RoomUser.
+	         * @memberof room
+	         * @classdesc Represents a RoomUser.
+	         * @implements IRoomUser
+	         * @constructor
+	         * @param {room.IRoomUser=} [properties] Properties to set
+	         */
+	        function RoomUser(properties) {
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * RoomUser userId.
+	         * @member {number} userId
+	         * @memberof room.RoomUser
+	         * @instance
+	         */
+	        RoomUser.prototype.userId = 0;
+	        /**
+	         * RoomUser name.
+	         * @member {string} name
+	         * @memberof room.RoomUser
+	         * @instance
+	         */
+	        RoomUser.prototype.name = "";
+	        /**
+	         * Creates a new RoomUser instance using the specified properties.
+	         * @function create
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {room.IRoomUser=} [properties] Properties to set
+	         * @returns {room.RoomUser} RoomUser instance
+	         */
+	        RoomUser.create = function create(properties) {
+	            return new RoomUser(properties);
+	        };
+	        /**
+	         * Encodes the specified RoomUser message. Does not implicitly {@link room.RoomUser.verify|verify} messages.
+	         * @function encode
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {room.IRoomUser} message RoomUser message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        RoomUser.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.userId);
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.name);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified RoomUser message, length delimited. Does not implicitly {@link room.RoomUser.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {room.IRoomUser} message RoomUser message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        RoomUser.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a RoomUser message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {room.RoomUser} RoomUser
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        RoomUser.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.room.RoomUser();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.userId = reader.uint32();
+	                        break;
+	                    case 2:
+	                        message.name = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a RoomUser message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {room.RoomUser} RoomUser
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        RoomUser.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a RoomUser message.
+	         * @function verify
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        RoomUser.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                if (!$util.isInteger(message.userId))
+	                    return "userId: integer expected";
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                if (!$util.isString(message.name))
+	                    return "name: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a RoomUser message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {room.RoomUser} RoomUser
+	         */
+	        RoomUser.fromObject = function fromObject(object) {
+	            if (object instanceof $root.room.RoomUser)
+	                return object;
+	            var message = new $root.room.RoomUser();
+	            if (object.userId != null)
+	                message.userId = object.userId >>> 0;
+	            if (object.name != null)
+	                message.name = String(object.name);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a RoomUser message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof room.RoomUser
+	         * @static
+	         * @param {room.RoomUser} message RoomUser
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        RoomUser.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.defaults) {
+	                object.userId = 0;
+	                object.name = "";
+	            }
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                object.userId = message.userId;
+	            if (message.name != null && message.hasOwnProperty("name"))
+	                object.name = message.name;
+	            return object;
+	        };
+	        /**
+	         * Converts this RoomUser to JSON.
+	         * @function toJSON
+	         * @memberof room.RoomUser
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        RoomUser.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return RoomUser;
+	    })();
 	    room.JoinRoomMessage = (function () {
 	        /**
 	         * Properties of a JoinRoomMessage.
 	         * @memberof room
 	         * @interface IJoinRoomMessage
-	         * @property {string|null} [account] JoinRoomMessage account
-	         * @property {number|null} [userId] JoinRoomMessage userId
+	         * @property {room.IRoomUser|null} [user] JoinRoomMessage user
 	         */
 	        /**
 	         * Constructs a new JoinRoomMessage.
@@ -7687,19 +7960,12 @@
 	                        this[keys[i]] = properties[keys[i]];
 	        }
 	        /**
-	         * JoinRoomMessage account.
-	         * @member {string} account
+	         * JoinRoomMessage user.
+	         * @member {room.IRoomUser|null|undefined} user
 	         * @memberof room.JoinRoomMessage
 	         * @instance
 	         */
-	        JoinRoomMessage.prototype.account = "";
-	        /**
-	         * JoinRoomMessage userId.
-	         * @member {number} userId
-	         * @memberof room.JoinRoomMessage
-	         * @instance
-	         */
-	        JoinRoomMessage.prototype.userId = 0;
+	        JoinRoomMessage.prototype.user = null;
 	        /**
 	         * Creates a new JoinRoomMessage instance using the specified properties.
 	         * @function create
@@ -7723,10 +7989,8 @@
 	        JoinRoomMessage.encode = function encode(message, writer) {
 	            if (!writer)
 	                writer = $Writer.create();
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.account);
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.userId);
+	            if (message.user != null && message.hasOwnProperty("user"))
+	                $root.room.RoomUser.encode(message.user, writer.uint32(/* id 1, wireType 2 =*/ 10).fork()).ldelim();
 	            return writer;
 	        };
 	        /**
@@ -7760,10 +8024,7 @@
 	                var tag = reader.uint32();
 	                switch (tag >>> 3) {
 	                    case 1:
-	                        message.account = reader.string();
-	                        break;
-	                    case 2:
-	                        message.userId = reader.uint32();
+	                        message.user = $root.room.RoomUser.decode(reader, reader.uint32());
 	                        break;
 	                    default:
 	                        reader.skipType(tag & 7);
@@ -7798,12 +8059,11 @@
 	        JoinRoomMessage.verify = function verify(message) {
 	            if (typeof message !== "object" || message === null)
 	                return "object expected";
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                if (!$util.isString(message.account))
-	                    return "account: string expected";
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                if (!$util.isInteger(message.userId))
-	                    return "userId: integer expected";
+	            if (message.user != null && message.hasOwnProperty("user")) {
+	                var error = $root.room.RoomUser.verify(message.user);
+	                if (error)
+	                    return "user." + error;
+	            }
 	            return null;
 	        };
 	        /**
@@ -7818,10 +8078,11 @@
 	            if (object instanceof $root.room.JoinRoomMessage)
 	                return object;
 	            var message = new $root.room.JoinRoomMessage();
-	            if (object.account != null)
-	                message.account = String(object.account);
-	            if (object.userId != null)
-	                message.userId = object.userId >>> 0;
+	            if (object.user != null) {
+	                if (typeof object.user !== "object")
+	                    throw TypeError(".room.JoinRoomMessage.user: object expected");
+	                message.user = $root.room.RoomUser.fromObject(object.user);
+	            }
 	            return message;
 	        };
 	        /**
@@ -7837,14 +8098,10 @@
 	            if (!options)
 	                options = {};
 	            var object = {};
-	            if (options.defaults) {
-	                object.account = "";
-	                object.userId = 0;
-	            }
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                object.account = message.account;
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                object.userId = message.userId;
+	            if (options.defaults)
+	                object.user = null;
+	            if (message.user != null && message.hasOwnProperty("user"))
+	                object.user = $root.room.RoomUser.toObject(message.user, options);
 	            return object;
 	        };
 	        /**
@@ -7864,8 +8121,7 @@
 	         * Properties of a LeaveRoomMessage.
 	         * @memberof room
 	         * @interface ILeaveRoomMessage
-	         * @property {string|null} [account] LeaveRoomMessage account
-	         * @property {number|null} [userId] LeaveRoomMessage userId
+	         * @property {room.IRoomUser|null} [user] LeaveRoomMessage user
 	         */
 	        /**
 	         * Constructs a new LeaveRoomMessage.
@@ -7882,19 +8138,12 @@
 	                        this[keys[i]] = properties[keys[i]];
 	        }
 	        /**
-	         * LeaveRoomMessage account.
-	         * @member {string} account
+	         * LeaveRoomMessage user.
+	         * @member {room.IRoomUser|null|undefined} user
 	         * @memberof room.LeaveRoomMessage
 	         * @instance
 	         */
-	        LeaveRoomMessage.prototype.account = "";
-	        /**
-	         * LeaveRoomMessage userId.
-	         * @member {number} userId
-	         * @memberof room.LeaveRoomMessage
-	         * @instance
-	         */
-	        LeaveRoomMessage.prototype.userId = 0;
+	        LeaveRoomMessage.prototype.user = null;
 	        /**
 	         * Creates a new LeaveRoomMessage instance using the specified properties.
 	         * @function create
@@ -7918,10 +8167,8 @@
 	        LeaveRoomMessage.encode = function encode(message, writer) {
 	            if (!writer)
 	                writer = $Writer.create();
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.account);
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.userId);
+	            if (message.user != null && message.hasOwnProperty("user"))
+	                $root.room.RoomUser.encode(message.user, writer.uint32(/* id 1, wireType 2 =*/ 10).fork()).ldelim();
 	            return writer;
 	        };
 	        /**
@@ -7955,10 +8202,7 @@
 	                var tag = reader.uint32();
 	                switch (tag >>> 3) {
 	                    case 1:
-	                        message.account = reader.string();
-	                        break;
-	                    case 2:
-	                        message.userId = reader.uint32();
+	                        message.user = $root.room.RoomUser.decode(reader, reader.uint32());
 	                        break;
 	                    default:
 	                        reader.skipType(tag & 7);
@@ -7993,12 +8237,11 @@
 	        LeaveRoomMessage.verify = function verify(message) {
 	            if (typeof message !== "object" || message === null)
 	                return "object expected";
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                if (!$util.isString(message.account))
-	                    return "account: string expected";
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                if (!$util.isInteger(message.userId))
-	                    return "userId: integer expected";
+	            if (message.user != null && message.hasOwnProperty("user")) {
+	                var error = $root.room.RoomUser.verify(message.user);
+	                if (error)
+	                    return "user." + error;
+	            }
 	            return null;
 	        };
 	        /**
@@ -8013,10 +8256,11 @@
 	            if (object instanceof $root.room.LeaveRoomMessage)
 	                return object;
 	            var message = new $root.room.LeaveRoomMessage();
-	            if (object.account != null)
-	                message.account = String(object.account);
-	            if (object.userId != null)
-	                message.userId = object.userId >>> 0;
+	            if (object.user != null) {
+	                if (typeof object.user !== "object")
+	                    throw TypeError(".room.LeaveRoomMessage.user: object expected");
+	                message.user = $root.room.RoomUser.fromObject(object.user);
+	            }
 	            return message;
 	        };
 	        /**
@@ -8032,14 +8276,10 @@
 	            if (!options)
 	                options = {};
 	            var object = {};
-	            if (options.defaults) {
-	                object.account = "";
-	                object.userId = 0;
-	            }
-	            if (message.account != null && message.hasOwnProperty("account"))
-	                object.account = message.account;
-	            if (message.userId != null && message.hasOwnProperty("userId"))
-	                object.userId = message.userId;
+	            if (options.defaults)
+	                object.user = null;
+	            if (message.user != null && message.hasOwnProperty("user"))
+	                object.user = $root.room.RoomUser.toObject(message.user, options);
 	            return object;
 	        };
 	        /**
@@ -8053,6 +8293,200 @@
 	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
 	        };
 	        return LeaveRoomMessage;
+	    })();
+	    room.ListUsersMessage = (function () {
+	        /**
+	         * Properties of a ListUsersMessage.
+	         * @memberof room
+	         * @interface IListUsersMessage
+	         * @property {Array.<room.IRoomUser>|null} [users] ListUsersMessage users
+	         */
+	        /**
+	         * Constructs a new ListUsersMessage.
+	         * @memberof room
+	         * @classdesc Represents a ListUsersMessage.
+	         * @implements IListUsersMessage
+	         * @constructor
+	         * @param {room.IListUsersMessage=} [properties] Properties to set
+	         */
+	        function ListUsersMessage(properties) {
+	            this.users = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * ListUsersMessage users.
+	         * @member {Array.<room.IRoomUser>} users
+	         * @memberof room.ListUsersMessage
+	         * @instance
+	         */
+	        ListUsersMessage.prototype.users = $util.emptyArray;
+	        /**
+	         * Creates a new ListUsersMessage instance using the specified properties.
+	         * @function create
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {room.IListUsersMessage=} [properties] Properties to set
+	         * @returns {room.ListUsersMessage} ListUsersMessage instance
+	         */
+	        ListUsersMessage.create = function create(properties) {
+	            return new ListUsersMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified ListUsersMessage message. Does not implicitly {@link room.ListUsersMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {room.IListUsersMessage} message ListUsersMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ListUsersMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.users != null && message.users.length)
+	                for (var i = 0; i < message.users.length; ++i)
+	                    $root.room.RoomUser.encode(message.users[i], writer.uint32(/* id 1, wireType 2 =*/ 10).fork()).ldelim();
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified ListUsersMessage message, length delimited. Does not implicitly {@link room.ListUsersMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {room.IListUsersMessage} message ListUsersMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ListUsersMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a ListUsersMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {room.ListUsersMessage} ListUsersMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ListUsersMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.room.ListUsersMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.users && message.users.length))
+	                            message.users = [];
+	                        message.users.push($root.room.RoomUser.decode(reader, reader.uint32()));
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a ListUsersMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {room.ListUsersMessage} ListUsersMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ListUsersMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a ListUsersMessage message.
+	         * @function verify
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        ListUsersMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.users != null && message.hasOwnProperty("users")) {
+	                if (!Array.isArray(message.users))
+	                    return "users: array expected";
+	                for (var i = 0; i < message.users.length; ++i) {
+	                    var error = $root.room.RoomUser.verify(message.users[i]);
+	                    if (error)
+	                        return "users." + error;
+	                }
+	            }
+	            return null;
+	        };
+	        /**
+	         * Creates a ListUsersMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {room.ListUsersMessage} ListUsersMessage
+	         */
+	        ListUsersMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.room.ListUsersMessage)
+	                return object;
+	            var message = new $root.room.ListUsersMessage();
+	            if (object.users) {
+	                if (!Array.isArray(object.users))
+	                    throw TypeError(".room.ListUsersMessage.users: array expected");
+	                message.users = [];
+	                for (var i = 0; i < object.users.length; ++i) {
+	                    if (typeof object.users[i] !== "object")
+	                        throw TypeError(".room.ListUsersMessage.users: object expected");
+	                    message.users[i] = $root.room.RoomUser.fromObject(object.users[i]);
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a ListUsersMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof room.ListUsersMessage
+	         * @static
+	         * @param {room.ListUsersMessage} message ListUsersMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        ListUsersMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.users = [];
+	            if (message.users && message.users.length) {
+	                object.users = [];
+	                for (var j = 0; j < message.users.length; ++j)
+	                    object.users[j] = $root.room.RoomUser.toObject(message.users[j], options);
+	            }
+	            return object;
+	        };
+	        /**
+	         * Converts this ListUsersMessage to JSON.
+	         * @function toJSON
+	         * @memberof room.ListUsersMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        ListUsersMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return ListUsersMessage;
 	    })();
 	    return room;
 	})();
@@ -11281,8 +11715,10 @@
 	var MsgType;
 	(function (MsgType) {
 	    MsgType[MsgType["base_UberMessage"] = 10000] = "base_UberMessage";
-	    MsgType[MsgType["room_JoinRoomMessage"] = 20000] = "room_JoinRoomMessage";
-	    MsgType[MsgType["room_LeaveRoomMessage"] = 20001] = "room_LeaveRoomMessage";
+	    MsgType[MsgType["room_RoomUser"] = 20000] = "room_RoomUser";
+	    MsgType[MsgType["room_JoinRoomMessage"] = 20001] = "room_JoinRoomMessage";
+	    MsgType[MsgType["room_LeaveRoomMessage"] = 20002] = "room_LeaveRoomMessage";
+	    MsgType[MsgType["room_ListUsersMessage"] = 20003] = "room_ListUsersMessage";
 	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
 	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
@@ -11302,8 +11738,10 @@
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
-	    20000: protocols.room.JoinRoomMessage,
-	    20001: protocols.room.LeaveRoomMessage,
+	    20000: protocols.room.RoomUser,
+	    20001: protocols.room.JoinRoomMessage,
+	    20002: protocols.room.LeaveRoomMessage,
+	    20003: protocols.room.ListUsersMessage,
 	    30000: protocols.whiteboard.StrokeType,
 	    30001: protocols.whiteboard.CommandMessage,
 	    30002: protocols.whiteboard.EventMessage,
@@ -14953,7 +15391,6 @@
 	})();
 	Object.defineProperty(exports, "__esModule", { value: true });
 
-	var whiteboard_2 = whiteboard;
 
 
 
@@ -15001,21 +15438,14 @@
 	                        if (msgData) {
 	                            var ev = new whiteboard.WBMessageEvent(msgData.type, msgData.data, {}, msg.data.object);
 	                            ev.broadcast = true;
-	                            console.log("Got sync message " + msgData.type);
 	                            _this._wb.triggerEx(ev);
 	                        }
 	                    }
 	                    else {
-	                        catk.App.triggerEvent(null, new whiteboard_2.EvtSocketMessage(msg.type, msg.data));
+	                        var ev = new whiteboard.WBMessageEvent(msg.type, msg.data, {});
+	                        ev.broadcast = true;
+	                        _this._wb.triggerEx(ev);
 	                    }
-	                    /*
-	                    if (msg.type === MsgType.whiteboard_CommandMessage) {
-	                        const cmd:any = JSON.parse (msg.data.command);
-	                        this._wb.triggerEx (new WBCommandEvent(cmd.command, cmd.args, {}, cmd.object));
-	                    } else {
-	                        catk.App.triggerEvent (null, new EvtSocketMessage(msg.type, msg.data));
-	                    }
-	                    */
 	                }
 	                else {
 	                    break;
@@ -15066,7 +15496,18 @@
 	var cmdserver_2 = cmdserver.SocketCommandServer;
 
 	var create_whiteboard = createCommonjsModule(function (module, exports) {
+	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
+	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	    if (m) return m.call(o);
+	    return {
+	        next: function () {
+	            if (o && i >= o.length) o = void 0;
+	            return { value: o && o[i++], done: !o };
+	        }
+	    };
+	};
 	Object.defineProperty(exports, "__esModule", { value: true });
+
 
 
 
@@ -15083,6 +15524,45 @@
 	    var objPropGridDiv = document.querySelector('#object-options');
 	    var toolPropGridDiv = document.querySelector('#tool-options');
 	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
+	    WB.on(whiteboard$2.WBMessageEvent.type, function (ev) {
+	        var e_1, _a;
+	        if (ev.messageType === protolist.MsgType.room_JoinRoomMessage) {
+	            $('#chat-list').chatList('addUser', {
+	                id: ev.messageData.user.userId,
+	                name: ev.messageData.user.name,
+	                icon: "/avatar/" + ev.messageData.user.userId
+	            });
+	            console.log("Join room: " + ev.messageData.userId + ", " + ev.messageData.name + ", " + ev.messageData.account + ", " + ev.messageData.avatar);
+	        }
+	        else if (ev.messageType === protolist.MsgType.room_LeaveRoomMessage) {
+	            console.log("Leave room: " + ev.messageData.userId + ", " + ev.messageData.name);
+	            $('#chat-list').chatList('removeUser', ev.messageData.user.userId);
+	        }
+	        else if (ev.messageType === protolist.MsgType.room_ListUsersMessage) {
+	            console.log("List room users: " + ev.messageData.users.length + " Users");
+	            $('#chat-list').chatList('clear');
+	            try {
+	                for (var _b = __values(ev.messageData.users), _c = _b.next(); !_c.done; _c = _b.next()) {
+	                    var user = _c.value;
+	                    $('#chat-list').chatList('addUser', {
+	                        id: user.userId,
+	                        name: user.name,
+	                        icon: "/avatar/" + user.userId
+	                    });
+	                }
+	            }
+	            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+	            finally {
+	                try {
+	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+	                }
+	                finally { if (e_1) throw e_1.error; }
+	            }
+	        }
+	    });
+	    $('#chat-list').chatList({
+	        name: '测试教室'
+	    });
 	    WB.on(whiteboard$2.WBObjectSelectedEvent.type, function (ev) {
 	        if (ev.object) {
 	            editor.objectPropertyGrid.loadObjectProperties(ev.object);

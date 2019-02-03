@@ -1,17 +1,65 @@
 import * as $ from 'jquery';
 import { Widget } from './widget';
 
+export interface IChatListData {
+    name: string;
+    maxUsers?: number;
+}
+
+export interface IChatListUser {
+    id: number;
+    name: string;
+    icon: string;
+}
+
 export class ChatList extends Widget {
-    protected _init () {
-        const that = this;
-        this.$el.addClass (['p-0', 'toolbar', 'btn-toolbar']);
-        for (const groupName in this.options) {
-            const group = this.options[groupName];
-            const groupDiv = $('<div></div>').addClass (['btn-group', 'ml-1', 'mr-1']).attr('role', 'group').appendTo (this.$el);
-            for (let i = 0; i < group.tools.length; i++) {
-                this.createToolButton (groupDiv, group, i);
-            }
-            $('<div></div>').addClass ('toolbar-seperator').appendTo (this.$el);
+    private _numUsers: number = 0;
+    private _users: { [id: number]: IChatListUser } = {};
+    private _$header: JQuery|null = null;
+    private _$users: JQuery|null = null;
+    getNumUsers () {
+        return this._numUsers;
+    }
+    addUser (user: IChatListUser) {
+        if (this._users[user.id]) {
+            console.error (`User ${user.id} is already in room`);
+        } else {
+            this._users[user.id] = user;
+            const li = $('<li></li>').attr('user_id', user.id).appendTo (this._$users!);
+            const divUser = $('<div></div>').addClass (['d-flex', 'flex-row', 'align-items-stretch']).css({
+                height: '100%'
+            }).appendTo (li);
+            $('<img/>').addClass ('rounded-circle').attr('src', user.icon).appendTo (divUser);
+            const userPane = $('<div></div>').css({
+                marginLeft: '15px'
+            }).appendTo (divUser);
+            $('<span></span>').html (user.name).appendTo (userPane);
+            this._numUsers++;
         }
+    }
+    removeUser (id: number) {
+        if (this._users[id]) {
+            delete this._users[id];
+            this._$users!.find (`li[user_id="${id}"]`).remove ();
+            this._numUsers--;
+        }
+    }
+    clear () {
+        this._users = {};
+        this._numUsers = 0;
+        if (this._$users) {
+            this._$users.empty ();
+        }
+        this._$header!.html(`${this.options.name}(${this._numUsers})`)
+    }
+    protected _init () {
+        this.$el.addClass (['p-0', 'd-flex', 'flex-column', 'chat-list']);
+        const header = $('<div></div>').css ({
+            padding: '10px',
+            borderBottom: '1px solid #c4c4c4'
+        }).appendTo (this.$el);
+        this._$header = $('<p></p>').html(`${this.options.name}(${this._numUsers})`).appendTo(header);
+        const body = $('<div></div>').addClass ('flex-grow-1').appendTo(this.$el);
+        this._$users = $('<ul></ul>').appendTo(body);
     }
 }

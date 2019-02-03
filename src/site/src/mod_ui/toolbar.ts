@@ -52,17 +52,13 @@ export class Toolbar extends Widget {
         const clickDiv = $('<div></div>').css({
             display: 'inline-block'
         }).appendTo (button);
-        clickDiv.on ('mousedown', function(){
-            console.log ('down');
-        });
-        clickDiv.on ('mouseup', function(){
-            console.log ('up');
-        });
         clickDiv.on ('mouseenter', function(){
-            console.log ('enter');
+            button.addClass ('selected');
         });
         clickDiv.on ('mouseleave', function(){
-            console.log ('leave');
+            if (group.toggle === 'none' || !tool.active) {
+                button.removeClass ('selected');
+            }
         });
         clickDiv.on ('click', (ev) => {
             ev.stopPropagation ();

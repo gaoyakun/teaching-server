@@ -3,8 +3,10 @@ import * as proto from './protocols';
 
 export enum MsgType {
 	base_UberMessage = 10000,
-	room_JoinRoomMessage = 20000,
-	room_LeaveRoomMessage = 20001,
+	room_RoomUser = 20000,
+	room_JoinRoomMessage = 20001,
+	room_LeaveRoomMessage = 20002,
+	room_ListUsersMessage = 20003,
 	whiteboard_StrokeType = 30000,
 	whiteboard_CommandMessage = 30001,
 	whiteboard_EventMessage = 30002,
@@ -25,8 +27,10 @@ export enum MsgType {
 
 const msgMap: any = {
 	10000: proto.base.UberMessage,
-	20000: proto.room.JoinRoomMessage,
-	20001: proto.room.LeaveRoomMessage,
+	20000: proto.room.RoomUser,
+	20001: proto.room.JoinRoomMessage,
+	20002: proto.room.LeaveRoomMessage,
+	20003: proto.room.ListUsersMessage,
 	30000: proto.whiteboard.StrokeType,
 	30001: proto.whiteboard.CommandMessage,
 	30002: proto.whiteboard.EventMessage,

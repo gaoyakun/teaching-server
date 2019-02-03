@@ -106,14 +106,107 @@ export namespace room {
         Start = 20000
     }
 
+    /** Properties of a RoomUser. */
+    interface IRoomUser {
+
+        /** RoomUser userId */
+        userId?: (number|null);
+
+        /** RoomUser name */
+        name?: (string|null);
+    }
+
+    /** Represents a RoomUser. */
+    class RoomUser implements IRoomUser {
+
+        /**
+         * Constructs a new RoomUser.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: room.IRoomUser);
+
+        /** RoomUser userId. */
+        public userId: number;
+
+        /** RoomUser name. */
+        public name: string;
+
+        /**
+         * Creates a new RoomUser instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns RoomUser instance
+         */
+        public static create(properties?: room.IRoomUser): room.RoomUser;
+
+        /**
+         * Encodes the specified RoomUser message. Does not implicitly {@link room.RoomUser.verify|verify} messages.
+         * @param message RoomUser message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: room.IRoomUser, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified RoomUser message, length delimited. Does not implicitly {@link room.RoomUser.verify|verify} messages.
+         * @param message RoomUser message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: room.IRoomUser, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a RoomUser message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns RoomUser
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): room.RoomUser;
+
+        /**
+         * Decodes a RoomUser message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns RoomUser
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): room.RoomUser;
+
+        /**
+         * Verifies a RoomUser message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a RoomUser message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns RoomUser
+         */
+        public static fromObject(object: { [k: string]: any }): room.RoomUser;
+
+        /**
+         * Creates a plain object from a RoomUser message. Also converts values to other types if specified.
+         * @param message RoomUser
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: room.RoomUser, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this RoomUser to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a JoinRoomMessage. */
     interface IJoinRoomMessage {
 
-        /** JoinRoomMessage account */
-        account?: (string|null);
-
-        /** JoinRoomMessage userId */
-        userId?: (number|null);
+        /** JoinRoomMessage user */
+        user?: (room.IRoomUser|null);
     }
 
     /** Represents a JoinRoomMessage. */
@@ -125,11 +218,8 @@ export namespace room {
          */
         constructor(properties?: room.IJoinRoomMessage);
 
-        /** JoinRoomMessage account. */
-        public account: string;
-
-        /** JoinRoomMessage userId. */
-        public userId: number;
+        /** JoinRoomMessage user. */
+        public user?: (room.IRoomUser|null);
 
         /**
          * Creates a new JoinRoomMessage instance using the specified properties.
@@ -205,11 +295,8 @@ export namespace room {
     /** Properties of a LeaveRoomMessage. */
     interface ILeaveRoomMessage {
 
-        /** LeaveRoomMessage account */
-        account?: (string|null);
-
-        /** LeaveRoomMessage userId */
-        userId?: (number|null);
+        /** LeaveRoomMessage user */
+        user?: (room.IRoomUser|null);
     }
 
     /** Represents a LeaveRoomMessage. */
@@ -221,11 +308,8 @@ export namespace room {
          */
         constructor(properties?: room.ILeaveRoomMessage);
 
-        /** LeaveRoomMessage account. */
-        public account: string;
-
-        /** LeaveRoomMessage userId. */
-        public userId: number;
+        /** LeaveRoomMessage user. */
+        public user?: (room.IRoomUser|null);
 
         /**
          * Creates a new LeaveRoomMessage instance using the specified properties.
@@ -293,6 +377,96 @@ export namespace room {
 
         /**
          * Converts this LeaveRoomMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a ListUsersMessage. */
+    interface IListUsersMessage {
+
+        /** ListUsersMessage users */
+        users?: (room.IRoomUser[]|null);
+    }
+
+    /** Represents a ListUsersMessage. */
+    class ListUsersMessage implements IListUsersMessage {
+
+        /**
+         * Constructs a new ListUsersMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: room.IListUsersMessage);
+
+        /** ListUsersMessage users. */
+        public users: room.IRoomUser[];
+
+        /**
+         * Creates a new ListUsersMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ListUsersMessage instance
+         */
+        public static create(properties?: room.IListUsersMessage): room.ListUsersMessage;
+
+        /**
+         * Encodes the specified ListUsersMessage message. Does not implicitly {@link room.ListUsersMessage.verify|verify} messages.
+         * @param message ListUsersMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: room.IListUsersMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ListUsersMessage message, length delimited. Does not implicitly {@link room.ListUsersMessage.verify|verify} messages.
+         * @param message ListUsersMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: room.IListUsersMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a ListUsersMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ListUsersMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): room.ListUsersMessage;
+
+        /**
+         * Decodes a ListUsersMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ListUsersMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): room.ListUsersMessage;
+
+        /**
+         * Verifies a ListUsersMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a ListUsersMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ListUsersMessage
+         */
+        public static fromObject(object: { [k: string]: any }): room.ListUsersMessage;
+
+        /**
+         * Creates a plain object from a ListUsersMessage message. Also converts values to other types if specified.
+         * @param message ListUsersMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: room.ListUsersMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ListUsersMessage to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
