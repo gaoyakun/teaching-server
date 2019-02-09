@@ -12,6 +12,7 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const socketio = require("socket.io");
+const RTCMultiConnectionServer = require('rtcmulticonnection-server');
 const app_1 = require("./app");
 const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
@@ -54,6 +55,7 @@ app_1.initializeApp().then(() => {
     }));
     io.on('connection', socket => {
         console.log('Client connected');
+        RTCMultiConnectionServer.addSocket(socket);
         roommgr_1.RoomManager.instance().newClient(socket).catch(err => {
             console.log(err);
             socket.disconnect();

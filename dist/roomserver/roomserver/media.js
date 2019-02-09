@@ -1,0 +1,156 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mediasoup = require('mediasoup');
+const crypto = require("crypto");
+const TURN_SERVERS = process.env.TURN_SERVERS ? process.env.TURN_SERVERS.split(',') : [];
+const PASSWORD_EXPIRY_SECONDS = 300;
+function getTurnServers(key) {
+    const urls = TURN_SERVERS;
+    if (!urls.length) {
+        return [];
+    }
+    if (key) {
+        // Return the TURN REST API credential.
+        const timestamp = Math.floor(Date.now() / 1000) + PASSWORD_EXPIRY_SECONDS;
+        const temporary_username = String(timestamp) + ':msbe';
+        const hmac = crypto.createHmac('sha1', key).update(temporary_username).digest('base64');
+        return [{ urls: urls,
+                username: temporary_username,
+                credential: hmac,
+                credentialType: 'password',
+            }];
+    }
+    else {
+        // No credentials;
+        return [{ urls: urls }];
+    }
+}
+exports.getTurnServers = getTurnServers;
+;
+const msOptions = {
+    rtcIPv4: process.env.RTC_IPV4 || true,
+    rtcIPv6: process.env.RTC_IPV6 || false,
+};
+if (process.env.RTC_ANNOUNCED_IPV4) {
+    // This is the external IP address that routes to the current
+    // instance.  For cloud providers or Kubernetes, this
+    // will be a different address than the connected network
+    // interface will use.
+    msOptions.rtcAnnouncedIPv4 = process.env.RTC_ANNOUNCED_IPV4;
+}
+if (process.env.RTC_ANNOUNCED_IPV6) {
+    msOptions.rtcAnnouncedIPv6 = process.env.RTC_ANNOUNCED_IPV6;
+}
+if (process.env.LOG_LEVEL) {
+    console.log('Setting logLevel to', process.env.LOG_LEVEL);
+    msOptions.logLevel = process.env.LOG_LEVEL;
+    msOptions.logTags = ['info', 'ice', 'dlts', 'rtp', 'srtp', 'rtcp', 'rbe', 'rtx'];
+}
+const ms = mediasoup.Server(msOptions);
+const MEDIA_CODECS = [{
+        kind: "audio",
+        name: "opus",
+        clockRate: 48000,
+        channels: 2,
+        parameters: {
+            useinbandfec: 1
+        }
+    }, {
+        kind: "video",
+        name: "h264",
+        clockRate: 90000,
+        parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1
+        }
+    }];
+function handlePubsub(client, isPublisher) {
+    if (!client.room.mediaRoom) {
+        client.room.mediaRoom = ms.Room(MEDIA_CODECS);
+    }
+    function sendAction(obj) {
+        if (client.socket && client.socket.connected) {
+            client.socket.emit('media', obj);
+        }
+    }
+    client.socket.on('media', (data) => {
+        switch (data.type) {
+            case 'MS_SEND': {
+                let target;
+                switch (data.payload.target) {
+                    case 'room':
+                        target = client.room.mediaRoom;
+                        break;
+                    case 'peer':
+                        target = client.mediaPeer;
+                        break;
+                }
+                if (data.meta.notification) {
+                    if (!target) {
+                        console.log('unknown notification target', data.payload.target);
+                    }
+                    else {
+                        target.receiveNotification(data.payload);
+                    }
+                    break;
+                }
+                if (!target) {
+                    console.log('unknown request target', data.payload.target);
+                    sendAction({ type: 'MS_ERROR', payload: 'unknown request target', meta: data.meta });
+                    break;
+                }
+                if (data.payload.method === 'join') {
+                    data.payload.peerName = String(client.userId);
+                    // Kick out the old peer.
+                    var oldPeer = client.room.mediaRoom.getPeerByName(data.payload.peerName);
+                    if (oldPeer) {
+                        oldPeer.close();
+                    }
+                }
+                target.receiveRequest(data.payload)
+                    .then((response) => {
+                    if (data.payload.method === 'join') {
+                        // Detected a join request, so get the peer.
+                        var peerName = data.payload.peerName;
+                        client.mediaPeer = client.room.mediaRoom.getPeerByName(peerName);
+                        client.mediaPeer.on('notify', (notification) => {
+                            if (notification.method === 'newPeer' || notification.method === 'peerClosed') {
+                                if (!isPublisher && notification.name !== String(client.room.owner)) {
+                                    // Skip the notification to hide all but the publisher.
+                                    return;
+                                }
+                            }
+                            // console.log(addr, 'sending notification', notification);
+                            sendAction({ type: 'MS_NOTIFY', payload: notification, meta: { channel: `media-room-${client.room.id}` } });
+                        });
+                        console.log('new peer joined the room', peerName);
+                        if (!isPublisher) {
+                            // Filter out all peers but the publisher.
+                            response = Object.assign({}, response, {
+                                peers: response.peers.filter((peer) => {
+                                    return (peer.name === String(client.room.owner));
+                                })
+                            });
+                        }
+                    }
+                    // console.log(addr, 'sending response', response);
+                    sendAction({ type: 'MS_RESPONSE', payload: response, meta: data.meta });
+                }).catch((err) => {
+                    sendAction({
+                        type: 'MS_ERROR',
+                        payload: err,
+                        meta: data.meta
+                    });
+                });
+                break;
+            }
+            default: {
+                throw Error('Unrecognized action type ' + data.type);
+                break;
+            }
+        }
+    });
+}
+exports.handlePubsub = handlePubsub;
+//# sourceMappingURL=media.js.map

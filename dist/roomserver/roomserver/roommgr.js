@@ -15,6 +15,7 @@ const defines_1 = require("../common/defines");
 const protoutils_1 = require("../common/protoutils");
 const protolist_1 = require("../common/protocols/protolist");
 const protoutils_2 = require("../common/protoutils");
+const media_1 = require("./media");
 const messageAssembler = new protoutils_2.MessageAssembler();
 class Client {
     constructor() {
@@ -24,6 +25,7 @@ class Client {
         this._userAvatar = '';
         this._socket = null;
         this._room = null;
+        this._mediaPeer = null;
     }
     get room() {
         return this._room;
@@ -45,6 +47,12 @@ class Client {
     }
     get socket() {
         return this._socket;
+    }
+    get mediaPeer() {
+        return this._mediaPeer;
+    }
+    set mediaPeer(peer) {
+        this._mediaPeer = peer;
     }
     init(socket) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -91,7 +99,7 @@ class Client {
             }
         });
     }
-    sendText(event, data) {
+    send(event, data) {
         if (this._socket) {
             this._socket.emit(event, data);
         }
@@ -117,12 +125,15 @@ class Client {
             for (const key in this._room.clients) {
                 const client = this._room.clients[key];
                 if (withSelf || client !== this) {
-                    client.sendText(event, data);
+                    client.send(event, data);
                 }
             }
         }
     }
     disconnect() {
+        if (this._mediaPeer) {
+            this._mediaPeer.close();
+        }
         if (this._socket && this._socket.connected) {
             this._socket.disconnect(true);
         }
@@ -137,6 +148,15 @@ class Client {
                 if (!(yield room.addClient(this))) {
                     throw new Error('addClient failed');
                 }
+                this.mediaJoin();
+                const turnServers = media_1.getTurnServers();
+                this.sendMessage('message', protolist_1.MsgType.room_MediaOptionMessage, {
+                    publish: room.owner === this.userId,
+                    roomId: roomId,
+                    userId: this.userId,
+                    audio: true,
+                    turnServers: turnServers
+                });
             }
         });
     }
@@ -144,6 +164,10 @@ class Client {
         if (this._room) {
             this._room.removeClient(this);
         }
+    }
+    mediaJoin() {
+        const publish = this._userId === this._room.owner;
+        media_1.handlePubsub(this, publish);
     }
     handleMessage(data) {
         if (this._room) {
@@ -162,14 +186,22 @@ class Client {
 }
 exports.Client = Client;
 class Room {
-    constructor(id) {
+    constructor(id, owner) {
         this._clients = {};
+        this._owner = owner;
         this._commandList = [];
         this._id = id;
+        this._mediaRoom = null;
         this._channel = `room-${id}`;
     }
     get id() {
         return this._id;
+    }
+    get owner() {
+        return this._owner;
+    }
+    set owner(val) {
+        this._owner = val;
     }
     get channel() {
         return this._channel;
@@ -179,6 +211,12 @@ class Room {
     }
     get commandList() {
         return this._commandList;
+    }
+    get mediaRoom() {
+        return this._mediaRoom;
+    }
+    set mediaRoom(room) {
+        this._mediaRoom = room;
     }
     findClient(id) {
         if (utils_1.Utils.isInt(id)) {
@@ -272,9 +310,17 @@ class RoomManager {
             if (!result || result.affectedRows === 0) {
                 throw new Error('Publish room failed');
             }
-            if (!this.findRoom(id)) {
-                return this._rooms[id] = new Room(id);
+            const r = yield config_1.GetConfig.engine.objects('room').filter(filter).fields('owner').all();
+            if (r.length !== 1) {
+                throw new Error('Publish room failed');
             }
+            if (!this.findRoom(id)) {
+                this._rooms[id] = new Room(id, r[0].owner);
+            }
+            else {
+                this._rooms[id].owner = r[0].owner;
+            }
+            return this._rooms[id];
         });
     }
     findOrCreateRoom(id) {

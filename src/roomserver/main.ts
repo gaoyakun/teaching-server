@@ -2,14 +2,12 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as socketio from 'socket.io';
-import * as cookie from 'cookie';
+const RTCMultiConnectionServer = require('rtcmulticonnection-server');
 import { app, initializeApp } from './app';
 import { Server } from '../lib/servermgr';
 import { Session } from '../lib/session';
-import { GetConfig } from '../lib/config';
 import { RoomManager } from './roommgr';
 import { doCommand } from './commands';
-import { Utils } from '../common/utils';
 
 const useHttps = false;
 
@@ -49,6 +47,7 @@ initializeApp ().then (()=> {
     });
     io.on('connection', socket => {
         console.log ('Client connected');
+        RTCMultiConnectionServer.addSocket (socket);
         RoomManager.instance().newClient (socket).catch (err => {
             console.log (err);
             socket.disconnect ();

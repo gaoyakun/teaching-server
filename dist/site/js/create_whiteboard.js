@@ -1055,6 +1055,478 @@
 
 	unwrapExports(ui);
 
+	var mod_mediasoup = createCommonjsModule(function (module, exports) {
+	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+	    return new (P || (P = Promise))(function (resolve, reject) {
+	        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+	        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+	        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+	        step((generator = generator.apply(thisArg, _arguments || [])).next());
+	    });
+	};
+	var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+	    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+	    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+	    function verb(n) { return function (v) { return step([n, v]); }; }
+	    function step(op) {
+	        if (f) throw new TypeError("Generator is already executing.");
+	        while (_) try {
+	            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+	            if (y = 0, t) op = [op[0] & 2, t.value];
+	            switch (op[0]) {
+	                case 0: case 1: t = op; break;
+	                case 4: _.label++; return { value: op[1], done: false };
+	                case 5: _.label++; y = op[1]; op = [0]; continue;
+	                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+	                default:
+	                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+	                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+	                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+	                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+	                    if (t[2]) _.ops.pop();
+	                    _.trys.pop(); continue;
+	            }
+	            op = body.call(thisArg, _);
+	        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+	        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+	    }
+	};
+	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
+	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+	    if (m) return m.call(o);
+	    return {
+	        next: function () {
+	            if (o && i >= o.length) o = void 0;
+	            return { value: o && o[i++], done: !o };
+	        }
+	    };
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var MediaProducer = /** @class */ (function () {
+	    function MediaProducer(socket$$1, roomName, turnServers) {
+	        var _this = this;
+	        this._socket = socket$$1;
+	        this._roomName = roomName;
+	        this._pending = {};
+	        this._errors = {};
+	        this._capturing = {};
+	        this._producers = {};
+	        this._lastProduced = {};
+	        this._requestId = 0;
+	        this._room = null;
+	        this._transport = null;
+	        this._sendStream = null;
+	        this._turnServers = turnServers || [];
+	        this._streamActiveTimeout = {};
+	        this._mediaElement = null;
+	        this._playStream = null;
+	        if (window.navigator && window.navigator.userAgent.match(/\sEdge\//)) {
+	            // On Edge, having any secure turn (turns:...) URLs
+	            // cause an InvalidAccessError, preventing connections
+	            this._turnServers = this._turnServers.map(function (srv) {
+	                var urls = srv.urls.filter(function (url) {
+	                    // remove the turns: url
+	                    return !url.match(/^turns:/);
+	                });
+	                return Object.assign({}, srv, { urls: urls });
+	            });
+	        }
+	        this._socket.on('media', function (data) {
+	            try {
+	                switch (data.type) {
+	                    case 'MS_RESPONSE': {
+	                        var cb = _this._pending[data.meta.id];
+	                        delete _this._pending[data.meta.id];
+	                        delete _this._errors[data.meta.id];
+	                        cb && cb(data.payload);
+	                        break;
+	                    }
+	                    case 'MS_ERROR': {
+	                        var errb = _this._errors[data.meta.id];
+	                        delete _this._pending[data.meta.id];
+	                        delete _this._errors[data.meta.id];
+	                        errb && errb(data.payload);
+	                        break;
+	                    }
+	                    case 'MS_NOTIFY': {
+	                        _this._room.receiveNotification(data.payload);
+	                        break;
+	                    }
+	                }
+	            }
+	            catch (err) {
+	                console.log('Error', err, 'handling', data);
+	            }
+	        });
+	        this._socket.on('disconnect', function () {
+	            if (_this._room) {
+	                _this._room.leave();
+	            }
+	        });
+	    }
+	    Object.defineProperty(MediaProducer.prototype, "isDeviceSupported", {
+	        get: function () {
+	            return window.mediasoupClient.isDeviceSupported();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    MediaProducer.prototype.stopCapture = function () {
+	        var e_1, _a, e_2, _b;
+	        for (var src in this._capturing) {
+	            if (this._capturing[src].cancel) {
+	                this._capturing[src].cancel();
+	            }
+	            var stream = this._capturing[src].stream;
+	            if (stream) {
+	                try {
+	                    for (var _c = __values(stream.getAudioTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
+	                        var track = _d.value;
+	                        track.stop();
+	                    }
+	                }
+	                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+	                finally {
+	                    try {
+	                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+	                    }
+	                    finally { if (e_1) throw e_1.error; }
+	                }
+	                try {
+	                    for (var _e = __values(stream.getVideoTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
+	                        var track = _f.value;
+	                        track.stop();
+	                    }
+	                }
+	                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+	                finally {
+	                    try {
+	                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+	                    }
+	                    finally { if (e_2) throw e_2.error; }
+	                }
+	            }
+	        }
+	        this._capturing = {};
+	        this._connectProducer('audio');
+	        this._connectProducer('video');
+	    };
+	    MediaProducer.prototype.capture = function () {
+	        var _this = this;
+	        this.stopCapture();
+	        this._sendStream = this._sendStream || new MediaStream();
+	        var constraints = {
+	            audio: true
+	        };
+	        navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+	            _this._capturing.gum = {
+	                stream: stream,
+	                audio: true
+	            };
+	            _this._hookup(_this._capturing.gum, _this._sendStream);
+	        }).catch(function (err) {
+	            alert("Error getting media (error code: " + err.code + ")");
+	        });
+	    };
+	    MediaProducer.prototype.pubsub = function (peerName, pub) {
+	        return __awaiter(this, void 0, void 0, function () {
+	            var _this = this;
+	            return __generator(this, function (_a) {
+	                return [2 /*return*/, new Promise(function (resolve, reject) {
+	                        _this._room = new window.mediasoupClient.Room({
+	                            requestTimeout: 8000,
+	                            turnServers: _this._turnServers
+	                        });
+	                        _this._room.on('request', function (request, callback, errback) {
+	                            if (!_this._socket.connected) {
+	                                return errback(new Error('Socket is not open'));
+	                            }
+	                            _this._pending[++_this._requestId] = callback;
+	                            _this._errors[_this._requestId] = errback;
+	                            _this._socket.emit('media', {
+	                                type: 'MS_SEND',
+	                                payload: request,
+	                                meta: {
+	                                    id: _this._requestId,
+	                                    channel: _this._roomName
+	                                }
+	                            });
+	                        });
+	                        _this._room.on('notify', function (notification) {
+	                            if (!_this._socket.connected) {
+	                                console.log('Socket is not open');
+	                                return;
+	                            }
+	                            _this._socket.emit('media', {
+	                                type: 'MS_SEND',
+	                                payload: notification,
+	                                meta: {
+	                                    channel: _this._roomName,
+	                                    notification: true
+	                                }
+	                            });
+	                        });
+	                        _this._room.join(peerName).then(function (peers) {
+	                            console.log('Channel', _this._roomName, 'joined with peers', peers);
+	                            if (pub) {
+	                                _this._transport = _this._room.createTransport('send');
+	                                _this._maybeStream(_this._sendStream);
+	                                resolve({
+	                                    room: _this._room,
+	                                    peers: peers
+	                                });
+	                            }
+	                            else {
+	                                _this._transport = _this._room.createTransport('recv');
+	                                // The server will only ever send us a single publisher.
+	                                // Stream it if it is new...
+	                                _this._room.on('newpeer', function (peer) {
+	                                    console.log('New peer detected:', peer.name);
+	                                    _this._setSource(_this._startStream(peer));
+	                                });
+	                                // ... or if it already exists.
+	                                if (peers[0]) {
+	                                    console.log('Existing peer detected:', peers[0].name);
+	                                    _this._setSource(_this._startStream(peers[0]));
+	                                }
+	                            }
+	                        }).catch(reject);
+	                    })];
+	            });
+	        });
+	    };
+	    MediaProducer.prototype._startStream = function (peer) {
+	        var stream = new MediaStream();
+	        var that = this;
+	        function addConsumer(consumer) {
+	            if (!consumer.supported) {
+	                console.log('consumer', consumer.id, 'not supported');
+	                return;
+	            }
+	            consumer.on('stats', that._showStats);
+	            consumer.enableStats(1000);
+	            consumer.receive(that._transport)
+	                .then(function receiveTrack(track) {
+	                stream.addTrack(track);
+	                consumer.on('close', function closeConsumer() {
+	                    // Remove the old track.
+	                    console.log('removing the old track', track.id);
+	                    that._clearStats(consumer.kind);
+	                    stream.removeTrack(track);
+	                    if (stream.getTracks().length === 0) {
+	                        // Replace the stream.
+	                        console.log('replacing stream');
+	                        stream = new MediaStream();
+	                        that._setSource(stream);
+	                    }
+	                });
+	            }).catch(function onError(e) {
+	                console.log('Cannot add track', e);
+	            });
+	        }
+	        // Add consumers that are added later...
+	        peer.on('newconsumer', addConsumer);
+	        peer.on('closed', function closedPeer() {
+	            that._setSource(stream);
+	        });
+	        // ... as well as the ones that were already present.
+	        for (var i = 0; i < peer.consumers.length; i++) {
+	            addConsumer(peer.consumers[i]);
+	        }
+	        return stream;
+	    };
+	    MediaProducer.prototype._setSource = function (stream) {
+	        var that = this;
+	        if (this._playStream && !stream) {
+	            try {
+	                if (this._playStream.stop) {
+	                    this._playStream.stop();
+	                }
+	                else if (this._playStream.getTracks) {
+	                    var tracks = this._playStream.getTracks();
+	                    for (var i = 0; i < tracks.length; i++) {
+	                        tracks[i].stop();
+	                    }
+	                }
+	            }
+	            catch (e) {
+	                console.log('Error stopping stream', e);
+	            }
+	            this._playStream = null;
+	        }
+	        if (!stream) {
+	            if (this._mediaElement) {
+	                this._mediaElement.removeAttribute('src');
+	                try {
+	                    this._mediaElement.srcObject = null;
+	                }
+	                catch (e) {
+	                }
+	                this._mediaElement.style.background = 'blue';
+	                this._mediaElement.load();
+	            }
+	            return;
+	        }
+	        // We have an actual MediaStream.
+	        this._playStream = stream;
+	        this._whenStreamIsActive(function getStream() { return stream; }, setSrc);
+	        function setSrc() {
+	            console.log('adding active stream');
+	            if (!that._mediaElement) {
+	                that._mediaElement = document.createElement('audio');
+	                document.body.appendChild(that._mediaElement);
+	            }
+	            that._mediaElement.style.background = 'black';
+	            try {
+	                that._mediaElement.srcObject = stream;
+	            }
+	            catch (e) {
+	                var url = (window.URL || window.webkitURL);
+	                if (url) {
+	                    that._mediaElement.src = url.createObjectURL(stream);
+	                }
+	            }
+	        }
+	    };
+	    MediaProducer.prototype._hookup = function (capturing, newStream) {
+	        var e_3, _a, e_4, _b;
+	        var vtrack = capturing.stream.getVideoTracks();
+	        if (capturing.video && vtrack.length > 0) {
+	            try {
+	                for (var _c = __values(newStream.getVideoTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
+	                    var track = _d.value;
+	                    track.stop();
+	                }
+	            }
+	            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+	            finally {
+	                try {
+	                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+	                }
+	                finally { if (e_3) throw e_3.error; }
+	            }
+	            newStream.addTrack(vtrack[0]);
+	        }
+	        var atrack = capturing.stream.getAudioTracks();
+	        if (capturing.audio && atrack.length > 0) {
+	            try {
+	                for (var _e = __values(newStream.getAudioTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
+	                    var track = _f.value;
+	                    track.stop();
+	                }
+	            }
+	            catch (e_4_1) { e_4 = { error: e_4_1 }; }
+	            finally {
+	                try {
+	                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+	                }
+	                finally { if (e_4) throw e_4.error; }
+	            }
+	            newStream.addTrack(atrack[0]);
+	        }
+	        this._maybeStream(newStream);
+	    };
+	    MediaProducer.prototype._maybeStream = function (stream) {
+	        var that = this;
+	        if (!stream) {
+	            console.log('no sending stream yet');
+	            return;
+	        }
+	        this._sendStream = stream;
+	        console.log('streaming');
+	        function doConnects() {
+	            if (!stream) {
+	                return;
+	            }
+	            var atrack = stream.getAudioTracks();
+	            var vtrack = stream.getVideoTracks();
+	            function notEnded(track) {
+	                if (track.readyState === 'ended' && stream.removeTrack) {
+	                    stream.removeTrack(track);
+	                    return false;
+	                }
+	                return true;
+	            }
+	            that._connectProducer('audio', atrack.find(notEnded));
+	            that._connectProducer('video', vtrack.find(notEnded));
+	        }
+	        that._whenStreamIsActive(function () {
+	            return stream;
+	        }, doConnects);
+	    };
+	    MediaProducer.prototype._whenStreamIsActive = function (getStream, callback) {
+	        var that = this;
+	        var stream = getStream();
+	        if (!stream) {
+	            return;
+	        }
+	        var id = stream.id;
+	        if (stream.active) {
+	            callback();
+	        }
+	        else if ('onactive' in stream) {
+	            stream.onactive = maybeCallback;
+	        }
+	        else if (!this._streamActiveTimeout[id]) {
+	            maybeCallback();
+	        }
+	        function maybeCallback() {
+	            delete that._streamActiveTimeout[id];
+	            var stream = getStream();
+	            if (!stream) {
+	                return;
+	            }
+	            if (stream.onactive === maybeCallback) {
+	                stream.onactive = null;
+	            }
+	            if (!stream.active) {
+	                that._streamActiveTimeout[id] = setTimeout(maybeCallback, 500);
+	                return;
+	            }
+	            callback();
+	        }
+	    };
+	    MediaProducer.prototype._connectProducer = function (type, track) {
+	        var _this = this;
+	        if (this._producers[type]) {
+	            if (this._room && track && this._lastProduced[type] === track.id) {
+	                return;
+	            }
+	            console.log('Stop producing', type, this._producers[type].track.id);
+	            this._producers[type].close();
+	            delete this._producers[type];
+	            delete this._lastProduced[type];
+	        }
+	        if (this._room && track) {
+	            console.log('Producing', type, track.id);
+	            this._lastProduced[type] = track.id;
+	            var opts = type === 'video' ? { simulcast: true } : {};
+	            this._producers[type] = this._room.createProducer(track, opts);
+	            this._producers[type].on('stats', this._showStats);
+	            this._producers[type].enableStats(1000);
+	            this._producers[type].send(this._transport);
+	            this._producers[type].on('close', function () {
+	                _this._clearStats(type);
+	            });
+	        }
+	    };
+	    MediaProducer.prototype._showStats = function (s) {
+	        for (var i = 0; i < s.length; i++) {
+	            var o = s[i];
+	            console.log("" + o.type[0] + o.mediaType + "kBps: " + Math.round(o.bitrate / 1024 / 8));
+	        }
+	    };
+	    MediaProducer.prototype._clearStats = function (kind) {
+	    };
+	    return MediaProducer;
+	}());
+	exports.MediaProducer = MediaProducer;
+
+	});
+
+	unwrapExports(mod_mediasoup);
+	var mod_mediasoup_1 = mod_mediasoup.MediaProducer;
+
 	var toolbox = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var WBEditorToolbox = /** @class */ (function () {
@@ -8488,6 +8960,302 @@
 	        };
 	        return ListUsersMessage;
 	    })();
+	    room.MediaOptionMessage = (function () {
+	        /**
+	         * Properties of a MediaOptionMessage.
+	         * @memberof room
+	         * @interface IMediaOptionMessage
+	         * @property {boolean|null} [publish] MediaOptionMessage publish
+	         * @property {number|null} [roomId] MediaOptionMessage roomId
+	         * @property {number|null} [userId] MediaOptionMessage userId
+	         * @property {Array.<string>|null} [turnServers] MediaOptionMessage turnServers
+	         * @property {boolean|null} [video] MediaOptionMessage video
+	         * @property {boolean|null} [audio] MediaOptionMessage audio
+	         */
+	        /**
+	         * Constructs a new MediaOptionMessage.
+	         * @memberof room
+	         * @classdesc Represents a MediaOptionMessage.
+	         * @implements IMediaOptionMessage
+	         * @constructor
+	         * @param {room.IMediaOptionMessage=} [properties] Properties to set
+	         */
+	        function MediaOptionMessage(properties) {
+	            this.turnServers = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * MediaOptionMessage publish.
+	         * @member {boolean} publish
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.publish = false;
+	        /**
+	         * MediaOptionMessage roomId.
+	         * @member {number} roomId
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.roomId = 0;
+	        /**
+	         * MediaOptionMessage userId.
+	         * @member {number} userId
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.userId = 0;
+	        /**
+	         * MediaOptionMessage turnServers.
+	         * @member {Array.<string>} turnServers
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.turnServers = $util.emptyArray;
+	        /**
+	         * MediaOptionMessage video.
+	         * @member {boolean} video
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.video = false;
+	        /**
+	         * MediaOptionMessage audio.
+	         * @member {boolean} audio
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.audio = false;
+	        /**
+	         * Creates a new MediaOptionMessage instance using the specified properties.
+	         * @function create
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage=} [properties] Properties to set
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage instance
+	         */
+	        MediaOptionMessage.create = function create(properties) {
+	            return new MediaOptionMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified MediaOptionMessage message. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage} message MediaOptionMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        MediaOptionMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).bool(message.publish);
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.roomId);
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.userId);
+	            if (message.turnServers != null && message.turnServers.length)
+	                for (var i = 0; i < message.turnServers.length; ++i)
+	                    writer.uint32(/* id 4, wireType 2 =*/ 34).string(message.turnServers[i]);
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                writer.uint32(/* id 5, wireType 0 =*/ 40).bool(message.video);
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                writer.uint32(/* id 6, wireType 0 =*/ 48).bool(message.audio);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified MediaOptionMessage message, length delimited. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage} message MediaOptionMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        MediaOptionMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a MediaOptionMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        MediaOptionMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.room.MediaOptionMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.publish = reader.bool();
+	                        break;
+	                    case 2:
+	                        message.roomId = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.userId = reader.uint32();
+	                        break;
+	                    case 4:
+	                        if (!(message.turnServers && message.turnServers.length))
+	                            message.turnServers = [];
+	                        message.turnServers.push(reader.string());
+	                        break;
+	                    case 5:
+	                        message.video = reader.bool();
+	                        break;
+	                    case 6:
+	                        message.audio = reader.bool();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a MediaOptionMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        MediaOptionMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a MediaOptionMessage message.
+	         * @function verify
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        MediaOptionMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                if (typeof message.publish !== "boolean")
+	                    return "publish: boolean expected";
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                if (!$util.isInteger(message.roomId))
+	                    return "roomId: integer expected";
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                if (!$util.isInteger(message.userId))
+	                    return "userId: integer expected";
+	            if (message.turnServers != null && message.hasOwnProperty("turnServers")) {
+	                if (!Array.isArray(message.turnServers))
+	                    return "turnServers: array expected";
+	                for (var i = 0; i < message.turnServers.length; ++i)
+	                    if (!$util.isString(message.turnServers[i]))
+	                        return "turnServers: string[] expected";
+	            }
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                if (typeof message.video !== "boolean")
+	                    return "video: boolean expected";
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                if (typeof message.audio !== "boolean")
+	                    return "audio: boolean expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a MediaOptionMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         */
+	        MediaOptionMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.room.MediaOptionMessage)
+	                return object;
+	            var message = new $root.room.MediaOptionMessage();
+	            if (object.publish != null)
+	                message.publish = Boolean(object.publish);
+	            if (object.roomId != null)
+	                message.roomId = object.roomId >>> 0;
+	            if (object.userId != null)
+	                message.userId = object.userId >>> 0;
+	            if (object.turnServers) {
+	                if (!Array.isArray(object.turnServers))
+	                    throw TypeError(".room.MediaOptionMessage.turnServers: array expected");
+	                message.turnServers = [];
+	                for (var i = 0; i < object.turnServers.length; ++i)
+	                    message.turnServers[i] = String(object.turnServers[i]);
+	            }
+	            if (object.video != null)
+	                message.video = Boolean(object.video);
+	            if (object.audio != null)
+	                message.audio = Boolean(object.audio);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a MediaOptionMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.MediaOptionMessage} message MediaOptionMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        MediaOptionMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.turnServers = [];
+	            if (options.defaults) {
+	                object.publish = false;
+	                object.roomId = 0;
+	                object.userId = 0;
+	                object.video = false;
+	                object.audio = false;
+	            }
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                object.publish = message.publish;
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                object.roomId = message.roomId;
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                object.userId = message.userId;
+	            if (message.turnServers && message.turnServers.length) {
+	                object.turnServers = [];
+	                for (var j = 0; j < message.turnServers.length; ++j)
+	                    object.turnServers[j] = message.turnServers[j];
+	            }
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                object.video = message.video;
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                object.audio = message.audio;
+	            return object;
+	        };
+	        /**
+	         * Converts this MediaOptionMessage to JSON.
+	         * @function toJSON
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        MediaOptionMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return MediaOptionMessage;
+	    })();
 	    return room;
 	})();
 	$root.whiteboard = (function () {
@@ -11719,6 +12487,7 @@
 	    MsgType[MsgType["room_JoinRoomMessage"] = 20001] = "room_JoinRoomMessage";
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20002] = "room_LeaveRoomMessage";
 	    MsgType[MsgType["room_ListUsersMessage"] = 20003] = "room_ListUsersMessage";
+	    MsgType[MsgType["room_MediaOptionMessage"] = 20004] = "room_MediaOptionMessage";
 	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
 	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
@@ -11742,6 +12511,7 @@
 	    20001: protocols.room.JoinRoomMessage,
 	    20002: protocols.room.LeaveRoomMessage,
 	    20003: protocols.room.ListUsersMessage,
+	    20004: protocols.room.MediaOptionMessage,
 	    30000: protocols.whiteboard.StrokeType,
 	    30001: protocols.whiteboard.CommandMessage,
 	    30002: protocols.whiteboard.EventMessage,
@@ -15416,6 +16186,13 @@
 	        _this._assembler = new protoutils.MessageAssembler();
 	        return _this;
 	    }
+	    Object.defineProperty(SocketCommandServer.prototype, "socket", {
+	        get: function () {
+	            return this._socket;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    SocketCommandServer.prototype.start = function () {
 	        var _this = this;
 	        console.log("Trying connect to " + this._uri);
@@ -15512,12 +16289,15 @@
 
 
 
+
+	var mod_mediasoup_1 = mod_mediasoup;
 	function init(uri) {
 	    var WB = new whiteboard$2.WhiteBoard(document.querySelector('#playground-canvas'), true);
 	    whiteboard$2.installTools(WB);
 	    whiteboard$2.installFactories(WB);
+	    var server = null;
 	    if (uri) {
-	        var server = new cmdserver.SocketCommandServer(WB, uri);
+	        server = new cmdserver.SocketCommandServer(WB, uri);
 	        server.start();
 	    }
 	    var toolToolboxDiv = document.querySelector('#toolbar-main');
@@ -15532,14 +16312,11 @@
 	                name: ev.messageData.user.name,
 	                icon: "/avatar/" + ev.messageData.user.userId
 	            });
-	            console.log("Join room: " + ev.messageData.userId + ", " + ev.messageData.name + ", " + ev.messageData.account + ", " + ev.messageData.avatar);
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_LeaveRoomMessage) {
-	            console.log("Leave room: " + ev.messageData.userId + ", " + ev.messageData.name);
 	            $('#chat-list').chatList('removeUser', ev.messageData.user.userId);
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_ListUsersMessage) {
-	            console.log("List room users: " + ev.messageData.users.length + " Users");
 	            $('#chat-list').chatList('clear');
 	            try {
 	                for (var _b = __values(ev.messageData.users), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -15557,6 +16334,20 @@
 	                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
 	                }
 	                finally { if (e_1) throw e_1.error; }
+	            }
+	        }
+	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
+	            if (!window.mediaProducer) {
+	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId);
+	                if (!window.mediaProducer.isDeviceSupported) {
+	                    alert('WebRTC not supported on this device');
+	                }
+	                else {
+	                    if (ev.messageData.publish) {
+	                        window.mediaProducer.capture();
+	                    }
+	                    window.mediaProducer.pubsub("peer-" + ev.messageData.userId, ev.messageData.publish);
+	                }
 	            }
 	        }
 	    });

@@ -1,16 +1,27 @@
 import './ui';
+import './mod_mediasoup';
 import * as wb from './whiteboard';
 import * as lib from './catk';
 import * as proto from '../../common/protocols/protolist';
 import { SocketCommandServer } from './cmdserver/cmdserver';
+import { MediaProducer } from './mod_mediasoup';
+
+declare global {
+    interface Window {
+        mediasoupClient: any;
+        mediaProducer: MediaProducer|null;
+    }
+}
 
 export function init (uri: string) {
     const WB = new wb.WhiteBoard (document.querySelector('#playground-canvas') as HTMLCanvasElement, true);
     wb.installTools (WB);
     wb.installFactories (WB);
+    let server: SocketCommandServer|null = null;
+
 
     if (uri) {
-        const server = new SocketCommandServer (WB, uri);
+        server = new SocketCommandServer (WB, uri);
         server.start ();
     }
 
@@ -35,6 +46,18 @@ export function init (uri: string) {
                     name: user.name,
                     icon: `/avatar/${user.userId}`
                 });
+            }
+        } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
+            if (!window.mediaProducer) {
+                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`);
+                if (!window.mediaProducer.isDeviceSupported) {
+                    alert ('WebRTC not supported on this device');
+                } else {
+                    if (ev.messageData.publish) {
+                        window.mediaProducer.capture ();
+                    }
+                    window.mediaProducer.pubsub (`peer-${ev.messageData.userId}`, ev.messageData.publish);
+                }
             }
         }
     });

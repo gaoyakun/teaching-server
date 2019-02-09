@@ -1,5 +1,5 @@
 import { WBMessageEvent } from '../whiteboard/whiteboard';
-import { EvtSocketMessage, WhiteBoard } from '../whiteboard/whiteboard';
+import { WhiteBoard } from '../whiteboard/whiteboard';
 import { Packet, MessageAssembler } from '../../../common/protoutils';
 import { MsgType } from '../../../common/protocols/protolist';
 
@@ -26,6 +26,9 @@ export class SocketCommandServer extends catk.EventObserver {
         this._wb = wb;
         this._socket = null;
         this._assembler = new MessageAssembler ();
+    }
+    get socket () {
+        return this._socket;
     }
     start (): boolean {
         console.log (`Trying connect to ${this._uri}`);

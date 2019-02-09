@@ -7,6 +7,7 @@ import { RoomState } from '../common/defines';
 import { Packet } from '../common/protoutils';
 import { whiteboard, room, MsgType } from '../common/protocols/protolist';
 import { MessageAssembler } from '../common/protoutils';
+import { getTurnServers, handlePubsub } from './media';
 
 const messageAssembler = new MessageAssembler ();
 
@@ -17,6 +18,7 @@ export class Client {
     private _userAvatar: string;
     private _socket: socketio.Socket|null;
     private _room: Room|null;
+    private _mediaPeer: any;
     constructor () {
         this._userId = 0;
         this._userAccount = ''
@@ -24,6 +26,7 @@ export class Client {
         this._userAvatar = '';
         this._socket = null;
         this._room = null;
+        this._mediaPeer = null;
     }
     get room () {
         return this._room;
@@ -45,6 +48,12 @@ export class Client {
     }
     get socket () {
         return this._socket;
+    }
+    get mediaPeer () {
+        return this._mediaPeer;
+    }
+    set mediaPeer (peer: any) {
+        this._mediaPeer = peer;
     }
     async init (socket: socketio.Socket) {
         const session = socket.request.session as Session;
@@ -87,7 +96,7 @@ export class Client {
             }
         }
     }
-    sendText (event:string, data:string) {
+    send (event:string, data:any) {
         if (this._socket) {
             this._socket.emit (event, data);
         }
@@ -113,12 +122,15 @@ export class Client {
             for (const key in this._room.clients) {
                 const client = this._room.clients[key];
                 if (withSelf || client !== this) {
-                    client.sendText (event, data);
+                    client.send (event, data);
                 }
             }
         }
     }
     disconnect () {
+        if (this._mediaPeer) {
+            this._mediaPeer.close ();
+        }
         if (this._socket && this._socket.connected) {
             this._socket.disconnect (true);
         }
@@ -131,12 +143,25 @@ export class Client {
             if (!await room.addClient (this)) {
                 throw new Error ('addClient failed');
             }
+            this.mediaJoin ();
+            const turnServers = getTurnServers ();
+            this.sendMessage ('message', MsgType.room_MediaOptionMessage, {
+                publish: room.owner === this.userId,
+                roomId: roomId,
+                userId: this.userId,
+                audio: true,
+                turnServers: turnServers
+            });
         }
     }
     leaveRoom () {
         if (this._room) {
             this._room.removeClient (this);
         }
+    }
+    mediaJoin () {
+        const publish = this._userId === this._room!.owner;
+        handlePubsub (this, publish);
     }
     handleMessage (data:Buffer) {
         if (this._room) {
@@ -158,15 +183,25 @@ export class Room {
     private _clients: { [id:number]: Client };
     private _commandList: Uint8Array[];
     private _id: number;
+    private _owner: number;
     private _channel: string;
-    constructor (id: number) {
+    private _mediaRoom: any;
+    constructor (id: number, owner: number) {
         this._clients = {};
+        this._owner = owner;
         this._commandList = [];
         this._id = id;
+        this._mediaRoom = null;
         this._channel = `room-${id}`;
     }
     get id () {
         return this._id;
+    }
+    get owner () {
+        return this._owner;
+    }
+    set owner (val: number) {
+        this._owner = val;
     }
     get channel () {
         return this._channel;
@@ -176,6 +211,12 @@ export class Room {
     }
     get commandList () {
         return this._commandList;
+    }
+    get mediaRoom () {
+        return this._mediaRoom;
+    }
+    set mediaRoom (room: any) {
+        this._mediaRoom = room;
     }
     findClient (id: number): Client|undefined {
         if (Utils.isInt(id)) {
@@ -268,9 +309,16 @@ export class RoomManager {
         if (!result || result.affectedRows === 0) {
             throw new Error ('Publish room failed');
         }    
-        if (!this.findRoom (id)) {
-            return this._rooms[id] = new Room(id);
+        const r = await GetConfig.engine.objects('room').filter(filter).fields('owner').all();
+        if (r.length !== 1) {
+            throw new Error ('Publish room failed');
         }
+        if (!this.findRoom (id)) {
+            this._rooms[id] = new Room(id, r[0].owner);
+        } else {
+            this._rooms[id].owner = r[0].owner;
+        }
+        return this._rooms[id];
     }
     async findOrCreateRoom (id: number) {
         return this.findRoom (id) || await this.createRoom(id);

@@ -11,6 +11,7 @@ var MsgType;
     MsgType[MsgType["room_JoinRoomMessage"] = 20001] = "room_JoinRoomMessage";
     MsgType[MsgType["room_LeaveRoomMessage"] = 20002] = "room_LeaveRoomMessage";
     MsgType[MsgType["room_ListUsersMessage"] = 20003] = "room_ListUsersMessage";
+    MsgType[MsgType["room_MediaOptionMessage"] = 20004] = "room_MediaOptionMessage";
     MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
     MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
     MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
@@ -34,6 +35,7 @@ const msgMap = {
     20001: proto.room.JoinRoomMessage,
     20002: proto.room.LeaveRoomMessage,
     20003: proto.room.ListUsersMessage,
+    20004: proto.room.MediaOptionMessage,
     30000: proto.whiteboard.StrokeType,
     30001: proto.whiteboard.CommandMessage,
     30002: proto.whiteboard.EventMessage,

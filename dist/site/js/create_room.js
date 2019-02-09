@@ -7450,6 +7450,302 @@
 	        };
 	        return ListUsersMessage;
 	    })();
+	    room.MediaOptionMessage = (function () {
+	        /**
+	         * Properties of a MediaOptionMessage.
+	         * @memberof room
+	         * @interface IMediaOptionMessage
+	         * @property {boolean|null} [publish] MediaOptionMessage publish
+	         * @property {number|null} [roomId] MediaOptionMessage roomId
+	         * @property {number|null} [userId] MediaOptionMessage userId
+	         * @property {Array.<string>|null} [turnServers] MediaOptionMessage turnServers
+	         * @property {boolean|null} [video] MediaOptionMessage video
+	         * @property {boolean|null} [audio] MediaOptionMessage audio
+	         */
+	        /**
+	         * Constructs a new MediaOptionMessage.
+	         * @memberof room
+	         * @classdesc Represents a MediaOptionMessage.
+	         * @implements IMediaOptionMessage
+	         * @constructor
+	         * @param {room.IMediaOptionMessage=} [properties] Properties to set
+	         */
+	        function MediaOptionMessage(properties) {
+	            this.turnServers = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * MediaOptionMessage publish.
+	         * @member {boolean} publish
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.publish = false;
+	        /**
+	         * MediaOptionMessage roomId.
+	         * @member {number} roomId
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.roomId = 0;
+	        /**
+	         * MediaOptionMessage userId.
+	         * @member {number} userId
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.userId = 0;
+	        /**
+	         * MediaOptionMessage turnServers.
+	         * @member {Array.<string>} turnServers
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.turnServers = $util.emptyArray;
+	        /**
+	         * MediaOptionMessage video.
+	         * @member {boolean} video
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.video = false;
+	        /**
+	         * MediaOptionMessage audio.
+	         * @member {boolean} audio
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         */
+	        MediaOptionMessage.prototype.audio = false;
+	        /**
+	         * Creates a new MediaOptionMessage instance using the specified properties.
+	         * @function create
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage=} [properties] Properties to set
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage instance
+	         */
+	        MediaOptionMessage.create = function create(properties) {
+	            return new MediaOptionMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified MediaOptionMessage message. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage} message MediaOptionMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        MediaOptionMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                writer.uint32(/* id 1, wireType 0 =*/ 8).bool(message.publish);
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).uint32(message.roomId);
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.userId);
+	            if (message.turnServers != null && message.turnServers.length)
+	                for (var i = 0; i < message.turnServers.length; ++i)
+	                    writer.uint32(/* id 4, wireType 2 =*/ 34).string(message.turnServers[i]);
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                writer.uint32(/* id 5, wireType 0 =*/ 40).bool(message.video);
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                writer.uint32(/* id 6, wireType 0 =*/ 48).bool(message.audio);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified MediaOptionMessage message, length delimited. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.IMediaOptionMessage} message MediaOptionMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        MediaOptionMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a MediaOptionMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        MediaOptionMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.room.MediaOptionMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        message.publish = reader.bool();
+	                        break;
+	                    case 2:
+	                        message.roomId = reader.uint32();
+	                        break;
+	                    case 3:
+	                        message.userId = reader.uint32();
+	                        break;
+	                    case 4:
+	                        if (!(message.turnServers && message.turnServers.length))
+	                            message.turnServers = [];
+	                        message.turnServers.push(reader.string());
+	                        break;
+	                    case 5:
+	                        message.video = reader.bool();
+	                        break;
+	                    case 6:
+	                        message.audio = reader.bool();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a MediaOptionMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        MediaOptionMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a MediaOptionMessage message.
+	         * @function verify
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        MediaOptionMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                if (typeof message.publish !== "boolean")
+	                    return "publish: boolean expected";
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                if (!$util.isInteger(message.roomId))
+	                    return "roomId: integer expected";
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                if (!$util.isInteger(message.userId))
+	                    return "userId: integer expected";
+	            if (message.turnServers != null && message.hasOwnProperty("turnServers")) {
+	                if (!Array.isArray(message.turnServers))
+	                    return "turnServers: array expected";
+	                for (var i = 0; i < message.turnServers.length; ++i)
+	                    if (!$util.isString(message.turnServers[i]))
+	                        return "turnServers: string[] expected";
+	            }
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                if (typeof message.video !== "boolean")
+	                    return "video: boolean expected";
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                if (typeof message.audio !== "boolean")
+	                    return "audio: boolean expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a MediaOptionMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {room.MediaOptionMessage} MediaOptionMessage
+	         */
+	        MediaOptionMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.room.MediaOptionMessage)
+	                return object;
+	            var message = new $root.room.MediaOptionMessage();
+	            if (object.publish != null)
+	                message.publish = Boolean(object.publish);
+	            if (object.roomId != null)
+	                message.roomId = object.roomId >>> 0;
+	            if (object.userId != null)
+	                message.userId = object.userId >>> 0;
+	            if (object.turnServers) {
+	                if (!Array.isArray(object.turnServers))
+	                    throw TypeError(".room.MediaOptionMessage.turnServers: array expected");
+	                message.turnServers = [];
+	                for (var i = 0; i < object.turnServers.length; ++i)
+	                    message.turnServers[i] = String(object.turnServers[i]);
+	            }
+	            if (object.video != null)
+	                message.video = Boolean(object.video);
+	            if (object.audio != null)
+	                message.audio = Boolean(object.audio);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a MediaOptionMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof room.MediaOptionMessage
+	         * @static
+	         * @param {room.MediaOptionMessage} message MediaOptionMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        MediaOptionMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.turnServers = [];
+	            if (options.defaults) {
+	                object.publish = false;
+	                object.roomId = 0;
+	                object.userId = 0;
+	                object.video = false;
+	                object.audio = false;
+	            }
+	            if (message.publish != null && message.hasOwnProperty("publish"))
+	                object.publish = message.publish;
+	            if (message.roomId != null && message.hasOwnProperty("roomId"))
+	                object.roomId = message.roomId;
+	            if (message.userId != null && message.hasOwnProperty("userId"))
+	                object.userId = message.userId;
+	            if (message.turnServers && message.turnServers.length) {
+	                object.turnServers = [];
+	                for (var j = 0; j < message.turnServers.length; ++j)
+	                    object.turnServers[j] = message.turnServers[j];
+	            }
+	            if (message.video != null && message.hasOwnProperty("video"))
+	                object.video = message.video;
+	            if (message.audio != null && message.hasOwnProperty("audio"))
+	                object.audio = message.audio;
+	            return object;
+	        };
+	        /**
+	         * Converts this MediaOptionMessage to JSON.
+	         * @function toJSON
+	         * @memberof room.MediaOptionMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        MediaOptionMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return MediaOptionMessage;
+	    })();
 	    return room;
 	})();
 	$root.whiteboard = (function () {
@@ -10681,6 +10977,7 @@
 	    MsgType[MsgType["room_JoinRoomMessage"] = 20001] = "room_JoinRoomMessage";
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20002] = "room_LeaveRoomMessage";
 	    MsgType[MsgType["room_ListUsersMessage"] = 20003] = "room_ListUsersMessage";
+	    MsgType[MsgType["room_MediaOptionMessage"] = 20004] = "room_MediaOptionMessage";
 	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
 	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
@@ -10704,6 +11001,7 @@
 	    20001: protocols.room.JoinRoomMessage,
 	    20002: protocols.room.LeaveRoomMessage,
 	    20003: protocols.room.ListUsersMessage,
+	    20004: protocols.room.MediaOptionMessage,
 	    30000: protocols.whiteboard.StrokeType,
 	    30001: protocols.whiteboard.CommandMessage,
 	    30002: protocols.whiteboard.EventMessage,
@@ -14378,6 +14676,13 @@
 	        _this._assembler = new protoutils.MessageAssembler();
 	        return _this;
 	    }
+	    Object.defineProperty(SocketCommandServer.prototype, "socket", {
+	        get: function () {
+	            return this._socket;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    SocketCommandServer.prototype.start = function () {
 	        var _this = this;
 	        console.log("Trying connect to " + this._uri);

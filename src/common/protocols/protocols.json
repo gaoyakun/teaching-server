@@ -61,6 +61,35 @@
               "id": 1
             }
           }
+        },
+        "MediaOptionMessage": {
+          "fields": {
+            "publish": {
+              "type": "bool",
+              "id": 1
+            },
+            "roomId": {
+              "type": "uint32",
+              "id": 2
+            },
+            "userId": {
+              "type": "uint32",
+              "id": 3
+            },
+            "turnServers": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 4
+            },
+            "video": {
+              "type": "bool",
+              "id": 5
+            },
+            "audio": {
+              "type": "bool",
+              "id": 6
+            }
+          }
         }
       }
     },

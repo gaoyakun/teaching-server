@@ -471,6 +471,126 @@ export namespace room {
          */
         public toJSON(): { [k: string]: any };
     }
+
+    /** Properties of a MediaOptionMessage. */
+    interface IMediaOptionMessage {
+
+        /** MediaOptionMessage publish */
+        publish?: (boolean|null);
+
+        /** MediaOptionMessage roomId */
+        roomId?: (number|null);
+
+        /** MediaOptionMessage userId */
+        userId?: (number|null);
+
+        /** MediaOptionMessage turnServers */
+        turnServers?: (string[]|null);
+
+        /** MediaOptionMessage video */
+        video?: (boolean|null);
+
+        /** MediaOptionMessage audio */
+        audio?: (boolean|null);
+    }
+
+    /** Represents a MediaOptionMessage. */
+    class MediaOptionMessage implements IMediaOptionMessage {
+
+        /**
+         * Constructs a new MediaOptionMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: room.IMediaOptionMessage);
+
+        /** MediaOptionMessage publish. */
+        public publish: boolean;
+
+        /** MediaOptionMessage roomId. */
+        public roomId: number;
+
+        /** MediaOptionMessage userId. */
+        public userId: number;
+
+        /** MediaOptionMessage turnServers. */
+        public turnServers: string[];
+
+        /** MediaOptionMessage video. */
+        public video: boolean;
+
+        /** MediaOptionMessage audio. */
+        public audio: boolean;
+
+        /**
+         * Creates a new MediaOptionMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns MediaOptionMessage instance
+         */
+        public static create(properties?: room.IMediaOptionMessage): room.MediaOptionMessage;
+
+        /**
+         * Encodes the specified MediaOptionMessage message. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+         * @param message MediaOptionMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: room.IMediaOptionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified MediaOptionMessage message, length delimited. Does not implicitly {@link room.MediaOptionMessage.verify|verify} messages.
+         * @param message MediaOptionMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: room.IMediaOptionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a MediaOptionMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns MediaOptionMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): room.MediaOptionMessage;
+
+        /**
+         * Decodes a MediaOptionMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns MediaOptionMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): room.MediaOptionMessage;
+
+        /**
+         * Verifies a MediaOptionMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a MediaOptionMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns MediaOptionMessage
+         */
+        public static fromObject(object: { [k: string]: any }): room.MediaOptionMessage;
+
+        /**
+         * Creates a plain object from a MediaOptionMessage message. Also converts values to other types if specified.
+         * @param message MediaOptionMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: room.MediaOptionMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this MediaOptionMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
 }
 
 /** Namespace whiteboard. */

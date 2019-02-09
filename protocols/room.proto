@@ -21,3 +21,12 @@ message LeaveRoomMessage {
 message ListUsersMessage {
     repeated RoomUser users = 1;
 }
+
+message MediaOptionMessage {
+    bool publish = 1;
+    uint32 roomId = 2;
+    uint32 userId = 3;
+    repeated string turnServers = 4;
+    optional bool video = 5;
+    optional bool audio = 6;
+}
