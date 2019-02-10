@@ -1374,6 +1374,7 @@
 	            console.log('adding active stream');
 	            if (!that._mediaElement) {
 	                that._mediaElement = document.createElement('audio');
+	                that._mediaElement.autoplay = true;
 	                document.body.appendChild(that._mediaElement);
 	            }
 	            that._mediaElement.style.background = 'black';
@@ -16198,7 +16199,8 @@
 	        console.log("Trying connect to " + this._uri);
 	        this._socket = socket(this._uri, {
 	            transports: ['websocket'],
-	            reconnection: false
+	            reconnection: false,
+	            secure: true
 	        });
 	        this._socket.on('connect', function () {
 	            _this.onConnect();

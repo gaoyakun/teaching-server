@@ -34,7 +34,8 @@ export class SocketCommandServer extends catk.EventObserver {
         console.log (`Trying connect to ${this._uri}`);
         this._socket = io (this._uri, {
             transports: ['websocket'],
-            reconnection: false
+            reconnection: false,
+            secure: true
         });
         this._socket.on ('connect', () => {
             this.onConnect ();

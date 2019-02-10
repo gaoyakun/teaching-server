@@ -264,6 +264,7 @@ export class MediaProducer {
             console.log('adding active stream');
             if (!that._mediaElement) {
                 that._mediaElement = document.createElement ('audio');
+                that._mediaElement.autoplay = true;
                 document.body.appendChild (that._mediaElement);
             }
             that._mediaElement.style.background = 'black';

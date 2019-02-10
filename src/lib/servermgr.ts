@@ -10,6 +10,7 @@ export class Server {
     private static _type: constants.ServerType;
     private static _id: string;
     private static _ip: string;
+    private static _ssl: boolean;
     private static _port: number;
     private static _rank: number;
     private static _postTimer: NodeJS.Timer|null;
@@ -23,6 +24,9 @@ export class Server {
     }
     static get address () {
         return this._ip;
+    }
+    static get ssl () {
+        return this._ssl;
     }
     static get port () {
         return this._port;
@@ -62,6 +66,7 @@ export class Server {
         this._config = require (serverConfigJson);
         this._id = `svr:${type as number}:${this._config.id}`;
         this._ip = this._config.address;
+        this._ssl = !!this._config.ssl;
         this._port = this._config.port;
         this._postTimer = setInterval (() => {
             this._post ();

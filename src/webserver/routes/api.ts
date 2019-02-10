@@ -202,7 +202,7 @@ apiRouter.post('/trust/close_room', async (req:express.Request, res:express.Resp
     if (!serverInfo) {
         throw new Error ('没有可以结束的房间');
     }
-    const result = await requestWrapper (`http://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+    const result = await requestWrapper (`https://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
         room: roomId
     });
     console.log (JSON.stringify(result));

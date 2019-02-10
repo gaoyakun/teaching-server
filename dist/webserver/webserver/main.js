@@ -4,34 +4,28 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
+const path = require("path");
 const servermgr_1 = require("../lib/servermgr");
-const useHttps = false;
 app_1.initializeApp().then(() => {
+    const useHttps = servermgr_1.Server.ssl;
     const options = useHttps ? {
-        key: fs.readFileSync('cert/1531277059027.key'),
-        cert: fs.readFileSync('cert/1531277059027.pem')
+        key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
     } : {};
     /**
      * Get port from environment and store in Express.
      */
     const httpPort = normalizePort(servermgr_1.Server.port);
-    const httpsPort = normalizePort(443);
     /**
-     * Create HTTP server.
+     * Create HTTP(s) server.
      */
-    const server = http.createServer(app_1.app);
-    const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
+    const server = useHttps ? https.createServer(options, app_1.app) : http.createServer(app_1.app);
     /**
      * Listen on provided port, on all network interfaces.
      */
     server.listen(httpPort);
     server.on('error', onError);
     server.on('listening', onListening);
-    if (useHttps && serverHttps) {
-        serverHttps.listen(httpsPort);
-        serverHttps.on('error', onErrorHttps);
-        serverHttps.on('listening', onListeningHttps);
-    }
     /**
      * Normalize a port into a number, string, or false.
      */
@@ -72,30 +66,6 @@ app_1.initializeApp().then(() => {
         }
     }
     /**
-     * Event listener for HTTP server "error" event.
-     */
-    function onErrorHttps(error) {
-        if (error.syscall !== 'listen') {
-            throw error;
-        }
-        const bind = typeof httpsPort === 'string'
-            ? 'Pipe ' + httpsPort
-            : 'Port ' + httpsPort;
-        // handle specific listen errors with friendly messages
-        switch (error.code) {
-            case 'EACCES':
-                console.error(bind + ' requires elevated privileges');
-                process.exit(1);
-                break;
-            case 'EADDRINUSE':
-                console.error(bind + ' is already in use');
-                process.exit(1);
-                break;
-            default:
-                throw error;
-        }
-    }
-    /**
      * Event listener for HTTP server "listening" event.
      */
     function onListening() {
@@ -109,15 +79,6 @@ app_1.initializeApp().then(() => {
                 console.log(`${cmd}(${args.join(',')})`);
             });
         }, 1000);
-    }
-    function onListeningHttps() {
-        if (serverHttps) {
-            const addr = serverHttps.address();
-            const bind = typeof addr === 'string'
-                ? 'pipe ' + addr
-                : 'port ' + addr.port;
-            console.log('Listening on ' + bind);
-        }
     }
 }).catch(err => {
     console.log(err);

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const https = require("https");
+const path = require("path");
 const fs = require("fs");
 const socketio = require("socket.io");
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
@@ -18,22 +19,20 @@ const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
 const roommgr_1 = require("./roommgr");
 const commands_1 = require("./commands");
-const useHttps = false;
 app_1.initializeApp().then(() => {
+    const useHttps = servermgr_1.Server.ssl;
     const options = useHttps ? {
-        key: fs.readFileSync('cert/1531277059027.key'),
-        cert: fs.readFileSync('cert/1531277059027.pem')
+        key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
     } : {};
     /**
      * Get port from environment and store in Express.
      */
     const httpPort = normalizePort(servermgr_1.Server.port);
-    const httpsPort = normalizePort(443);
     /**
      * Create HTTP server.
      */
-    const server = http.createServer(app_1.app);
-    const serverHttps = useHttps ? https.createServer(options, app_1.app) : null;
+    const server = useHttps ? https.createServer(options, app_1.app) : http.createServer(app_1.app);
     const io = socketio(server, {
         transports: ['websocket']
     });
@@ -67,11 +66,6 @@ app_1.initializeApp().then(() => {
     server.listen(httpPort);
     server.on('error', onError);
     server.on('listening', onListening);
-    if (useHttps && serverHttps) {
-        serverHttps.listen(httpsPort);
-        serverHttps.on('error', onErrorHttps);
-        serverHttps.on('listening', onListeningHttps);
-    }
     /**
      * Normalize a port into a number, string, or false.
      */
@@ -112,30 +106,6 @@ app_1.initializeApp().then(() => {
         }
     }
     /**
-     * Event listener for HTTP server "error" event.
-     */
-    function onErrorHttps(error) {
-        if (error.syscall !== 'listen') {
-            throw error;
-        }
-        const bind = typeof httpsPort === 'string'
-            ? 'Pipe ' + httpsPort
-            : 'Port ' + httpsPort;
-        // handle specific listen errors with friendly messages
-        switch (error.code) {
-            case 'EACCES':
-                console.error(bind + ' requires elevated privileges');
-                process.exit(1);
-                break;
-            case 'EADDRINUSE':
-                console.error(bind + ' is already in use');
-                process.exit(1);
-                break;
-            default:
-                throw error;
-        }
-    }
-    /**
      * Event listener for HTTP server "listening" event.
      */
     function onListening() {
@@ -145,15 +115,6 @@ app_1.initializeApp().then(() => {
             : 'port ' + addr.port;
         console.log('Listening on ' + bind);
         servermgr_1.Server.startCli(commands_1.doCommand);
-    }
-    function onListeningHttps() {
-        if (serverHttps) {
-            const addr = serverHttps.address();
-            const bind = typeof addr === 'string'
-                ? 'pipe ' + addr
-                : 'port ' + addr.port;
-            console.log('Listening on ' + bind);
-        }
     }
 }).catch(err => {
     console.log(`Load configuration failed: ${err}`);

@@ -151,7 +151,7 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
         if (!serverInfo) {
             throw new Error ('服务器维护中，目前无法进入房间');
         }
-        await requestWrapper (`http://${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
+        await requestWrapper (`https://${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
             room: roomId
         });
     } else {

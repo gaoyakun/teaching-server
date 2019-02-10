@@ -7,7 +7,7 @@ import * as Redis from 'ioredis';
 const REDIS_SESSION_KEY = 'session_list';
 const REDIS_ROOMSERVER_KEY = 'roomserver_list';
 const MAX_USER_ID_LENGTH = 8;
-const CENTERSERVER_HOST = 'http://localhost';
+const CENTERSERVER_HOST = 'http://127.0.0.1';
 const CENTERSERVER_PORT = 9999;
 
 interface Config {

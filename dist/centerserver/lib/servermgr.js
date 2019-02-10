@@ -20,6 +20,9 @@ class Server {
     static get address() {
         return this._ip;
     }
+    static get ssl() {
+        return this._ssl;
+    }
     static get port() {
         return this._port;
     }
@@ -65,6 +68,7 @@ class Server {
         this._config = require(serverConfigJson);
         this._id = `svr:${type}:${this._config.id}`;
         this._ip = this._config.address;
+        this._ssl = !!this._config.ssl;
         this._port = this._config.port;
         this._postTimer = setInterval(() => {
             this._post();
