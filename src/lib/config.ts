@@ -67,6 +67,8 @@ export class Config {
     static readonly databaseUser = getParam ('database_user', 'root');
     static readonly databasePassword = getParam ('database_pass', dieForParam);
     static readonly databaseName = getParam ('database_name', 'open_teaching_web');
+    static readonly rtcAnnouncedIPv4 = getParam ('rtc_announced_ipv4', '');
+    static readonly rtcAnnouncedIPv6 = getParam ('rtc_announced_ipv6', '');
     private static _engine: Engine|null = null;
     private static _redis: Redis.Redis|null = null;
     static get redis (): Redis.Redis {

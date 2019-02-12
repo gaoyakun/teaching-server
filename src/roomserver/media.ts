@@ -1,6 +1,7 @@
 const mediasoup = require('mediasoup');
 import * as crypto from 'crypto';
-import { Client, Room } from './roommgr';
+import { Config } from '../lib/config';
+import { Client } from './roommgr';
 
 const TURN_SERVERS: string[] = process.env.TURN_SERVERS ? process.env.TURN_SERVERS.split(',') : [];
 const PASSWORD_EXPIRY_SECONDS = 300;
@@ -28,20 +29,17 @@ export function getTurnServers(key?: string) {
 };
 
 const msOptions: any = {
-    rtcIPv4: process.env.RTC_IPV4 || true,
-    rtcIPv6: process.env.RTC_IPV6 || false,
+    rtcIPv4: true,
+    rtcIPv6: false,
 };
 
-if (process.env.RTC_ANNOUNCED_IPV4) {
-    // This is the external IP address that routes to the current
-    // instance.  For cloud providers or Kubernetes, this
-    // will be a different address than the connected network
-    // interface will use.
-    msOptions.rtcAnnouncedIPv4 = process.env.RTC_ANNOUNCED_IPV4;
+if (Config.rtcAnnouncedIPv4) {
+    msOptions.rtcAnnouncedIPv4 = Config.rtcAnnouncedIPv4;
 }
-if (process.env.RTC_ANNOUNCED_IPV6) {
-    msOptions.rtcAnnouncedIPv6 = process.env.RTC_ANNOUNCED_IPV6;
+if (Config.rtcAnnouncedIPv6) {
+    msOptions.rtcAnnouncedIPv6 = Config.rtcAnnouncedIPv6;
 }
+
 if (process.env.LOG_LEVEL) {
     console.log('Setting logLevel to', process.env.LOG_LEVEL)
     msOptions.logLevel = process.env.LOG_LEVEL;
