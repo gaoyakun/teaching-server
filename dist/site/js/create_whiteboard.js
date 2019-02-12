@@ -16345,10 +16345,11 @@
 	                    alert('WebRTC not supported on this device');
 	                }
 	                else {
-	                    if (ev.messageData.publish) {
-	                        window.mediaProducer.capture();
-	                    }
-	                    window.mediaProducer.pubsub("peer-" + ev.messageData.userId, ev.messageData.publish);
+	                    window.mediaProducer.pubsub("peer-" + ev.messageData.userId, ev.messageData.publish).then(function () {
+	                        if (ev.messageData.publish) {
+	                            window.mediaProducer.capture();
+	                        }
+	                    });
 	                }
 	            }
 	        }
