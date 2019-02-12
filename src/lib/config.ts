@@ -1,48 +1,82 @@
 import { Engine } from './engine';
 import { Utils } from '../common/utils';
-import { requestWrapper } from './requestwrapper';
+import * as os from 'os';
 import * as path from 'path';
 import * as Redis from 'ioredis';
 
-const REDIS_SESSION_KEY = 'session_list';
-const REDIS_ROOMSERVER_KEY = 'roomserver_list';
 const MAX_USER_ID_LENGTH = 8;
-const CENTERSERVER_HOST = 'http://127.0.0.1';
-const CENTERSERVER_PORT = 9999;
 
-interface Config {
-    sessionToken: string;
-    redisSessionKey: string;
-    dataPath: string;
-    redisType: string;
-    redisHost: string;
-    redisPort: number;
-    storageType: string;
-    storageHost: string;
-    storagePort: number;
-    databaseHost: string;
-    databasePort: number;
-    databaseUser: string;
-    databasePassword: string;
-    databaseName: string;
-    redis: Redis.Redis;
+let cmdlineParams: { [name:string]: string }|null = null;
+
+function getCommandLineParams (): { [name:string]: string } {
+    const [node, path, ...argv] = process.argv;
+    let result: { [name:string]: string } = {};
+    let key: string = '';
+    let val: string = '';
+    for (let i = 0; i < argv.length; i++) {
+        if (argv[i].startsWith ('--')) {
+            if (key !== '') {
+                result[key] = val;
+            }
+            key = argv[i].slice (2);
+            val = '';
+        } else if (val !== '') {
+            throw new Error (`Invalid command line parameter ${val}`);
+        } else {
+            val = argv[i];
+        }
+    }
+    if (key !== '') {
+        result[key] = val;
+    }
+    return result;
 }
 
-class GetConfig {
-    private static _config: Config|null = null;
+function getParam (name: string, defaultValue:string|Function): string {
+    if (!cmdlineParams) {
+        cmdlineParams = getCommandLineParams ();
+    }
+    return cmdlineParams[name]||process.env[`OT_${name.toUpperCase()}`]||(Utils.isString(defaultValue) ? defaultValue : (defaultValue as Function)(name));
+}
+
+function dieForParam (param: string): string {
+    throw new Error (`Parameter required: ${param}`);
+}
+
+function useSSL (): boolean {
+    return getParam ('ssl', 'off') === 'on';
+}
+
+export class Config {
+    static readonly sessionToken = getParam ('session_token', 'ts_session_id');
+    static readonly redisSessionKey = getParam ('redis_session_key', 'session_list');
+    static readonly serverId = Number(getParam ('server_id', dieForParam));
+    static readonly useSSL = useSSL();
+    static readonly sslCertFile = useSSL() ? getParam('ssl_cert', dieForParam) : '';
+    static readonly sslKeyFile = useSSL() ? getParam('ssl_key', dieForParam) : '';
+    static readonly serverHost = `${useSSL()?'https://':'http://'}${getParam('server_host', 'localhost')}`;
+    static readonly serverPort = getParam('server_port', dieForParam);
+    static readonly dataPath = getParam ('data_path', path.join(os.homedir(), '.open_teaching', 'data'));
+    static readonly redisHost = getParam ('redis_host', 'localhost');
+    static readonly redisPort = Number(getParam ('redis_port', '6379'));
+    static readonly storageType = getParam ('storage_type', 'local');
+    static readonly storageHost = getParam ('storage_host', 'localhost');
+    static readonly storagePort = Number(getParam ('storage_port', '8000'));
+    static readonly databaseHost = getParam ('database_host', 'localhost');
+    static readonly databasePort = Number(getParam ('database_port', '3306'));
+    static readonly databaseUser = getParam ('database_user', 'root');
+    static readonly databasePassword = getParam ('database_pass', dieForParam);
+    static readonly databaseName = getParam ('database_name', 'open_teaching_web');
     private static _engine: Engine|null = null;
     private static _redis: Redis.Redis|null = null;
     static get redis (): Redis.Redis {
-        if (!this._redis && this._config) {
-            this._redis = new Redis (this._config.redisPort, this._config.redisHost);
+        if (!this._redis) {
+            this._redis = new Redis (this.redisPort, this.redisHost);
         }
         if (!this._redis) {
             throw new Error ('Redis not initialized');
         }
         return this._redis;
-    }
-    static async load () {
-        return this._config = JSON.parse(await requestWrapper(`${CENTERSERVER_HOST}:${CENTERSERVER_PORT}/api/config`, 'GET'));
     }
     static getUserDataPathById (userId: number): string {
         if (!Utils.isInt (userId)) {
@@ -56,48 +90,6 @@ class GetConfig {
             strId = '0' + strId;
         }
         return path.join (this.dataPath, strId);
-    }
-    static get sessionToken (): string {
-        return this._config && this._config.sessionToken || '';
-    }
-    static get redisSessionKey (): string {
-        return this._config && this._config.redisSessionKey || '';
-    }
-    static get dataPath (): string {
-        return this._config && this._config.dataPath || '';
-    }
-    static get redisType (): string {
-        return this._config && this._config.redisType || '';
-    }
-    static get redisHost (): string {
-        return this._config && this._config.redisHost || '';
-    }
-    static get redisPort (): number {
-        return this._config && this._config.redisPort || 0;
-    }
-    static get storageType (): string {
-        return this._config && this._config.storageType || '';
-    }
-    static get storageHost (): string {
-        return this._config && this._config.storageHost || '';
-    }
-    static get storagePort (): number {
-        return this._config && this._config.storagePort || 0;
-    }
-    static get databaseHost (): string {
-        return this._config && this._config.databaseHost || '';
-    } 
-    static get databasePort (): number {
-        return this._config && this._config.databasePort || 0;
-    }
-    static get databaseUser (): string {
-        return this._config && this._config.databaseUser || '';
-    }
-    static get databasePassword (): string {
-        return this._config && this._config.databasePassword || '';
-    }
-    static get databaseName (): string {
-        return this._config && this._config.databaseName || '';
     }
     static get engine (): Engine {
         if (!this._engine) {
@@ -113,4 +105,3 @@ class GetConfig {
         return this._engine;
     }
 }
-export { REDIS_SESSION_KEY, REDIS_ROOMSERVER_KEY, CENTERSERVER_HOST, CENTERSERVER_PORT, Config, GetConfig };

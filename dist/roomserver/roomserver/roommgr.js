@@ -60,7 +60,7 @@ class Client {
             if (!session) {
                 throw new Error('Invalid connection');
             }
-            const users = yield config_1.GetConfig.engine.query({
+            const users = yield config_1.Config.engine.query({
                 sql: 'select u.id as id, u.account as account, u.name as name, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
                 param: [session.loginUserId]
             });
@@ -306,11 +306,11 @@ class RoomManager {
     createRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const filter = ['id', id];
-            const result = yield config_1.GetConfig.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Active, servermgr_1.Server.id]);
+            const result = yield config_1.Config.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Active, config_1.Config.serverId]);
             if (!result || result.affectedRows === 0) {
                 throw new Error('Publish room failed');
             }
-            const r = yield config_1.GetConfig.engine.objects('room').filter(filter).fields('owner').all();
+            const r = yield config_1.Config.engine.objects('room').filter(filter).fields('owner').all();
             if (r.length !== 1) {
                 throw new Error('Publish room failed');
             }
@@ -330,8 +330,8 @@ class RoomManager {
     }
     closeRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = [['id', id], ['state', defines_1.RoomState.Active], ['server', servermgr_1.Server.id]];
-            const result = yield config_1.GetConfig.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Normal, 0]);
+            const filter = [['id', id], ['state', defines_1.RoomState.Active], ['server', config_1.Config.serverId]];
+            const result = yield config_1.Config.engine.objects('room').filter(filter).update(['state', 'server'], [defines_1.RoomState.Normal, 0]);
             if (!result || result.affectedRows === 0) {
                 throw new Error('Publish room failed');
             }

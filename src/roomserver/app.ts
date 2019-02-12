@@ -5,7 +5,6 @@ import * as logger from 'morgan';
 import * as middlewares from '../lib/middlewares';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
-import { GetConfig } from '../lib/config';
 import { ServerType } from '../lib/constants';
 import 'express-async-errors';
 import { Server } from '../lib/servermgr';
@@ -14,8 +13,7 @@ import { indexRouter } from './routes/index';
 const app = express ();
 
 async function initializeApp () {
-    await GetConfig.load ();
-    Server.init (ServerType.Room, GetConfig, path.join(__dirname, 'conf', 'config.json'));
+    Server.init (ServerType.Room);
 
     app.set ('views', path.join(__dirname, 'views'));
     app.set ('view engine', 'ejs');

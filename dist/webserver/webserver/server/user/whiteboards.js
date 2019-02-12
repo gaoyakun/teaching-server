@@ -16,7 +16,7 @@ const fileutils = require("../../../lib/fileutils");
 const THUMBNAIL_SIZE = 128;
 class WhiteboardManager {
     static getUserAssetPathById(userId) {
-        return path.join(config_1.GetConfig.getUserDataPathById(userId), 'whiteboards');
+        return path.join(config_1.Config.getUserDataPathById(userId), 'whiteboards');
     }
     static loadAssetList(userId, relPath) {
         return __awaiter(this, void 0, void 0, function* () {

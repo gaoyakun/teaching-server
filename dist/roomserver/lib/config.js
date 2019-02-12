@@ -1,41 +1,58 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
 const utils_1 = require("../common/utils");
-const requestwrapper_1 = require("./requestwrapper");
+const os = require("os");
 const path = require("path");
 const Redis = require("ioredis");
-const REDIS_SESSION_KEY = 'session_list';
-exports.REDIS_SESSION_KEY = REDIS_SESSION_KEY;
-const REDIS_ROOMSERVER_KEY = 'roomserver_list';
-exports.REDIS_ROOMSERVER_KEY = REDIS_ROOMSERVER_KEY;
 const MAX_USER_ID_LENGTH = 8;
-const CENTERSERVER_HOST = 'http://127.0.0.1';
-exports.CENTERSERVER_HOST = CENTERSERVER_HOST;
-const CENTERSERVER_PORT = 9999;
-exports.CENTERSERVER_PORT = CENTERSERVER_PORT;
-class GetConfig {
+let cmdlineParams = null;
+function getCommandLineParams() {
+    const [node, path, ...argv] = process.argv;
+    let result = {};
+    let key = '';
+    let val = '';
+    for (let i = 0; i < argv.length; i++) {
+        if (argv[i].startsWith('--')) {
+            if (key !== '') {
+                result[key] = val;
+            }
+            key = argv[i].slice(2);
+            val = '';
+        }
+        else if (val !== '') {
+            throw new Error(`Invalid command line parameter ${val}`);
+        }
+        else {
+            val = argv[i];
+        }
+    }
+    if (key !== '') {
+        result[key] = val;
+    }
+    return result;
+}
+function getParam(name, defaultValue) {
+    if (!cmdlineParams) {
+        cmdlineParams = getCommandLineParams();
+    }
+    return cmdlineParams[name] || process.env[`OT_${name.toUpperCase()}`] || (utils_1.Utils.isString(defaultValue) ? defaultValue : defaultValue(name));
+}
+function dieForParam(param) {
+    throw new Error(`Parameter required: ${param}`);
+}
+function useSSL() {
+    return getParam('ssl', 'off') === 'on';
+}
+class Config {
     static get redis() {
-        if (!this._redis && this._config) {
-            this._redis = new Redis(this._config.redisPort, this._config.redisHost);
+        if (!this._redis) {
+            this._redis = new Redis(this.redisPort, this.redisHost);
         }
         if (!this._redis) {
             throw new Error('Redis not initialized');
         }
         return this._redis;
-    }
-    static load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this._config = JSON.parse(yield requestwrapper_1.requestWrapper(`${CENTERSERVER_HOST}:${CENTERSERVER_PORT}/api/config`, 'GET'));
-        });
     }
     static getUserDataPathById(userId) {
         if (!utils_1.Utils.isInt(userId)) {
@@ -49,48 +66,6 @@ class GetConfig {
             strId = '0' + strId;
         }
         return path.join(this.dataPath, strId);
-    }
-    static get sessionToken() {
-        return this._config && this._config.sessionToken || '';
-    }
-    static get redisSessionKey() {
-        return this._config && this._config.redisSessionKey || '';
-    }
-    static get dataPath() {
-        return this._config && this._config.dataPath || '';
-    }
-    static get redisType() {
-        return this._config && this._config.redisType || '';
-    }
-    static get redisHost() {
-        return this._config && this._config.redisHost || '';
-    }
-    static get redisPort() {
-        return this._config && this._config.redisPort || 0;
-    }
-    static get storageType() {
-        return this._config && this._config.storageType || '';
-    }
-    static get storageHost() {
-        return this._config && this._config.storageHost || '';
-    }
-    static get storagePort() {
-        return this._config && this._config.storagePort || 0;
-    }
-    static get databaseHost() {
-        return this._config && this._config.databaseHost || '';
-    }
-    static get databasePort() {
-        return this._config && this._config.databasePort || 0;
-    }
-    static get databaseUser() {
-        return this._config && this._config.databaseUser || '';
-    }
-    static get databasePassword() {
-        return this._config && this._config.databasePassword || '';
-    }
-    static get databaseName() {
-        return this._config && this._config.databaseName || '';
     }
     static get engine() {
         if (!this._engine) {
@@ -106,8 +81,26 @@ class GetConfig {
         return this._engine;
     }
 }
-GetConfig._config = null;
-GetConfig._engine = null;
-GetConfig._redis = null;
-exports.GetConfig = GetConfig;
+Config.sessionToken = getParam('session_token', 'ts_session_id');
+Config.redisSessionKey = getParam('redis_session_key', 'session_list');
+Config.serverId = Number(getParam('server_id', dieForParam));
+Config.useSSL = useSSL();
+Config.sslCertFile = useSSL() ? getParam('ssl_cert', dieForParam) : '';
+Config.sslKeyFile = useSSL() ? getParam('ssl_key', dieForParam) : '';
+Config.serverHost = `${useSSL() ? 'https://' : 'http://'}${getParam('server_host', 'localhost')}`;
+Config.serverPort = getParam('server_port', dieForParam);
+Config.dataPath = getParam('data_path', path.join(os.homedir(), '.open_teaching', 'data'));
+Config.redisHost = getParam('redis_host', 'localhost');
+Config.redisPort = Number(getParam('redis_port', '6379'));
+Config.storageType = getParam('storage_type', 'local');
+Config.storageHost = getParam('storage_host', 'localhost');
+Config.storagePort = Number(getParam('storage_port', '8000'));
+Config.databaseHost = getParam('database_host', 'localhost');
+Config.databasePort = Number(getParam('database_port', '3306'));
+Config.databaseUser = getParam('database_user', 'root');
+Config.databasePassword = getParam('database_pass', dieForParam);
+Config.databaseName = getParam('database_name', 'open_teaching_web');
+Config._engine = null;
+Config._redis = null;
+exports.Config = Config;
 //# sourceMappingURL=config.js.map

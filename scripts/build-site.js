@@ -56,6 +56,11 @@ const promises = jsFiles.map (name => {
     });
 });
 
+function copyFile (srcFile, destFile) {
+    const data = fs.readFileSync (srcFile, 'binary');
+    fs.writeFileSync (destFile, data, 'binary');
+}
+
 function deleteFolderRecursive(dirpath) {
     if( fs.existsSync(dirpath) ) {
         fs.readdirSync(dirpath).forEach(function(file) {
@@ -96,7 +101,7 @@ function copyFolderRecursive(src, dst) {
             if(fs.statSync(curPath).isDirectory()) { // recurse
                 copyFolderRecursive(curPath, dstPath);
             } else {
-                fs.copyFileSync (curPath, dstPath);
+                copyFile (curPath, dstPath);
             }
         });
     }

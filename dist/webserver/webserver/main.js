@@ -4,18 +4,18 @@ const app_1 = require("./app");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const path = require("path");
+const config_1 = require("../lib/config");
 const servermgr_1 = require("../lib/servermgr");
 app_1.initializeApp().then(() => {
-    const useHttps = servermgr_1.Server.ssl;
+    const useHttps = config_1.Config.useSSL;
     const options = useHttps ? {
-        key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
+        key: fs.readFileSync(config_1.Config.sslKeyFile),
+        cert: fs.readFileSync(config_1.Config.sslCertFile)
     } : {};
     /**
      * Get port from environment and store in Express.
      */
-    const httpPort = normalizePort(servermgr_1.Server.port);
+    const httpPort = normalizePort(config_1.Config.serverPort);
     /**
      * Create HTTP(s) server.
      */

@@ -43,9 +43,9 @@
     "build": "npm run clean && npm run make-proto && npm run build-webserver && npm run build-roomserver && npm run build-centerserver && npm run build-site",
     "commit": "git-cz",
     "semantic-release": "semantic-release",
-    "start-centerserver": "node dist/centerserver/centerserver/main.js",
-    "start-roomserver": "node dist/roomserver/roomserver/main.js",
-    "start-webserver": "node dist/webserver/webserver/main.js"
+    "start-centerserver": "node dist/centerserver/centerserver/main.js --server_id 1 --server_port 9999 --database_pass 123456",
+    "start-roomserver": "node dist/roomserver/roomserver/main.js --server_id 1 --server_port 8900 --database_pass 123456",
+    "start-webserver": "node dist/webserver/webserver/main.js --server_id 1 --server_port 8888 --database_pass 123456"
   },
   "husky": {
     "hooks": {

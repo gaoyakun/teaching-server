@@ -39,7 +39,7 @@ exports.indexRouter.get('/register', (req, res, next) => {
 });
 exports.indexRouter.get('/trust/settings/profile', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const session = req.session;
-    const user = yield config_1.GetConfig.engine.query({
+    const user = yield config_1.Config.engine.query({
         sql: 'select u.name as name, u.email as email, p.gender as gender, p.mobile as mobile, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
         param: [session.loginUserId]
     });
@@ -112,7 +112,7 @@ exports.indexRouter.get('/trust/settings/assets', (req, res, next) => {
 });
 exports.indexRouter.get('/trust/settings/sessions', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const session = req.session;
-    const sessionList = yield config_1.GetConfig.engine.objects('room').filter(['owner', session.loginUserId]).all();
+    const sessionList = yield config_1.Config.engine.objects('room').filter(['owner', session.loginUserId]).all();
     const sessionArray = [];
     for (let i = 0; i < sessionList.length; i++) {
         sessionArray.push({
@@ -137,7 +137,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
         throw new Error('参数错误');
     }
     // Query room information
-    const rooms = yield config_1.GetConfig.engine.objects('room').filter(['id', roomId]).all();
+    const rooms = yield config_1.Config.engine.objects('room').filter(['id', roomId]).all();
     if (rooms.length !== 1) {
         throw new Error('没有可以进入的房间');
     }
@@ -151,7 +151,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
         if (!serverInfo) {
             throw new Error('服务器维护中，目前无法进入房间');
         }
-        yield requestwrapper_1.requestWrapper(`https://${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
+        yield requestwrapper_1.requestWrapper(`${serverInfo.host}:${serverInfo.port}/publish_room`, 'POST', {
             room: roomId
         });
     }
@@ -167,7 +167,7 @@ exports.indexRouter.get('/trust/publish_room', (req, res, next) => __awaiter(thi
             name: req.session.loginUserAccount
         },
         serverinfo: {
-            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}&token=${req.session.id}`
+            host: `${serverInfo.host}:${serverInfo.port}?room=${roomId}&token=${req.session.id}`
         }
     });
 }));
@@ -183,7 +183,8 @@ exports.indexRouter.get('/trust/create-whiteboard', (req, res, next) => {
     res.render('create_whiteboard', {
         user: {
             name: req.session.loginUserAccount,
-        }
+        },
+        serverinfo: null
     });
 });
 //# sourceMappingURL=index.js.map

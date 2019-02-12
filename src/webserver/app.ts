@@ -4,7 +4,6 @@ import * as cookieParser from 'cookie-parser';
 import * as fileUpload from 'express-fileupload';
 import * as logger from 'morgan';
 import * as middlewares from '../lib/middlewares';
-import { GetConfig } from '../lib/config';
 import { Server } from '../lib/servermgr';
 import { ServerType } from '../lib/constants';
 import { Utils } from '../common/utils';
@@ -16,8 +15,7 @@ import 'express-async-errors';
 const app = express ();
 
 async function initializeApp () {
-    await GetConfig.load ();
-    Server.init (ServerType.Web, GetConfig, path.join(__dirname, 'conf', 'config.json'));
+    Server.init (ServerType.Web);
 
     app.set ('views', path.join(__dirname, 'views'));
     app.set ('view engine', 'ejs');

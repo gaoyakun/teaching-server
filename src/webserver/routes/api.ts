@@ -1,4 +1,4 @@
-import { GetConfig } from '../../lib/config';
+import { Config } from '../../lib/config';
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { Session } from '../../lib/session';
@@ -34,14 +34,14 @@ apiRouter.post('/login', async (req:express.Request, res:express.Response, next:
         } else if (account !== xss(account) || password !== xss(password)) {
             return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
         } else {
-            const rows = await GetConfig.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
+            const rows = await Config.engine.objects('user').filter([{ or:[['account', account],['email',account]] }, ['passwd', password]]).fields(['id','account','name']).all();
             if (rows.length === 1) {
                 session.set ({
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
                 let remember = Utils.safeParseInt(req.body.remember);
-                res.cookie(GetConfig.sessionToken, session.id, {
+                res.cookie(Config.sessionToken, session.id, {
                     expires: remember ? new Date(Date.now() + 1000*3600*24*7) : undefined
                 });
                 return res.json (Utils.httpResult(ErrorCode.kSuccess));
@@ -67,7 +67,7 @@ apiRouter.post('/register', async (req:express.Request, res:express.Response, ne
     } else if (account !== xss(account) || email !== xss(email) || password !== xss(password)) {
         return res.json (Utils.httpResult(ErrorCode.kInvalidContent));
     } else {
-        const dbSession = await GetConfig.engine.beginSession ();
+        const dbSession = await Config.engine.beginSession ();
         try {
             const res1 = await dbSession.query({
                 sql:'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
@@ -113,7 +113,7 @@ apiRouter.post('/trust/profile', async (req:express.Request, res:express.Respons
     if (!name || name !== xss(name) || !email || email !== xss(email) || mobile !== xss(mobile) || (gender !== 0 && gender !== 1)) {
         return res.json (Utils.httpResult(ErrorCode.kParamError));
     }
-    const result = await GetConfig.engine.query ({
+    const result = await Config.engine.query ({
         sql: 'update user u, user_profile p set u.name=?, u.email=?, p.mobile=?, p.gender=? where u.id=? and p.user_id=u.id',
         param: [name, email, mobile, gender, session.loginUserId]
     });
@@ -153,7 +153,7 @@ apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Res
     }
     const roomType = Utils.safeParseInt(req.body.type);
     const session = req.session as Session;
-    const lastInsertId = (await GetConfig.engine.objects('room').add ({
+    const lastInsertId = (await Config.engine.objects('room').add ({
         owner: session.loginUserId,
         creation_time: Math.round(Date.now()/1000),
         close_time: 0,
@@ -170,7 +170,7 @@ apiRouter.post('/trust/create_room', async (req:express.Request, res:express.Res
 });
 
 apiRouter.get('/trust/public_rooms', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    const rooms:any = await GetConfig.engine.query ({
+    const rooms:any = await Config.engine.query ({
         sql: 'select a.id as id, a.name as name, a.detail as detail, b.account as account from room a inner join user b on a.owner=b.id where a.state=?',
         param: [ RoomState.Active ]
     });
@@ -194,7 +194,7 @@ apiRouter.post('/trust/close_room', async (req:express.Request, res:express.Resp
     if (roomId === null) {
         throw new Error ('参数错误');
     }
-    const rooms:any = await GetConfig.engine.objects('room').filter([['id', roomId],['owner',session.loginUserId]]).all();
+    const rooms:any = await Config.engine.objects('room').filter([['id', roomId],['owner',session.loginUserId]]).all();
     if (rooms.length !== 1) {
         throw new Error ('没有可以结束的房间');
     }
@@ -202,7 +202,7 @@ apiRouter.post('/trust/close_room', async (req:express.Request, res:express.Resp
     if (!serverInfo) {
         throw new Error ('没有可以结束的房间');
     }
-    const result = await requestWrapper (`https://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+    const result = await requestWrapper (`${serverInfo.host}:${serverInfo.port}/close_room`, 'POST', {
         room: roomId
     });
     console.log (JSON.stringify(result));

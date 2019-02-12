@@ -19,10 +19,10 @@ class AssetManager {
         return this._imageExt.indexOf(path.extname(filename).toLowerCase()) >= 0;
     }
     static getUserAssetPathById(userId) {
-        return path.join(config_1.GetConfig.getUserDataPathById(userId), 'assets');
+        return path.join(config_1.Config.getUserDataPathById(userId), 'assets');
     }
     static getUserAvatarPathById(userId) {
-        return path.join(config_1.GetConfig.getUserDataPathById(userId), 'avatar');
+        return path.join(config_1.Config.getUserDataPathById(userId), 'avatar');
     }
     static loadAssetList(userId, relPath) {
         return __awaiter(this, void 0, void 0, function* () {

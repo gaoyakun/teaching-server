@@ -8,37 +8,21 @@ export class Server {
     private static readonly _expireTime = 5;
     private static readonly _ackInterval = 3;
     private static _type: constants.ServerType;
-    private static _id: string;
-    private static _ip: string;
-    private static _ssl: boolean;
-    private static _port: number;
     private static _rank: number;
+    private static _id: string;
     private static _postTimer: NodeJS.Timer|null;
-    private static _config: any;
     private static _redis: Redis.Redis;
     static get redis () {
         return this._redis;
-    }
-    static get id () {
-        return Number(this._config.id);
-    }
-    static get address () {
-        return this._ip;
-    }
-    static get ssl () {
-        return this._ssl;
-    }
-    static get port () {
-        return this._port;
     }
     static async pickServer (type: constants.ServerType) {
         const rankKey = `server_rank:${type as number}`;
         while (true) {
             const serverId: string[] = await this._redis.zrange (rankKey, 0, 0);
             if (serverId && serverId.length === 1) {
-                const info = await this._redis.hmget (serverId[0], 'ip', 'port');
+                const info = await this._redis.hmget (serverId[0], 'host', 'port');
                 if (info && info[0] !== null && info[1] !== null) {
-                    return { ip: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2],10) };
+                    return { host: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2],10) };
                 } else {
                     await this._redis.zrem (rankKey, serverId);
                     continue;
@@ -51,23 +35,19 @@ export class Server {
     }
     static async getServerInfo (type: constants.ServerType, serverId: number) {
         const id = `svr:${type as number}:${serverId}`
-        const info = await this._redis.hmget (id, 'ip', 'port');
+        const info = await this._redis.hmget (id, 'host', 'port');
         if (info && info[0] !== null && info[1] !== null) {
-            return { ip: info[0], port: info[1], id: serverId };
+            return { host: info[0], port: info[1], id: serverId };
         } else {
             return null;
         }
     }
-    static init (type: constants.ServerType, config:Config, serverConfigJson:string) {
+    static init (type: constants.ServerType) {
         this._type = type;
         this._rank = 0;
         this._postTimer = null;
-        this._redis = config.redis;
-        this._config = require (serverConfigJson);
-        this._id = `svr:${type as number}:${this._config.id}`;
-        this._ip = this._config.address;
-        this._ssl = !!this._config.ssl;
-        this._port = this._config.port;
+        this._id = `svr:${type as number}:${Config.serverId}`;
+        this._redis = Config.redis;
         this._postTimer = setInterval (() => {
             this._post ();
         }, this._ackInterval * 1000);
@@ -99,15 +79,13 @@ export class Server {
             clearTimeout (this._postTimer);
             this._postTimer = null;
         }
-        if (this._id !== '') {
-            await this._redis.multi().del (this._id).zrem (`server_rank:${this._type as number}`, this._id).exec();
-        }
+        await this._redis.multi().del (this._id).zrem (`server_rank:${this._type as number}`, Config.serverHost).exec();
     }
     private static _post () {
         (async () => {
             await this._redis.multi().hmset(this._id, {
-                ip: this._ip,
-                port: this._port,
+                host: Config.serverHost,
+                port: Config.serverPort,
                 rank: this._rank
             }).expire(this._id, this._expireTime).zadd (`server_rank:${this._type as number}`, String(this._rank||0), this._id).exec ();
         })().catch (err => {

@@ -1,6 +1,6 @@
 import * as socketio from 'socket.io';
 import { Utils } from '../common/utils';
-import { GetConfig } from '../lib/config';
+import { Config } from '../lib/config';
 import { Server } from '../lib/servermgr';
 import { Session } from '../lib/session';
 import { RoomState } from '../common/defines';
@@ -60,7 +60,7 @@ export class Client {
         if (!session) {
             throw new Error('Invalid connection');
         }
-        const users = await GetConfig.engine.query ({
+        const users = await Config.engine.query ({
             sql: 'select u.id as id, u.account as account, u.name as name, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
             param: [session.loginUserId]
         });
@@ -305,11 +305,11 @@ export class RoomManager {
     }
     async createRoom (id: number) {
         const filter = ['id',id];
-        const result = await GetConfig.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Active, Server.id]);
+        const result = await Config.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Active, Config.serverId]);
         if (!result || result.affectedRows === 0) {
             throw new Error ('Publish room failed');
         }    
-        const r = await GetConfig.engine.objects('room').filter(filter).fields('owner').all();
+        const r = await Config.engine.objects('room').filter(filter).fields('owner').all();
         if (r.length !== 1) {
             throw new Error ('Publish room failed');
         }
@@ -324,8 +324,8 @@ export class RoomManager {
         return this.findRoom (id) || await this.createRoom(id);
     }
     async closeRoom (id: number) {
-        const filter = [['id',id], ['state',RoomState.Active], ['server',Server.id]];
-        const result = await GetConfig.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Normal,0]);
+        const filter = [['id',id], ['state',RoomState.Active], ['server',Config.serverId]];
+        const result = await Config.engine.objects('room').filter(filter).update(['state','server'], [RoomState.Normal,0]);
         if (!result || result.affectedRows === 0) {
             throw new Error ('Publish room failed');
         }    

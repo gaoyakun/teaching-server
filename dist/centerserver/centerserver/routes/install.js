@@ -10,11 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../../common/utils");
 const errcodes_1 = require("../../common/errcodes");
-const config_1 = require("../config");
+const config_1 = require("../../lib/config");
 const engine_1 = require("../../lib/engine");
 const express = require("express");
 require("express-async-errors");
 exports.installRouter = express.Router();
+exports.installRouter.get('/', (req, res, next) => {
+    res.redirect('/install/database');
+});
 exports.installRouter.get('/database', (req, res, next) => {
     const host = config_1.Config.databaseHost || '';
     const port = config_1.Config.databasePort ? String(config_1.Config.databasePort) : '';
@@ -85,12 +88,6 @@ exports.installRouter.post('/setup_database', (req, res, next) => __awaiter(this
                 \`detail\` varchar(256) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
-            config_1.Config.databaseHost = opt.host;
-            config_1.Config.databasePort = opt.port;
-            config_1.Config.databaseUser = opt.user;
-            config_1.Config.databasePassword = opt.password;
-            config_1.Config.databaseName = req.body.name;
-            config_1.Config.save();
             res.redirect('/install/account');
         }
         catch (err) {
@@ -129,7 +126,7 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
                 param: [id, 0, '', '']
             });
             yield session.end();
-            res.redirect('/install/storage');
+            res.redirect('/');
         }
         catch (err) {
             yield session.cancel();
@@ -140,36 +137,40 @@ exports.installRouter.post('/setup_admin', (req, res, next) => __awaiter(this, v
         }
     }
 }));
-exports.installRouter.get('/storage', (req, res, next) => {
-    res.render('install_storage', {
+/*
+installRouter.get('/storage', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.render ('install_storage', {
         storage: {
-            external: (config_1.Config.storageType || 'local') !== 'local',
-            host: config_1.Config.storageHost || '',
-            port: config_1.Config.storagePort || ''
+            external: (Config.storageType || 'local') !== 'local',
+            host: Config.storageHost || '',
+            port: Config.storagePort || ''
         }
     });
 });
-exports.installRouter.post('/setup_storage', (req, res, next) => {
+
+installRouter.post('/setup_storage', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     let storageType = req.body.type;
     let storageHost = '';
     let storagePort = 0;
     if (storageType !== 'local') {
         const host = req.body.host;
-        const port = utils_1.Utils.safeParseInt(req.body.port);
+        const port = Utils.safeParseInt(req.body.port);
         if (!host || !port) {
-            return res.json({
-                err: errcodes_1.ErrorCode.kParamError
+            return res.json ({
+                err: ErrorCode.kParamError
             });
-        }
-        else {
+        } else {
             storageHost = host;
             storagePort = port;
         }
     }
-    config_1.Config.storageType = storageType;
-    config_1.Config.storageHost = storageHost;
-    config_1.Config.storagePort = storagePort;
-    config_1.Config.save();
-    res.redirect('/');
+    Config.storageType = storageType;
+    Config.storageHost = storageHost;
+    Config.storagePort = storagePort;
+    Config.save ();
+
+    res.redirect ('/');
 });
+
+*/
 //# sourceMappingURL=install.js.map

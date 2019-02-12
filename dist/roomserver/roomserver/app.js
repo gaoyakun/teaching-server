@@ -15,7 +15,6 @@ const logger = require("morgan");
 const middlewares = require("../lib/middlewares");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
-const config_1 = require("../lib/config");
 const constants_1 = require("../lib/constants");
 require("express-async-errors");
 const servermgr_1 = require("../lib/servermgr");
@@ -24,8 +23,7 @@ const app = express();
 exports.app = app;
 function initializeApp() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield config_1.GetConfig.load();
-        servermgr_1.Server.init(constants_1.ServerType.Room, config_1.GetConfig, path.join(__dirname, 'conf', 'config.json'));
+        servermgr_1.Server.init(constants_1.ServerType.Room);
         app.set('views', path.join(__dirname, 'views'));
         app.set('view engine', 'ejs');
         app.use(logger('dev'));

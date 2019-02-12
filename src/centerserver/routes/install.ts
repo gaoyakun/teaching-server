@@ -1,11 +1,15 @@
 import { Utils} from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
-import { Config } from '../config';
+import { Config } from '../../lib/config';
 import { Engine } from '../../lib/engine';
 import * as express from 'express';
 import 'express-async-errors';
 
 export const installRouter = express.Router();
+
+installRouter.get('/',  (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    res.redirect ('/install/database');
+});
 
 installRouter.get('/database', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const host = Config.databaseHost || '';
@@ -77,12 +81,6 @@ installRouter.post('/setup_database', async (req:express.Request, res:express.Re
                 \`detail\` varchar(256) not null default '',
                 primary key (\`id\`)
             ) engine=InnoDB default charset=utf8mb4`);
-            Config.databaseHost = opt.host;
-            Config.databasePort = opt.port;
-            Config.databaseUser = opt.user;
-            Config.databasePassword = opt.password;
-            Config.databaseName = req.body.name;
-            Config.save ();
             res.redirect ('/install/account');
         } catch (err) {
             console.error (err);
@@ -121,7 +119,7 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
                 param: [ id, 0, '', '' ]
             });
             await session.end ();
-            res.redirect ('/install/storage');
+            res.redirect ('/');
         } catch (err) {
             await session.cancel ();
             console.error (err);
@@ -131,7 +129,7 @@ installRouter.post('/setup_admin', async (req:express.Request, res:express.Respo
         }
     }
 });
-
+/*
 installRouter.get('/storage', (req:express.Request, res:express.Response, next:express.NextFunction) => {
     res.render ('install_storage', {
         storage: {
@@ -166,3 +164,4 @@ installRouter.post('/setup_storage', (req:express.Request, res:express.Response,
     res.redirect ('/');
 });
 
+*/

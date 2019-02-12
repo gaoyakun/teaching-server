@@ -2,7 +2,7 @@ import { Session } from '../../lib/session';
 import { Utils } from '../../common/utils';
 import { ErrorCode } from '../../common/errcodes';
 import { AssetManager } from '../server/user/assets';
-import { GetConfig } from '../../lib/config';
+import { Config } from '../../lib/config';
 import { Server } from '../../lib/servermgr';
 import { ServerType } from '../../lib/constants';
 import { requestWrapper } from '../../lib/requestwrapper';
@@ -36,7 +36,7 @@ indexRouter.get('/register', (req:express.Request, res:express.Response, next:ex
 
 indexRouter.get('/trust/settings/profile', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const session = req.session as Session;
-    const user:any = await GetConfig.engine.query ({
+    const user:any = await Config.engine.query ({
         sql:'select u.name as name, u.email as email, p.gender as gender, p.mobile as mobile, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
         param: [session.loginUserId]
     });
@@ -111,7 +111,7 @@ indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Resp
 
 indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const session = req.session as Session;
-    const sessionList:any = await GetConfig.engine.objects('room').filter(['owner', session.loginUserId]).all();
+    const sessionList:any = await Config.engine.objects('room').filter(['owner', session.loginUserId]).all();
     const sessionArray: any[] = [];
     for (let i = 0; i < sessionList.length; i++) {
         sessionArray.push ({
@@ -137,7 +137,7 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
         throw new Error ('参数错误');
     }
     // Query room information
-    const rooms:any = await GetConfig.engine.objects('room').filter(['id', roomId]).all();
+    const rooms:any = await Config.engine.objects('room').filter(['id', roomId]).all();
     if (rooms.length !== 1) {
         throw new Error ('没有可以进入的房间');
     }
@@ -151,7 +151,7 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
         if (!serverInfo) {
             throw new Error ('服务器维护中，目前无法进入房间');
         }
-        await requestWrapper (`https://${serverInfo.ip}:${serverInfo.port}/publish_room`, 'POST', {
+        await requestWrapper (`${serverInfo.host}:${serverInfo.port}/publish_room`, 'POST', {
             room: roomId
         });
     } else {
@@ -166,7 +166,7 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
             name: (req.session as Session).loginUserAccount
         },
         serverinfo: {
-            host: `${serverInfo.ip}:${serverInfo.port}?room=${roomId}&token=${(req.session as Session).id}`
+            host: `${serverInfo.host}:${serverInfo.port}?room=${roomId}&token=${(req.session as Session).id}`
         }
     });
 });
@@ -184,7 +184,8 @@ indexRouter.get('/trust/create-whiteboard', (req:express.Request, res:express.Re
     res.render ('create_whiteboard', {
         user: {
             name: (req.session as Session).loginUserAccount,
-        }
+        },
+        serverinfo: null
     });
 });
 

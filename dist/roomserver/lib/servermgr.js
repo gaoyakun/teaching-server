@@ -8,23 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./config");
 const utils_1 = require("../common/utils");
 const readline = require("readline");
 class Server {
     static get redis() {
         return this._redis;
-    }
-    static get id() {
-        return Number(this._config.id);
-    }
-    static get address() {
-        return this._ip;
-    }
-    static get ssl() {
-        return this._ssl;
-    }
-    static get port() {
-        return this._port;
     }
     static pickServer(type) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,9 +21,9 @@ class Server {
             while (true) {
                 const serverId = yield this._redis.zrange(rankKey, 0, 0);
                 if (serverId && serverId.length === 1) {
-                    const info = yield this._redis.hmget(serverId[0], 'ip', 'port');
+                    const info = yield this._redis.hmget(serverId[0], 'host', 'port');
                     if (info && info[0] !== null && info[1] !== null) {
-                        return { ip: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2], 10) };
+                        return { host: info[0], port: info[1], id: parseInt(serverId[0].split(':')[2], 10) };
                     }
                     else {
                         yield this._redis.zrem(rankKey, serverId);
@@ -51,25 +40,21 @@ class Server {
     static getServerInfo(type, serverId) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = `svr:${type}:${serverId}`;
-            const info = yield this._redis.hmget(id, 'ip', 'port');
+            const info = yield this._redis.hmget(id, 'host', 'port');
             if (info && info[0] !== null && info[1] !== null) {
-                return { ip: info[0], port: info[1], id: serverId };
+                return { host: info[0], port: info[1], id: serverId };
             }
             else {
                 return null;
             }
         });
     }
-    static init(type, config, serverConfigJson) {
+    static init(type) {
         this._type = type;
         this._rank = 0;
         this._postTimer = null;
-        this._redis = config.redis;
-        this._config = require(serverConfigJson);
-        this._id = `svr:${type}:${this._config.id}`;
-        this._ip = this._config.address;
-        this._ssl = !!this._config.ssl;
-        this._port = this._config.port;
+        this._id = `svr:${type}:${config_1.Config.serverId}`;
+        this._redis = config_1.Config.redis;
         this._postTimer = setInterval(() => {
             this._post();
         }, this._ackInterval * 1000);
@@ -103,16 +88,14 @@ class Server {
                 clearTimeout(this._postTimer);
                 this._postTimer = null;
             }
-            if (this._id !== '') {
-                yield this._redis.multi().del(this._id).zrem(`server_rank:${this._type}`, this._id).exec();
-            }
+            yield this._redis.multi().del(this._id).zrem(`server_rank:${this._type}`, config_1.Config.serverHost).exec();
         });
     }
     static _post() {
         (() => __awaiter(this, void 0, void 0, function* () {
             yield this._redis.multi().hmset(this._id, {
-                ip: this._ip,
-                port: this._port,
+                host: config_1.Config.serverHost,
+                port: config_1.Config.serverPort,
                 rank: this._rank
             }).expire(this._id, this._expireTime).zadd(`server_rank:${this._type}`, String(this._rank || 0), this._id).exec();
         }))().catch(err => {

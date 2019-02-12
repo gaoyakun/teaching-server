@@ -1,4 +1,5 @@
 .DS_Store
 .vscode
+.pm2
 **/node_modules/
 coverage/

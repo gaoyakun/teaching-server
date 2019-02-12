@@ -3,20 +3,21 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Config } from '../lib/config';
 import { Server } from '../lib/servermgr';
 
 initializeApp ().then (() => {
-    const useHttps = Server.ssl;
+    const useHttps = Config.useSSL;
     
     const options = useHttps ? {
-        key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
+        key: fs.readFileSync(Config.sslKeyFile),
+        cert: fs.readFileSync(Config.sslCertFile)
     } : {};
 
     /**
      * Get port from environment and store in Express.
      */
-    const httpPort = normalizePort(Server.port);
+    const httpPort = normalizePort(Config.serverPort);
 
     /**
      * Create HTTP(s) server.

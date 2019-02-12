@@ -17,14 +17,14 @@ exports.middlewareSession = function (req, res, next) {
         if (req.session) {
             return next();
         }
-        const sessionId = req.cookies[config_1.GetConfig.sessionToken];
+        const sessionId = req.cookies[config_1.Config.sessionToken];
         if (sessionId) {
             req.session = (yield session_1.Session.loadSession(sessionId)) || undefined;
         }
         if (!req.session) {
             req.session = new session_1.Session();
             yield req.session.save();
-            res.cookie(config_1.GetConfig.sessionToken, req.session.id, {
+            res.cookie(config_1.Config.sessionToken, req.session.id, {
                 expires: new Date(Date.now() + 1000 * 3600 * 24 * 7)
             });
         }

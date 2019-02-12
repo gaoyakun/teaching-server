@@ -10,25 +10,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const https = require("https");
-const path = require("path");
 const fs = require("fs");
 const socketio = require("socket.io");
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
 const app_1 = require("./app");
+const config_1 = require("../lib/config");
 const servermgr_1 = require("../lib/servermgr");
 const session_1 = require("../lib/session");
 const roommgr_1 = require("./roommgr");
 const commands_1 = require("./commands");
 app_1.initializeApp().then(() => {
-    const useHttps = servermgr_1.Server.ssl;
+    const useHttps = config_1.Config.useSSL;
     const options = useHttps ? {
-        key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
+        key: fs.readFileSync(config_1.Config.sslKeyFile),
+        cert: fs.readFileSync(config_1.Config.sslCertFile)
     } : {};
     /**
      * Get port from environment and store in Express.
      */
-    const httpPort = normalizePort(servermgr_1.Server.port);
+    const httpPort = normalizePort(config_1.Config.serverPort);
     /**
      * Create HTTP server.
      */

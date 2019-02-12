@@ -1,24 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = require("./app");
-const path = require("path");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const config_1 = require("./config");
+const config_1 = require("../lib/config");
 const servermgr_1 = require("../lib/servermgr");
 const constants_1 = require("../lib/constants");
-config_1.Config.load();
-servermgr_1.Server.init(constants_1.ServerType.Center, config_1.Config, path.join(__dirname, 'conf', 'config.json'));
-const useHttps = servermgr_1.Server.ssl;
+servermgr_1.Server.init(constants_1.ServerType.Center);
+const useHttps = config_1.Config.useSSL;
 const options = useHttps ? {
-    key: fs.readFileSync(path.join(__dirname, 'cert/key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
+    key: fs.readFileSync(config_1.Config.sslKeyFile),
+    cert: fs.readFileSync(config_1.Config.sslCertFile)
 } : {};
 /**
  * Get port from environment and store in Express.
  */
-const httpPort = normalizePort(servermgr_1.Server.port);
+const httpPort = normalizePort(config_1.Config.serverPort);
 /**
  * Create HTTP server.
  */

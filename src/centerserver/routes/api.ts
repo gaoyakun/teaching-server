@@ -1,10 +1,9 @@
-import { Utils} from '../../common/utils';
-import { Config } from '../config';
 import * as express from 'express';
 import 'express-async-errors';
 
 export const apiRouter = express.Router();
 
+/*
 apiRouter.get('/config', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     const cfg = {
         sessionToken: Config.sessionToken,
@@ -29,3 +28,4 @@ apiRouter.get('/roomservers', async (req:express.Request, res:express.Response, 
 
 });
 
+*/

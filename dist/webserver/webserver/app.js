@@ -14,7 +14,6 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const logger = require("morgan");
 const middlewares = require("../lib/middlewares");
-const config_1 = require("../lib/config");
 const servermgr_1 = require("../lib/servermgr");
 const constants_1 = require("../lib/constants");
 const utils_1 = require("../common/utils");
@@ -26,8 +25,7 @@ const app = express();
 exports.app = app;
 function initializeApp() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield config_1.GetConfig.load();
-        servermgr_1.Server.init(constants_1.ServerType.Web, config_1.GetConfig, path.join(__dirname, 'conf', 'config.json'));
+        servermgr_1.Server.init(constants_1.ServerType.Web);
         app.set('views', path.join(__dirname, 'views'));
         app.set('view engine', 'ejs');
         app.set('view cache', false);

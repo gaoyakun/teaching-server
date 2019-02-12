@@ -42,14 +42,14 @@ exports.apiRouter.post('/login', (req, res, next) => __awaiter(this, void 0, voi
             return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidContent));
         }
         else {
-            const rows = yield config_1.GetConfig.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
+            const rows = yield config_1.Config.engine.objects('user').filter([{ or: [['account', account], ['email', account]] }, ['passwd', password]]).fields(['id', 'account', 'name']).all();
             if (rows.length === 1) {
                 session.set({
                     loginUserAccount: account,
                     loginUserId: rows[0].id
                 });
                 let remember = utils_1.Utils.safeParseInt(req.body.remember);
-                res.cookie(config_1.GetConfig.sessionToken, session.id, {
+                res.cookie(config_1.Config.sessionToken, session.id, {
                     expires: remember ? new Date(Date.now() + 1000 * 3600 * 24 * 7) : undefined
                 });
                 return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kSuccess));
@@ -78,7 +78,7 @@ exports.apiRouter.post('/register', (req, res, next) => __awaiter(this, void 0, 
         return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kInvalidContent));
     }
     else {
-        const dbSession = yield config_1.GetConfig.engine.beginSession();
+        const dbSession = yield config_1.Config.engine.beginSession();
         try {
             const res1 = yield dbSession.query({
                 sql: 'insert into user (account, email, passwd, name) select ?, ?, ?, ? from dual where not exists (select id from user where account=? or email=?)',
@@ -123,7 +123,7 @@ exports.apiRouter.post('/trust/profile', (req, res, next) => __awaiter(this, voi
     if (!name || name !== xss(name) || !email || email !== xss(email) || mobile !== xss(mobile) || (gender !== 0 && gender !== 1)) {
         return res.json(utils_1.Utils.httpResult(errcodes_1.ErrorCode.kParamError));
     }
-    const result = yield config_1.GetConfig.engine.query({
+    const result = yield config_1.Config.engine.query({
         sql: 'update user u, user_profile p set u.name=?, u.email=?, p.mobile=?, p.gender=? where u.id=? and p.user_id=u.id',
         param: [name, email, mobile, gender, session.loginUserId]
     });
@@ -160,7 +160,7 @@ exports.apiRouter.post('/trust/create_room', (req, res, next) => __awaiter(this,
     }
     const roomType = utils_1.Utils.safeParseInt(req.body.type);
     const session = req.session;
-    const lastInsertId = (yield config_1.GetConfig.engine.objects('room').add({
+    const lastInsertId = (yield config_1.Config.engine.objects('room').add({
         owner: session.loginUserId,
         creation_time: Math.round(Date.now() / 1000),
         close_time: 0,
@@ -176,7 +176,7 @@ exports.apiRouter.post('/trust/create_room', (req, res, next) => __awaiter(this,
     return res.json(result);
 }));
 exports.apiRouter.get('/trust/public_rooms', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    const rooms = yield config_1.GetConfig.engine.query({
+    const rooms = yield config_1.Config.engine.query({
         sql: 'select a.id as id, a.name as name, a.detail as detail, b.account as account from room a inner join user b on a.owner=b.id where a.state=?',
         param: [defines_1.RoomState.Active]
     });
@@ -199,7 +199,7 @@ exports.apiRouter.post('/trust/close_room', (req, res, next) => __awaiter(this, 
     if (roomId === null) {
         throw new Error('参数错误');
     }
-    const rooms = yield config_1.GetConfig.engine.objects('room').filter([['id', roomId], ['owner', session.loginUserId]]).all();
+    const rooms = yield config_1.Config.engine.objects('room').filter([['id', roomId], ['owner', session.loginUserId]]).all();
     if (rooms.length !== 1) {
         throw new Error('没有可以结束的房间');
     }
@@ -207,7 +207,7 @@ exports.apiRouter.post('/trust/close_room', (req, res, next) => __awaiter(this, 
     if (!serverInfo) {
         throw new Error('没有可以结束的房间');
     }
-    const result = yield requestwrapper_1.requestWrapper(`https://${serverInfo.ip}:${serverInfo.port}/close_room`, 'POST', {
+    const result = yield requestwrapper_1.requestWrapper(`${serverInfo.host}:${serverInfo.port}/close_room`, 'POST', {
         room: roomId
     });
     console.log(JSON.stringify(result));

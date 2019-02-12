@@ -1,14 +1,14 @@
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { UID } from '../../../lib/uid';
-import { GetConfig } from '../../../lib/config';
+import { Config } from '../../../lib/config';
 import * as fileutils from '../../../lib/fileutils';
 
 const THUMBNAIL_SIZE:number = 128;
 
 export class WhiteboardManager {
     static getUserAssetPathById (userId: number): string {
-        return path.join(GetConfig.getUserDataPathById(userId), 'whiteboards');
+        return path.join(Config.getUserDataPathById(userId), 'whiteboards');
     }
     static async loadAssetList (userId: number, relPath: string) {
         const dir = path.join (this.getUserAssetPathById(userId), relPath);
