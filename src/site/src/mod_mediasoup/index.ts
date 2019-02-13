@@ -1,7 +1,5 @@
-import * as $ from 'jquery';
-import * as io from 'socket.io-client';
-import { request } from 'http';
-
+// openteaching:bigsail
+// md5: 0xbb3936683736accd8241f3abb31b6c29
 declare global {
     interface Window {
         mediasoupClient: any;
@@ -25,7 +23,7 @@ export class MediaProducer {
     private _turnServers: { urls: string[] }[];
     private _streamActiveTimeout: any;
     private _mediaElement: HTMLAudioElement|null;
-    constructor (socket:SocketIOClient.Socket, roomName: string, turnServers?:{urls: string[]}[]) {
+    constructor (socket:SocketIOClient.Socket, roomName: string, turnServers?:any[]) {
         this._socket = socket;
         this._roomName = roomName;
         this._pending = {};
@@ -220,7 +218,7 @@ export class MediaProducer {
             that._setSource(stream);
         });
         // ... as well as the ones that were already present.
-        for (var i = 0; i < peer.consumers.length; i ++) {
+        for (let i = 0; i < peer.consumers.length; i ++) {
             addConsumer(peer.consumers[i]);
         }
         return stream;
@@ -233,8 +231,8 @@ export class MediaProducer {
                     this._playStream.stop();
                 }
                 else if (this._playStream.getTracks) {
-                    var tracks = this._playStream.getTracks();
-                    for (var i = 0; i < tracks.length; i ++) {
+                    const tracks = this._playStream.getTracks();
+                    for (let i = 0; i < tracks.length; i ++) {
                         tracks[i].stop();
                     }
                 }
@@ -271,7 +269,7 @@ export class MediaProducer {
             try {
                 that._mediaElement.srcObject = stream;
             } catch (e) {
-                var url = (window.URL || window.webkitURL);
+                const url = (window.URL || window.webkitURL);
                 if (url) {
                     that._mediaElement.src = url.createObjectURL(stream);
                 }

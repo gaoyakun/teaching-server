@@ -49,7 +49,9 @@ export function init (uri: string) {
             }
         } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
             if (!window.mediaProducer) {
-                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`);
+                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, [{
+                    urls: ['turn:47.89.22.104:3478'], username:'openteaching', credential:'bigsail'
+                }]);
                 if (!window.mediaProducer.isDeviceSupported) {
                     alert ('WebRTC not supported on this device');
                 } else {
