@@ -26,9 +26,10 @@ export function init (uri: string) {
     }
 
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#toolbar-main') as HTMLDivElement;
+    const subToolboxDiv: HTMLDivElement = document.querySelector('#toolbar-sub') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-options') as HTMLDivElement;
     const toolPropGridDiv: HTMLDivElement = document.querySelector('#tool-options') as HTMLDivElement;
-    const editor = new wb.WBEditor (WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
+    const editor = new wb.WBEditor (WB, toolToolboxDiv, subToolboxDiv, objPropGridDiv, toolPropGridDiv);
     WB.on (wb.WBMessageEvent.type, (ev: wb.WBMessageEvent) => {
         if (ev.messageType === proto.MsgType.room_JoinRoomMessage) {
             $('#chat-list').chatList('addUser', {
@@ -49,9 +50,7 @@ export function init (uri: string) {
             }
         } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
             if (!window.mediaProducer) {
-                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, [{
-                    urls: ['turn:47.89.22.104:3478'], username:'openteaching', credential:'bigsail'
-                }]);
+                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, ev.messageData.turnServers);
                 if (!window.mediaProducer.isDeviceSupported) {
                     alert ('WebRTC not supported on this device');
                 } else {
@@ -68,23 +67,23 @@ export function init (uri: string) {
     $('#chat-list').chatList ({
         name: '测试教室'
     });
-
+/*
     WB.on (wb.WBObjectSelectedEvent.type, (ev: wb.WBObjectSelectedEvent) => {
         if (ev.object) {
-            editor.objectPropertyGrid.loadObjectProperties (ev.object);
+            editor.objectPropertyGrid && editor.objectPropertyGrid.loadObjectProperties (ev.object);
         }
     });
     WB.on (wb.WBObjectDeselectedEvent.type, (ev: wb.WBObjectDeselectedEvent) => {
         if (ev.object) {
-            editor.objectPropertyGrid.loadObjectProperties (ev.object);
+            editor.objectPropertyGrid && editor.objectPropertyGrid.loadObjectProperties (ev.object);
         }
     });
     WB.on (wb.WBToolActivateEvent.type, (ev: wb.WBToolActivateEvent) => {
-        editor.toolPropertyGrid.loadToolProperties (ev.tool);
+        editor.toolPropertyGrid && editor.toolPropertyGrid.loadToolProperties (ev.tool);
     });
     WB.on (wb.WBToolDeactivateEvent.type, (ev: wb.WBToolDeactivateEvent) => {
-        editor.toolPropertyGrid.clear ();
+        editor.toolPropertyGrid && editor.toolPropertyGrid.clear ();
     });
-
+*/
     lib.App.run ();
 }

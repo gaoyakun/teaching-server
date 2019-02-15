@@ -1,33 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mediasoup = require('mediasoup');
-const crypto = require("crypto");
 const config_1 = require("../lib/config");
-const TURN_SERVERS = process.env.TURN_SERVERS ? process.env.TURN_SERVERS.split(',') : [];
-const PASSWORD_EXPIRY_SECONDS = 300;
-function getTurnServers(key) {
-    const urls = TURN_SERVERS;
-    if (!urls.length) {
-        return [];
-    }
-    if (key) {
-        // Return the TURN REST API credential.
-        const timestamp = Math.floor(Date.now() / 1000) + PASSWORD_EXPIRY_SECONDS;
-        const temporary_username = String(timestamp) + ':msbe';
-        const hmac = crypto.createHmac('sha1', key).update(temporary_username).digest('base64');
-        return [{ urls: urls,
-                username: temporary_username,
-                credential: hmac,
-                credentialType: 'password',
-            }];
-    }
-    else {
-        // No credentials;
-        return [{ urls: urls }];
-    }
-}
-exports.getTurnServers = getTurnServers;
-;
 const msOptions = {
     rtcIPv4: true,
     rtcIPv6: false,

@@ -26,6 +26,7 @@ interface IGridView {
 
 interface IToolbar {
     (options?: UI.IToolbarData): JQuery;
+    (command:'trigger', id:string, event: string): void;
 }
 
 interface IChatList {

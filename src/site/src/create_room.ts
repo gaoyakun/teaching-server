@@ -12,9 +12,10 @@ export function init (uri:string) {
     wb.installFactories (WB);
 
     const toolToolboxDiv: HTMLDivElement = document.querySelector('#tool-toolbox') as HTMLDivElement;
+    const subToolboxDiv: HTMLDivElement = document.querySelector('#toolbar-sub') as HTMLDivElement;
     const objPropGridDiv: HTMLDivElement = document.querySelector('#object-propgrid') as HTMLDivElement;
     const toolPropGridDiv: HTMLDivElement = document.querySelector('#tool-propgrid') as HTMLDivElement;
-    const editor = new wb.WBEditor (WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
+    const editor = new wb.WBEditor (WB, toolToolboxDiv, subToolboxDiv, objPropGridDiv, toolPropGridDiv);
 
     WB.on (SocketStateEvent.type, (ev: SocketStateEvent) => {
         $('#net-state').html (ev.state);

@@ -1,14 +1,7 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
 import * as proto from '../../../../common/protocols/protolist';
-import { IToolProps } from '../../ui';
-
-interface ITool {
-    command: proto.MsgType,
-    args?: any,
-    iconClass: string|Function;
-    elementId?: string;
-}
+import { IToolProps, IToolGroup } from '../../ui';
 
 export class WBToolPalette {
     private _editor: WBEditor;
@@ -22,133 +15,144 @@ export class WBToolPalette {
             this._container.removeChild(this._container.firstChild as Node);
         }
     }
+    loadSubToolPalette (id: string) {
+        switch (id) {
+            case 'tb-select': {
+                this._loadSubToolPalette ({
+                    groupName: {
+                        toggle: 'none',
+                        tools: [{
+                            text: '选择工具',
+                            disabled: true
+                        }]
+                    }
+                });
+                break;
+            }
+            case 'tb-text': {
+                this._loadSubToolPalette ({
+                    groupName: {
+                        toggle: 'none',
+                        tools: [{
+                            text: '标签工具',
+                            disabled: true
+                        }]
+                    }
+                });
+                break;
+            }
+        }
+    }
     loadToolPalette () {
         const that = this;
         $(this._container).toolbar ({
-            groupMain: {
-                toggle: 'single',
-                name: 'main',
-                tools: [{
-                    id: 'tb-text',
-                    icon: '/images/toolbar-text.png',
-                    text: '标签',
-                    callback: function (this:Element, tool: IToolProps) {
-                        that._editor.whiteboard.useTool ('Create', {
-                            createType: 'Label',
-                            text: '标签',
-                            textColor: '#000000'
-                        });
-                    }
-                }, {
-                    id: 'tb-select',
-                    icon: '/images/toolbar-select.png',
-                    text: '选择',
-                    callback: function (this:Element, tool: IToolProps) {
-                        that._editor.whiteboard.useTool ('Select');
-                    }
-                }, {
-                    id: 'tb-swap',
-                    icon: '/images/toolbar-swap.png',
-                    text: '交换',
-                    callback: function (this:Element, tool: IToolProps) {
-                        that._editor.whiteboard.useTool ('Swap');
-                    }
-                }, {
-                    id: 'tb-connect',
-                    icon: '/images/toolbar-connect.png',
-                    text: '联结',
-                    callback: function (this:Element, tool: IToolProps) {
-                        that._editor.whiteboard.useTool ('Connect');
-                    }
-                }, {
-                    id: '',
-                    icon: '',
-                    text: '',
-                    subTools: [{
-                        id: 'tb-draw',
-                        icon: '/images/toolbar-draw.png',
-                        text: '绘图',
+            iconWidth: 28,
+            iconHeight: 25,
+            buttonCSS: {
+                padding: '8px 12px',
+                fontSize: '16px'
+            },
+            menuIconWidth: 20,
+            menuIconHeight: 20,
+            menuCSS: {
+                padding: '4px 8px',
+                fontSize: '16px'
+            },
+            groups: {
+                groupMain: {
+                    toggle: 'single',
+                    tools: [{
+                        id: 'tb-select',
+                        icon: '/images/toolbar-select.png',
+                        text: '选择',
                         callback: function (this:Element, tool: IToolProps) {
-                            that._editor.whiteboard.useTool ('HandWriting', {
-                                mode: 'draw'
+                            that._editor.subToolPalette.loadSubToolPalette ('tb-select');
+                            that._editor.whiteboard.useTool ('Select');
+                        }
+                    }, {
+                        id: 'tb-text',
+                        icon: '/images/toolbar-text.png',
+                        text: '标签',
+                        callback: function (this:Element, tool: IToolProps) {
+                            that._editor.subToolPalette.loadSubToolPalette ('tb-text');
+                            that._editor.whiteboard.useTool ('Create', {
+                                createType: 'Label',
+                                text: '标签',
+                                textColor: '#000000'
                             });
                         }
                     }, {
-                        id: 'tb-erase',
-                        icon: '/images/toolbar-erase.png',
-                        text: '擦除',
+                        id: 'tb-swap',
+                        icon: '/images/toolbar-swap.png',
+                        text: '交换',
                         callback: function (this:Element, tool: IToolProps) {
-                            that._editor.whiteboard.useTool ('HandWriting', {
-                                mode: 'erase'
-                            });
+                            that._editor.whiteboard.useTool ('Swap');
+                        }
+                    }, {
+                        id: 'tb-connect',
+                        icon: '/images/toolbar-connect.png',
+                        text: '联结',
+                        callback: function (this:Element, tool: IToolProps) {
+                            that._editor.whiteboard.useTool ('Connect');
+                        }
+                    }, {
+                        id: '',
+                        icon: '',
+                        text: '',
+                        subTools: [{
+                            id: 'tb-draw',
+                            icon: '/images/toolbar-draw.png',
+                            text: '绘图',
+                            callback: function (this:Element, tool: IToolProps) {
+                                that._editor.whiteboard.useTool ('HandWriting', {
+                                    mode: 'draw'
+                                });
+                            }
+                        }, {
+                            id: 'tb-erase',
+                            icon: '/images/toolbar-erase.png',
+                            text: '擦除',
+                            callback: function (this:Element, tool: IToolProps) {
+                                that._editor.whiteboard.useTool ('HandWriting', {
+                                    mode: 'erase'
+                                });
+                            }
+                        }]
+                    }]
+                },
+                groupEdit: {
+                    toggle: 'none',
+                    tools: [{
+                        id: 'tb-undo',
+                        icon: '/images/toolbar-undo.png',
+                        text: '撤销',
+                        callback: function (this:Element, tool: IToolProps) {
+                            that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
                         }
                     }]
-                }]
-            },
-            groupEdit: {
-                toggle: 'none',
-                name: 'edit',
-                tools: [{
-                    id: 'tb-undo',
-                    icon: '/images/toolbar-undo.png',
-                    text: '撤销',
-                    callback: function (this:Element, tool: IToolProps) {
-                        that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
-                    }
-                }]
+                }
             }
         });
-        /*
-        const that = this;
-        const toollist:{[id:string]: (this:Element)=>void} = {
-            '#tb-text': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('Create', {
-                    createType: 'Label',
-                    text: '标签',
-                    textColor: '#000000'
-                });
+        setTimeout (() => {
+            $(this._container).toolbar ('trigger', 'tb-select', 'click');
+        }, 0);
+    }
+    private _loadSubToolPalette (groups: { [groupName: string]: IToolGroup }) {
+        $(this._container).toolbar ({
+            iconWidth: 20,
+            iconHeight: 20,
+            buttonCSS: {
+                padding: '6px 8px',
+                fontSize: '14px'
             },
-            '#tb-select': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('Select');
+            menuIconWidth: 20,
+            menuIconHeight: 20,
+            menuCSS: {
+                padding: '4px 8px',
+                fontSize: '14px'
             },
-            '#tb-swap': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('Swap');
-            },
-            '#tb-connect': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('Connect');
-            },
-            '#tb-draw': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('HandWriting', {
-                    mode: 'draw'
-                });
-            },
-            '#tb-erase': function (this:Element) {
-                $(this).siblings().removeClass ('selected');
-                $(this).addClass ('selected');
-                that._editor.whiteboard.useTool ('HandWriting', {
-                    mode: 'erase'
-                });
-            },
-            '#tb-undo': function (this:Element) {
-                that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
-            }
-        }
-        for (const tool in toollist) {
-            $(tool).on ('click', function (){
-                toollist[tool].call (this);
-            });
-        }
-        */
+            groups: groups
+        });
     }
 }
 
@@ -518,14 +522,16 @@ export class WBEditor {
     private _toolFontSize: number;
     private _wb: wb.WhiteBoard;
     private _toolPalette: WBToolPalette;
+    private _subToolPalette: WBToolPalette;
     private _objectPropGrid: WBPropertyGrid;
     private _toolPropGrid: WBPropertyGrid;
-    constructor (WB: wb.WhiteBoard, toolPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
+    constructor (WB: wb.WhiteBoard, toolPaletteElement:HTMLElement, subToolPaletteElement:HTMLElement, objectPropGridElement:HTMLElement, toolPropGridElement:HTMLElement) {
         this._strokeColor = '#00000000';
         this._fillColor = 'red';
         this._toolFontSize = 14;
         this._wb = WB;
         this._toolPalette = new WBToolPalette (this, toolPaletteElement);
+        this._subToolPalette = new WBToolPalette (this, subToolPaletteElement);
         this._toolPalette.loadToolPalette ();
         this._objectPropGrid = new WBPropertyGrid (this, objectPropGridElement, 'wb-object');
         this._toolPropGrid = new WBPropertyGrid (this, toolPropGridElement, 'wb-tool');
@@ -535,6 +541,9 @@ export class WBEditor {
     }
     get toolPalette () {
         return this._toolPalette;
+    }
+    get subToolPalette () {
+        return this._subToolPalette;
     }
     get objectPropertyGrid () {
         return this._objectPropGrid;

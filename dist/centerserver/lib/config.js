@@ -38,6 +38,16 @@ function getParam(name, defaultValue) {
     }
     return cmdlineParams[name] || process.env[`OT_${name.toUpperCase()}`] || (utils_1.Utils.isString(defaultValue) ? defaultValue : defaultValue(name));
 }
+function getTurnServers() {
+    const paramTurnServers = getParam('turn_servers', '[]');
+    try {
+        return JSON.parse(paramTurnServers);
+    }
+    catch (err) {
+        console.log('Parse turn server error', paramTurnServers);
+        return [];
+    }
+}
 function dieForParam(param) {
     throw new Error(`Parameter required: ${param}`);
 }
@@ -102,6 +112,7 @@ Config.databasePassword = getParam('database_pass', dieForParam);
 Config.databaseName = getParam('database_name', 'open_teaching_web');
 Config.rtcAnnouncedIPv4 = getParam('rtc_announced_ipv4', '');
 Config.rtcAnnouncedIPv6 = getParam('rtc_announced_ipv6', '');
+Config.turnServers = getTurnServers();
 Config._engine = null;
 Config._redis = null;
 exports.Config = Config;

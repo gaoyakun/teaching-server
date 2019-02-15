@@ -149,13 +149,12 @@ class Client {
                     throw new Error('addClient failed');
                 }
                 this.mediaJoin();
-                const turnServers = media_1.getTurnServers();
                 this.sendMessage('message', protolist_1.MsgType.room_MediaOptionMessage, {
                     publish: room.owner === this.userId,
                     roomId: roomId,
                     userId: this.userId,
                     audio: true,
-                    turnServers: turnServers
+                    turnServers: config_1.Config.turnServers
                 });
             }
         });

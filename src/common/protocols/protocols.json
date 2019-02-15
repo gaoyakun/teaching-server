@@ -19,6 +19,9 @@
       }
     },
     "room": {
+      "options": {
+        "optimize_for": "CODE_SIZE"
+      },
       "nested": {
         "MessageID": {
           "values": {
@@ -32,6 +35,7 @@
               "id": 1
             },
             "name": {
+              "rule": "required",
               "type": "string",
               "id": 2
             }
@@ -62,6 +66,23 @@
             }
           }
         },
+        "TurnServer": {
+          "fields": {
+            "urls": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            },
+            "username": {
+              "type": "string",
+              "id": 2
+            },
+            "credential": {
+              "type": "string",
+              "id": 3
+            }
+          }
+        },
         "MediaOptionMessage": {
           "fields": {
             "publish": {
@@ -78,7 +99,7 @@
             },
             "turnServers": {
               "rule": "repeated",
-              "type": "string",
+              "type": "TurnServer",
               "id": 4
             },
             "video": {

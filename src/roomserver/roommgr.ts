@@ -7,7 +7,7 @@ import { RoomState } from '../common/defines';
 import { Packet } from '../common/protoutils';
 import { whiteboard, room, MsgType } from '../common/protocols/protolist';
 import { MessageAssembler } from '../common/protoutils';
-import { getTurnServers, handlePubsub } from './media';
+import { handlePubsub } from './media';
 
 const messageAssembler = new MessageAssembler ();
 
@@ -144,13 +144,12 @@ export class Client {
                 throw new Error ('addClient failed');
             }
             this.mediaJoin ();
-            const turnServers = getTurnServers ();
             this.sendMessage ('message', MsgType.room_MediaOptionMessage, {
                 publish: room.owner === this.userId,
                 roomId: roomId,
                 userId: this.userId,
                 audio: true,
-                turnServers: turnServers
+                turnServers: Config.turnServers
             });
         }
     }

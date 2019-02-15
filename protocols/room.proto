@@ -1,5 +1,8 @@
-package room;
 syntax = "proto3";
+
+package room;
+
+option optimize_for = CODE_SIZE;
 
 enum MessageID {
     Start = 20000;
@@ -7,7 +10,7 @@ enum MessageID {
 
 message RoomUser {
     uint32 userId = 1;
-    string name = 2;
+    required string name = 2;
 }
 
 message JoinRoomMessage {
@@ -22,11 +25,17 @@ message ListUsersMessage {
     repeated RoomUser users = 1;
 }
 
+message TurnServer {
+    repeated string urls = 1;
+    optional string username = 2;
+    optional string credential = 3;
+}
+
 message MediaOptionMessage {
     bool publish = 1;
     uint32 roomId = 2;
     uint32 userId = 3;
-    repeated string turnServers = 4;
+    repeated TurnServer turnServers = 4;
     optional bool video = 5;
     optional bool audio = 6;
 }

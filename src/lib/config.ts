@@ -8,6 +8,12 @@ const MAX_USER_ID_LENGTH = 8;
 
 let cmdlineParams: { [name:string]: string }|null = null;
 
+export interface ITurnServer {
+    urls: string[];
+    username?: string;
+    credential?: string;
+}
+
 function getCommandLineParams (): { [name:string]: string } {
     const [node, path, ...argv] = process.argv;
     let result: { [name:string]: string } = {};
@@ -37,6 +43,16 @@ function getParam (name: string, defaultValue:string|Function): string {
         cmdlineParams = getCommandLineParams ();
     }
     return cmdlineParams[name]||process.env[`OT_${name.toUpperCase()}`]||(Utils.isString(defaultValue) ? defaultValue : (defaultValue as Function)(name));
+}
+
+function getTurnServers (): ITurnServer[] {
+    const paramTurnServers = getParam ('turn_servers', '[]');
+    try {
+        return JSON.parse (paramTurnServers);
+    } catch (err) {
+        console.log ('Parse turn server error', paramTurnServers);
+        return [];
+    }
 }
 
 function dieForParam (param: string): string {
@@ -69,6 +85,7 @@ export class Config {
     static readonly databaseName = getParam ('database_name', 'open_teaching_web');
     static readonly rtcAnnouncedIPv4 = getParam ('rtc_announced_ipv4', '');
     static readonly rtcAnnouncedIPv6 = getParam ('rtc_announced_ipv6', '');
+    static readonly turnServers = getTurnServers ();
     private static _engine: Engine|null = null;
     private static _redis: Redis.Redis|null = null;
     static get redis (): Redis.Redis {

@@ -18,13 +18,14 @@ export class Widget {
             const dataKey = getDataKey();
             for (const el of $el.get()) {
                 const existingWidget = getWidgetData(el, dataKey);
-                if (!existingWidget) {
-                    const widget = new widgetClass(el, options);
-                    if (!jQuery.data(el, dataKey)) {
-                        jQuery.data(el, dataKey, widget);
-                    }
-                    widget._init ();
+                if (existingWidget) {
+                    existingWidget.destroy ();
                 }
+                const widget = new widgetClass(el, options);
+                if (!jQuery.data(el, dataKey)) {
+                    jQuery.data(el, dataKey, widget);
+                }
+                widget._init ();
             }
             return $el;
         }

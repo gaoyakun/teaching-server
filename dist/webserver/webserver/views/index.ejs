@@ -51,29 +51,6 @@
         <script>
             $(document).ready(function(){
                 landing.landing_setup ();
-
-                (function(){
-                    var video = document.getElementById('webcam');
-                    getUserMedia = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
-                    caller = navigator.mediaDevices;
-                    if (video.srcObject === undefined || getUserMedia === undefined) {
-                        alert ('your browser not support webrtc');
-                    } else {
-                        getUserMedia.call (caller, {
-                            video: true,
-                            audio: false
-                        }).then (function(stream) {
-                            if (window.webkitURL) {
-                                video.srcObject = stream;
-                            } else {
-                                video.srcObject = stream;
-                            }
-                            video.play ();
-                        }).catch (function(err){
-                            alert ('getUserMedia failed:' + err);
-                        });
-                    }
-                }());
             });
         </script>
     </body>

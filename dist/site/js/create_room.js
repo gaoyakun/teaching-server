@@ -6711,7 +6711,7 @@
 	         * @memberof room
 	         * @interface IRoomUser
 	         * @property {number|null} [userId] RoomUser userId
-	         * @property {string|null} [name] RoomUser name
+	         * @property {string} name RoomUser name
 	         */
 	        /**
 	         * Constructs a new RoomUser.
@@ -6766,8 +6766,7 @@
 	                writer = $Writer.create();
 	            if (message.userId != null && message.hasOwnProperty("userId"))
 	                writer.uint32(/* id 1, wireType 0 =*/ 8).uint32(message.userId);
-	            if (message.name != null && message.hasOwnProperty("name"))
-	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.name);
+	            writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.name);
 	            return writer;
 	        };
 	        /**
@@ -6811,6 +6810,8 @@
 	                        break;
 	                }
 	            }
+	            if (!message.hasOwnProperty("name"))
+	                throw $util.ProtocolError("missing required 'name'", { instance: message });
 	            return message;
 	        };
 	        /**
@@ -6842,9 +6843,8 @@
 	            if (message.userId != null && message.hasOwnProperty("userId"))
 	                if (!$util.isInteger(message.userId))
 	                    return "userId: integer expected";
-	            if (message.name != null && message.hasOwnProperty("name"))
-	                if (!$util.isString(message.name))
-	                    return "name: string expected";
+	            if (!$util.isString(message.name))
+	                return "name: string expected";
 	            return null;
 	        };
 	        /**
@@ -7450,6 +7450,239 @@
 	        };
 	        return ListUsersMessage;
 	    })();
+	    room.TurnServer = (function () {
+	        /**
+	         * Properties of a TurnServer.
+	         * @memberof room
+	         * @interface ITurnServer
+	         * @property {Array.<string>|null} [urls] TurnServer urls
+	         * @property {string|null} [username] TurnServer username
+	         * @property {string|null} [credential] TurnServer credential
+	         */
+	        /**
+	         * Constructs a new TurnServer.
+	         * @memberof room
+	         * @classdesc Represents a TurnServer.
+	         * @implements ITurnServer
+	         * @constructor
+	         * @param {room.ITurnServer=} [properties] Properties to set
+	         */
+	        function TurnServer(properties) {
+	            this.urls = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * TurnServer urls.
+	         * @member {Array.<string>} urls
+	         * @memberof room.TurnServer
+	         * @instance
+	         */
+	        TurnServer.prototype.urls = $util.emptyArray;
+	        /**
+	         * TurnServer username.
+	         * @member {string} username
+	         * @memberof room.TurnServer
+	         * @instance
+	         */
+	        TurnServer.prototype.username = "";
+	        /**
+	         * TurnServer credential.
+	         * @member {string} credential
+	         * @memberof room.TurnServer
+	         * @instance
+	         */
+	        TurnServer.prototype.credential = "";
+	        /**
+	         * Creates a new TurnServer instance using the specified properties.
+	         * @function create
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {room.ITurnServer=} [properties] Properties to set
+	         * @returns {room.TurnServer} TurnServer instance
+	         */
+	        TurnServer.create = function create(properties) {
+	            return new TurnServer(properties);
+	        };
+	        /**
+	         * Encodes the specified TurnServer message. Does not implicitly {@link room.TurnServer.verify|verify} messages.
+	         * @function encode
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {room.ITurnServer} message TurnServer message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        TurnServer.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.urls != null && message.urls.length)
+	                for (var i = 0; i < message.urls.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.urls[i]);
+	            if (message.username != null && message.hasOwnProperty("username"))
+	                writer.uint32(/* id 2, wireType 2 =*/ 18).string(message.username);
+	            if (message.credential != null && message.hasOwnProperty("credential"))
+	                writer.uint32(/* id 3, wireType 2 =*/ 26).string(message.credential);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified TurnServer message, length delimited. Does not implicitly {@link room.TurnServer.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {room.ITurnServer} message TurnServer message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        TurnServer.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes a TurnServer message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {room.TurnServer} TurnServer
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        TurnServer.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.room.TurnServer();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.urls && message.urls.length))
+	                            message.urls = [];
+	                        message.urls.push(reader.string());
+	                        break;
+	                    case 2:
+	                        message.username = reader.string();
+	                        break;
+	                    case 3:
+	                        message.credential = reader.string();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes a TurnServer message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {room.TurnServer} TurnServer
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        TurnServer.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies a TurnServer message.
+	         * @function verify
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        TurnServer.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.urls != null && message.hasOwnProperty("urls")) {
+	                if (!Array.isArray(message.urls))
+	                    return "urls: array expected";
+	                for (var i = 0; i < message.urls.length; ++i)
+	                    if (!$util.isString(message.urls[i]))
+	                        return "urls: string[] expected";
+	            }
+	            if (message.username != null && message.hasOwnProperty("username"))
+	                if (!$util.isString(message.username))
+	                    return "username: string expected";
+	            if (message.credential != null && message.hasOwnProperty("credential"))
+	                if (!$util.isString(message.credential))
+	                    return "credential: string expected";
+	            return null;
+	        };
+	        /**
+	         * Creates a TurnServer message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {room.TurnServer} TurnServer
+	         */
+	        TurnServer.fromObject = function fromObject(object) {
+	            if (object instanceof $root.room.TurnServer)
+	                return object;
+	            var message = new $root.room.TurnServer();
+	            if (object.urls) {
+	                if (!Array.isArray(object.urls))
+	                    throw TypeError(".room.TurnServer.urls: array expected");
+	                message.urls = [];
+	                for (var i = 0; i < object.urls.length; ++i)
+	                    message.urls[i] = String(object.urls[i]);
+	            }
+	            if (object.username != null)
+	                message.username = String(object.username);
+	            if (object.credential != null)
+	                message.credential = String(object.credential);
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from a TurnServer message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof room.TurnServer
+	         * @static
+	         * @param {room.TurnServer} message TurnServer
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        TurnServer.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.urls = [];
+	            if (options.defaults) {
+	                object.username = "";
+	                object.credential = "";
+	            }
+	            if (message.urls && message.urls.length) {
+	                object.urls = [];
+	                for (var j = 0; j < message.urls.length; ++j)
+	                    object.urls[j] = message.urls[j];
+	            }
+	            if (message.username != null && message.hasOwnProperty("username"))
+	                object.username = message.username;
+	            if (message.credential != null && message.hasOwnProperty("credential"))
+	                object.credential = message.credential;
+	            return object;
+	        };
+	        /**
+	         * Converts this TurnServer to JSON.
+	         * @function toJSON
+	         * @memberof room.TurnServer
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        TurnServer.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return TurnServer;
+	    })();
 	    room.MediaOptionMessage = (function () {
 	        /**
 	         * Properties of a MediaOptionMessage.
@@ -7458,7 +7691,7 @@
 	         * @property {boolean|null} [publish] MediaOptionMessage publish
 	         * @property {number|null} [roomId] MediaOptionMessage roomId
 	         * @property {number|null} [userId] MediaOptionMessage userId
-	         * @property {Array.<string>|null} [turnServers] MediaOptionMessage turnServers
+	         * @property {Array.<room.ITurnServer>|null} [turnServers] MediaOptionMessage turnServers
 	         * @property {boolean|null} [video] MediaOptionMessage video
 	         * @property {boolean|null} [audio] MediaOptionMessage audio
 	         */
@@ -7500,7 +7733,7 @@
 	        MediaOptionMessage.prototype.userId = 0;
 	        /**
 	         * MediaOptionMessage turnServers.
-	         * @member {Array.<string>} turnServers
+	         * @member {Array.<room.ITurnServer>} turnServers
 	         * @memberof room.MediaOptionMessage
 	         * @instance
 	         */
@@ -7550,7 +7783,7 @@
 	                writer.uint32(/* id 3, wireType 0 =*/ 24).uint32(message.userId);
 	            if (message.turnServers != null && message.turnServers.length)
 	                for (var i = 0; i < message.turnServers.length; ++i)
-	                    writer.uint32(/* id 4, wireType 2 =*/ 34).string(message.turnServers[i]);
+	                    $root.room.TurnServer.encode(message.turnServers[i], writer.uint32(/* id 4, wireType 2 =*/ 34).fork()).ldelim();
 	            if (message.video != null && message.hasOwnProperty("video"))
 	                writer.uint32(/* id 5, wireType 0 =*/ 40).bool(message.video);
 	            if (message.audio != null && message.hasOwnProperty("audio"))
@@ -7599,7 +7832,7 @@
 	                    case 4:
 	                        if (!(message.turnServers && message.turnServers.length))
 	                            message.turnServers = [];
-	                        message.turnServers.push(reader.string());
+	                        message.turnServers.push($root.room.TurnServer.decode(reader, reader.uint32()));
 	                        break;
 	                    case 5:
 	                        message.video = reader.bool();
@@ -7652,9 +7885,11 @@
 	            if (message.turnServers != null && message.hasOwnProperty("turnServers")) {
 	                if (!Array.isArray(message.turnServers))
 	                    return "turnServers: array expected";
-	                for (var i = 0; i < message.turnServers.length; ++i)
-	                    if (!$util.isString(message.turnServers[i]))
-	                        return "turnServers: string[] expected";
+	                for (var i = 0; i < message.turnServers.length; ++i) {
+	                    var error = $root.room.TurnServer.verify(message.turnServers[i]);
+	                    if (error)
+	                        return "turnServers." + error;
+	                }
 	            }
 	            if (message.video != null && message.hasOwnProperty("video"))
 	                if (typeof message.video !== "boolean")
@@ -7686,8 +7921,11 @@
 	                if (!Array.isArray(object.turnServers))
 	                    throw TypeError(".room.MediaOptionMessage.turnServers: array expected");
 	                message.turnServers = [];
-	                for (var i = 0; i < object.turnServers.length; ++i)
-	                    message.turnServers[i] = String(object.turnServers[i]);
+	                for (var i = 0; i < object.turnServers.length; ++i) {
+	                    if (typeof object.turnServers[i] !== "object")
+	                        throw TypeError(".room.MediaOptionMessage.turnServers: object expected");
+	                    message.turnServers[i] = $root.room.TurnServer.fromObject(object.turnServers[i]);
+	                }
 	            }
 	            if (object.video != null)
 	                message.video = Boolean(object.video);
@@ -7726,7 +7964,7 @@
 	            if (message.turnServers && message.turnServers.length) {
 	                object.turnServers = [];
 	                for (var j = 0; j < message.turnServers.length; ++j)
-	                    object.turnServers[j] = message.turnServers[j];
+	                    object.turnServers[j] = $root.room.TurnServer.toObject(message.turnServers[j], options);
 	            }
 	            if (message.video != null && message.hasOwnProperty("video"))
 	                object.video = message.video;
@@ -10977,7 +11215,8 @@
 	    MsgType[MsgType["room_JoinRoomMessage"] = 20001] = "room_JoinRoomMessage";
 	    MsgType[MsgType["room_LeaveRoomMessage"] = 20002] = "room_LeaveRoomMessage";
 	    MsgType[MsgType["room_ListUsersMessage"] = 20003] = "room_ListUsersMessage";
-	    MsgType[MsgType["room_MediaOptionMessage"] = 20004] = "room_MediaOptionMessage";
+	    MsgType[MsgType["room_TurnServer"] = 20004] = "room_TurnServer";
+	    MsgType[MsgType["room_MediaOptionMessage"] = 20005] = "room_MediaOptionMessage";
 	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
 	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
 	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
@@ -11001,7 +11240,8 @@
 	    20001: protocols.room.JoinRoomMessage,
 	    20002: protocols.room.LeaveRoomMessage,
 	    20003: protocols.room.ListUsersMessage,
-	    20004: protocols.room.MediaOptionMessage,
+	    20004: protocols.room.TurnServer,
+	    20005: protocols.room.MediaOptionMessage,
 	    30000: protocols.whiteboard.StrokeType,
 	    30001: protocols.whiteboard.CommandMessage,
 	    30002: protocols.whiteboard.EventMessage,
@@ -11838,133 +12078,145 @@
 	            this._container.removeChild(this._container.firstChild);
 	        }
 	    };
+	    WBToolPalette.prototype.loadSubToolPalette = function (id) {
+	        switch (id) {
+	            case 'tb-select': {
+	                this._loadSubToolPalette({
+	                    groupName: {
+	                        toggle: 'none',
+	                        tools: [{
+	                                text: '选择工具',
+	                                disabled: true
+	                            }]
+	                    }
+	                });
+	                break;
+	            }
+	            case 'tb-text': {
+	                this._loadSubToolPalette({
+	                    groupName: {
+	                        toggle: 'none',
+	                        tools: [{
+	                                text: '标签工具',
+	                                disabled: true
+	                            }]
+	                    }
+	                });
+	                break;
+	            }
+	        }
+	    };
 	    WBToolPalette.prototype.loadToolPalette = function () {
+	        var _this = this;
 	        var that = this;
 	        $(this._container).toolbar({
-	            groupMain: {
-	                toggle: 'single',
-	                name: 'main',
-	                tools: [{
-	                        id: 'tb-text',
-	                        icon: '/images/toolbar-text.png',
-	                        text: '标签',
-	                        callback: function (tool) {
-	                            that._editor.whiteboard.useTool('Create', {
-	                                createType: 'Label',
-	                                text: '标签',
-	                                textColor: '#000000'
-	                            });
-	                        }
-	                    }, {
-	                        id: 'tb-select',
-	                        icon: '/images/toolbar-select.png',
-	                        text: '选择',
-	                        callback: function (tool) {
-	                            that._editor.whiteboard.useTool('Select');
-	                        }
-	                    }, {
-	                        id: 'tb-swap',
-	                        icon: '/images/toolbar-swap.png',
-	                        text: '交换',
-	                        callback: function (tool) {
-	                            that._editor.whiteboard.useTool('Swap');
-	                        }
-	                    }, {
-	                        id: 'tb-connect',
-	                        icon: '/images/toolbar-connect.png',
-	                        text: '联结',
-	                        callback: function (tool) {
-	                            that._editor.whiteboard.useTool('Connect');
-	                        }
-	                    }, {
-	                        id: '',
-	                        icon: '',
-	                        text: '',
-	                        subTools: [{
-	                                id: 'tb-draw',
-	                                icon: '/images/toolbar-draw.png',
-	                                text: '绘图',
-	                                callback: function (tool) {
-	                                    that._editor.whiteboard.useTool('HandWriting', {
-	                                        mode: 'draw'
-	                                    });
-	                                }
-	                            }, {
-	                                id: 'tb-erase',
-	                                icon: '/images/toolbar-erase.png',
-	                                text: '擦除',
-	                                callback: function (tool) {
-	                                    that._editor.whiteboard.useTool('HandWriting', {
-	                                        mode: 'erase'
-	                                    });
-	                                }
-	                            }]
-	                    }]
+	            iconWidth: 28,
+	            iconHeight: 25,
+	            buttonCSS: {
+	                padding: '8px 12px',
+	                fontSize: '16px'
 	            },
-	            groupEdit: {
-	                toggle: 'none',
-	                name: 'edit',
-	                tools: [{
-	                        id: 'tb-undo',
-	                        icon: '/images/toolbar-undo.png',
-	                        text: '撤销',
-	                        callback: function (tool) {
-	                            that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
-	                        }
-	                    }]
+	            menuIconWidth: 20,
+	            menuIconHeight: 20,
+	            menuCSS: {
+	                padding: '4px 8px',
+	                fontSize: '16px'
+	            },
+	            groups: {
+	                groupMain: {
+	                    toggle: 'single',
+	                    tools: [{
+	                            id: 'tb-select',
+	                            icon: '/images/toolbar-select.png',
+	                            text: '选择',
+	                            callback: function (tool) {
+	                                that._editor.subToolPalette.loadSubToolPalette('tb-select');
+	                                that._editor.whiteboard.useTool('Select');
+	                            }
+	                        }, {
+	                            id: 'tb-text',
+	                            icon: '/images/toolbar-text.png',
+	                            text: '标签',
+	                            callback: function (tool) {
+	                                that._editor.subToolPalette.loadSubToolPalette('tb-text');
+	                                that._editor.whiteboard.useTool('Create', {
+	                                    createType: 'Label',
+	                                    text: '标签',
+	                                    textColor: '#000000'
+	                                });
+	                            }
+	                        }, {
+	                            id: 'tb-swap',
+	                            icon: '/images/toolbar-swap.png',
+	                            text: '交换',
+	                            callback: function (tool) {
+	                                that._editor.whiteboard.useTool('Swap');
+	                            }
+	                        }, {
+	                            id: 'tb-connect',
+	                            icon: '/images/toolbar-connect.png',
+	                            text: '联结',
+	                            callback: function (tool) {
+	                                that._editor.whiteboard.useTool('Connect');
+	                            }
+	                        }, {
+	                            id: '',
+	                            icon: '',
+	                            text: '',
+	                            subTools: [{
+	                                    id: 'tb-draw',
+	                                    icon: '/images/toolbar-draw.png',
+	                                    text: '绘图',
+	                                    callback: function (tool) {
+	                                        that._editor.whiteboard.useTool('HandWriting', {
+	                                            mode: 'draw'
+	                                        });
+	                                    }
+	                                }, {
+	                                    id: 'tb-erase',
+	                                    icon: '/images/toolbar-erase.png',
+	                                    text: '擦除',
+	                                    callback: function (tool) {
+	                                        that._editor.whiteboard.useTool('HandWriting', {
+	                                            mode: 'erase'
+	                                        });
+	                                    }
+	                                }]
+	                        }]
+	                },
+	                groupEdit: {
+	                    toggle: 'none',
+	                    tools: [{
+	                            id: 'tb-undo',
+	                            icon: '/images/toolbar-undo.png',
+	                            text: '撤销',
+	                            callback: function (tool) {
+	                                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
+	                            }
+	                        }]
+	                }
 	            }
 	        });
-	        /*
-	        const that = this;
-	        const toollist:{[id:string]: (this:Element)=>void} = {
-	            '#tb-text': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('Create', {
-	                    createType: 'Label',
-	                    text: '标签',
-	                    textColor: '#000000'
-	                });
+	        setTimeout(function () {
+	            $(_this._container).toolbar('trigger', 'tb-select', 'click');
+	        }, 0);
+	    };
+	    WBToolPalette.prototype._loadSubToolPalette = function (groups) {
+	        $(this._container).toolbar({
+	            iconWidth: 20,
+	            iconHeight: 20,
+	            buttonCSS: {
+	                padding: '6px 8px',
+	                fontSize: '14px'
 	            },
-	            '#tb-select': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('Select');
+	            menuIconWidth: 20,
+	            menuIconHeight: 20,
+	            menuCSS: {
+	                padding: '4px 8px',
+	                fontSize: '14px'
 	            },
-	            '#tb-swap': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('Swap');
-	            },
-	            '#tb-connect': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('Connect');
-	            },
-	            '#tb-draw': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('HandWriting', {
-	                    mode: 'draw'
-	                });
-	            },
-	            '#tb-erase': function (this:Element) {
-	                $(this).siblings().removeClass ('selected');
-	                $(this).addClass ('selected');
-	                that._editor.whiteboard.useTool ('HandWriting', {
-	                    mode: 'erase'
-	                });
-	            },
-	            '#tb-undo': function (this:Element) {
-	                that._editor.handleMessage (proto.MsgType.whiteboard_UndoMessage, {});
-	            }
-	        }
-	        for (const tool in toollist) {
-	            $(tool).on ('click', function (){
-	                toollist[tool].call (this);
-	            });
-	        }
-	        */
+	            groups: groups
+	        });
 	    };
 	    return WBToolPalette;
 	}());
@@ -12334,12 +12586,13 @@
 	}());
 	exports.WBPropertyGrid = WBPropertyGrid;
 	var WBEditor = /** @class */ (function () {
-	    function WBEditor(WB, toolPaletteElement, objectPropGridElement, toolPropGridElement) {
+	    function WBEditor(WB, toolPaletteElement, subToolPaletteElement, objectPropGridElement, toolPropGridElement) {
 	        this._strokeColor = '#00000000';
 	        this._fillColor = 'red';
 	        this._toolFontSize = 14;
 	        this._wb = WB;
 	        this._toolPalette = new WBToolPalette(this, toolPaletteElement);
+	        this._subToolPalette = new WBToolPalette(this, subToolPaletteElement);
 	        this._toolPalette.loadToolPalette();
 	        this._objectPropGrid = new WBPropertyGrid(this, objectPropGridElement, 'wb-object');
 	        this._toolPropGrid = new WBPropertyGrid(this, toolPropGridElement, 'wb-tool');
@@ -12354,6 +12607,13 @@
 	    Object.defineProperty(WBEditor.prototype, "toolPalette", {
 	        get: function () {
 	            return this._toolPalette;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(WBEditor.prototype, "subToolPalette", {
+	        get: function () {
+	            return this._subToolPalette;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -14776,9 +15036,10 @@
 	    whiteboard$2.installTools(WB);
 	    whiteboard$2.installFactories(WB);
 	    var toolToolboxDiv = document.querySelector('#tool-toolbox');
+	    var subToolboxDiv = document.querySelector('#toolbar-sub');
 	    var objPropGridDiv = document.querySelector('#object-propgrid');
 	    var toolPropGridDiv = document.querySelector('#tool-propgrid');
-	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, objPropGridDiv, toolPropGridDiv);
+	    var editor = new whiteboard$2.WBEditor(WB, toolToolboxDiv, subToolboxDiv, objPropGridDiv, toolPropGridDiv);
 	    WB.on(cmdserver.SocketStateEvent.type, function (ev) {
 	        jquery('#net-state').html(ev.state);
 	    });

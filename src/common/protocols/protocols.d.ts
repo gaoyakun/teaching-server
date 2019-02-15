@@ -113,7 +113,7 @@ export namespace room {
         userId?: (number|null);
 
         /** RoomUser name */
-        name?: (string|null);
+        name: string;
     }
 
     /** Represents a RoomUser. */
@@ -472,6 +472,108 @@ export namespace room {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a TurnServer. */
+    interface ITurnServer {
+
+        /** TurnServer urls */
+        urls?: (string[]|null);
+
+        /** TurnServer username */
+        username?: (string|null);
+
+        /** TurnServer credential */
+        credential?: (string|null);
+    }
+
+    /** Represents a TurnServer. */
+    class TurnServer implements ITurnServer {
+
+        /**
+         * Constructs a new TurnServer.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: room.ITurnServer);
+
+        /** TurnServer urls. */
+        public urls: string[];
+
+        /** TurnServer username. */
+        public username: string;
+
+        /** TurnServer credential. */
+        public credential: string;
+
+        /**
+         * Creates a new TurnServer instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns TurnServer instance
+         */
+        public static create(properties?: room.ITurnServer): room.TurnServer;
+
+        /**
+         * Encodes the specified TurnServer message. Does not implicitly {@link room.TurnServer.verify|verify} messages.
+         * @param message TurnServer message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: room.ITurnServer, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified TurnServer message, length delimited. Does not implicitly {@link room.TurnServer.verify|verify} messages.
+         * @param message TurnServer message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: room.ITurnServer, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a TurnServer message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns TurnServer
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): room.TurnServer;
+
+        /**
+         * Decodes a TurnServer message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns TurnServer
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): room.TurnServer;
+
+        /**
+         * Verifies a TurnServer message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a TurnServer message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns TurnServer
+         */
+        public static fromObject(object: { [k: string]: any }): room.TurnServer;
+
+        /**
+         * Creates a plain object from a TurnServer message. Also converts values to other types if specified.
+         * @param message TurnServer
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: room.TurnServer, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this TurnServer to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Properties of a MediaOptionMessage. */
     interface IMediaOptionMessage {
 
@@ -485,7 +587,7 @@ export namespace room {
         userId?: (number|null);
 
         /** MediaOptionMessage turnServers */
-        turnServers?: (string[]|null);
+        turnServers?: (room.ITurnServer[]|null);
 
         /** MediaOptionMessage video */
         video?: (boolean|null);
@@ -513,7 +615,7 @@ export namespace room {
         public userId: number;
 
         /** MediaOptionMessage turnServers. */
-        public turnServers: string[];
+        public turnServers: room.ITurnServer[];
 
         /** MediaOptionMessage video. */
         public video: boolean;
