@@ -776,7 +776,7 @@
 	    Toolbar.prototype._init = function () {
 	        var e_1, _a;
 	        try {
-	            for (var _b = __values(['p-0', 'toolbar', 'btn-toolbar']), _c = _b.next(); !_c.done; _c = _b.next()) {
+	            for (var _b = __values(['p-0', 'toolbar']), _c = _b.next(); !_c.done; _c = _b.next()) {
 	                var cls = _c.value;
 	                if (!this.$el.hasClass(cls)) {
 	                    this.$el.addClass(cls);
@@ -1042,14 +1042,20 @@
 	        this._$header.html(this.options.name + "(" + this._numUsers + ")");
 	    };
 	    ChatList.prototype._init = function () {
-	        this.$el.addClass(['p-0', 'd-flex', 'flex-column', 'chat-list']);
-	        var header = jquery('<div></div>').css({
+	        var card = jquery('<div></div>').addClass(['card', 'bg-light', 'text-dard']).css('height', '100%').appendTo(this.$el);
+	        this._$header = jquery('<div></div>').addClass('card-header').html(this.options.name + "(" + this._numUsers + ")").appendTo(card);
+	        var body = jquery('<div></div>').addClass(['card-body', 'chat-list', 'p-0']).appendTo(card);
+	        this._$users = jquery('<ul></ul>').appendTo(body);
+	        /*
+	        this.$el.addClass (['p-0', 'd-flex', 'flex-column', 'chat-list']);
+	        const header = $('<div></div>').css ({
 	            padding: '10px',
 	            borderBottom: '1px solid #c4c4c4'
-	        }).appendTo(this.$el);
-	        this._$header = jquery('<p></p>').html(this.options.name + "(" + this._numUsers + ")").appendTo(header);
-	        var body = jquery('<div></div>').addClass('flex-grow-1').appendTo(this.$el);
-	        this._$users = jquery('<ul></ul>').appendTo(body);
+	        }).appendTo (this.$el);
+	        this._$header = $('<p></p>').html(`${this.options.name}(${this._numUsers})`).appendTo(header);
+	        const body = $('<div></div>').addClass ('flex-grow-1').appendTo(this.$el);
+	        this._$users = $('<ul></ul>').appendTo(body);
+	        */
 	    };
 	    return ChatList;
 	}(widget.Widget));

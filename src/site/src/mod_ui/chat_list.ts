@@ -53,6 +53,11 @@ export class ChatList extends Widget {
         this._$header!.html(`${this.options.name}(${this._numUsers})`)
     }
     protected _init () {
+        const card = $('<div></div>').addClass(['card', 'bg-light', 'text-dard']).css('height', '100%').appendTo (this.$el);
+        this._$header = $('<div></div>').addClass('card-header').html(`${this.options.name}(${this._numUsers})`).appendTo(card);
+        const body = $('<div></div>').addClass(['card-body','chat-list','p-0']).appendTo(card);
+        this._$users = $('<ul></ul>').appendTo(body);
+        /*
         this.$el.addClass (['p-0', 'd-flex', 'flex-column', 'chat-list']);
         const header = $('<div></div>').css ({
             padding: '10px',
@@ -61,5 +66,6 @@ export class ChatList extends Widget {
         this._$header = $('<p></p>').html(`${this.options.name}(${this._numUsers})`).appendTo(header);
         const body = $('<div></div>').addClass ('flex-grow-1').appendTo(this.$el);
         this._$users = $('<ul></ul>').appendTo(body);
+        */
     }
 }
