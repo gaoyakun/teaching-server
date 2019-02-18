@@ -44,7 +44,7 @@ export class Toolbar extends Widget {
         this.$el.find(`#${id}`).trigger (event);
     }
     protected _init () {
-        for (const cls of ['p-0', 'toolbar', 'btn-toolbar']) {
+        for (const cls of ['p-0']) {
             if (!this.$el.hasClass (cls)) {
                 this.$el.addClass (cls);
                 this._newClassList.push (cls);
