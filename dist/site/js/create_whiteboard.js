@@ -793,7 +793,7 @@
 	        }
 	        for (var groupName in this.options.groups) {
 	            var group = this.options.groups[groupName];
-	            var groupDiv = jquery('<div></div>').addClass(['btn-group', 'ml-1', 'mr-1']).attr('role', 'group').appendTo(this.$el);
+	            var groupDiv = jquery('<div></div>').addClass(['btn-group']).attr('role', 'group').appendTo(this.$el);
 	            for (var i = 0; i < group.tools.length; i++) {
 	                this.createToolButton(groupDiv, group, i);
 	            }
@@ -868,6 +868,13 @@
 	                    else {
 	                        button.toggleClass('selected');
 	                        tool.active = !tool.active;
+	                        if (tool.active) {
+	                            button.addClass('selected');
+	                        }
+	                        else {
+	                            button.removeClass('selected');
+	                        }
+	                        console.log("selected: " + button.hasClass('selected') + " active: " + tool.active);
 	                        if (tool.callback) {
 	                            tool.callback.call(button[0], tool);
 	                        }
@@ -16647,6 +16654,35 @@
 	            }
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
+	            $('#room-toolbar').toolbar({
+	                iconWidth: 20,
+	                iconHeight: 20,
+	                buttonCSS: {
+	                    padding: '4px 4px'
+	                },
+	                groups: {
+	                    settings: {
+	                        toggle: 'none',
+	                        tools: [{
+	                                id: 'tb-room-settings',
+	                                icon: '/images/settings.png',
+	                                callback: function () {
+	                                    console.log('settings clicked');
+	                                }
+	                            }]
+	                    },
+	                    live: {
+	                        toggle: 'multiple',
+	                        tools: [{
+	                                id: 'tb-live',
+	                                icon: '/images/toolbar-select.png',
+	                                callback: function () {
+	                                    console.log('toggle live broadcast');
+	                                }
+	                            }]
+	                    }
+	                }
+	            });
 	            if (!window.mediaProducer) {
 	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.turnServers);
 	                if (!window.mediaProducer.isDeviceSupported) {

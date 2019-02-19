@@ -792,7 +792,7 @@
 	        }
 	        for (var groupName in this.options.groups) {
 	            var group = this.options.groups[groupName];
-	            var groupDiv = jquery('<div></div>').addClass(['btn-group', 'ml-1', 'mr-1']).attr('role', 'group').appendTo(this.$el);
+	            var groupDiv = jquery('<div></div>').addClass(['btn-group']).attr('role', 'group').appendTo(this.$el);
 	            for (var i = 0; i < group.tools.length; i++) {
 	                this.createToolButton(groupDiv, group, i);
 	            }
@@ -867,6 +867,13 @@
 	                    else {
 	                        button.toggleClass('selected');
 	                        tool.active = !tool.active;
+	                        if (tool.active) {
+	                            button.addClass('selected');
+	                        }
+	                        else {
+	                            button.removeClass('selected');
+	                        }
+	                        console.log("selected: " + button.hasClass('selected') + " active: " + tool.active);
 	                        if (tool.callback) {
 	                            tool.callback.call(button[0], tool);
 	                        }

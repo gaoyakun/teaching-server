@@ -49,6 +49,35 @@ export function init (uri: string) {
                 });
             }
         } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
+            $('#room-toolbar').toolbar ({
+                iconWidth: 20,
+                iconHeight: 20,
+                buttonCSS: {
+                    padding: '4px 4px'
+                },
+                groups: {
+                    settings: {
+                        toggle: 'none',
+                        tools: [{
+                            id: 'tb-room-settings',
+                            icon: '/images/settings.png',
+                            callback: function (this:Element) {
+                                console.log ('settings clicked');
+                            }
+                        }]
+                    },
+                    live: {
+                        toggle: 'multiple',
+                        tools: [{
+                            id: 'tb-live',
+                            icon: '/images/toolbar-select.png',
+                            callback: function (this:Element) {
+                                console.log ('toggle live broadcast');
+                            }
+                        }]
+                    }
+                }
+            });
             if (!window.mediaProducer) {
                 window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, ev.messageData.turnServers);
                 if (!window.mediaProducer.isDeviceSupported) {
