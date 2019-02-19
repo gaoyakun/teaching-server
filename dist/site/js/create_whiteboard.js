@@ -771,7 +771,12 @@
 	        this.$el.empty();
 	    };
 	    Toolbar.prototype.trigger = function (id, event) {
-	        this.$el.find("#" + id).trigger(event);
+	        this.$el.find('a').each(function () {
+	            var data = jquery(this).data('tool');
+	            if (data && data.id === id) {
+	                jquery(this).find('>div').trigger(event);
+	            }
+	        });
 	    };
 	    Toolbar.prototype._init = function () {
 	        var e_1, _a;
@@ -806,175 +811,176 @@
 	        this._newClassList = [];
 	    };
 	    Toolbar.prototype.createToolButton = function (groupDiv, group, index) {
-	        var _this = this;
+	        var that = this;
 	        var tool = group.tools[index];
-	        tool.active = group.toggle === 'none';
+	        if (tool.type !== 'radio' && tool.type !== 'check') {
+	            tool.type = 'button';
+	        }
+	        if (!tool.radioGroup) {
+	            tool.radioGroup = 0;
+	        }
+	        tool.active = false;
 	        if (!tool.disabled && tool.subTools && tool.subTools.length > 0) {
 	            tool.subIndex = 0;
+	            tool.id = tool.subTools[0].id;
 	            tool.icon = tool.subTools[0].icon;
 	            tool.text = tool.subTools[0].text;
 	            tool.callback = tool.subTools[0].callback;
 	        }
 	        var button = jquery('<a></a>').addClass('btn').appendTo(groupDiv);
-	        if (this.options.buttonCSS) {
-	            button.css(this.options.buttonCSS);
-	        }
-	        if (tool.disabled) {
-	            button.addClass('no-pointer-events');
-	        }
+	        button.data('tool', tool);
+	        var attrType = 'tb-button-type';
+	        var attrRadioGroup = 'tb-button-radio-group';
+	        var attrActive = 'tb-button-active';
+	        button.attr(attrType, tool.type);
+	        button.attr(attrRadioGroup, tool.radioGroup);
+	        tool.buttonCSS && button.css(tool.buttonCSS);
+	        tool.disabled && button.addClass('no-pointer-events');
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
-	        if (tool.id) {
-	            clickDiv.attr({ id: tool.id });
-	        }
 	        if (!tool.disabled) {
 	            clickDiv.on('mouseenter', function () {
-	                button.addClass('selected');
+	                jquery(this.parentElement).addClass('selected');
 	            });
 	            clickDiv.on('mouseleave', function () {
-	                if (group.toggle === 'none' || !tool.active) {
-	                    button.removeClass('selected');
+	                if (jquery(this).attr(attrType) === 'button' || jquery(this).attr(attrActive) === undefined) {
+	                    jquery(this.parentElement).removeClass('selected');
 	                }
 	            });
 	            clickDiv.on('click', function (ev) {
-	                var e_2, _a;
 	                ev.stopPropagation();
-	                if (group.toggle !== 'none') {
-	                    if (group.toggle === 'single') {
-	                        if (!tool.active) {
-	                            try {
-	                                for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
-	                                    var t = _c.value;
-	                                    t.active = false;
-	                                }
-	                            }
-	                            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-	                            finally {
-	                                try {
-	                                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-	                                }
-	                                finally { if (e_2) throw e_2.error; }
-	                            }
-	                            button.siblings('a').removeClass('selected');
-	                            button.addClass('selected');
-	                            tool.active = true;
-	                            if (tool.callback) {
-	                                tool.callback.call(button[0], tool);
-	                            }
-	                            _this.$el.trigger('itemclick', tool);
+	                var btn = jquery(this.parentElement);
+	                var data = btn.data('tool');
+	                var type = btn.attr(attrType);
+	                if (type !== 'button') {
+	                    if (type === 'radio') {
+	                        if (btn.attr(attrActive) === undefined) {
+	                            var groupButtons = btn.siblings("a[" + attrRadioGroup + "=" + btn.attr(attrRadioGroup) + "][" + attrActive + "]");
+	                            groupButtons.removeAttr(attrActive).removeClass('selected').each(function () {
+	                                var thatData = jquery(this).data('tool');
+	                                that.$el.trigger('itemdeselected', thatData.id);
+	                                thatData.callback && thatData.callback.call(this, 'deselected');
+	                            });
+	                            btn.attr(attrActive, '').addClass('selected');
+	                            that.$el.trigger('itemselected', data.id);
+	                            data.callback && data.callback.call(this.parentElement, 'selected');
 	                        }
 	                    }
 	                    else {
-	                        button.toggleClass('selected');
-	                        tool.active = !tool.active;
-	                        if (tool.active) {
-	                            button.addClass('selected');
+	                        if (btn.attr(attrActive) === undefined) {
+	                            btn.attr(attrActive, '').addClass('selected');
+	                            that.$el.trigger('itemselected', data.id);
+	                            data.callback && data.callback.call(this.parentElement, 'selected');
 	                        }
 	                        else {
-	                            button.removeClass('selected');
+	                            btn.removeAttr(attrActive).removeClass('selected');
+	                            that.$el.trigger('itemdeselected', data.id);
+	                            data.callback && data.callback.call(this.parentElement, 'deselected');
 	                        }
-	                        console.log("selected: " + button.hasClass('selected') + " active: " + tool.active);
-	                        if (tool.callback) {
-	                            tool.callback.call(button[0], tool);
-	                        }
-	                        _this.$el.trigger('itemclick', tool);
 	                    }
 	                }
 	                else {
-	                    if (tool.callback) {
-	                        tool.callback.call(button[0], tool);
-	                    }
-	                    _this.$el.trigger('itemclick', tool);
+	                    that.$el.trigger('itemclick', data.id);
+	                    data.callback && data.callback.call(this.parentElement);
 	                }
 	            });
 	        }
-	        var icon = tool.icon ? jquery('<img/>').attr({
+	        tool.icon ? jquery('<img/>').attr({
 	            src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].icon : tool.icon,
 	            width: this.options.iconWidth || 28,
 	            height: this.options.iconHeight || 28
 	        }).appendTo(clickDiv) : null;
-	        var label = tool.text ? jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv) : null;
-	        if (group.toggle !== 'multiple' && !tool.disabled && tool.subTools && tool.subTools.length > 0) {
+	        tool.text ? jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv) : null;
+	        if (tool.subTools && tool.subTools.length > 0) {
 	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
 	            clickDiv.css({
 	                pointerEvents: 'all'
 	            });
 	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(groupDiv);
-	            var _loop_1 = function (i) {
+	            for (var i = 0; i < tool.subTools.length; i++) {
 	                var subTool = tool.subTools[i];
-	                var subToolButton = jquery('<a></a>').addClass('dropdown-item').appendTo(menu);
+	                var subToolButton = jquery('<a></a>').addClass('dropdown-item').attr('sub-index', i).appendTo(menu);
+	                subToolButton.data('tool', subTool);
 	                if (subTool.id) {
 	                    subToolButton.attr({ id: subTool.id });
 	                }
-	                if (this_1.options.menuCSS) {
-	                    subToolButton.css(this_1.options.menuCSS);
+	                if (subTool.menuCSS) {
+	                    subToolButton.css(this.options.menuCSS);
 	                }
-	                subToolButton.on('click', function () {
-	                    var e_3, _a;
-	                    if (group.toggle === 'none') {
-	                        if (tool.subIndex !== i) {
-	                            tool.subIndex = i;
-	                            tool.icon = subTool.icon;
-	                            tool.text = subTool.text;
-	                            tool.callback = subTool.callback;
-	                            label && label.html(tool.text);
-	                            icon && icon.attr('src', tool.icon);
+	                subToolButton.on('click', function (ev) {
+	                    var btn = jquery(this.parentElement).prev();
+	                    var thatData = btn.data('tool');
+	                    var thisData = jquery(this).data('tool');
+	                    var index = Number(jquery(this).attr('sub-index'));
+	                    if (thatData.type === 'button') {
+	                        if (thatData.subIndex !== index) {
+	                            thatData.subIndex = index;
+	                            thatData.id = thisData.id;
+	                            thatData.icon = thisData.icon;
+	                            thatData.text = thisData.text;
+	                            thatData.callback = thisData.callback;
+	                            thatData.text && btn.find('>div>div').html(thatData.text);
+	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
 	                        }
 	                        if (tool.callback) {
-	                            tool.callback.call(button[0], tool);
+	                            tool.callback.call(btn[0]);
 	                        }
-	                        _this.$el.trigger('itemclick', tool);
+	                        that.$el.trigger('itemclick', thatData.id);
+	                    }
+	                    else if (thatData.type === 'check') {
+	                        var c = btn.find('>div');
+	                        c.trigger('click');
+	                        if (thatData.subIndex !== index) {
+	                            thatData.subIndex = index;
+	                            thatData.id = thisData.id;
+	                            thatData.icon = thisData.icon;
+	                            thatData.text = thisData.text;
+	                            thatData.callback = thisData.callback;
+	                            thatData.text && btn.find('>div>div').html(thatData.text);
+	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                            c.trigger('click');
+	                        }
 	                    }
 	                    else {
-	                        if (tool.subIndex !== i || !tool.active) {
-	                            if (tool.subIndex !== i) {
-	                                tool.subIndex = i;
-	                                tool.icon = subTool.icon;
-	                                tool.text = subTool.text;
-	                                tool.callback = subTool.callback;
-	                                label && label.html(tool.text);
-	                                icon && icon.attr('src', tool.icon);
+	                        var c = btn.find('>div');
+	                        if (btn.attr(attrActive) === undefined) {
+	                            if (thatData.subIndex !== index) {
+	                                thatData.subIndex = index;
+	                                thatData.id = thisData.id;
+	                                thatData.icon = thisData.icon;
+	                                thatData.text = thisData.text;
+	                                thatData.callback = thisData.callback;
+	                                thatData.text && btn.find('>div>div').html(thatData.text);
+	                                thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
 	                            }
-	                            if (!tool.active) {
-	                                try {
-	                                    for (var _b = __values(group.tools), _c = _b.next(); !_c.done; _c = _b.next()) {
-	                                        var t = _c.value;
-	                                        t.active = false;
-	                                    }
-	                                }
-	                                catch (e_3_1) { e_3 = { error: e_3_1 }; }
-	                                finally {
-	                                    try {
-	                                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-	                                    }
-	                                    finally { if (e_3) throw e_3.error; }
-	                                }
-	                                button.siblings('a').removeClass('selected');
-	                                button.addClass('selected');
-	                                tool.active = true;
-	                            }
-	                            if (tool.callback) {
-	                                tool.callback.call(button[0], tool);
-	                            }
-	                            _this.$el.trigger('itemclick', tool);
+	                            c.trigger('click');
+	                        }
+	                        else if (thatData.subIndex !== index) {
+	                            btn.removeAttr(attrActive).removeClass('selected');
+	                            that.$el.trigger('itemdeselected', thatData.id);
+	                            thatData.callback && thatData.callback.call(btn, 'deselected');
+	                            thatData.subIndex = index;
+	                            thatData.id = thisData.id;
+	                            thatData.icon = thisData.icon;
+	                            thatData.text = thisData.text;
+	                            thatData.callback = thisData.callback;
+	                            thatData.text && btn.find('>div>div').html(thatData.text);
+	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                            c.trigger('click');
 	                        }
 	                    }
 	                });
 	                if (subTool.icon) {
 	                    jquery('<img/>').attr({
 	                        src: subTool.icon,
-	                        width: this_1.options.menuIconWidth || 20,
-	                        height: this_1.options.menuIconHeight || 20
+	                        width: this.options.menuIconWidth || 20,
+	                        height: this.options.menuIconHeight || 20
 	                    }).appendTo(subToolButton);
 	                }
 	                if (subTool.text) {
 	                    jquery('<small></small>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
 	                }
-	            };
-	            var this_1 = this;
-	            for (var i = 0; i < tool.subTools.length; i++) {
-	                _loop_1(i);
 	            }
 	        }
 	        return button;
@@ -13648,8 +13654,15 @@
 	            case 'tb-select': {
 	                this._loadSubToolPalette({
 	                    groupName: {
-	                        toggle: 'none',
 	                        tools: [{
+	                                buttonCSS: {
+	                                    padding: '6px 8px',
+	                                    fontSize: '14px'
+	                                },
+	                                menuCSS: {
+	                                    padding: '4px 8px',
+	                                    fontSize: '14px'
+	                                },
 	                                text: '选择工具',
 	                                disabled: true
 	                            }]
@@ -13660,8 +13673,15 @@
 	            case 'tb-text': {
 	                this._loadSubToolPalette({
 	                    groupName: {
-	                        toggle: 'none',
 	                        tools: [{
+	                                buttonCSS: {
+	                                    padding: '6px 8px',
+	                                    fontSize: '14px'
+	                                },
+	                                menuCSS: {
+	                                    padding: '4px 8px',
+	                                    fontSize: '14px'
+	                                },
 	                                text: '标签工具',
 	                                disabled: true
 	                            }]
@@ -13673,36 +13693,49 @@
 	    };
 	    WBToolPalette.prototype.loadToolPalette = function () {
 	        var _this = this;
+	        var buttonCSS = {
+	            padding: '8px 12px',
+	            fontSize: '16px'
+	        };
+	        var menuCSS = {
+	            padding: '4px 8px',
+	            fontSize: '16px'
+	        };
 	        var that = this;
+	        $(this._container).on('itemselected', function (ev, id) {
+	            console.log("Item selected: " + id);
+	        });
+	        $(this._container).on('itemdeselected', function (ev, id) {
+	            console.log("Item deselected: " + id);
+	        });
 	        $(this._container).toolbar({
 	            iconWidth: 28,
 	            iconHeight: 25,
-	            buttonCSS: {
-	                padding: '8px 12px',
-	                fontSize: '16px'
-	            },
 	            menuIconWidth: 20,
 	            menuIconHeight: 20,
-	            menuCSS: {
-	                padding: '4px 8px',
-	                fontSize: '16px'
-	            },
 	            groups: {
 	                groupMain: {
-	                    toggle: 'single',
 	                    tools: [{
 	                            id: 'tb-select',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-select.png',
 	                            text: '选择',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-select');
 	                                that._editor.whiteboard.useTool('Select');
 	                            }
 	                        }, {
 	                            id: 'tb-text',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-text.png',
 	                            text: '标签',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-text');
 	                                that._editor.whiteboard.useTool('Create', {
 	                                    createType: 'Label',
@@ -13712,27 +13745,39 @@
 	                            }
 	                        }, {
 	                            id: 'tb-swap',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-swap.png',
 	                            text: '交换',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Swap');
 	                            }
 	                        }, {
 	                            id: 'tb-connect',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-connect.png',
 	                            text: '联结',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Connect');
 	                            }
 	                        }, {
 	                            id: '',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '',
 	                            text: '',
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
 	                            subTools: [{
 	                                    id: 'tb-draw',
 	                                    icon: '/images/toolbar-draw.png',
 	                                    text: '绘图',
-	                                    callback: function (tool) {
+	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'draw'
 	                                        });
@@ -13741,7 +13786,7 @@
 	                                    id: 'tb-erase',
 	                                    icon: '/images/toolbar-erase.png',
 	                                    text: '擦除',
-	                                    callback: function (tool) {
+	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'erase'
 	                                        });
@@ -13750,12 +13795,13 @@
 	                        }]
 	                },
 	                groupEdit: {
-	                    toggle: 'none',
 	                    tools: [{
 	                            id: 'tb-undo',
 	                            icon: '/images/toolbar-undo.png',
 	                            text: '撤销',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
 	                            }
 	                        }]
@@ -13770,16 +13816,8 @@
 	        $(this._container).toolbar({
 	            iconWidth: 20,
 	            iconHeight: 20,
-	            buttonCSS: {
-	                padding: '6px 8px',
-	                fontSize: '14px'
-	            },
 	            menuIconWidth: 20,
 	            menuIconHeight: 20,
-	            menuCSS: {
-	                padding: '4px 8px',
-	                fontSize: '14px'
-	            },
 	            groups: groups
 	        });
 	    };
@@ -16654,17 +16692,18 @@
 	            }
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
+	            var buttonCSS = {
+	                padding: '4px 4px'
+	            };
 	            $('#room-toolbar').toolbar({
 	                iconWidth: 20,
 	                iconHeight: 20,
-	                buttonCSS: {
-	                    padding: '4px 4px'
-	                },
 	                groups: {
 	                    settings: {
-	                        toggle: 'none',
 	                        tools: [{
 	                                id: 'tb-room-settings',
+	                                type: 'button',
+	                                buttonCSS: buttonCSS,
 	                                icon: '/images/settings.png',
 	                                callback: function () {
 	                                    console.log('settings clicked');
@@ -16672,9 +16711,11 @@
 	                            }]
 	                    },
 	                    live: {
-	                        toggle: 'multiple',
 	                        tools: [{
 	                                id: 'tb-live',
+	                                type: 'check',
+	                                radioGroup: 1,
+	                                buttonCSS: buttonCSS,
 	                                icon: '/images/toolbar-select.png',
 	                                callback: function () {
 	                                    console.log('toggle live broadcast');

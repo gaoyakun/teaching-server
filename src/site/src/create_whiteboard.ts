@@ -49,17 +49,18 @@ export function init (uri: string) {
                 });
             }
         } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
+            const buttonCSS = {
+                padding: '4px 4px'
+            };
             $('#room-toolbar').toolbar ({
                 iconWidth: 20,
                 iconHeight: 20,
-                buttonCSS: {
-                    padding: '4px 4px'
-                },
                 groups: {
                     settings: {
-                        toggle: 'none',
                         tools: [{
                             id: 'tb-room-settings',
+                            type: 'button',
+                            buttonCSS: buttonCSS,
                             icon: '/images/settings.png',
                             callback: function (this:Element) {
                                 console.log ('settings clicked');
@@ -67,9 +68,11 @@ export function init (uri: string) {
                         }]
                     },
                     live: {
-                        toggle: 'multiple',
                         tools: [{
                             id: 'tb-live',
+                            type: 'check',
+                            radioGroup: 1,
+                            buttonCSS: buttonCSS,
                             icon: '/images/toolbar-select.png',
                             callback: function (this:Element) {
                                 console.log ('toggle live broadcast');

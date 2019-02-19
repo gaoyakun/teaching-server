@@ -12083,8 +12083,15 @@
 	            case 'tb-select': {
 	                this._loadSubToolPalette({
 	                    groupName: {
-	                        toggle: 'none',
 	                        tools: [{
+	                                buttonCSS: {
+	                                    padding: '6px 8px',
+	                                    fontSize: '14px'
+	                                },
+	                                menuCSS: {
+	                                    padding: '4px 8px',
+	                                    fontSize: '14px'
+	                                },
 	                                text: '选择工具',
 	                                disabled: true
 	                            }]
@@ -12095,8 +12102,15 @@
 	            case 'tb-text': {
 	                this._loadSubToolPalette({
 	                    groupName: {
-	                        toggle: 'none',
 	                        tools: [{
+	                                buttonCSS: {
+	                                    padding: '6px 8px',
+	                                    fontSize: '14px'
+	                                },
+	                                menuCSS: {
+	                                    padding: '4px 8px',
+	                                    fontSize: '14px'
+	                                },
 	                                text: '标签工具',
 	                                disabled: true
 	                            }]
@@ -12108,36 +12122,49 @@
 	    };
 	    WBToolPalette.prototype.loadToolPalette = function () {
 	        var _this = this;
+	        var buttonCSS = {
+	            padding: '8px 12px',
+	            fontSize: '16px'
+	        };
+	        var menuCSS = {
+	            padding: '4px 8px',
+	            fontSize: '16px'
+	        };
 	        var that = this;
+	        $(this._container).on('itemselected', function (ev, id) {
+	            console.log("Item selected: " + id);
+	        });
+	        $(this._container).on('itemdeselected', function (ev, id) {
+	            console.log("Item deselected: " + id);
+	        });
 	        $(this._container).toolbar({
 	            iconWidth: 28,
 	            iconHeight: 25,
-	            buttonCSS: {
-	                padding: '8px 12px',
-	                fontSize: '16px'
-	            },
 	            menuIconWidth: 20,
 	            menuIconHeight: 20,
-	            menuCSS: {
-	                padding: '4px 8px',
-	                fontSize: '16px'
-	            },
 	            groups: {
 	                groupMain: {
-	                    toggle: 'single',
 	                    tools: [{
 	                            id: 'tb-select',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-select.png',
 	                            text: '选择',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-select');
 	                                that._editor.whiteboard.useTool('Select');
 	                            }
 	                        }, {
 	                            id: 'tb-text',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-text.png',
 	                            text: '标签',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-text');
 	                                that._editor.whiteboard.useTool('Create', {
 	                                    createType: 'Label',
@@ -12147,27 +12174,39 @@
 	                            }
 	                        }, {
 	                            id: 'tb-swap',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-swap.png',
 	                            text: '交换',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Swap');
 	                            }
 	                        }, {
 	                            id: 'tb-connect',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '/images/toolbar-connect.png',
 	                            text: '联结',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Connect');
 	                            }
 	                        }, {
 	                            id: '',
+	                            type: 'radio',
+	                            radioGroup: 1,
 	                            icon: '',
 	                            text: '',
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
 	                            subTools: [{
 	                                    id: 'tb-draw',
 	                                    icon: '/images/toolbar-draw.png',
 	                                    text: '绘图',
-	                                    callback: function (tool) {
+	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'draw'
 	                                        });
@@ -12176,7 +12215,7 @@
 	                                    id: 'tb-erase',
 	                                    icon: '/images/toolbar-erase.png',
 	                                    text: '擦除',
-	                                    callback: function (tool) {
+	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'erase'
 	                                        });
@@ -12185,12 +12224,13 @@
 	                        }]
 	                },
 	                groupEdit: {
-	                    toggle: 'none',
 	                    tools: [{
 	                            id: 'tb-undo',
 	                            icon: '/images/toolbar-undo.png',
 	                            text: '撤销',
-	                            callback: function (tool) {
+	                            buttonCSS: buttonCSS,
+	                            menuCSS: menuCSS,
+	                            callback: function (type) {
 	                                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
 	                            }
 	                        }]
@@ -12205,16 +12245,8 @@
 	        $(this._container).toolbar({
 	            iconWidth: 20,
 	            iconHeight: 20,
-	            buttonCSS: {
-	                padding: '6px 8px',
-	                fontSize: '14px'
-	            },
 	            menuIconWidth: 20,
 	            menuIconHeight: 20,
-	            menuCSS: {
-	                padding: '4px 8px',
-	                fontSize: '14px'
-	            },
 	            groups: groups
 	        });
 	    };
