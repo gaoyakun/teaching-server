@@ -104,7 +104,7 @@ export class Toolbar extends Widget {
                 $(this.parentElement!).addClass ('selected');
             });
             clickDiv.on ('mouseleave', function(){
-                if ($(this).attr(attrType) === 'button' || $(this).attr(attrActive) === undefined) {
+                if ($(this.parentElement!).attr(attrType) === 'button' || $(this.parentElement!).attr(attrActive) === undefined) {
                     $(this.parentElement!).removeClass ('selected');
                 }
             });

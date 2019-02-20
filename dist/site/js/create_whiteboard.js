@@ -844,7 +844,7 @@
 	                jquery(this.parentElement).addClass('selected');
 	            });
 	            clickDiv.on('mouseleave', function () {
-	                if (jquery(this).attr(attrType) === 'button' || jquery(this).attr(attrActive) === undefined) {
+	                if (jquery(this.parentElement).attr(attrType) === 'button' || jquery(this.parentElement).attr(attrActive) === undefined) {
 	                    jquery(this.parentElement).removeClass('selected');
 	                }
 	            });
