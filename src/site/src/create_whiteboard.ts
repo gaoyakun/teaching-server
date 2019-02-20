@@ -60,8 +60,10 @@ export function init (uri: string) {
                         tools: [{
                             id: 'tb-room-settings',
                             type: 'button',
-                            buttonCSS: buttonCSS,
-                            icon: '/images/settings.png',
+                            styles: {
+                                css: buttonCSS,
+                                icon: '/images/settings.png',
+                            },
                             callback: function (this:Element) {
                                 console.log ('settings clicked');
                             }
@@ -72,8 +74,10 @@ export function init (uri: string) {
                             id: 'tb-live',
                             type: 'check',
                             radioGroup: 1,
-                            buttonCSS: buttonCSS,
-                            icon: '/images/toolbar-select.png',
+                            styles: {
+                                css: buttonCSS,
+                                icon: '/images/toolbar-select.png',
+                            },
                             callback: function (this:Element) {
                                 console.log ('toggle live broadcast');
                             }

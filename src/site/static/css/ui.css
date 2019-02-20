@@ -125,6 +125,7 @@ a {
 .toolbar-seperator {
     display: inline-block;
     width: 1px;
+    margin: 0 5px;
     background-image: url(/images/toolbar-sep1.png);
     background-size: 100% 100%;
 }

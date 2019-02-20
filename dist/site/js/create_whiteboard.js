@@ -767,6 +767,27 @@
 	        _this._newClassList = [];
 	        return _this;
 	    }
+	    Toolbar.prototype.setStyle = function (id, styles) {
+	        var that = this;
+	        that.$el.find('a').each(function () {
+	            var data = jquery(this).data('tool');
+	            if (data && data.id === id) {
+	                var subIndex = jquery(this).attr('sub-index');
+	                var isSubButton = subIndex !== undefined;
+	                that._applyStyle(jquery(this), styles, isSubButton);
+	                if (isSubButton) {
+	                    var btn = jquery(this.parentElement).prev();
+	                    var btnData = btn.data('tool');
+	                    if (btnData.subIndex === Number(subIndex)) {
+	                        that._applyStyle(btn, {
+	                            icon: btnData.styles.icon,
+	                            text: btnData.styles.text
+	                        }, false);
+	                    }
+	                }
+	            }
+	        });
+	    };
 	    Toolbar.prototype.clear = function () {
 	        this.$el.empty();
 	    };
@@ -778,10 +799,17 @@
 	            }
 	        });
 	    };
+	    Toolbar.prototype._applyStyle = function (button, styles, subButton) {
+	        var data = button.data('tool');
+	        Object.assign(data.styles, styles);
+	        styles.icon && (subButton ? button.find('>img').attr('src', styles.icon) : button.find('>div>img').attr('src', styles.icon));
+	        styles.text && (subButton ? button.find('>small').html(styles.text) : button.find('>div>div').html(styles.text));
+	        styles.css && button.css(styles.css);
+	    };
 	    Toolbar.prototype._init = function () {
 	        var e_1, _a;
 	        try {
-	            for (var _b = __values(['p-0', 'toolbar']), _c = _b.next(); !_c.done; _c = _b.next()) {
+	            for (var _b = __values(['p-0', 'toolbar', 'd-flex']), _c = _b.next(); !_c.done; _c = _b.next()) {
 	                var cls = _c.value;
 	                if (!this.$el.hasClass(cls)) {
 	                    this.$el.addClass(cls);
@@ -797,12 +825,15 @@
 	            finally { if (e_1) throw e_1.error; }
 	        }
 	        for (var groupName in this.options.groups) {
-	            var group = this.options.groups[groupName];
+	            var options = this.options;
+	            var group = options.groups[groupName];
 	            var groupDiv = jquery('<div></div>').addClass(['btn-group']).attr('role', 'group').appendTo(this.$el);
 	            for (var i = 0; i < group.tools.length; i++) {
 	                this.createToolButton(groupDiv, group, i);
 	            }
-	            jquery('<div></div>').addClass('toolbar-seperator').appendTo(this.$el);
+	            if (group.seperator) {
+	                jquery('<div></div>').addClass('toolbar-seperator').appendTo(this.$el);
+	            }
 	        }
 	    };
 	    Toolbar.prototype._deinit = function () {
@@ -823,8 +854,8 @@
 	        if (!tool.disabled && tool.subTools && tool.subTools.length > 0) {
 	            tool.subIndex = 0;
 	            tool.id = tool.subTools[0].id;
-	            tool.icon = tool.subTools[0].icon;
-	            tool.text = tool.subTools[0].text;
+	            tool.styles.icon = tool.subTools[0].styles.icon;
+	            tool.styles.text = tool.subTools[0].styles.text;
 	            tool.callback = tool.subTools[0].callback;
 	        }
 	        var button = jquery('<a></a>').addClass('btn').appendTo(groupDiv);
@@ -834,7 +865,7 @@
 	        var attrActive = 'tb-button-active';
 	        button.attr(attrType, tool.type);
 	        button.attr(attrRadioGroup, tool.radioGroup);
-	        tool.buttonCSS && button.css(tool.buttonCSS);
+	        tool.styles.css && button.css(tool.styles.css);
 	        tool.disabled && button.addClass('no-pointer-events');
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
@@ -886,12 +917,12 @@
 	                }
 	            });
 	        }
-	        tool.icon ? jquery('<img/>').attr({
-	            src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].icon : tool.icon,
+	        tool.styles.icon ? jquery('<img/>').attr({
+	            src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].styles.icon : tool.styles.icon,
 	            width: this.options.iconWidth || 28,
 	            height: this.options.iconHeight || 28
 	        }).appendTo(clickDiv) : null;
-	        tool.text ? jquery('<div></div>').addClass('small').html(tool.text).appendTo(clickDiv) : null;
+	        tool.styles.text ? jquery('<div></div>').addClass('small').html(tool.styles.text).appendTo(clickDiv) : null;
 	        if (tool.subTools && tool.subTools.length > 0) {
 	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
 	            clickDiv.css({
@@ -905,8 +936,8 @@
 	                if (subTool.id) {
 	                    subToolButton.attr({ id: subTool.id });
 	                }
-	                if (subTool.menuCSS) {
-	                    subToolButton.css(this.options.menuCSS);
+	                if (subTool.styles.css) {
+	                    subToolButton.css(subTool.styles.css);
 	                }
 	                subToolButton.on('click', function (ev) {
 	                    var btn = jquery(this.parentElement).prev();
@@ -917,14 +948,16 @@
 	                        if (thatData.subIndex !== index) {
 	                            thatData.subIndex = index;
 	                            thatData.id = thisData.id;
-	                            thatData.icon = thisData.icon;
-	                            thatData.text = thisData.text;
 	                            thatData.callback = thisData.callback;
-	                            thatData.text && btn.find('>div>div').html(thatData.text);
-	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                            that._applyStyle(btn, {
+	                                icon: thisData.styles.icon,
+	                                text: thisData.styles.text
+	                            }, false);
+	                            //thatData.styles.text && btn.find('>div>div').html (thatData.styles.text);
+	                            //thatData.styles.icon && btn.find('>div>img').attr ('src', thatData.styles.icon);
 	                        }
-	                        if (tool.callback) {
-	                            tool.callback.call(btn[0]);
+	                        if (thatData.callback) {
+	                            thatData.callback.call(btn[0]);
 	                        }
 	                        that.$el.trigger('itemclick', thatData.id);
 	                    }
@@ -934,11 +967,11 @@
 	                        if (thatData.subIndex !== index) {
 	                            thatData.subIndex = index;
 	                            thatData.id = thisData.id;
-	                            thatData.icon = thisData.icon;
-	                            thatData.text = thisData.text;
 	                            thatData.callback = thisData.callback;
-	                            thatData.text && btn.find('>div>div').html(thatData.text);
-	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                            that._applyStyle(btn, {
+	                                icon: thisData.styles.icon,
+	                                text: thisData.styles.text
+	                            }, false);
 	                            c.trigger('click');
 	                        }
 	                    }
@@ -948,38 +981,38 @@
 	                            if (thatData.subIndex !== index) {
 	                                thatData.subIndex = index;
 	                                thatData.id = thisData.id;
-	                                thatData.icon = thisData.icon;
-	                                thatData.text = thisData.text;
 	                                thatData.callback = thisData.callback;
-	                                thatData.text && btn.find('>div>div').html(thatData.text);
-	                                thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                                that._applyStyle(btn, {
+	                                    icon: thisData.styles.icon,
+	                                    text: thisData.styles.text
+	                                }, false);
 	                            }
 	                            c.trigger('click');
 	                        }
 	                        else if (thatData.subIndex !== index) {
 	                            btn.removeAttr(attrActive).removeClass('selected');
 	                            that.$el.trigger('itemdeselected', thatData.id);
-	                            thatData.callback && thatData.callback.call(btn, 'deselected');
+	                            thatData.callback && thatData.callback.call(btn[0], 'deselected');
 	                            thatData.subIndex = index;
 	                            thatData.id = thisData.id;
-	                            thatData.icon = thisData.icon;
-	                            thatData.text = thisData.text;
 	                            thatData.callback = thisData.callback;
-	                            thatData.text && btn.find('>div>div').html(thatData.text);
-	                            thatData.icon && btn.find('>div>img').attr('src', thatData.icon);
+	                            that._applyStyle(btn, {
+	                                icon: thisData.styles.icon,
+	                                text: thisData.styles.text
+	                            }, false);
 	                            c.trigger('click');
 	                        }
 	                    }
 	                });
-	                if (subTool.icon) {
+	                if (subTool.styles.icon) {
 	                    jquery('<img/>').attr({
-	                        src: subTool.icon,
+	                        src: subTool.styles.icon,
 	                        width: this.options.menuIconWidth || 20,
 	                        height: this.options.menuIconHeight || 20
 	                    }).appendTo(subToolButton);
 	                }
-	                if (subTool.text) {
-	                    jquery('<small></small>').addClass('ml-2').html(subTool.text).appendTo(subToolButton);
+	                if (subTool.styles.text) {
+	                    jquery('<small></small>').addClass('ml-2').html(subTool.styles.text).appendTo(subToolButton);
 	                }
 	            }
 	        }
@@ -13655,15 +13688,13 @@
 	                this._loadSubToolPalette({
 	                    groupName: {
 	                        tools: [{
-	                                buttonCSS: {
-	                                    padding: '6px 8px',
-	                                    fontSize: '14px'
+	                                styles: {
+	                                    css: {
+	                                        padding: '6px 8px',
+	                                        fontSize: '14px'
+	                                    },
+	                                    text: '选择工具',
 	                                },
-	                                menuCSS: {
-	                                    padding: '4px 8px',
-	                                    fontSize: '14px'
-	                                },
-	                                text: '选择工具',
 	                                disabled: true
 	                            }]
 	                    }
@@ -13674,15 +13705,13 @@
 	                this._loadSubToolPalette({
 	                    groupName: {
 	                        tools: [{
-	                                buttonCSS: {
-	                                    padding: '6px 8px',
-	                                    fontSize: '14px'
+	                                styles: {
+	                                    css: {
+	                                        padding: '6px 8px',
+	                                        fontSize: '14px'
+	                                    },
+	                                    text: '标签工具'
 	                                },
-	                                menuCSS: {
-	                                    padding: '4px 8px',
-	                                    fontSize: '14px'
-	                                },
-	                                text: '标签工具',
 	                                disabled: true
 	                            }]
 	                    }
@@ -13715,14 +13744,16 @@
 	            menuIconHeight: 20,
 	            groups: {
 	                groupMain: {
+	                    seperator: true,
 	                    tools: [{
 	                            id: 'tb-select',
 	                            type: 'radio',
 	                            radioGroup: 1,
-	                            icon: '/images/toolbar-select.png',
-	                            text: '选择',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                icon: '/images/toolbar-select.png',
+	                                text: '选择',
+	                                css: buttonCSS
+	                            },
 	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-select');
 	                                that._editor.whiteboard.useTool('Select');
@@ -13731,10 +13762,11 @@
 	                            id: 'tb-text',
 	                            type: 'radio',
 	                            radioGroup: 1,
-	                            icon: '/images/toolbar-text.png',
-	                            text: '标签',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                icon: '/images/toolbar-text.png',
+	                                text: '标签',
+	                                css: buttonCSS
+	                            },
 	                            callback: function (type) {
 	                                that._editor.subToolPalette.loadSubToolPalette('tb-text');
 	                                that._editor.whiteboard.useTool('Create', {
@@ -13747,10 +13779,11 @@
 	                            id: 'tb-swap',
 	                            type: 'radio',
 	                            radioGroup: 1,
-	                            icon: '/images/toolbar-swap.png',
-	                            text: '交换',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                icon: '/images/toolbar-swap.png',
+	                                text: '交换',
+	                                css: buttonCSS
+	                            },
 	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Swap');
 	                            }
@@ -13758,10 +13791,11 @@
 	                            id: 'tb-connect',
 	                            type: 'radio',
 	                            radioGroup: 1,
-	                            icon: '/images/toolbar-connect.png',
-	                            text: '联结',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                icon: '/images/toolbar-connect.png',
+	                                text: '联结',
+	                                css: buttonCSS
+	                            },
 	                            callback: function (type) {
 	                                that._editor.whiteboard.useTool('Connect');
 	                            }
@@ -13769,14 +13803,16 @@
 	                            id: '',
 	                            type: 'radio',
 	                            radioGroup: 1,
-	                            icon: '',
-	                            text: '',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                css: buttonCSS
+	                            },
 	                            subTools: [{
 	                                    id: 'tb-draw',
-	                                    icon: '/images/toolbar-draw.png',
-	                                    text: '绘图',
+	                                    styles: {
+	                                        icon: '/images/toolbar-draw.png',
+	                                        text: '绘图',
+	                                        css: menuCSS
+	                                    },
 	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'draw'
@@ -13784,8 +13820,11 @@
 	                                    }
 	                                }, {
 	                                    id: 'tb-erase',
-	                                    icon: '/images/toolbar-erase.png',
-	                                    text: '擦除',
+	                                    styles: {
+	                                        icon: '/images/toolbar-erase.png',
+	                                        text: '擦除',
+	                                        css: menuCSS
+	                                    },
 	                                    callback: function (type) {
 	                                        that._editor.whiteboard.useTool('HandWriting', {
 	                                            mode: 'erase'
@@ -13797,10 +13836,11 @@
 	                groupEdit: {
 	                    tools: [{
 	                            id: 'tb-undo',
-	                            icon: '/images/toolbar-undo.png',
-	                            text: '撤销',
-	                            buttonCSS: buttonCSS,
-	                            menuCSS: menuCSS,
+	                            styles: {
+	                                icon: '/images/toolbar-undo.png',
+	                                text: '撤销',
+	                                css: buttonCSS
+	                            },
 	                            callback: function (type) {
 	                                that._editor.handleMessage(protolist.MsgType.whiteboard_UndoMessage, {});
 	                            }
@@ -16703,8 +16743,10 @@
 	                        tools: [{
 	                                id: 'tb-room-settings',
 	                                type: 'button',
-	                                buttonCSS: buttonCSS,
-	                                icon: '/images/settings.png',
+	                                styles: {
+	                                    css: buttonCSS,
+	                                    icon: '/images/settings.png',
+	                                },
 	                                callback: function () {
 	                                    console.log('settings clicked');
 	                                }
@@ -16715,8 +16757,10 @@
 	                                id: 'tb-live',
 	                                type: 'check',
 	                                radioGroup: 1,
-	                                buttonCSS: buttonCSS,
-	                                icon: '/images/toolbar-select.png',
+	                                styles: {
+	                                    css: buttonCSS,
+	                                    icon: '/images/toolbar-select.png',
+	                                },
 	                                callback: function () {
 	                                    console.log('toggle live broadcast');
 	                                }
