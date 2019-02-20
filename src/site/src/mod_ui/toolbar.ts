@@ -85,7 +85,7 @@ export class Toolbar extends Widget {
         styles.css && button.css (styles.css);
     }
     protected _init () {
-        for (const cls of ['p-0', 'toolbar', 'd-flex']) {
+        for (const cls of ['p-0', 'toolbar']) {
             if (!this.$el.hasClass (cls)) {
                 this.$el.addClass (cls);
                 this._newClassList.push (cls);

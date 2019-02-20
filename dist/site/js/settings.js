@@ -808,7 +808,7 @@
 	    Toolbar.prototype._init = function () {
 	        var e_1, _a;
 	        try {
-	            for (var _b = __values(['p-0', 'toolbar', 'd-flex']), _c = _b.next(); !_c.done; _c = _b.next()) {
+	            for (var _b = __values(['p-0', 'toolbar']), _c = _b.next(); !_c.done; _c = _b.next()) {
 	                var cls = _c.value;
 	                if (!this.$el.hasClass(cls)) {
 	                    this.$el.addClass(cls);
