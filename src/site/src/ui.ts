@@ -7,6 +7,7 @@ export type IGridViewNode = UI.IGridViewNode;
 export type IToolbarData = UI.IToolbarData;
 export type IToolProps = UI.IToolProps;
 export type IToolbarCallback = UI.IToolbarCallback;
+export type IToolStyles = UI.IToolStyles;
 export type IToolGroup = UI.IToolGroup;
 export type IChatListData = UI.IChatListData;
 export type IChatListUser = UI.IChatListUser;
@@ -27,6 +28,8 @@ interface IGridView {
 interface IToolbar {
     (options?: UI.IToolbarData): JQuery;
     (command:'trigger', id:string, event: string): void;
+    (command:'enable', id:string, enabled: boolean): void;
+    (command:'setStyle', id:string, styles: IToolStyles): void;
 }
 
 interface IChatList {

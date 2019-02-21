@@ -134,10 +134,6 @@ a {
     pointer-events:none;
 }
 
-.dropdown-toggle::after {
-    pointer-events:all;
-}
-
 .chat-list {
     background:#fff;
     border:1px solid #c4c4c4;

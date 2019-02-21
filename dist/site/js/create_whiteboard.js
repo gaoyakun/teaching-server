@@ -767,6 +767,37 @@
 	        _this._newClassList = [];
 	        return _this;
 	    }
+	    Toolbar.prototype.enable = function (id, enabled) {
+	        var that = this;
+	        that.$el.find('a').each(function () {
+	            var data = jquery(this).data('tool');
+	            if (data && data.id === id) {
+	                var subIndex = jquery(this).attr('sub-index');
+	                var isSubButton = subIndex !== undefined;
+	                if (!isSubButton) {
+	                    var props = data;
+	                    if (!props.subTools || props.subTools.length === 0) {
+	                        if (enabled) {
+	                            jquery(this).removeClass('no-pointer-events');
+	                            jquery(this).find('>div').removeClass('no-pointer-events');
+	                        }
+	                        else {
+	                            jquery(this).addClass('no-pointer-events');
+	                            jquery(this).find('>div').addClass('no-pointer-events');
+	                        }
+	                    }
+	                }
+	                else {
+	                    if (enabled) {
+	                        jquery(this).removeClass('no-pointer-events');
+	                    }
+	                    else {
+	                        jquery(this).addClass('no-pointer-events');
+	                    }
+	                }
+	            }
+	        });
+	    };
 	    Toolbar.prototype.setStyle = function (id, styles) {
 	        var that = this;
 	        that.$el.find('a').each(function () {
@@ -851,7 +882,7 @@
 	            tool.radioGroup = 0;
 	        }
 	        tool.active = false;
-	        if (!tool.disabled && tool.subTools && tool.subTools.length > 0) {
+	        if (tool.subTools && tool.subTools.length > 0) {
 	            tool.subIndex = 0;
 	            tool.id = tool.subTools[0].id;
 	            tool.styles.icon = tool.subTools[0].styles.icon;
@@ -870,53 +901,52 @@
 	        var clickDiv = jquery('<div></div>').css({
 	            display: 'inline-block'
 	        }).appendTo(button);
-	        if (!tool.disabled) {
-	            clickDiv.on('mouseenter', function () {
-	                jquery(this.parentElement).addClass('selected');
-	            });
-	            clickDiv.on('mouseleave', function () {
-	                if (jquery(this.parentElement).attr(attrType) === 'button' || jquery(this.parentElement).attr(attrActive) === undefined) {
-	                    jquery(this.parentElement).removeClass('selected');
-	                }
-	            });
-	            clickDiv.on('click', function (ev) {
-	                ev.stopPropagation();
-	                var btn = jquery(this.parentElement);
-	                var data = btn.data('tool');
-	                var type = btn.attr(attrType);
-	                if (type !== 'button') {
-	                    if (type === 'radio') {
-	                        if (btn.attr(attrActive) === undefined) {
-	                            var groupButtons = btn.siblings("a[" + attrRadioGroup + "=" + btn.attr(attrRadioGroup) + "][" + attrActive + "]");
-	                            groupButtons.removeAttr(attrActive).removeClass('selected').each(function () {
-	                                var thatData = jquery(this).data('tool');
-	                                that.$el.trigger('itemdeselected', thatData.id);
-	                                thatData.callback && thatData.callback.call(this, 'deselected');
-	                            });
-	                            btn.attr(attrActive, '').addClass('selected');
-	                            that.$el.trigger('itemselected', data.id);
-	                            data.callback && data.callback.call(this.parentElement, 'selected');
-	                        }
-	                    }
-	                    else {
-	                        if (btn.attr(attrActive) === undefined) {
-	                            btn.attr(attrActive, '').addClass('selected');
-	                            that.$el.trigger('itemselected', data.id);
-	                            data.callback && data.callback.call(this.parentElement, 'selected');
-	                        }
-	                        else {
-	                            btn.removeAttr(attrActive).removeClass('selected');
-	                            that.$el.trigger('itemdeselected', data.id);
-	                            data.callback && data.callback.call(this.parentElement, 'deselected');
-	                        }
+	        tool.disabled && clickDiv.addClass('no-pointer-events');
+	        clickDiv.on('mouseenter', function () {
+	            jquery(this.parentElement).addClass('selected');
+	        });
+	        clickDiv.on('mouseleave', function () {
+	            if (jquery(this.parentElement).attr(attrType) === 'button' || jquery(this.parentElement).attr(attrActive) === undefined) {
+	                jquery(this.parentElement).removeClass('selected');
+	            }
+	        });
+	        clickDiv.on('click', function (ev) {
+	            ev.stopPropagation();
+	            var btn = jquery(this.parentElement);
+	            var data = btn.data('tool');
+	            var type = btn.attr(attrType);
+	            if (type !== 'button') {
+	                if (type === 'radio') {
+	                    if (btn.attr(attrActive) === undefined) {
+	                        var groupButtons = btn.siblings("a[" + attrRadioGroup + "=" + btn.attr(attrRadioGroup) + "][" + attrActive + "]");
+	                        groupButtons.removeAttr(attrActive).removeClass('selected').each(function () {
+	                            var thatData = jquery(this).data('tool');
+	                            that.$el.trigger('itemdeselected', thatData.id);
+	                            thatData.callback && thatData.callback.call(that.$el[0], 'deselected');
+	                        });
+	                        btn.attr(attrActive, '').addClass('selected');
+	                        that.$el.trigger('itemselected', data.id);
+	                        data.callback && data.callback.call(that.$el[0], 'selected');
 	                    }
 	                }
 	                else {
-	                    that.$el.trigger('itemclick', data.id);
-	                    data.callback && data.callback.call(this.parentElement);
+	                    if (btn.attr(attrActive) === undefined) {
+	                        btn.attr(attrActive, '').addClass('selected');
+	                        that.$el.trigger('itemselected', data.id);
+	                        data.callback && data.callback.call(that.$el[0], 'selected');
+	                    }
+	                    else {
+	                        btn.removeAttr(attrActive).removeClass('selected');
+	                        that.$el.trigger('itemdeselected', data.id);
+	                        data.callback && data.callback.call(that.$el[0], 'deselected');
+	                    }
 	                }
-	            });
-	        }
+	            }
+	            else {
+	                that.$el.trigger('itemclick', data.id);
+	                data.callback && data.callback.call(that.$el[0]);
+	            }
+	        });
 	        tool.styles.icon ? jquery('<img/>').attr({
 	            src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].styles.icon : tool.styles.icon,
 	            width: this.options.iconWidth || 28,
@@ -925,9 +955,6 @@
 	        tool.styles.text ? jquery('<div></div>').addClass('small').html(tool.styles.text).appendTo(clickDiv) : null;
 	        if (tool.subTools && tool.subTools.length > 0) {
 	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
-	            clickDiv.css({
-	                pointerEvents: 'all'
-	            });
 	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(groupDiv);
 	            for (var i = 0; i < tool.subTools.length; i++) {
 	                var subTool = tool.subTools[i];
@@ -939,6 +966,7 @@
 	                if (subTool.styles.css) {
 	                    subToolButton.css(subTool.styles.css);
 	                }
+	                subTool.disabled && subToolButton.addClass('no-pointer-events');
 	                subToolButton.on('click', function (ev) {
 	                    var btn = jquery(this.parentElement).prev();
 	                    var thatData = btn.data('tool');
@@ -957,7 +985,7 @@
 	                            //thatData.styles.icon && btn.find('>div>img').attr ('src', thatData.styles.icon);
 	                        }
 	                        if (thatData.callback) {
-	                            thatData.callback.call(btn[0]);
+	                            thatData.callback.call(that.$el[0]);
 	                        }
 	                        that.$el.trigger('itemclick', thatData.id);
 	                    }
@@ -992,7 +1020,7 @@
 	                        else if (thatData.subIndex !== index) {
 	                            btn.removeAttr(attrActive).removeClass('selected');
 	                            that.$el.trigger('itemdeselected', thatData.id);
-	                            thatData.callback && thatData.callback.call(btn[0], 'deselected');
+	                            thatData.callback && thatData.callback.call(that.$el[0], 'deselected');
 	                            thatData.subIndex = index;
 	                            thatData.id = thisData.id;
 	                            thatData.callback = thisData.callback;
@@ -16761,8 +16789,11 @@
 	                                    css: buttonCSS,
 	                                    icon: '/images/toolbar-select.png',
 	                                },
-	                                callback: function () {
-	                                    console.log('toggle live broadcast');
+	                                callback: function (type) {
+	                                    console.log("live broadcast " + type);
+	                                    $(this).toolbar('setStyle', 'tb-live', {
+	                                        icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+	                                    });
 	                                }
 	                            }]
 	                    }

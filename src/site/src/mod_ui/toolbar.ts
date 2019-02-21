@@ -14,13 +14,13 @@ export interface IToolStyles {
 export interface ISubToolProps {
     id?: string;
     styles: IToolStyles;
+    disabled?: boolean;
     callback?: IToolbarCallback;
 }
 
 export interface IToolProps extends ISubToolProps {
     type?: 'button'|'radio'|'check';
     radioGroup?: number;
-    disabled?: boolean;
     active?: boolean;
     subIndex?: number;
     subTools?: ISubToolProps[]; 
@@ -44,6 +44,34 @@ export class Toolbar extends Widget {
     constructor(el:Element, options:any) {
         super (el, options);
         this._newClassList = [];
+    }
+    enable (id: string, enabled: boolean) {
+        const that = this;
+        that.$el.find('a').each (function () {
+            const data = $(this).data ('tool') as ISubToolProps;
+            if (data && data.id === id) {
+                const subIndex = $(this).attr('sub-index');
+                const isSubButton = subIndex !== undefined;
+                if (!isSubButton) {
+                    const props = data as IToolProps;
+                    if (!props.subTools || props.subTools.length === 0) {
+                        if (enabled) {
+                            $(this).removeClass ('no-pointer-events');
+                            $(this).find('>div').removeClass ('no-pointer-events');
+                        } else {
+                            $(this).addClass ('no-pointer-events');
+                            $(this).find('>div').addClass ('no-pointer-events');
+                        }
+                    }
+                } else {
+                    if (enabled){
+                        $(this).removeClass ('no-pointer-events');
+                    } else {
+                        $(this).addClass ('no-pointer-events');
+                    }
+                }
+            }
+        });
     }
     setStyle (id: string, styles: IToolStyles) {
         const that = this;
@@ -118,7 +146,7 @@ export class Toolbar extends Widget {
             tool.radioGroup = 0;
         }
         tool.active = false;
-        if (!tool.disabled && tool.subTools && tool.subTools.length > 0) {
+        if (tool.subTools && tool.subTools.length > 0) {
             tool.subIndex = 0;
             tool.id = tool.subTools[0].id;
             tool.styles.icon = tool.subTools[0].styles.icon;
@@ -137,50 +165,49 @@ export class Toolbar extends Widget {
         const clickDiv = $('<div></div>').css({
             display: 'inline-block'
         }).appendTo (button);
-        if (!tool.disabled) {
-            clickDiv.on ('mouseenter', function(){
-                $(this.parentElement!).addClass ('selected');
-            });
-            clickDiv.on ('mouseleave', function(){
-                if ($(this.parentElement!).attr(attrType) === 'button' || $(this.parentElement!).attr(attrActive) === undefined) {
-                    $(this.parentElement!).removeClass ('selected');
-                }
-            });
-            clickDiv.on ('click', function (this: HTMLElement, ev: Event) {
-                ev.stopPropagation ();
-                const btn = $(this.parentElement!);
-                const data: IToolProps = btn.data ('tool');
-                const type = btn.attr(attrType);
-                if (type !== 'button') {
-                    if (type === 'radio') {
-                        if (btn.attr(attrActive) === undefined) {
-                            const groupButtons = btn.siblings(`a[${attrRadioGroup}=${btn.attr(attrRadioGroup)}][${attrActive}]`);
-                            groupButtons.removeAttr (attrActive).removeClass('selected').each (function (){
-                                const thatData = $(this).data('tool');
-                                that.$el.trigger ('itemdeselected', thatData.id);
-                                thatData.callback && thatData.callback.call (this, 'deselected');
-                            });
-                            btn.attr(attrActive, '').addClass ('selected');
-                            that.$el.trigger ('itemselected', data.id);
-                            data.callback && data.callback.call (this.parentElement!, 'selected');
-                        }
-                    } else {
-                        if (btn.attr(attrActive) === undefined) {
-                            btn.attr(attrActive, '').addClass ('selected');
-                            that.$el.trigger ('itemselected', data.id);
-                            data.callback && data.callback.call (this.parentElement!, 'selected');
-                        } else {
-                            btn.removeAttr(attrActive).removeClass ('selected');
-                            that.$el.trigger ('itemdeselected', data.id);
-                            data.callback && data.callback.call (this.parentElement!, 'deselected');
-                        }
+        tool.disabled && clickDiv.addClass ('no-pointer-events');
+        clickDiv.on ('mouseenter', function(){
+            $(this.parentElement!).addClass ('selected');
+        });
+        clickDiv.on ('mouseleave', function(){
+            if ($(this.parentElement!).attr(attrType) === 'button' || $(this.parentElement!).attr(attrActive) === undefined) {
+                $(this.parentElement!).removeClass ('selected');
+            }
+        });
+        clickDiv.on ('click', function (this: HTMLElement, ev: Event) {
+            ev.stopPropagation ();
+            const btn = $(this.parentElement!);
+            const data: IToolProps = btn.data ('tool');
+            const type = btn.attr(attrType);
+            if (type !== 'button') {
+                if (type === 'radio') {
+                    if (btn.attr(attrActive) === undefined) {
+                        const groupButtons = btn.siblings(`a[${attrRadioGroup}=${btn.attr(attrRadioGroup)}][${attrActive}]`);
+                        groupButtons.removeAttr (attrActive).removeClass('selected').each (function (){
+                            const thatData = $(this).data('tool') as ISubToolProps;
+                            that.$el.trigger ('itemdeselected', thatData.id);
+                            thatData.callback && thatData.callback.call (that.$el[0], 'deselected');
+                        });
+                        btn.attr(attrActive, '').addClass ('selected');
+                        that.$el.trigger ('itemselected', data.id);
+                        data.callback && data.callback.call (that.$el[0], 'selected');
                     }
                 } else {
-                    that.$el.trigger ('itemclick', data.id);
-                    data.callback && data.callback.call (this.parentElement!)
+                    if (btn.attr(attrActive) === undefined) {
+                        btn.attr(attrActive, '').addClass ('selected');
+                        that.$el.trigger ('itemselected', data.id);
+                        data.callback && data.callback.call (that.$el[0], 'selected');
+                    } else {
+                        btn.removeAttr(attrActive).removeClass ('selected');
+                        that.$el.trigger ('itemdeselected', data.id);
+                        data.callback && data.callback.call (that.$el[0], 'deselected');
+                    }
                 }
-            });
-        }
+            } else {
+                that.$el.trigger ('itemclick', data.id);
+                data.callback && data.callback.call (that.$el[0])
+            }
+        });
         tool.styles.icon ? $('<img/>').attr({
             src: tool.subTools && tool.subTools.length > 0 ? tool.subTools[0].styles.icon : tool.styles.icon,
             width: this.options.iconWidth || 28,
@@ -189,9 +216,6 @@ export class Toolbar extends Widget {
         tool.styles.text ? $('<div></div>').addClass('small').html(tool.styles.text).appendTo (clickDiv) : null;
         if (tool.subTools && tool.subTools.length > 0) {
             button.addClass (['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
-            clickDiv.css ({
-                pointerEvents: 'all'
-            });
             const menu = $('<div></div>').addClass ('dropdown-menu').appendTo (groupDiv);
             for (let i = 0; i < tool.subTools.length; i++) {
                 const subTool = tool.subTools[i];
@@ -203,6 +227,7 @@ export class Toolbar extends Widget {
                 if (subTool.styles.css) {
                     subToolButton.css (subTool.styles.css);
                 }
+                subTool.disabled && subToolButton.addClass ('no-pointer-events');
                 subToolButton.on ('click', function(this: HTMLElement, ev: Event) {
                     const btn = $(this.parentElement!).prev();
                     const thatData = btn.data('tool') as IToolProps;
@@ -221,7 +246,7 @@ export class Toolbar extends Widget {
                             //thatData.styles.icon && btn.find('>div>img').attr ('src', thatData.styles.icon);
                         }
                         if (thatData.callback) {
-                            thatData.callback.call (btn[0]);
+                            thatData.callback.call (that.$el[0]);
                         }
                         that.$el.trigger('itemclick', thatData.id);
                     } else if (thatData.type === 'check') {
@@ -253,7 +278,7 @@ export class Toolbar extends Widget {
                         } else if (thatData.subIndex !== index) {
                             btn.removeAttr (attrActive).removeClass('selected');
                             that.$el.trigger ('itemdeselected', thatData.id);
-                            thatData.callback && thatData.callback.call (btn[0], 'deselected');
+                            thatData.callback && thatData.callback.call (that.$el[0], 'deselected');
                             thatData.subIndex = index;
                             thatData.id = thisData.id;
                             thatData.callback = thisData.callback;

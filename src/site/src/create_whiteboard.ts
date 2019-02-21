@@ -78,8 +78,11 @@ export function init (uri: string) {
                                 css: buttonCSS,
                                 icon: '/images/toolbar-select.png',
                             },
-                            callback: function (this:Element) {
-                                console.log ('toggle live broadcast');
+                            callback: function (this:Element, type) {
+                                console.log (`live broadcast ${type}`);
+                                $(this).toolbar('setStyle', 'tb-live', {
+                                    icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+                                });
                             }
                         }]
                     }
