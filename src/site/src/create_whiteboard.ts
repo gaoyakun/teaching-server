@@ -48,7 +48,13 @@ export function init (uri: string) {
                     icon: `/avatar/${user.userId}`
                 });
             }
-        } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
+            if (!window.mediaProducer) {
+                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, ev.messageData.turnServers);
+            }
+                if (!window.mediaProducer.isDeviceSupported) {
+                    alert ('WebRTC not supported on this device');
+                } 
+        }else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
             const buttonCSS = {
                 padding: '4px 4px'
             };
@@ -74,14 +80,77 @@ export function init (uri: string) {
                             id: 'tb-live',
                             type: 'check',
                             radioGroup: 1,
+                            disabled: !window.mediaProducer!.isDeviceSupported,
                             styles: {
                                 css: buttonCSS,
                                 icon: '/images/toolbar-select.png',
                             },
                             callback: function (this:Element, type) {
                                 console.log (`live broadcast ${type}`);
-                                $(this).toolbar('setStyle', 'tb-live', {
-                                    icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+                                navigator.mediaDevices.getUserMedia({audio:true}).catch (err => {
+                                    alert (`打开音频输入设备失败：${err.message}`);
+                                }).then (() => {
+                                    navigator.mediaDevices.enumerateDevices().catch (err => {
+                                        alert (`搜索音频输入设备失败：${err.message}`);
+                                    }).then ((devices: void|MediaDeviceInfo[]) => {
+                                        if (devices) {
+                                            const deviceList = devices.filter(device => {
+                                                return device.kind === 'audioinput' && device.deviceId !== 'default'
+                                            }).map (device => {
+                                                return {
+                                                    id: device.deviceId,
+                                                    label: device.label
+                                                }
+                                            });
+                                            console.log (deviceList);
+                                            if (deviceList.length === 0) {
+                                                alert ('未找到音频输入设备');
+                                            } else {
+                                                $(this).toolbar('setStyle', 'tb-live', {
+                                                    icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+                                                });
+                                                const $popupSelectDevice = $('<div></div>').addClass(['modal']).appendTo ($('body'));
+                                                const $dlg = $('<div></div>').addClass ('modal-dialog').appendTo($popupSelectDevice);
+                                                const $dlgContent = $('<div></div>').addClass ('modal-content').appendTo ($dlg);
+                                                const $dlgHeader = $('<div></div>').addClass ('modal-header').appendTo ($dlgContent);
+                                                $('<h5></h5>').addClass('modal-title').html('请选择音频输入设备').appendTo ($dlgHeader);
+                                                $('<button></button>').addClass('close').attr('type', 'button').attr('data-dismiss', 'modal').html('&times;').appendTo($dlgHeader);
+                                                const $dlgBody = $('<div></div>').addClass ('modal-body').appendTo ($dlgContent);
+                                                const $formGroup = $('<div></div>').addClass ('form-group').appendTo ($dlgBody);
+                                                const $select = $('<select></select>').addClass ('form-control').appendTo ($formGroup);
+                                                deviceList.forEach ((device, index) => {
+                                                    const option = $('<option></option>').attr('value', device.id).html(device.label);
+                                                    if (index === 0) {
+                                                        option.attr('selected', 'selected');
+                                                    }
+                                                    option.appendTo ($select);
+                                                });
+                                                const $dlgFooter = $('<div></div>').addClass ('modal-footer').appendTo ($dlgContent);
+                                                $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on ('click', function(){
+                                                    $popupSelectDevice.modal ('hide');
+                                                });
+                                                $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on ('click', function(){
+                                                    $popupSelectDevice.modal ('hide');
+                                                });
+                                                $popupSelectDevice.modal ({
+                                                    show: false
+                                                });
+                                                $popupSelectDevice.on ('hidden.bs.modal', function(){
+                                                    $(this).remove ();
+                                                });
+                                                $popupSelectDevice.on ('show.bs.modal', function (){
+                                                    $(this).each (function (i) {
+                                                        const $clone:any = $(this).clone().css('display','block').appendTo('body');
+                                                        let top = Math.round(($clone.height() - $clone.find('.modal-content').height()) / 2);
+                                                        top = top > 0 ? top : 0;
+                                                        $clone.remove ();
+                                                        $(this).find('.modal-content').css('margin-top', top);
+                                                    });
+                                                });
+                                                $popupSelectDevice.modal ('show');
+                                            }
+                                        }
+                                    });                                    
                                 });
                             }
                         }]

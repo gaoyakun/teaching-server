@@ -16758,6 +16758,12 @@
 	                }
 	                finally { if (e_1) throw e_1.error; }
 	            }
+	            if (!window.mediaProducer) {
+	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.turnServers);
+	            }
+	            if (!window.mediaProducer.isDeviceSupported) {
+	                alert('WebRTC not supported on this device');
+	            }
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
 	            var buttonCSS = {
@@ -16785,14 +16791,79 @@
 	                                id: 'tb-live',
 	                                type: 'check',
 	                                radioGroup: 1,
+	                                disabled: !window.mediaProducer.isDeviceSupported,
 	                                styles: {
 	                                    css: buttonCSS,
 	                                    icon: '/images/toolbar-select.png',
 	                                },
 	                                callback: function (type) {
+	                                    var _this = this;
 	                                    console.log("live broadcast " + type);
-	                                    $(this).toolbar('setStyle', 'tb-live', {
-	                                        icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+	                                    navigator.mediaDevices.getUserMedia({ audio: true }).catch(function (err) {
+	                                        alert("\u6253\u5F00\u97F3\u9891\u8F93\u5165\u8BBE\u5907\u5931\u8D25\uFF1A" + err.message);
+	                                    }).then(function () {
+	                                        navigator.mediaDevices.enumerateDevices().catch(function (err) {
+	                                            alert("\u641C\u7D22\u97F3\u9891\u8F93\u5165\u8BBE\u5907\u5931\u8D25\uFF1A" + err.message);
+	                                        }).then(function (devices) {
+	                                            if (devices) {
+	                                                var deviceList = devices.filter(function (device) {
+	                                                    return device.kind === 'audioinput' && device.deviceId !== 'default';
+	                                                }).map(function (device) {
+	                                                    return {
+	                                                        id: device.deviceId,
+	                                                        label: device.label
+	                                                    };
+	                                                });
+	                                                console.log(deviceList);
+	                                                if (deviceList.length === 0) {
+	                                                    alert('未找到音频输入设备');
+	                                                }
+	                                                else {
+	                                                    $(_this).toolbar('setStyle', 'tb-live', {
+	                                                        icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
+	                                                    });
+	                                                    var $popupSelectDevice_1 = $('<div></div>').addClass(['modal']).appendTo($('body'));
+	                                                    var $dlg = $('<div></div>').addClass('modal-dialog').appendTo($popupSelectDevice_1);
+	                                                    var $dlgContent = $('<div></div>').addClass('modal-content').appendTo($dlg);
+	                                                    var $dlgHeader = $('<div></div>').addClass('modal-header').appendTo($dlgContent);
+	                                                    $('<h5></h5>').addClass('modal-title').html('请选择音频输入设备').appendTo($dlgHeader);
+	                                                    $('<button></button>').addClass('close').attr('type', 'button').attr('data-dismiss', 'modal').html('&times;').appendTo($dlgHeader);
+	                                                    var $dlgBody = $('<div></div>').addClass('modal-body').appendTo($dlgContent);
+	                                                    var $formGroup = $('<div></div>').addClass('form-group').appendTo($dlgBody);
+	                                                    var $select_1 = $('<select></select>').addClass('form-control').appendTo($formGroup);
+	                                                    deviceList.forEach(function (device, index) {
+	                                                        var option = $('<option></option>').attr('value', device.id).html(device.label);
+	                                                        if (index === 0) {
+	                                                            option.attr('selected', 'selected');
+	                                                        }
+	                                                        option.appendTo($select_1);
+	                                                    });
+	                                                    var $dlgFooter = $('<div></div>').addClass('modal-footer').appendTo($dlgContent);
+	                                                    $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on('click', function () {
+	                                                        $popupSelectDevice_1.modal('hide');
+	                                                    });
+	                                                    $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on('click', function () {
+	                                                        $popupSelectDevice_1.modal('hide');
+	                                                    });
+	                                                    $popupSelectDevice_1.modal({
+	                                                        show: false
+	                                                    });
+	                                                    $popupSelectDevice_1.on('hidden.bs.modal', function () {
+	                                                        $(this).remove();
+	                                                    });
+	                                                    $popupSelectDevice_1.on('show.bs.modal', function () {
+	                                                        $(this).each(function (i) {
+	                                                            var $clone = $(this).clone().css('display', 'block').appendTo('body');
+	                                                            var top = Math.round(($clone.height() - $clone.find('.modal-content').height()) / 2);
+	                                                            top = top > 0 ? top : 0;
+	                                                            $clone.remove();
+	                                                            $(this).find('.modal-content').css('margin-top', top);
+	                                                        });
+	                                                    });
+	                                                    $popupSelectDevice_1.modal('show');
+	                                                }
+	                                            }
+	                                        });
 	                                    });
 	                                }
 	                            }]
