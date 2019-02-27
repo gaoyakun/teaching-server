@@ -7,10 +7,17 @@ declare global {
     }
 }
 
+export interface DeviceInfo {
+    deviceId: string;
+    deviceName: string;
+}
+
 export class MediaProducer {
     private _pending: any;
     private _errors: any;
     private _capturing: any;
+    private _publish: boolean;
+    private _peerName: string;
     private _producers: any;
     private _lastProduced: any;
     private _socket: SocketIOClient.Socket;
@@ -23,12 +30,14 @@ export class MediaProducer {
     private _turnServers: { urls: string[] }[];
     private _streamActiveTimeout: any;
     private _mediaElement: HTMLAudioElement|null;
-    constructor (socket:SocketIOClient.Socket, roomName: string, turnServers?:any[]) {
+    constructor (socket:SocketIOClient.Socket, roomName: string, publish: boolean, peerName: string, turnServers?:any[]) {
         this._socket = socket;
         this._roomName = roomName;
         this._pending = {};
         this._errors = {};
         this._capturing = {};
+        this._publish = publish;
+        this._peerName = peerName;
         this._producers = {};
         this._lastProduced = {};
         this._requestId = 0;
@@ -68,6 +77,7 @@ export class MediaProducer {
                         break;
                     }
                     case 'MS_NOTIFY': {
+                        console.log ('MS_NOTIFY', JSON.stringify(data.payload));
                         this._room.receiveNotification (data.payload);
                         break;
                     }
@@ -84,6 +94,28 @@ export class MediaProducer {
     }
     get isDeviceSupported () {
         return window.mediasoupClient.isDeviceSupported();
+    }
+    get publish () {
+        return this._publish;
+    }
+    get joined () {
+        return !!this._room;
+    }
+    async getAudioInputDevices (): Promise<DeviceInfo[]> {
+        const devices = await window.navigator.mediaDevices.enumerateDevices();
+        if (devices) {
+            const deviceList = devices.filter (device => {
+                return device.kind === 'audioinput' && device.deviceId !== 'default'
+            }).map (device => {
+                return {
+                    deviceId: device.deviceId,
+                    deviceName: device.label
+                }
+            });
+            return deviceList;
+        } else {
+            return [];
+        }
     }
     stopCapture () {
         for (const src in this._capturing) {
@@ -121,12 +153,32 @@ export class MediaProducer {
             alert (`Error getting media (error code: ${err.code})`);
         });
     }
-    async pubsub (peerName: string, pub: boolean) {
+    leave () {
+        if (this._room) {
+            this._room.leave();
+        }
+    }
+    async join () {
         return new Promise ((resolve, reject) => {
-            const kind = 'publish';
+            const pub = this._publish;
+            const peerName = this._peerName;
             this._room = new window.mediasoupClient.Room ({
                 requestTimeout: 8000,
                 turnServers: this._turnServers
+            });
+            this._room.on ('close', ()=>{
+                this.stopCapture ();
+                if (this._transport) {
+                    this._transport.close();
+                    this._transport = null;
+                    this._sendStream = null;
+                }
+                this._setSource ();
+                this._room = null;
+                console.log ('Room closed');
+            });
+            this._room.on ('newpeer', (peer:any) => {
+                console.log ('Room new peer:', peer);
             });
             this._room.on ('request', (request:any, callback:any, errback:any) => {
                 if (!this._socket.connected) {
@@ -192,7 +244,7 @@ export class MediaProducer {
                 return;
             }
             consumer.on('stats', that._showStats);
-            consumer.enableStats(1000);
+            //consumer.enableStats(1000);
             consumer.receive(that._transport)
                 .then(function receiveTrack(track: MediaStreamTrack) {
                     stream.addTrack(track);
@@ -223,7 +275,7 @@ export class MediaProducer {
         }
         return stream;
     }
-    private _setSource(stream: MediaStream) {
+    private _setSource(stream?: MediaStream) {
         const that = this;
         if (this._playStream && !stream) {
             try {
@@ -267,7 +319,7 @@ export class MediaProducer {
             }
             that._mediaElement.style.background = 'black';
             try {
-                that._mediaElement.srcObject = stream;
+                that._mediaElement.srcObject = stream||null;
             } catch (e) {
                 const url = (window.URL || window.webkitURL);
                 if (url) {

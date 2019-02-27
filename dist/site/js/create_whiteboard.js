@@ -1224,13 +1224,15 @@
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var MediaProducer = /** @class */ (function () {
-	    function MediaProducer(socket$$1, roomName, turnServers) {
+	    function MediaProducer(socket$$1, roomName, publish, peerName, turnServers) {
 	        var _this = this;
 	        this._socket = socket$$1;
 	        this._roomName = roomName;
 	        this._pending = {};
 	        this._errors = {};
 	        this._capturing = {};
+	        this._publish = publish;
+	        this._peerName = peerName;
 	        this._producers = {};
 	        this._lastProduced = {};
 	        this._requestId = 0;
@@ -1270,6 +1272,7 @@
 	                        break;
 	                    }
 	                    case 'MS_NOTIFY': {
+	                        console.log('MS_NOTIFY', JSON.stringify(data.payload));
 	                        _this._room.receiveNotification(data.payload);
 	                        break;
 	                    }
@@ -1292,6 +1295,47 @@
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Object.defineProperty(MediaProducer.prototype, "publish", {
+	        get: function () {
+	            return this._publish;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(MediaProducer.prototype, "joined", {
+	        get: function () {
+	            return !!this._room;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    MediaProducer.prototype.getAudioInputDevices = function () {
+	        return __awaiter(this, void 0, void 0, function () {
+	            var devices, deviceList;
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0: return [4 /*yield*/, window.navigator.mediaDevices.enumerateDevices()];
+	                    case 1:
+	                        devices = _a.sent();
+	                        if (devices) {
+	                            deviceList = devices.filter(function (device) {
+	                                return device.kind === 'audioinput' && device.deviceId !== 'default';
+	                            }).map(function (device) {
+	                                return {
+	                                    deviceId: device.deviceId,
+	                                    deviceName: device.label
+	                                };
+	                            });
+	                            return [2 /*return*/, deviceList];
+	                        }
+	                        else {
+	                            return [2 /*return*/, []];
+	                        }
+	                        return [2 /*return*/];
+	                }
+	            });
+	        });
+	    };
 	    MediaProducer.prototype.stopCapture = function () {
 	        var e_1, _a, e_2, _b;
 	        for (var src in this._capturing) {
@@ -1349,14 +1393,35 @@
 	            alert("Error getting media (error code: " + err.code + ")");
 	        });
 	    };
-	    MediaProducer.prototype.pubsub = function (peerName, pub) {
+	    MediaProducer.prototype.leave = function () {
+	        if (this._room) {
+	            this._room.leave();
+	        }
+	    };
+	    MediaProducer.prototype.join = function () {
 	        return __awaiter(this, void 0, void 0, function () {
 	            var _this = this;
 	            return __generator(this, function (_a) {
 	                return [2 /*return*/, new Promise(function (resolve, reject) {
+	                        var pub = _this._publish;
+	                        var peerName = _this._peerName;
 	                        _this._room = new window.mediasoupClient.Room({
 	                            requestTimeout: 8000,
 	                            turnServers: _this._turnServers
+	                        });
+	                        _this._room.on('close', function () {
+	                            _this.stopCapture();
+	                            if (_this._transport) {
+	                                _this._transport.close();
+	                                _this._transport = null;
+	                                _this._sendStream = null;
+	                            }
+	                            _this._setSource();
+	                            _this._room = null;
+	                            console.log('Room closed');
+	                        });
+	                        _this._room.on('newpeer', function (peer) {
+	                            console.log('Room new peer:', peer);
 	                        });
 	                        _this._room.on('request', function (request, callback, errback) {
 	                            if (!_this._socket.connected) {
@@ -1425,7 +1490,7 @@
 	                return;
 	            }
 	            consumer.on('stats', that._showStats);
-	            consumer.enableStats(1000);
+	            //consumer.enableStats(1000);
 	            consumer.receive(that._transport)
 	                .then(function receiveTrack(track) {
 	                stream.addTrack(track);
@@ -1500,7 +1565,7 @@
 	            }
 	            that._mediaElement.style.background = 'black';
 	            try {
-	                that._mediaElement.srcObject = stream;
+	                that._mediaElement.srcObject = stream || null;
 	            }
 	            catch (e) {
 	                var url = (window.URL || window.webkitURL);
@@ -16695,6 +16760,41 @@
 	var cmdserver_2 = cmdserver.SocketCommandServer;
 
 	var create_whiteboard = createCommonjsModule(function (module, exports) {
+	var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+	    return new (P || (P = Promise))(function (resolve, reject) {
+	        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+	        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+	        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+	        step((generator = generator.apply(thisArg, _arguments || [])).next());
+	    });
+	};
+	var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
+	    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+	    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+	    function verb(n) { return function (v) { return step([n, v]); }; }
+	    function step(op) {
+	        if (f) throw new TypeError("Generator is already executing.");
+	        while (_) try {
+	            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+	            if (y = 0, t) op = [op[0] & 2, t.value];
+	            switch (op[0]) {
+	                case 0: case 1: t = op; break;
+	                case 4: _.label++; return { value: op[1], done: false };
+	                case 5: _.label++; y = op[1]; op = [0]; continue;
+	                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+	                default:
+	                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+	                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+	                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+	                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+	                    if (t[2]) _.ops.pop();
+	                    _.trys.pop(); continue;
+	            }
+	            op = body.call(thisArg, _);
+	        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+	        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+	    }
+	};
 	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
 	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
 	    if (m) return m.call(o);
@@ -16758,14 +16858,11 @@
 	                }
 	                finally { if (e_1) throw e_1.error; }
 	            }
-	            if (!window.mediaProducer) {
-	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.turnServers);
-	            }
-	            if (!window.mediaProducer.isDeviceSupported) {
-	                alert('WebRTC not supported on this device');
-	            }
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
+	            if (!window.mediaProducer) {
+	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.publish, "peer-" + ev.messageData.userId, ev.messageData.turnServers);
+	            }
 	            var buttonCSS = {
 	                padding: '4px 4px'
 	            };
@@ -16791,77 +16888,98 @@
 	                                id: 'tb-live',
 	                                type: 'check',
 	                                radioGroup: 1,
-	                                disabled: !window.mediaProducer.isDeviceSupported,
+	                                disabled: false,
 	                                styles: {
 	                                    css: buttonCSS,
 	                                    icon: '/images/toolbar-select.png',
 	                                },
 	                                callback: function (type) {
-	                                    var _this = this;
-	                                    console.log("live broadcast " + type);
-	                                    navigator.mediaDevices.getUserMedia({ audio: true }).catch(function (err) {
-	                                        alert("\u6253\u5F00\u97F3\u9891\u8F93\u5165\u8BBE\u5907\u5931\u8D25\uFF1A" + err.message);
-	                                    }).then(function () {
-	                                        navigator.mediaDevices.enumerateDevices().catch(function (err) {
-	                                            alert("\u641C\u7D22\u97F3\u9891\u8F93\u5165\u8BBE\u5907\u5931\u8D25\uFF1A" + err.message);
-	                                        }).then(function (devices) {
-	                                            if (devices) {
-	                                                var deviceList = devices.filter(function (device) {
-	                                                    return device.kind === 'audioinput' && device.deviceId !== 'default';
-	                                                }).map(function (device) {
-	                                                    return {
-	                                                        id: device.deviceId,
-	                                                        label: device.label
-	                                                    };
-	                                                });
-	                                                console.log(deviceList);
-	                                                if (deviceList.length === 0) {
-	                                                    alert('未找到音频输入设备');
-	                                                }
-	                                                else {
-	                                                    $(_this).toolbar('setStyle', 'tb-live', {
-	                                                        icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
-	                                                    });
-	                                                    var $popupSelectDevice_1 = $('<div></div>').addClass(['modal']).appendTo($('body'));
-	                                                    var $dlg = $('<div></div>').addClass('modal-dialog').appendTo($popupSelectDevice_1);
-	                                                    var $dlgContent = $('<div></div>').addClass('modal-content').appendTo($dlg);
-	                                                    var $dlgHeader = $('<div></div>').addClass('modal-header').appendTo($dlgContent);
-	                                                    $('<h5></h5>').addClass('modal-title').html('请选择音频输入设备').appendTo($dlgHeader);
-	                                                    $('<button></button>').addClass('close').attr('type', 'button').attr('data-dismiss', 'modal').html('&times;').appendTo($dlgHeader);
-	                                                    var $dlgBody = $('<div></div>').addClass('modal-body').appendTo($dlgContent);
-	                                                    var $formGroup = $('<div></div>').addClass('form-group').appendTo($dlgBody);
-	                                                    var $select_1 = $('<select></select>').addClass('form-control').appendTo($formGroup);
-	                                                    deviceList.forEach(function (device, index) {
-	                                                        var option = $('<option></option>').attr('value', device.id).html(device.label);
-	                                                        if (index === 0) {
-	                                                            option.attr('selected', 'selected');
-	                                                        }
-	                                                        option.appendTo($select_1);
-	                                                    });
-	                                                    var $dlgFooter = $('<div></div>').addClass('modal-footer').appendTo($dlgContent);
-	                                                    $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on('click', function () {
-	                                                        $popupSelectDevice_1.modal('hide');
-	                                                    });
-	                                                    $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on('click', function () {
-	                                                        $popupSelectDevice_1.modal('hide');
-	                                                    });
-	                                                    $popupSelectDevice_1.modal({
-	                                                        show: false
-	                                                    });
-	                                                    $popupSelectDevice_1.on('hidden.bs.modal', function () {
-	                                                        $(this).remove();
-	                                                    });
-	                                                    $popupSelectDevice_1.on('show.bs.modal', function () {
-	                                                        $(this).each(function (i) {
-	                                                            var $clone = $(this).clone().css('display', 'block').appendTo('body');
-	                                                            var top = Math.round(($clone.height() - $clone.find('.modal-content').height()) / 2);
-	                                                            top = top > 0 ? top : 0;
-	                                                            $clone.remove();
-	                                                            $(this).find('.modal-content').css('margin-top', top);
+	                                    return __awaiter(this, void 0, void 0, function () {
+	                                        var deviceList, err_1, $popupSelectDevice_1, $dlg, $dlgContent, $dlgHeader, $dlgBody, $formGroup, $select_1, $dlgFooter;
+	                                        return __generator(this, function (_a) {
+	                                            switch (_a.label) {
+	                                                case 0:
+	                                                    console.log("live broadcast " + type);
+	                                                    if (!window.mediaProducer) return [3 /*break*/, 7];
+	                                                    if (!window.mediaProducer.joined) return [3 /*break*/, 1];
+	                                                    window.mediaProducer.leave();
+	                                                    return [3 /*break*/, 7];
+	                                                case 1:
+	                                                    if (!!window.mediaProducer.publish) return [3 /*break*/, 2];
+	                                                    window.mediaProducer.join();
+	                                                    return [3 /*break*/, 7];
+	                                                case 2:
+	                                                    deviceList = [];
+	                                                    _a.label = 3;
+	                                                case 3:
+	                                                    _a.trys.push([3, 5, , 6]);
+	                                                    navigator.mediaDevices.getUserMedia({ audio: true });
+	                                                    return [4 /*yield*/, window.mediaProducer.getAudioInputDevices()];
+	                                                case 4:
+	                                                    deviceList = _a.sent();
+	                                                    console.log(deviceList);
+	                                                    return [3 /*break*/, 6];
+	                                                case 5:
+	                                                    err_1 = _a.sent();
+	                                                    console.log(err_1);
+	                                                    return [2 /*return*/];
+	                                                case 6:
+	                                                    if (deviceList.length === 0) {
+	                                                        alert('未找到音频输入设备');
+	                                                    }
+	                                                    else {
+	                                                        $(this).toolbar('setStyle', 'tb-live', {
+	                                                            icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
 	                                                        });
-	                                                    });
-	                                                    $popupSelectDevice_1.modal('show');
-	                                                }
+	                                                        $popupSelectDevice_1 = $('<div></div>').addClass(['modal']).appendTo($('body'));
+	                                                        $dlg = $('<div></div>').addClass('modal-dialog').appendTo($popupSelectDevice_1);
+	                                                        $dlgContent = $('<div></div>').addClass('modal-content').appendTo($dlg);
+	                                                        $dlgHeader = $('<div></div>').addClass('modal-header').appendTo($dlgContent);
+	                                                        $('<h5></h5>').addClass('modal-title').html('请选择音频输入设备').appendTo($dlgHeader);
+	                                                        $('<button></button>').addClass('close').attr('type', 'button').attr('data-dismiss', 'modal').html('&times;').appendTo($dlgHeader);
+	                                                        $dlgBody = $('<div></div>').addClass('modal-body').appendTo($dlgContent);
+	                                                        $formGroup = $('<div></div>').addClass('form-group').appendTo($dlgBody);
+	                                                        $select_1 = $('<select></select>').addClass('form-control').appendTo($formGroup);
+	                                                        deviceList.forEach(function (device, index) {
+	                                                            var option = $('<option></option>').attr('value', device.deviceId).html(device.deviceName);
+	                                                            if (index === 0) {
+	                                                                option.attr('selected', 'selected');
+	                                                            }
+	                                                            option.appendTo($select_1);
+	                                                        });
+	                                                        $dlgFooter = $('<div></div>').addClass('modal-footer').appendTo($dlgContent);
+	                                                        $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on('click', function () {
+	                                                            $popupSelectDevice_1.modal('hide');
+	                                                            if (!window.mediaProducer.joined) {
+	                                                                window.mediaProducer.join().then(function () {
+	                                                                    if (window.mediaProducer.publish) {
+	                                                                        window.mediaProducer.capture();
+	                                                                    }
+	                                                                });
+	                                                            }
+	                                                        });
+	                                                        $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on('click', function () {
+	                                                            $popupSelectDevice_1.modal('hide');
+	                                                        });
+	                                                        $popupSelectDevice_1.modal({
+	                                                            show: false
+	                                                        });
+	                                                        $popupSelectDevice_1.on('hidden.bs.modal', function () {
+	                                                            $(this).remove();
+	                                                        });
+	                                                        $popupSelectDevice_1.on('show.bs.modal', function () {
+	                                                            $(this).each(function (i) {
+	                                                                var $clone = $(this).clone().css('display', 'block').appendTo('body');
+	                                                                var top = Math.round(($clone.height() - $clone.find('.modal-content').height()) / 2);
+	                                                                top = top > 0 ? top : 0;
+	                                                                $clone.remove();
+	                                                                $(this).find('.modal-content').css('margin-top', top);
+	                                                            });
+	                                                        });
+	                                                        $popupSelectDevice_1.modal('show');
+	                                                    }
+	                                                    _a.label = 7;
+	                                                case 7: return [2 /*return*/];
 	                                            }
 	                                        });
 	                                    });
@@ -16870,19 +16988,20 @@
 	                    }
 	                }
 	            });
+	            /*
 	            if (!window.mediaProducer) {
-	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.turnServers);
+	                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, ev.messageData.publish, ev.messageData.turnServers);
 	                if (!window.mediaProducer.isDeviceSupported) {
-	                    alert('WebRTC not supported on this device');
-	                }
-	                else {
-	                    window.mediaProducer.pubsub("peer-" + ev.messageData.userId, ev.messageData.publish).then(function () {
+	                    alert ('WebRTC not supported on this device');
+	                } else {
+	                    window.mediaProducer.join (`peer-${ev.messageData.userId}`).then (function () {
 	                        if (ev.messageData.publish) {
-	                            window.mediaProducer.capture();
+	                            window.mediaProducer!.capture ();
 	                        }
 	                    });
 	                }
 	            }
+	            */
 	        }
 	    });
 	    $('#chat-list').chatList({

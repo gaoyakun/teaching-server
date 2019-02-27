@@ -46,6 +46,19 @@ const MEDIA_CODECS = [{
 export function handlePubsub(client: Client, isPublisher: boolean) {
     if (!client.room!.mediaRoom) {
         client.room!.mediaRoom = ms.Room(MEDIA_CODECS);
+        client.room!.mediaRoom.on ('close', ()=>{
+            console.log ('MediaRoom closed');
+            client.room!.mediaRoom = null;
+        });
+        client.room!.mediaRoom.on ('newpeer', (peer: any)=>{
+            console.log ('MediaRoom peer joined:', peer);
+        });
+    } else {
+        if (client.room!.mediaRoom.closed) {
+            console.log ('MediaRoom closed');
+        } else {
+            console.log ('MediaRoom ')
+        }
     }
     function sendAction(obj: any) {
         if (client.socket && client.socket.connected) {
