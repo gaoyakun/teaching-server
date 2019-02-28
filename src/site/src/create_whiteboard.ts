@@ -56,8 +56,8 @@ export function init (uri: string) {
                 padding: '4px 4px'
             };
             $('#room-toolbar').toolbar ({
-                iconWidth: 20,
-                iconHeight: 20,
+                iconWidth: 24,
+                iconHeight: 24,
                 groups: {
                     settings: {
                         tools: [{
@@ -65,7 +65,7 @@ export function init (uri: string) {
                             type: 'button',
                             styles: {
                                 css: buttonCSS,
-                                icon: '/images/cog.png',
+                                icon: '/images/gear.png',
                             },
                             callback: function (this:Element) {
                                 console.log ('settings clicked');

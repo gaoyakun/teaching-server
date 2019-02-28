@@ -16911,8 +16911,8 @@
 	                padding: '4px 4px'
 	            };
 	            $('#room-toolbar').toolbar({
-	                iconWidth: 20,
-	                iconHeight: 20,
+	                iconWidth: 24,
+	                iconHeight: 24,
 	                groups: {
 	                    settings: {
 	                        tools: [{
@@ -16920,7 +16920,7 @@
 	                                type: 'button',
 	                                styles: {
 	                                    css: buttonCSS,
-	                                    icon: '/images/cog.png',
+	                                    icon: '/images/gear.png',
 	                                },
 	                                callback: function () {
 	                                    console.log('settings clicked');
