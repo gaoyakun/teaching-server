@@ -1272,7 +1272,6 @@
 	                        break;
 	                    }
 	                    case 'MS_NOTIFY': {
-	                        console.log('MS_NOTIFY', JSON.stringify(data.payload));
 	                        _this._room.receiveNotification(data.payload);
 	                        break;
 	                    }
@@ -1377,20 +1376,37 @@
 	        this._connectProducer('video');
 	    };
 	    MediaProducer.prototype.capture = function () {
-	        var _this = this;
-	        this.stopCapture();
-	        this._sendStream = this._sendStream || new MediaStream();
-	        var constraints = {
-	            audio: true
-	        };
-	        navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-	            _this._capturing.gum = {
-	                stream: stream,
-	                audio: true
-	            };
-	            _this._hookup(_this._capturing.gum, _this._sendStream);
-	        }).catch(function (err) {
-	            alert("Error getting media (error code: " + err.code + ")");
+	        return __awaiter(this, void 0, void 0, function () {
+	            var constraints, stream, err_1;
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        this.stopCapture();
+	                        this._sendStream = this._sendStream || new MediaStream();
+	                        constraints = {
+	                            audio: true
+	                        };
+	                        _a.label = 1;
+	                    case 1:
+	                        _a.trys.push([1, 4, , 5]);
+	                        return [4 /*yield*/, navigator.mediaDevices.getUserMedia(constraints)];
+	                    case 2:
+	                        stream = _a.sent();
+	                        this._capturing.gum = {
+	                            stream: stream,
+	                            audio: true
+	                        };
+	                        return [4 /*yield*/, this._hookup(this._capturing.gum, this._sendStream)];
+	                    case 3:
+	                        _a.sent();
+	                        return [3 /*break*/, 5];
+	                    case 4:
+	                        err_1 = _a.sent();
+	                        alert("Error getting media (error code: " + err_1.code + ")");
+	                        return [3 /*break*/, 5];
+	                    case 5: return [2 /*return*/];
+	                }
+	            });
 	        });
 	    };
 	    MediaProducer.prototype.leave = function () {
@@ -1522,156 +1538,184 @@
 	        return stream;
 	    };
 	    MediaProducer.prototype._setSource = function (stream) {
-	        var that = this;
-	        if (this._playStream && !stream) {
-	            try {
-	                if (this._playStream.stop) {
-	                    this._playStream.stop();
+	        return __awaiter(this, void 0, void 0, function () {
+	            var that, tracks, i, url;
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        that = this;
+	                        if (this._playStream && !stream) {
+	                            try {
+	                                if (this._playStream.stop) {
+	                                    this._playStream.stop();
+	                                }
+	                                else if (this._playStream.getTracks) {
+	                                    tracks = this._playStream.getTracks();
+	                                    for (i = 0; i < tracks.length; i++) {
+	                                        tracks[i].stop();
+	                                    }
+	                                }
+	                            }
+	                            catch (e) {
+	                                console.log('Error stopping stream', e);
+	                            }
+	                            this._playStream = null;
+	                        }
+	                        if (!!stream) return [3 /*break*/, 1];
+	                        if (this._mediaElement) {
+	                            this._mediaElement.removeAttribute('src');
+	                            try {
+	                                this._mediaElement.srcObject = null;
+	                            }
+	                            catch (e) {
+	                            }
+	                            this._mediaElement.style.background = 'blue';
+	                            this._mediaElement.load();
+	                        }
+	                        return [3 /*break*/, 3];
+	                    case 1:
+	                        // We have an actual MediaStream.
+	                        this._playStream = stream;
+	                        return [4 /*yield*/, this._whenStreamIsActive(stream)];
+	                    case 2:
+	                        if (_a.sent()) {
+	                            console.log('adding active stream');
+	                            if (!that._mediaElement) {
+	                                that._mediaElement = document.createElement('audio');
+	                                that._mediaElement.autoplay = true;
+	                                document.body.appendChild(that._mediaElement);
+	                            }
+	                            that._mediaElement.style.background = 'black';
+	                            try {
+	                                that._mediaElement.srcObject = stream || null;
+	                            }
+	                            catch (e) {
+	                                url = (window.URL || window.webkitURL);
+	                                if (url) {
+	                                    that._mediaElement.src = url.createObjectURL(stream);
+	                                }
+	                            }
+	                        }
+	                        _a.label = 3;
+	                    case 3: return [2 /*return*/];
 	                }
-	                else if (this._playStream.getTracks) {
-	                    var tracks = this._playStream.getTracks();
-	                    for (var i = 0; i < tracks.length; i++) {
-	                        tracks[i].stop();
-	                    }
-	                }
-	            }
-	            catch (e) {
-	                console.log('Error stopping stream', e);
-	            }
-	            this._playStream = null;
-	        }
-	        if (!stream) {
-	            if (this._mediaElement) {
-	                this._mediaElement.removeAttribute('src');
-	                try {
-	                    this._mediaElement.srcObject = null;
-	                }
-	                catch (e) {
-	                }
-	                this._mediaElement.style.background = 'blue';
-	                this._mediaElement.load();
-	            }
-	            return;
-	        }
-	        // We have an actual MediaStream.
-	        this._playStream = stream;
-	        this._whenStreamIsActive(function getStream() { return stream; }, setSrc);
-	        function setSrc() {
-	            console.log('adding active stream');
-	            if (!that._mediaElement) {
-	                that._mediaElement = document.createElement('audio');
-	                that._mediaElement.autoplay = true;
-	                document.body.appendChild(that._mediaElement);
-	            }
-	            that._mediaElement.style.background = 'black';
-	            try {
-	                that._mediaElement.srcObject = stream || null;
-	            }
-	            catch (e) {
-	                var url = (window.URL || window.webkitURL);
-	                if (url) {
-	                    that._mediaElement.src = url.createObjectURL(stream);
-	                }
-	            }
-	        }
+	            });
+	        });
 	    };
 	    MediaProducer.prototype._hookup = function (capturing, newStream) {
-	        var e_3, _a, e_4, _b;
-	        var vtrack = capturing.stream.getVideoTracks();
-	        if (capturing.video && vtrack.length > 0) {
-	            try {
-	                for (var _c = __values(newStream.getVideoTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
-	                    var track = _d.value;
-	                    track.stop();
+	        return __awaiter(this, void 0, void 0, function () {
+	            var e_3, _a, e_4, _b, vtrack, _c, _d, track, atrack, _e, _f, track;
+	            return __generator(this, function (_g) {
+	                switch (_g.label) {
+	                    case 0:
+	                        vtrack = capturing.stream.getVideoTracks();
+	                        if (capturing.video && vtrack.length > 0) {
+	                            try {
+	                                for (_c = __values(newStream.getVideoTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
+	                                    track = _d.value;
+	                                    track.stop();
+	                                }
+	                            }
+	                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+	                            finally {
+	                                try {
+	                                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+	                                }
+	                                finally { if (e_3) throw e_3.error; }
+	                            }
+	                            newStream.addTrack(vtrack[0]);
+	                        }
+	                        atrack = capturing.stream.getAudioTracks();
+	                        if (capturing.audio && atrack.length > 0) {
+	                            try {
+	                                for (_e = __values(newStream.getAudioTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
+	                                    track = _f.value;
+	                                    track.stop();
+	                                }
+	                            }
+	                            catch (e_4_1) { e_4 = { error: e_4_1 }; }
+	                            finally {
+	                                try {
+	                                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+	                                }
+	                                finally { if (e_4) throw e_4.error; }
+	                            }
+	                            newStream.addTrack(atrack[0]);
+	                        }
+	                        return [4 /*yield*/, this._maybeStream(newStream)];
+	                    case 1:
+	                        _g.sent();
+	                        return [2 /*return*/];
 	                }
-	            }
-	            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-	            finally {
-	                try {
-	                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-	                }
-	                finally { if (e_3) throw e_3.error; }
-	            }
-	            newStream.addTrack(vtrack[0]);
-	        }
-	        var atrack = capturing.stream.getAudioTracks();
-	        if (capturing.audio && atrack.length > 0) {
-	            try {
-	                for (var _e = __values(newStream.getAudioTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
-	                    var track = _f.value;
-	                    track.stop();
-	                }
-	            }
-	            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-	            finally {
-	                try {
-	                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-	                }
-	                finally { if (e_4) throw e_4.error; }
-	            }
-	            newStream.addTrack(atrack[0]);
-	        }
-	        this._maybeStream(newStream);
+	            });
+	        });
 	    };
 	    MediaProducer.prototype._maybeStream = function (stream) {
-	        var that = this;
-	        if (!stream) {
-	            console.log('no sending stream yet');
-	            return;
-	        }
-	        this._sendStream = stream;
-	        console.log('streaming');
-	        function doConnects() {
-	            if (!stream) {
-	                return;
-	            }
-	            var atrack = stream.getAudioTracks();
-	            var vtrack = stream.getVideoTracks();
-	            function notEnded(track) {
-	                if (track.readyState === 'ended' && stream.removeTrack) {
-	                    stream.removeTrack(track);
-	                    return false;
+	        return __awaiter(this, void 0, void 0, function () {
+	            var notEnded, that, atrack, vtrack;
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        notEnded = function (track) {
+	                            if (track.readyState === 'ended' && stream.removeTrack) {
+	                                stream.removeTrack(track);
+	                                return false;
+	                            }
+	                            return true;
+	                        };
+	                        that = this;
+	                        if (!!stream) return [3 /*break*/, 1];
+	                        console.log('no sending stream yet');
+	                        return [3 /*break*/, 3];
+	                    case 1:
+	                        this._sendStream = stream;
+	                        console.log('streaming');
+	                        return [4 /*yield*/, that._whenStreamIsActive(stream)];
+	                    case 2:
+	                        if (_a.sent()) {
+	                            atrack = stream.getAudioTracks();
+	                            vtrack = stream.getVideoTracks();
+	                            that._connectProducer('audio', atrack.find(notEnded));
+	                            that._connectProducer('video', vtrack.find(notEnded));
+	                        }
+	                        _a.label = 3;
+	                    case 3: return [2 /*return*/];
 	                }
-	                return true;
-	            }
-	            that._connectProducer('audio', atrack.find(notEnded));
-	            that._connectProducer('video', vtrack.find(notEnded));
-	        }
-	        that._whenStreamIsActive(function () {
-	            return stream;
-	        }, doConnects);
+	            });
+	        });
 	    };
-	    MediaProducer.prototype._whenStreamIsActive = function (getStream, callback) {
-	        var that = this;
-	        var stream = getStream();
-	        if (!stream) {
-	            return;
-	        }
-	        var id = stream.id;
-	        if (stream.active) {
-	            callback();
-	        }
-	        else if ('onactive' in stream) {
-	            stream.onactive = maybeCallback;
-	        }
-	        else if (!this._streamActiveTimeout[id]) {
-	            maybeCallback();
-	        }
-	        function maybeCallback() {
-	            delete that._streamActiveTimeout[id];
-	            var stream = getStream();
+	    MediaProducer.prototype._whenStreamIsActive = function (stream) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            var that = _this;
+	            function maybeCallback() {
+	                delete that._streamActiveTimeout[stream.id];
+	                if (stream.onactive === maybeCallback) {
+	                    stream.onactive = null;
+	                }
+	                if (!stream.active) {
+	                    that._streamActiveTimeout[stream.id] = setTimeout(maybeCallback, 500);
+	                }
+	                else {
+	                    resolve(stream);
+	                }
+	            }
 	            if (!stream) {
-	                return;
+	                resolve(stream);
 	            }
-	            if (stream.onactive === maybeCallback) {
-	                stream.onactive = null;
+	            else {
+	                var id = stream.id;
+	                if (stream.active) {
+	                    resolve(stream);
+	                }
+	                else if ('onactive' in stream) {
+	                    stream.onactive = maybeCallback;
+	                }
+	                else if (!_this._streamActiveTimeout[id]) {
+	                    maybeCallback();
+	                }
 	            }
-	            if (!stream.active) {
-	                that._streamActiveTimeout[id] = setTimeout(maybeCallback, 500);
-	                return;
-	            }
-	            callback();
-	        }
+	        });
 	    };
 	    MediaProducer.prototype._connectProducer = function (type, track) {
 	        var _this = this;
@@ -16876,7 +16920,7 @@
 	                                type: 'button',
 	                                styles: {
 	                                    css: buttonCSS,
-	                                    icon: '/images/settings.png',
+	                                    icon: '/images/cog.png',
 	                                },
 	                                callback: function () {
 	                                    console.log('settings clicked');
@@ -16886,16 +16930,17 @@
 	                    live: {
 	                        tools: [{
 	                                id: 'tb-live',
-	                                type: 'check',
+	                                type: 'button',
 	                                radioGroup: 1,
-	                                disabled: false,
+	                                disabled: !window.mediaProducer.isDeviceSupported,
 	                                styles: {
 	                                    css: buttonCSS,
-	                                    icon: '/images/toolbar-select.png',
+	                                    icon: window.mediaProducer.isDeviceSupported ? '/images/mic.png' : '/images/mic-blocked.png',
 	                                },
 	                                callback: function (type) {
 	                                    return __awaiter(this, void 0, void 0, function () {
 	                                        var deviceList, err_1, $popupSelectDevice_1, $dlg, $dlgContent, $dlgHeader, $dlgBody, $formGroup, $select_1, $dlgFooter;
+	                                        var _this = this;
 	                                        return __generator(this, function (_a) {
 	                                            switch (_a.label) {
 	                                                case 0:
@@ -16903,6 +16948,9 @@
 	                                                    if (!window.mediaProducer) return [3 /*break*/, 7];
 	                                                    if (!window.mediaProducer.joined) return [3 /*break*/, 1];
 	                                                    window.mediaProducer.leave();
+	                                                    $(this).toolbar('setStyle', 'tb-live', {
+	                                                        icon: '/images/mic.png'
+	                                                    });
 	                                                    return [3 /*break*/, 7];
 	                                                case 1:
 	                                                    if (!!window.mediaProducer.publish) return [3 /*break*/, 2];
@@ -16928,9 +16976,6 @@
 	                                                        alert('未找到音频输入设备');
 	                                                    }
 	                                                    else {
-	                                                        $(this).toolbar('setStyle', 'tb-live', {
-	                                                            icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
-	                                                        });
 	                                                        $popupSelectDevice_1 = $('<div></div>').addClass(['modal']).appendTo($('body'));
 	                                                        $dlg = $('<div></div>').addClass('modal-dialog').appendTo($popupSelectDevice_1);
 	                                                        $dlgContent = $('<div></div>').addClass('modal-content').appendTo($dlg);
@@ -16953,7 +16998,11 @@
 	                                                            if (!window.mediaProducer.joined) {
 	                                                                window.mediaProducer.join().then(function () {
 	                                                                    if (window.mediaProducer.publish) {
-	                                                                        window.mediaProducer.capture();
+	                                                                        window.mediaProducer.capture().then(function () {
+	                                                                            $(_this).toolbar('setStyle', 'tb-live', {
+	                                                                                icon: '/images/mic-unmute.png'
+	                                                                            });
+	                                                                        });
 	                                                                    }
 	                                                                });
 	                                                            }

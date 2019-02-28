@@ -65,7 +65,7 @@ export function init (uri: string) {
                             type: 'button',
                             styles: {
                                 css: buttonCSS,
-                                icon: '/images/settings.png',
+                                icon: '/images/cog.png',
                             },
                             callback: function (this:Element) {
                                 console.log ('settings clicked');
@@ -75,18 +75,21 @@ export function init (uri: string) {
                     live: {
                         tools: [{
                             id: 'tb-live',
-                            type: 'check',
+                            type: 'button',
                             radioGroup: 1,
-                            disabled: false,
+                            disabled: !window.mediaProducer!.isDeviceSupported,
                             styles: {
                                 css: buttonCSS,
-                                icon: '/images/toolbar-select.png',
+                                icon: window.mediaProducer!.isDeviceSupported ? '/images/mic.png' : '/images/mic-blocked.png',
                             },
                             callback: async function (this:Element, type) {
                                 console.log (`live broadcast ${type}`);
                                 if (window.mediaProducer) {
                                     if (window.mediaProducer.joined) {
                                         window.mediaProducer.leave ();
+                                        $(this).toolbar('setStyle', 'tb-live', {
+                                            icon: '/images/mic.png'
+                                        });
                                     } else if (!window.mediaProducer.publish) {
                                         window.mediaProducer.join ();
                                     } else {
@@ -102,9 +105,6 @@ export function init (uri: string) {
                                         if (deviceList.length === 0) {
                                             alert ('未找到音频输入设备');
                                         } else {
-                                            $(this).toolbar('setStyle', 'tb-live', {
-                                                icon: type === 'selected' ? '/images/toolbar-undo.png' : '/images/toolbar-select.png'
-                                            });
                                             const $popupSelectDevice = $('<div></div>').addClass(['modal']).appendTo ($('body'));
                                             const $dlg = $('<div></div>').addClass ('modal-dialog').appendTo($popupSelectDevice);
                                             const $dlgContent = $('<div></div>').addClass ('modal-content').appendTo ($dlg);
@@ -122,12 +122,16 @@ export function init (uri: string) {
                                                 option.appendTo ($select);
                                             });
                                             const $dlgFooter = $('<div></div>').addClass ('modal-footer').appendTo ($dlgContent);
-                                            $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on ('click', function(){
+                                            $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on ('click', () => {
                                                 $popupSelectDevice.modal ('hide');
                                                 if (!window.mediaProducer!.joined) {
                                                     window.mediaProducer!.join ().then (()=>{
                                                         if (window.mediaProducer!.publish) {
-                                                            window.mediaProducer!.capture ();
+                                                            window.mediaProducer!.capture ().then (()=>{
+                                                                $(this).toolbar('setStyle', 'tb-live', {
+                                                                    icon: '/images/mic-unmute.png'
+                                                                });                                                                                        
+                                                            });
                                                         }
                                                     });
                                                 }

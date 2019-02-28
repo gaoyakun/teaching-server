@@ -77,7 +77,6 @@ export class MediaProducer {
                         break;
                     }
                     case 'MS_NOTIFY': {
-                        console.log ('MS_NOTIFY', JSON.stringify(data.payload));
                         this._room.receiveNotification (data.payload);
                         break;
                     }
@@ -136,22 +135,23 @@ export class MediaProducer {
         this._connectProducer ('audio');
         this._connectProducer ('video');
     }
-    capture () {
+    async capture () {
         this.stopCapture ();
 
         this._sendStream = this._sendStream || new MediaStream ();
         const constraints = {
             audio: true
         };
-        navigator.mediaDevices.getUserMedia (constraints).then ((stream) => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia (constraints);
             this._capturing.gum = {
                 stream: stream,
                 audio: true
             };
-            this._hookup (this._capturing.gum, this._sendStream!);
-        }).catch ((err) => {
+            await this._hookup (this._capturing.gum, this._sendStream!);
+        } catch (err) {
             alert (`Error getting media (error code: ${err.code})`);
-        });
+        }
     }
     leave () {
         if (this._room) {
@@ -275,7 +275,7 @@ export class MediaProducer {
         }
         return stream;
     }
-    private _setSource(stream?: MediaStream) {
+    private async _setSource(stream?: MediaStream) {
         const that = this;
         if (this._playStream && !stream) {
             try {
@@ -293,7 +293,6 @@ export class MediaProducer {
             }
             this._playStream = null;
         }
-    
         if (!stream) {
             if (this._mediaElement) {
                 this._mediaElement.removeAttribute('src');
@@ -304,31 +303,29 @@ export class MediaProducer {
                 this._mediaElement.style.background = 'blue';
                 this._mediaElement.load();
             }
-            return;
-        }
-    
-        // We have an actual MediaStream.
-        this._playStream = stream;
-        this._whenStreamIsActive(function getStream() { return stream }, setSrc);
-        function setSrc() {
-            console.log('adding active stream');
-            if (!that._mediaElement) {
-                that._mediaElement = document.createElement ('audio');
-                that._mediaElement.autoplay = true;
-                document.body.appendChild (that._mediaElement);
-            }
-            that._mediaElement.style.background = 'black';
-            try {
-                that._mediaElement.srcObject = stream||null;
-            } catch (e) {
-                const url = (window.URL || window.webkitURL);
-                if (url) {
-                    that._mediaElement.src = url.createObjectURL(stream);
+        } else {
+            // We have an actual MediaStream.
+            this._playStream = stream;
+            if (await this._whenStreamIsActive(stream)) {
+                console.log('adding active stream');
+                if (!that._mediaElement) {
+                    that._mediaElement = document.createElement ('audio');
+                    that._mediaElement.autoplay = true;
+                    document.body.appendChild (that._mediaElement);
+                }
+                that._mediaElement.style.background = 'black';
+                try {
+                    that._mediaElement.srcObject = stream||null;
+                } catch (e) {
+                    const url = (window.URL || window.webkitURL);
+                    if (url) {
+                        that._mediaElement.src = url.createObjectURL(stream);
+                    }
                 }
             }
         }
     }
-    private _hookup (capturing: any, newStream: MediaStream) {
+    private async _hookup (capturing: any, newStream: MediaStream) {
         const vtrack = capturing.stream.getVideoTracks ();
         if (capturing.video && vtrack.length > 0) {
             for (const track of newStream.getVideoTracks()) {
@@ -343,65 +340,57 @@ export class MediaProducer {
             }
             newStream.addTrack (atrack[0]);
         }
-        this._maybeStream (newStream);
+        await this._maybeStream (newStream);
     }
-    private _maybeStream (stream: MediaStream) {
+    private async _maybeStream (stream: MediaStream) {
+        const notEnded = (track: MediaStreamTrack):boolean => {
+            if (track.readyState === 'ended' && stream.removeTrack) {
+                stream.removeTrack (track);
+                return false;
+            }
+            return true;
+        }
         const that = this;
         if (!stream) {
             console.log ('no sending stream yet');
-            return;
-        }
-        this._sendStream = stream;
-        console.log ('streaming');
-        function doConnects () {
-            if (!stream) {
-                return;
+        } else {
+            this._sendStream = stream;
+            console.log ('streaming');
+            if (await that._whenStreamIsActive (stream)) {
+                const atrack = stream.getAudioTracks ();
+                const vtrack = stream.getVideoTracks ();
+                that._connectProducer ('audio', atrack.find (notEnded));
+                that._connectProducer ('video', vtrack.find (notEnded));
             }
-            const atrack = stream.getAudioTracks ();
-            const vtrack = stream.getVideoTracks ();
-            function notEnded (track: MediaStreamTrack) {
-                if (track.readyState === 'ended' && stream.removeTrack) {
-                    stream.removeTrack (track);
-                    return false;
-                }
-                return true;
-            }
-            that._connectProducer ('audio', atrack.find (notEnded));
-            that._connectProducer ('video', vtrack.find (notEnded));
         }
-        that._whenStreamIsActive (()=>{
-            return stream;
-        }, doConnects);
     }
-    private _whenStreamIsActive (getStream: ()=>MediaStream, callback: ()=>void) {
-        const that = this;
-        const stream = getStream ();
-        if (!stream) {
-            return;
-        }
-        const id = stream.id;
-        if (stream.active) {
-            callback ();
-        } else if ('onactive' in stream) {
-            stream.onactive = maybeCallback;
-        } else if (!this._streamActiveTimeout[id]) {
-            maybeCallback ();
-        }
-        function maybeCallback () {
-            delete that._streamActiveTimeout[id];
-            const stream = getStream ();
+    private _whenStreamIsActive (stream: MediaStream) {
+        return new Promise ((resolve, reject) => {
+            const that = this;
+            function maybeCallback () {
+                delete that._streamActiveTimeout[stream.id];
+                if (stream.onactive === maybeCallback) {
+                    stream.onactive = null;
+                }
+                if (!stream.active) {
+                    that._streamActiveTimeout[stream.id] = setTimeout (maybeCallback, 500);
+                } else {
+                    resolve (stream);
+                }
+            }
             if (!stream) {
-                return;
+                resolve (stream);
+            } else {
+                const id = stream.id;
+                if (stream.active) {
+                    resolve (stream);
+                } else if ('onactive' in stream) {
+                    stream.onactive = maybeCallback;
+                } else if (!this._streamActiveTimeout[id]) {
+                    maybeCallback ();
+                }
             }
-            if (stream.onactive === maybeCallback) {
-                stream.onactive = null;
-            }
-            if (!stream.active) {
-                that._streamActiveTimeout[id] = setTimeout (maybeCallback, 500);
-                return;
-            }
-            callback ();
-        }
+        });
     }
     private _connectProducer (type: string, track?: any) {
         if (this._producers[type]) {
