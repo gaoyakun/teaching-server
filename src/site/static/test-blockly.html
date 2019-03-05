@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Blockly test</title>
+    <script src="js/blockly/blockly_compressed.js"></script>
+    <script src="js/blockly/blocks_compressed.js"></script>
+    <script src="js/blockly/en.js"></script>
+    <script src="js/blocks.js"></script>
+    <style>
+        body {
+            background-color: #fff;
+            font-family: sans-serif;
+        }
+        h1 {
+            font-weight: normal;
+            font-size: 140%;
+        }
+    </style>
+</head>
+<body>
+    <p>This is a test for blockly</p>
+    <div id="blocklyDiv" style= "height:480px; width:600px;"></div>
+    <xml id="toolbox" style="display: none">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+        <block type="controls_repeat_ext"></block>
+        <block type="math_number">
+            <field name="NUM">123</field>
+        </block>
+        <block type="math_arithmetic"></block>
+        <block type="text"></block>
+        <block type="text_print"></block>
+        <block type="my_block"></block>
+    </xml>
+    <script>
+        var demoWorkspace = Blockly.inject('blocklyDiv', {
+            media: 'js/blockly/media/',
+            toolbox: document.getElementById('toolbox')
+        });
+    </script>
+</body>
+</html>

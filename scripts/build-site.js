@@ -17,7 +17,8 @@ const jsFiles = [
     'ui',
     'settings',
     'create_whiteboard',
-    'create_room'
+    'create_room',
+    'blocks'
 ];
 
 const rootDir = path.join(__dirname, '..');
