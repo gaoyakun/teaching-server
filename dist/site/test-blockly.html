@@ -3,14 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>Blockly test</title>
-    <script src="js/blockly/blockly_compressed.js"></script>
-    <script src="js/blockly/blocks_compressed.js"></script>
-    <script src="js/blockly/en.js"></script>
-    <script src="js/blocks.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     <style>
         body {
             background-color: #fff;
             font-family: sans-serif;
+            width: 100%;
+            height: 100%;
         }
         h1 {
             font-weight: normal;
@@ -18,16 +20,17 @@
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column">
     <p>This is a test for blockly</p>
-    <div id="blocklyDiv" style= "height:480px; width:600px;"></div>
+    <div class="flex-grow-1" id="blocklyDiv">
+    </div>
     <xml id="toolbox" style="display: none">
         <category name="Variables" custom="VARIABLE"></category>
-        <category name="Functions" custom="PROCEDUR"></category>
+        <category name="Functions" custom="PROCEDURE"></category>
         <category name="Control">
             <block type="controls_if"></block>
             <block type="controls_ifelse"></block>
-            <block type="controls_whileuntil"></block>
+            <block type="controls_whileUntil"></block>
             <block type="controls_repeat"></block>
             <block type="controls_repeat_ext"></block>
             <block type="controls_for"></block>
@@ -112,10 +115,16 @@
             <block type="fill_color"></block>
         </category>
     </xml>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/blockly/blockly_compressed.js"></script>
+    <script src="/js/blockly/blocks_compressed.js"></script>
+    <script src="/js/blockly/en.js"></script>
+    <script src="/js/designer.js"></script>
     <script>
-        var demoWorkspace = Blockly.inject('blocklyDiv', {
-            media: 'js/blockly/media/',
-            toolbox: document.getElementById('toolbox')
+        $(document).ready (function () {
+            designer.init ('blocklyDiv', 'toolbox');
         });
     </script>
 </body>

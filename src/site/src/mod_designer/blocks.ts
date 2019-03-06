@@ -1,21 +1,23 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (factory());
-}(this, (function () { 'use strict';
+declare global {
+    interface Window {
+        Blockly: any;
+    }
+}
 
-    Blockly.Blocks['my_block'] = {
+export function setupCustomBlocks () {
+    window.Blockly.Blocks['my_block'] = {
         init: function () {
-            this.setColour(120);
-            this.appendValueInput('SOME_VALUE').appendField('Some value').setCheck('Number');
-            this.setInputsInline(true);
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setTooltip('Test some value input');
+            this.setColour (120);
+            this.appendValueInput ('SOME_VALUE').appendField ('Some value').setCheck ('Number');
+            this.setInputsInline (true);
+            this.setPreviousStatement (true, null);
+            this.setNextStatement (true, null);
+            this.setTooltip ('Test some value input');
         }
     };
+
     Blockly.Blocks['test_tool'] = {
-        init: function () {
+        init: function() {
             this.appendValueInput("NAME")
                 .setCheck("String")
                 .appendField("name");
@@ -36,15 +38,16 @@
                 .setCheck(null)
                 .appendField("onMouseUp");
             this.appendStatementInput("ON_CLICK")
-                .setCheck(null)
-                .appendField("onClick");
+            .setCheck(null)
+            .appendField("onClick");
             this.setColour(230);
             this.setTooltip("");
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['set_object_pos'] = {
-        init: function () {
+        init: function() {
             this.appendValueInput("OBJECT")
                 .setCheck(["selected_object", "String"])
                 .appendField("position");
@@ -64,8 +67,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['selected_object'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("Selected object");
             this.setOutput(true, null);
@@ -74,11 +78,12 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['draw_shape'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("Shape")
-                .appendField(new Blockly.FieldDropdown([["Rect", "RECT"], ["Ellipse", "ELLIPSE"]]), "SHAPE")
+                .appendField(new Blockly.FieldDropdown([["Rect","RECT"], ["Ellipse","ELLIPSE"]]), "SHAPE")
                 .appendField("width")
                 .appendField(new Blockly.FieldNumber(0, 0), "WIDTH")
                 .appendField("height")
@@ -90,8 +95,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['draw_line'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("line")
                 .appendField("from")
@@ -111,8 +117,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['set_stroke_color'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("set stroke color to")
                 .appendField(new Blockly.FieldColour("#ff0000"), "COLOR");
@@ -123,8 +130,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['stroke_color'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("Stroke color");
             this.setOutput(true, null);
@@ -133,8 +141,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['set_fill_color'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("set fill color to")
                 .appendField(new Blockly.FieldColour("#ff0000"), "COLOR");
@@ -145,8 +154,9 @@
             this.setHelpUrl("");
         }
     };
+
     Blockly.Blocks['fill_color'] = {
-        init: function () {
+        init: function() {
             this.appendDummyInput()
                 .appendField("Stroke color");
             this.setOutput(true, null);
@@ -155,5 +165,4 @@
             this.setHelpUrl("");
         }
     };
-
-})));
+}
