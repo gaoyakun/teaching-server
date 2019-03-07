@@ -12802,7 +12802,7 @@
 	                evt.canvas.context.fillText(_this._text, x, y, width);
 	            }
 	        });
-	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
+	        _this.on(whiteboard$2.WBGetPropertyEvent.type, function (ev) {
 	            switch (ev.name) {
 	                case 'text': {
 	                    ev.value = _this.text;
@@ -12842,7 +12842,7 @@
 	                }
 	            }
 	        });
-	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
+	        _this.on(whiteboard$2.WBSetPropertyEvent.type, function (ev) {
 	            switch (ev.name) {
 	                case 'text': {
 	                    _this.text = ev.value;
@@ -12882,7 +12882,7 @@
 	                }
 	            }
 	        });
-	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
+	        _this.on(whiteboard$2.WBGetPropertyListEvent.type, function (ev) {
 	            ev.properties = ev.properties || {};
 	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
 	            ev.properties[_this.entityType].properties.push({
@@ -13227,7 +13227,7 @@
 	        return new WBLabel(null, options);
 	    };
 	    return WBLabelFactory;
-	}(whiteboard.WBFactory));
+	}(whiteboard$2.WBFactory));
 	exports.WBLabelFactory = WBLabelFactory;
 
 	});

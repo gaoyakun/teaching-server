@@ -1,5 +1,5 @@
 import * as lib from '../../catk';
-import * as wb from '../whiteboard';
+import * as wb from '..';
 
 export class WBLabel extends lib.SceneObject {
     private _width: number;
