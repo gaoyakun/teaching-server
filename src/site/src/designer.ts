@@ -11,7 +11,19 @@ export function init (workspaceId: string, toolboxId: string) {
         areaDiv.appendChild (blocklyDiv);
         const workspace = window.Blockly.inject(blocklyDiv, {
             media: 'js/blockly/media/',
-            toolbox: document.getElementById(toolboxId)
+            toolbox: document.getElementById(toolboxId),
+            theme: Blockly.Theme({
+                withHat: { hat: true }
+            }, {
+                Handlers: { hat: true }
+            })
+        });
+        workspace.registerButtonCallback ('onCreateDrawHandler', function(btn:any){
+            Blockly.Xml.domToBlock ($('<block></block>').attr({
+                type: 'define_object',
+                x: 100,
+                y: 100
+            })[0], Blockly.mainWorkspace);
         });
         const onResize = function () {
             const areaElement = document.getElementById (workspaceId);
@@ -36,5 +48,9 @@ export function init (workspaceId: string, toolboxId: string) {
         window.addEventListener ('resize', onResize, false);
         onResize ();
         window.Blockly.svgResize (workspace);
+        const mainObject = Blockly.Xml.domToBlock ($('<block></block>').attr('type', 'define_object')[0], Blockly.mainWorkspace);
+        mainObject.setStyle('hat_blocks');
+        mainObject.moveBy(100, 100);
+        mainObject.setDeletable(false);
     }
 }
