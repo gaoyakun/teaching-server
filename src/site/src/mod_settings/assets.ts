@@ -10,6 +10,7 @@ export async function asset_setup(arg?: any) {
         }
         return ok;
     }
+    /*
     const assetData: UI.IGridViewData = {
         itemMinWidth: '100px',
         itemMaxWidth: '100px',
@@ -32,6 +33,19 @@ export async function asset_setup(arg?: any) {
         });
     }
     $('#grid-view').gridView (assetData);
+    */
+    const assetData: UI.IResourceViewData = {
+        itemMinWidth: '100px',
+        itemMaxWidth: '100px',
+        itemMinHeight: '100px',
+        nodes: [],
+        path: '/'
+    };
+    $('#grid-view').resourceView (assetData);
+    $('#grid-view').on ('itemclick', function(evt, node){
+        console.log (JSON.stringify(node));
+    });
+
     $('#btn-upload-asset').on ('click', function() {
         const el = document.getElementById('upload-asset') as HTMLInputElement;
         if (checkConfig (el)) {

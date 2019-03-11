@@ -25,6 +25,17 @@ export function init (workspaceId: string, toolboxId: string) {
                 y: 100
             })[0], Blockly.mainWorkspace);
         });
+        workspace.registerToolboxCategoryCallback ('PROPERTIES', function (ws:any) {
+            const domList = [];
+            const button = document.createElement('button');
+            button.setAttribute ('text', 'Create property...');
+            button.setAttribute ('callbackKey', 'CREATE_PROPERTY');
+            ws.registerButtonCallback ('CREATE_PROPERTY', function(btn:any){
+                console.log ('Create property');
+            });
+            domList.push (button);
+            return domList;
+        });
         const onResize = function () {
             const areaElement = document.getElementById (workspaceId);
             if (areaElement) {
@@ -48,9 +59,7 @@ export function init (workspaceId: string, toolboxId: string) {
         window.addEventListener ('resize', onResize, false);
         onResize ();
         window.Blockly.svgResize (workspace);
-        const mainObject = Blockly.Xml.domToBlock ($('<block></block>').attr('type', 'define_object')[0], Blockly.mainWorkspace);
-        mainObject.setStyle('hat_blocks');
-        mainObject.moveBy(100, 100);
-        mainObject.setDeletable(false);
+        //const id:any = Blockly.Xml.domToWorkspace (Blockly.Xml.textToDom('<xml><block type="define_object" deletable="false" x="100" y="100"></block></xml>'), workspace);
+        //workspace.getBlockById (id[0]).setStyle ('hat_blocks');
     }
 }

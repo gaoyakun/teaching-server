@@ -5,6 +5,7 @@ declare global {
 }
 
 export function setupCustomBlocks () {
+    /*
     Blockly.Blocks['define_properties'] = {
         init: function() {
             this.propCount = 1;
@@ -238,26 +239,15 @@ export function setupCustomBlocks () {
             this.setOutput (true, 'HANDLER');
         }
     };
-    Blockly.Blocks['define_object'] = {
+    */
+    Blockly.Blocks['object_init'] = {
         init: function() {
             this.setColour (230);
             this.appendDummyInput ()
-                .setAlign (Blockly.ALIGN_RIGHT)
-                .appendField ('Define object')
-                .appendField (new Blockly.FieldTextInput('ObjectClass'), 'CLASS_NAME');
-            this.appendValueInput ('PROPERTY_LIST')
-                .setCheck ('PROP_LIST')
-                .setAlign (Blockly.ALIGN_RIGHT)
-                .appendField ('Properties');
+                .appendField ('初始化')
             this.appendStatementInput ('INIT')
-                .setAlign (Blockly.ALIGN_RIGHT)
-                .appendField ('Initialize');
-            this.appendStatementInput ('DRAW')
-                .setAlign (Blockly.ALIGN_RIGHT)
-                .appendField ('Draw');
-            this.appendStatementInput ('FRAME')
-                .setAlign (Blockly.ALIGN_RIGHT)
-                .appendField ('Frame');
+                .setAlign (Blockly.ALIGN_LEFT)
+            this.setStyle ('hat_blocks');
         }
     };
 }

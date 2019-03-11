@@ -25,7 +25,7 @@ export class AssetManager {
         return await this.uploadAssetBuffer (userId, relPath, new Buffer(contentBase64, 'base64'), filename);
     }
     static async uploadAssetBuffer (userId: number, relPath: string, buffer: Buffer, filename: string) {
-        return await this._uploadFile (path.join (this.getUserAssetPathById(userId), relPath), buffer, filename);
+        return await this._uploadFile (path.join (this.getUserAssetPathById(userId), relPath), buffer, filename, undefined, true);
     }
     static async uploadUserAvatar (userId: number, buffer: Buffer, filename: string) {
         return await this._uploadFile (this.getUserAvatarPathById(userId), buffer, filename, 'avatar.jpg');
