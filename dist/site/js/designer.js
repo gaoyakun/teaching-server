@@ -244,9 +244,8 @@
 	    Blockly.Blocks['draw_handler'] = {
 	        init: function () {
 	            this.setColour(230);
-	            this.appendStatementInput('DRAW_HANDLER')
-	                .setCheck(null)
-	                .appendField('Draw handler');
+	            this.appendDummyInput().appendField('Draw handler');
+	            this.appendStatementInput('DRAW_HANDLER');
 	            this.setOutput(true, 'HANDLER');
 	        }
 	    };
@@ -257,19 +256,9 @@
 	                .setAlign(Blockly.ALIGN_RIGHT)
 	                .appendField('Define object')
 	                .appendField(new Blockly.FieldTextInput('ObjectClass'), 'CLASS_NAME');
-	            this.appendValueInput('PROPERTY_LIST')
-	                .setCheck('PROP_LIST')
-	                .setAlign(Blockly.ALIGN_RIGHT)
-	                .appendField('Properties');
 	            this.appendStatementInput('INIT')
 	                .setAlign(Blockly.ALIGN_RIGHT)
 	                .appendField('Initialize');
-	            this.appendStatementInput('DRAW')
-	                .setAlign(Blockly.ALIGN_RIGHT)
-	                .appendField('Draw');
-	            this.appendStatementInput('FRAME')
-	                .setAlign(Blockly.ALIGN_RIGHT)
-	                .appendField('Frame');
 	        }
 	    };
 	}
@@ -345,7 +334,7 @@
 	        var mainObject = Blockly.Xml.domToBlock(jquery('<block></block>').attr('type', 'define_object')[0], Blockly.mainWorkspace);
 	        mainObject.setStyle('hat_blocks');
 	        mainObject.moveBy(100, 100);
-	        mainObject.setDeletable(false);
+	        //mainObject.setDeletable(false);
 	    }
 	}
 	exports.init = init;

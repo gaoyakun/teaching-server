@@ -51,6 +51,6 @@ export function init (workspaceId: string, toolboxId: string) {
         const mainObject = Blockly.Xml.domToBlock ($('<block></block>').attr('type', 'define_object')[0], Blockly.mainWorkspace);
         mainObject.setStyle('hat_blocks');
         mainObject.moveBy(100, 100);
-        mainObject.setDeletable(false);
+        //mainObject.setDeletable(false);
     }
 }
