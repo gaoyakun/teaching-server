@@ -17,7 +17,7 @@ class Server {
     }
     static pickServer(type) {
         return __awaiter(this, void 0, void 0, function* () {
-            const rankKey = `server_rank:${type}`;
+            const rankKey = this._makeRankKey(type);
             while (true) {
                 const serverId = yield this._redis.zrange(rankKey, 0, 0);
                 if (serverId && serverId.length === 1) {
@@ -39,7 +39,7 @@ class Server {
     }
     static getServerInfo(type, serverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const id = `svr:${type}:${serverId}`;
+            const id = this._makeId(type, serverId);
             const info = yield this._redis.hmget(id, 'host', 'port');
             if (info && info[0] !== null && info[1] !== null) {
                 return { host: info[0], port: info[1], id: serverId };
@@ -53,7 +53,7 @@ class Server {
         this._type = type;
         this._rank = 0;
         this._postTimer = null;
-        this._id = `svr:${type}:${config_1.Config.serverId}`;
+        this._id = this._makeId(type, config_1.Config.serverId);
         this._redis = config_1.Config.redis;
         this._postTimer = setInterval(() => {
             this._post();
@@ -88,7 +88,7 @@ class Server {
                 clearTimeout(this._postTimer);
                 this._postTimer = null;
             }
-            yield this._redis.multi().del(this._id).zrem(`server_rank:${this._type}`, config_1.Config.serverHost).exec();
+            yield this._redis.multi().del(this._id).zrem(this._makeRankKey(this._type), this._id).exec();
         });
     }
     static _post() {
@@ -97,11 +97,17 @@ class Server {
                 host: config_1.Config.serverHost,
                 port: config_1.Config.serverPort,
                 rank: this._rank
-            }).expire(this._id, this._expireTime).zadd(`server_rank:${this._type}`, String(this._rank || 0), this._id).exec();
+            }).expire(this._id, this._expireTime).zadd(this._makeRankKey(this._type), String(this._rank || 0), this._id).exec();
         }))().catch(err => {
             console.log(`ERR: [ServerInfo._post]: ${err}`);
             process.exit(-1);
         });
+    }
+    static _makeId(type, id) {
+        return `${config_1.Config.redisKeyPrefix}:svr:${type}:${id}`;
+    }
+    static _makeRankKey(type) {
+        return `${config_1.Config.redisKeyPrefix}:server_rank:${type}`;
     }
 }
 Server._expireTime = 5;

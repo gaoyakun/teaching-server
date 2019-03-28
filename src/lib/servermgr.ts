@@ -16,7 +16,7 @@ export class Server {
         return this._redis;
     }
     static async pickServer (type: constants.ServerType) {
-        const rankKey = `server_rank:${type as number}`;
+        const rankKey = this._makeRankKey (type);
         while (true) {
             const serverId: string[] = await this._redis.zrange (rankKey, 0, 0);
             if (serverId && serverId.length === 1) {
@@ -34,7 +34,7 @@ export class Server {
         return null;
     }
     static async getServerInfo (type: constants.ServerType, serverId: number) {
-        const id = `svr:${type as number}:${serverId}`
+        const id = this._makeId(type, serverId);
         const info = await this._redis.hmget (id, 'host', 'port');
         if (info && info[0] !== null && info[1] !== null) {
             return { host: info[0], port: info[1], id: serverId };
@@ -46,7 +46,7 @@ export class Server {
         this._type = type;
         this._rank = 0;
         this._postTimer = null;
-        this._id = `svr:${type as number}:${Config.serverId}`;
+        this._id = this._makeId(type, Config.serverId);
         this._redis = Config.redis;
         this._postTimer = setInterval (() => {
             this._post ();
@@ -79,7 +79,7 @@ export class Server {
             clearTimeout (this._postTimer);
             this._postTimer = null;
         }
-        await this._redis.multi().del (this._id).zrem (`server_rank:${this._type as number}`, Config.serverHost).exec();
+        await this._redis.multi().del (this._id).zrem (this._makeRankKey(this._type), this._id).exec();
     }
     private static _post () {
         (async () => {
@@ -87,10 +87,16 @@ export class Server {
                 host: Config.serverHost,
                 port: Config.serverPort,
                 rank: this._rank
-            }).expire(this._id, this._expireTime).zadd (`server_rank:${this._type as number}`, String(this._rank||0), this._id).exec ();
+            }).expire(this._id, this._expireTime).zadd (this._makeRankKey(this._type), String(this._rank||0), this._id).exec ();
         })().catch (err => {
             console.log (`ERR: [ServerInfo._post]: ${err}`);
             process.exit (-1);
         });
+    }
+    private static _makeId (type:constants.ServerType, id:number) {
+        return `${Config.redisKeyPrefix}:svr:${type as number}:${id}`;
+    }
+    private static _makeRankKey (type:constants.ServerType) {
+        return `${Config.redisKeyPrefix}:server_rank:${type as number}`;
     }
 }

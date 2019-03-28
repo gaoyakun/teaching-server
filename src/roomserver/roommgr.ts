@@ -87,7 +87,7 @@ export class Client {
     }
     async syncBoardEvents () {
         if (this._socket && this._room) {
-            const events = await Server.redis.lrange (`room:${this._room.id}:events`, 0, -1);
+            const events = await Server.redis.lrange (this._makeEventKey(), 0, -1);
             if (events) {
                 let i = 0;
                 for (const ev of events) {
@@ -170,11 +170,14 @@ export class Client {
             if (msg) {
                 const type = msg.type as number;
                 if (type >= whiteboard.MessageID.Start && type < whiteboard.MessageID.Start + 10000) {
-                    Server.redis.rpush (`room:${this._room.id}:events`, data.toString('base64'));
+                    Server.redis.rpush (this._makeEventKey(), data.toString('base64'));
                 }
                 this.broadCastBuffer ('message', data);
             }
         }
+    }
+    private _makeEventKey () {
+        return `${Config.redisKeyPrefix}:room:${this._room!.id}:events`;
     }
 }
 

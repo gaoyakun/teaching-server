@@ -91,6 +91,7 @@ class Config {
         return this._engine;
     }
 }
+Config.redisKeyPrefix = getParam('redis_key_prefix', 'ts');
 Config.sessionToken = getParam('session_token', 'ts_session_id');
 Config.redisSessionKey = getParam('redis_session_key', 'session_list');
 Config.serverId = Number(getParam('server_id', dieForParam));

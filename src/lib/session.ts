@@ -10,7 +10,7 @@ export class Session {
         this._data = {};
     }
     static async loadSession (id: string) {
-        const data = await Server.redis.hget (Config.redisSessionKey, id);
+        const data = await Server.redis.hget (`${Config.redisKeyPrefix}:${Config.redisSessionKey}`, id);
         if (data) {
             const session = new Session (id);
             session._data = JSON.parse(data);
@@ -20,11 +20,11 @@ export class Session {
         }
     }
     async save () {
-        await Server.redis.hset(Config.redisSessionKey, this._id, JSON.stringify(this._data));
+        await Server.redis.hset(`${Config.redisKeyPrefix}:${Config.redisSessionKey}`, this._id, JSON.stringify(this._data));
     };
     async load () {
         try {
-            const data = await Server.redis.hget(Config.redisSessionKey, this._id);
+            const data = await Server.redis.hget(`${Config.redisKeyPrefix}:${Config.redisSessionKey}`, this._id);
             if (!data) {
                 this._data = {};
             } else {
@@ -35,7 +35,7 @@ export class Session {
         }
     };
     async remove () {
-        await Server.redis.hdel (Config.redisSessionKey, this._id);
+        await Server.redis.hdel (`${Config.redisKeyPrefix}:${Config.redisSessionKey}`, this._id);
     }
     async clear () {
         this._data = {};

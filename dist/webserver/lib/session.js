@@ -18,7 +18,7 @@ class Session {
     }
     static loadSession(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield servermgr_1.Server.redis.hget(config_1.Config.redisSessionKey, id);
+            const data = yield servermgr_1.Server.redis.hget(`${config_1.Config.redisKeyPrefix}:${config_1.Config.redisSessionKey}`, id);
             if (data) {
                 const session = new Session(id);
                 session._data = JSON.parse(data);
@@ -31,14 +31,14 @@ class Session {
     }
     save() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield servermgr_1.Server.redis.hset(config_1.Config.redisSessionKey, this._id, JSON.stringify(this._data));
+            yield servermgr_1.Server.redis.hset(`${config_1.Config.redisKeyPrefix}:${config_1.Config.redisSessionKey}`, this._id, JSON.stringify(this._data));
         });
     }
     ;
     load() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield servermgr_1.Server.redis.hget(config_1.Config.redisSessionKey, this._id);
+                const data = yield servermgr_1.Server.redis.hget(`${config_1.Config.redisKeyPrefix}:${config_1.Config.redisSessionKey}`, this._id);
                 if (!data) {
                     this._data = {};
                 }
@@ -54,7 +54,7 @@ class Session {
     ;
     remove() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield servermgr_1.Server.redis.hdel(config_1.Config.redisSessionKey, this._id);
+            yield servermgr_1.Server.redis.hdel(`${config_1.Config.redisKeyPrefix}:${config_1.Config.redisSessionKey}`, this._id);
         });
     }
     clear() {

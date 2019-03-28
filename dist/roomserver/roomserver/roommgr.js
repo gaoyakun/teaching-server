@@ -89,7 +89,7 @@ class Client {
     syncBoardEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this._socket && this._room) {
-                const events = yield servermgr_1.Server.redis.lrange(`room:${this._room.id}:events`, 0, -1);
+                const events = yield servermgr_1.Server.redis.lrange(this._makeEventKey(), 0, -1);
                 if (events) {
                     let i = 0;
                     for (const ev of events) {
@@ -176,11 +176,14 @@ class Client {
             if (msg) {
                 const type = msg.type;
                 if (type >= protolist_1.whiteboard.MessageID.Start && type < protolist_1.whiteboard.MessageID.Start + 10000) {
-                    servermgr_1.Server.redis.rpush(`room:${this._room.id}:events`, data.toString('base64'));
+                    servermgr_1.Server.redis.rpush(this._makeEventKey(), data.toString('base64'));
                 }
                 this.broadCastBuffer('message', data);
             }
         }
+    }
+    _makeEventKey() {
+        return `${config_1.Config.redisKeyPrefix}:room:${this._room.id}:events`;
     }
 }
 exports.Client = Client;

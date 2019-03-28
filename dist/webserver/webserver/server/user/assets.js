@@ -37,7 +37,7 @@ class AssetManager {
     }
     static uploadAssetBuffer(userId, relPath, buffer, filename) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this._uploadFile(path.join(this.getUserAssetPathById(userId), relPath), buffer, filename);
+            return yield this._uploadFile(path.join(this.getUserAssetPathById(userId), relPath), buffer, filename, undefined, true);
         });
     }
     static uploadUserAvatar(userId, buffer, filename) {

@@ -64,6 +64,7 @@ function useSSL (): boolean {
 }
 
 export class Config {
+    static readonly redisKeyPrefix = getParam ('redis_key_prefix', 'ts');
     static readonly sessionToken = getParam ('session_token', 'ts_session_id');
     static readonly redisSessionKey = getParam ('redis_session_key', 'session_list');
     static readonly serverId = Number(getParam ('server_id', dieForParam));

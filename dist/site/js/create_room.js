@@ -188,9 +188,12 @@
 
 	var boundinghull = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -343,9 +346,12 @@
 
 	var boundingbox = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -397,9 +403,12 @@
 
 	var boundingsegment = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -514,9 +523,12 @@
 
 	var boundingsphere = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -1158,9 +1170,12 @@
 
 	var curve = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -1738,9 +1753,12 @@
 
 	var core = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -3348,9 +3366,12 @@
 
 	var components = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -11270,9 +11291,12 @@
 
 	var whiteboard = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -12729,9 +12753,12 @@
 
 	var label = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -12802,7 +12829,7 @@
 	                evt.canvas.context.fillText(_this._text, x, y, width);
 	            }
 	        });
-	        _this.on(whiteboard$2.WBGetPropertyEvent.type, function (ev) {
+	        _this.on(whiteboard.WBGetPropertyEvent.type, function (ev) {
 	            switch (ev.name) {
 	                case 'text': {
 	                    ev.value = _this.text;
@@ -12842,7 +12869,7 @@
 	                }
 	            }
 	        });
-	        _this.on(whiteboard$2.WBSetPropertyEvent.type, function (ev) {
+	        _this.on(whiteboard.WBSetPropertyEvent.type, function (ev) {
 	            switch (ev.name) {
 	                case 'text': {
 	                    _this.text = ev.value;
@@ -12882,7 +12909,7 @@
 	                }
 	            }
 	        });
-	        _this.on(whiteboard$2.WBGetPropertyListEvent.type, function (ev) {
+	        _this.on(whiteboard.WBGetPropertyListEvent.type, function (ev) {
 	            ev.properties = ev.properties || {};
 	            ev.properties[_this.entityType] = ev.properties[_this.entityType] || { desc: _this.entityType, properties: [] };
 	            ev.properties[_this.entityType].properties.push({
@@ -13227,7 +13254,7 @@
 	        return new WBLabel(null, options);
 	    };
 	    return WBLabelFactory;
-	}(whiteboard$2.WBFactory));
+	}(whiteboard.WBFactory));
 	exports.WBLabelFactory = WBLabelFactory;
 
 	});
@@ -13238,9 +13265,12 @@
 
 	var arrow = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -13637,9 +13667,12 @@
 
 	var freedraw = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -13951,9 +13984,12 @@
 
 	var select = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -14200,9 +14236,12 @@
 
 	var swap = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -14310,9 +14349,12 @@
 
 	var create = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -14404,9 +14446,12 @@
 
 	var connect = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -14622,9 +14667,12 @@
 
 	var handwriting = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -14939,9 +14987,12 @@
 
 	var cmdserver = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
-	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    var extendStatics = function (d, b) {
+	        extendStatics = Object.setPrototypeOf ||
+	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	        return extendStatics(d, b);
+	    };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }

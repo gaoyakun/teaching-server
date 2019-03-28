@@ -18,12 +18,24 @@ export function init (workspaceId: string, toolboxId: string) {
                 Handlers: { hat: true }
             })
         });
-        workspace.registerButtonCallback ('onCreateDrawHandler', function(btn:any){
+        workspace.registerButtonCallback ('onCreateInitHandler', function(btn:any){
+            workspace.
             Blockly.Xml.domToBlock ($('<block></block>').attr({
                 type: 'define_object',
                 x: 100,
                 y: 100
             })[0], Blockly.mainWorkspace);
+        });
+        workspace.registerToolboxCategoryCallback ('PROPERTIES', function (ws:any) {
+            const domList = [];
+            const button = document.createElement('button');
+            button.setAttribute ('text', 'Create property...');
+            button.setAttribute ('callbackKey', 'CREATE_PROPERTY');
+            ws.registerButtonCallback ('CREATE_PROPERTY', function(btn:any){
+                console.log ('Create property');
+            });
+            domList.push (button);
+            return domList;
         });
         const onResize = function () {
             const areaElement = document.getElementById (workspaceId);
@@ -48,9 +60,8 @@ export function init (workspaceId: string, toolboxId: string) {
         window.addEventListener ('resize', onResize, false);
         onResize ();
         window.Blockly.svgResize (workspace);
-        const mainObject = Blockly.Xml.domToBlock ($('<block></block>').attr('type', 'define_object')[0], Blockly.mainWorkspace);
-        mainObject.setStyle('hat_blocks');
+        const mainObject = Blockly.Xml.domToBlock ($('<block></block>').attr('type', 'object_init')[0], Blockly.mainWorkspace);
         mainObject.moveBy(100, 100);
-        //mainObject.setDeletable(false);
+        mainObject.setDeletable(false);
     }
 }
