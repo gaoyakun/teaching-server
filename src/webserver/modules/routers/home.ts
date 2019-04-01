@@ -1,19 +1,15 @@
-import { Session } from '../../lib/session';
-import { Utils } from '../../common/utils';
-import { ErrorCode } from '../../common/errcodes';
-import { AssetManager } from '../server/user/assets';
-import { Config } from '../../lib/config';
-import { Server } from '../../lib/servermgr';
-import { ServerType } from '../../lib/constants';
-import { requestWrapper } from '../../lib/requestwrapper';
-import { RoomState, RoomType } from '../../common/defines';
-import * as request from 'request';
+import { Session } from '../../../lib/session';
+import { Utils } from '../../../common/utils';
+import { ErrorCode } from '../../../common/errcodes';
+import { AssetManager } from '../../server/user/assets';
+import { Config } from '../../../lib/config';
+import { Server } from '../../../lib/servermgr';
+import { ServerType } from '../../../lib/constants';
+import { requestWrapper } from '../../../lib/requestwrapper';
 import * as express from 'express';
 import 'express-async-errors';
 
-export const indexRouter = express.Router();
-
-indexRouter.get('/', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function homePage(req:express.Request, res:express.Response) {
     const session:Session = req.session as Session;
     const data: any = {};
     if (session.loginUserId) {
@@ -24,17 +20,17 @@ indexRouter.get('/', (req:express.Request, res:express.Response, next:express.Ne
     } else {
         res.render ('login');
     }
-});
+}
 
-indexRouter.get('/login', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function loginPage (req:express.Request, res:express.Response) {
     res.render ('login');
-});
+}
 
-indexRouter.get('/register', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function registerPage (req:express.Request, res:express.Response) {
     res.render ('register');
-});
+}
 
-indexRouter.get('/trust/settings/profile', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export async function profileSettingPage (req:express.Request, res:express.Response) {
     const session = req.session as Session;
     const user:any = await Config.engine.query ({
         sql:'select u.name as name, u.email as email, p.gender as gender, p.mobile as mobile, p.avatar as avatar from user u inner join user_profile p on u.id=p.user_id where u.id=?',
@@ -53,18 +49,18 @@ indexRouter.get('/trust/settings/profile', async (req:express.Request, res:expre
             avatar: user[0].avatar
         }
     });
-});
+}
 
-indexRouter.get('/trust/settings/reset', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function resetPassSettingPage (req:express.Request, res:express.Response) {
     res.render ('settings/resetpass', {
         user: {
             name: (req.session as Session).loginUserAccount
         }
     });
-});
+}
 
-indexRouter.get('/trust/assets/image', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    const thumb = Utils.safeParseInt(req.query.thumb) || 0;
+export async function getImageAsset (req:express.Request, res:express.Response, next:express.NextFunction, params:any) {
+    const thumb: number = params.thumb;
     const relPath = req.query.relPath;
     const name = req.query.name;
     if (!name || !relPath) {
@@ -79,13 +75,10 @@ indexRouter.get('/trust/assets/image', async (req:express.Request, res:express.R
         });
         res.end (content);
     }
-});
+}
 
-indexRouter.get('/avatar/:id', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    const userId = Utils.safeParseInt(req.params.id);
-    if (userId === null) {
-        return res.status(404).json (Utils.httpResult(ErrorCode.kParamError));
-    }
+export async function getAvatar (req:express.Request, res:express.Response, next:express.NextFunction, params:any) {
+    const userId:number = params.id;
     try {
         const content = await AssetManager.readAvatarImage(userId);
         if (!content) {
@@ -99,17 +92,17 @@ indexRouter.get('/avatar/:id', async (req:express.Request, res:express.Response,
     } catch (err) {
         res.redirect ('/images/face.jpg');
     }
-});
+}
 
-indexRouter.get('/trust/settings/assets', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function assetsSettingPage (req:express.Request, res:express.Response) {
     res.render ('settings/assets', {
         user: {
             name: (req.session as Session).loginUserAccount
         }
     });
-});
+}
 
-indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export async function sessionsSettingPage (req:express.Request, res:express.Response) {
     const session = req.session as Session;
     const sessionList:any = await Config.engine.objects('room').filter(['owner', session.loginUserId]).all();
     const sessionArray: any[] = [];
@@ -128,14 +121,11 @@ indexRouter.get('/trust/settings/sessions', async (req:express.Request, res:expr
         },
         sessions: sessionArray
     });
-});
+}
 
-indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export async function publishRoomPage (req:express.Request, res:express.Response, next:express.NextFunction, params:any) {
     const session = req.session as Session;
-    const roomId = Utils.safeParseInt (req.query.room_id);
-    if (roomId === null) {
-        throw new Error ('参数错误');
-    }
+    const roomId:number = params.room_id;
     // Query room information
     const rooms:any = await Config.engine.objects('room').filter(['id', roomId]).all();
     if (rooms.length !== 1) {
@@ -169,23 +159,23 @@ indexRouter.get('/trust/publish_room', async (req:express.Request, res:express.R
             host: `${serverInfo.host}:${serverInfo.port}?room=${roomId}&token=${(req.session as Session).id}`
         }
     });
-});
+}
 
-indexRouter.get('/trust/settings/whiteboards', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function whiteboardsSettingPage (req:express.Request, res:express.Response) {
     res.render ('settings/whiteboards', {
         user: {
             name: (req.session as Session).loginUserAccount,
         },
         whiteboards: []
     });
-});
+}
 
-indexRouter.get('/trust/create-whiteboard', (req:express.Request, res:express.Response, next:express.NextFunction) => {
+export function createWhiteboardPage (req:express.Request, res:express.Response) {
     res.render ('create_whiteboard', {
         user: {
             name: (req.session as Session).loginUserAccount,
         },
         serverinfo: null
     });
-});
+}
 

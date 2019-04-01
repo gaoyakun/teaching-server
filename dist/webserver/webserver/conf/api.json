@@ -1,0 +1,120 @@
+{
+    "routes": {
+        "home": {
+            "path": "/",
+            "interfaces": {
+                "homePage": {
+                    "path": "/"
+                },
+                "loginPage": {
+                    "path": "/login"
+                },
+                "registerPage": {
+                    "path": "/register"
+                },
+                "profileSettingPage": {
+                    "path": "/trust/settings/profile"
+                },
+                "resetPassSettingPage": {
+                    "path": "/trust/settings/reset"
+                },
+                "getImageAsset": {
+                    "path": "/trust/assets/image",
+                    "queryParams": {
+                        "thumb": { "type": "int", "default": 0 },
+                        "relPath": {},
+                        "name": {}
+                    }
+                },
+                "getAvatar":  {
+                    "path": "/avatar/:id",
+                    "urlParams": {
+                        "id": { "type": "int" }
+                    }
+                },
+                "assetsSettingPage": {
+                    "path": "/trust/settings/assets"
+                },
+                "sessionsSettingPage": {
+                    "path": "/trust/settings/sessions"
+                },
+                "publishRoomPage": {
+                    "path": "/trust/publish_room",
+                    "queryParams": {
+                        "room_id": { "type":"int" }
+                    }
+                },
+                "whiteboardsSettingPage": {
+                    "path": "/trust/settings/whiteboards"
+                },
+                "createWhiteboardPage": {
+                    "path": "/trust/create-whiteboard"
+                }
+            }
+        },
+        "api": {
+            "path": "/api",
+            "interfaces": {
+                "auth": {
+                    "path": "/auth"
+                },
+                "login": {
+                    "method": "post",
+                    "path": "/login",
+                    "bodyParams": {
+                        "account": {},
+                        "md5password": {}
+                    }
+                },
+                "register": {
+                    "method": "post",
+                    "path": "/register",
+                    "bodyParams": {
+                        "account": {},
+                        "email": {},
+                        "md5password": {}
+                    }
+                },
+                "getAssetList": {
+                    "path": "/trust/asset",
+                    "queryParams": {
+                        "relPath": { "default":"/" }
+                    }
+                },
+                "updateProfile": {
+                    "method": "post",
+                    "path": "/trust/profile",
+                    "bodyParams": {
+                        "name": {},
+                        "email": {},
+                        "gender": { "default": null, "type": "int", "enum": [0,1,2] },
+                        "mobile": { "default": "" }
+                    }
+                },
+                "uploadAsset": {
+                    "method": "post",
+                    "path": "/trust/asset"
+                },
+                "createRoom": {
+                    "method": "post",
+                    "path": "/trust/create_room",
+                    "bodyParams": {
+                        "name": {},
+                        "desc": { "default":"" },
+                        "type": { "type":"int", "default":0 }
+                    }
+                },
+                "getPublicRooms": {
+                    "path": "/trust/public_rooms"
+                },
+                "closeRoom": {
+                    "method": "post",
+                    "path": "/trust/close_room",
+                    "bodyParams": {
+                        "room_id": { "type":"int" }
+                    }
+                }
+            }
+        }
+    }
+}

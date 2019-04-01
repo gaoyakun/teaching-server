@@ -18,8 +18,7 @@ const servermgr_1 = require("../lib/servermgr");
 const constants_1 = require("../lib/constants");
 const utils_1 = require("../common/utils");
 const errcodes_1 = require("../common/errcodes");
-const index_1 = require("./routes/index");
-const api_1 = require("./routes/api");
+const routetool_1 = require("../lib/routetool");
 require("express-async-errors");
 const app = express();
 exports.app = app;
@@ -43,8 +42,7 @@ function initializeApp() {
         });
         app.use('/trust', middlewares.middlewareAuth);
         app.use('/api/trust', middlewares.middlewareAuth);
-        app.use('/api', api_1.apiRouter);
-        app.use('/', index_1.indexRouter);
+        yield routetool_1.RouteTool.loadRouters(app, path.join(__dirname, 'modules', 'routers'), path.join(__dirname, 'conf', 'api.json'));
         app.use((req, res, next) => {
             const session = req.session;
             res.render('error', {

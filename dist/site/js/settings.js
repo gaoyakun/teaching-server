@@ -3339,7 +3339,7 @@
 	                    };
 	                    relPath = '/';
 	                    return [4 /*yield*/, mod_tools.ajaxRequest({
-	                            url: '/api/trust/whiteboard',
+	                            url: '/api/trust/asset',
 	                            type: 'get',
 	                            data: {
 	                                relPath: relPath

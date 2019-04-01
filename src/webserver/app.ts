@@ -8,8 +8,8 @@ import { Server } from '../lib/servermgr';
 import { ServerType } from '../lib/constants';
 import { Utils } from '../common/utils';
 import { ErrorCode } from '../common/errcodes';
-import { indexRouter } from './routes/index';
-import { apiRouter } from './routes/api';
+import { RouteTool } from '../lib/routetool';
+
 import 'express-async-errors';
 
 const app = express ();
@@ -37,8 +37,8 @@ async function initializeApp () {
     
     app.use ('/trust', middlewares.middlewareAuth);
     app.use ('/api/trust', middlewares.middlewareAuth);
-    app.use ('/api', apiRouter);
-    app.use ('/', indexRouter);
+
+    await RouteTool.loadRouters (app, path.join(__dirname, 'modules', 'routers'), path.join(__dirname, 'conf', 'api.json'));
 
     app.use ((req: express.Request, res: express.Response, next: express.NextFunction) => {
         const session = req.session;

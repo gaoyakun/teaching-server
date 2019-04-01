@@ -11,7 +11,7 @@ export async function whiteboards_setup(arg?: any) {
     };
     const relPath = '/';
     const whiteboardList: any = await ajaxRequest ({
-        url: '/api/trust/whiteboard',
+        url: '/api/trust/asset',
         type: 'get',
         data: {
             relPath: relPath
