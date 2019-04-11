@@ -1421,542 +1421,213 @@
 	        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
 	    }
 	};
-	var __values = (commonjsGlobal && commonjsGlobal.__values) || function (o) {
-	    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-	    if (m) return m.call(o);
-	    return {
-	        next: function () {
-	            if (o && i >= o.length) o = void 0;
-	            return { value: o && o[i++], done: !o };
-	        }
-	    };
-	};
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var MediaProducer = /** @class */ (function () {
-	    function MediaProducer(socket$$1, roomName, publish, peerName, turnServers) {
+	    function MediaProducer(roomName, publish, peerName) {
 	        var _this = this;
-	        this._socket = socket$$1;
 	        this._roomName = roomName;
-	        this._pending = {};
-	        this._errors = {};
-	        this._capturing = {};
 	        this._publish = publish;
 	        this._peerName = peerName;
-	        this._producers = {};
-	        this._lastProduced = {};
-	        this._requestId = 0;
-	        this._room = null;
-	        this._transport = null;
-	        this._sendStream = null;
-	        this._turnServers = turnServers || [];
-	        this._streamActiveTimeout = {};
-	        this._mediaElement = null;
-	        this._playStream = null;
-	        if (window.navigator && window.navigator.userAgent.match(/\sEdge\//)) {
-	            // On Edge, having any secure turn (turns:...) URLs
-	            // cause an InvalidAccessError, preventing connections
-	            this._turnServers = this._turnServers.map(function (srv) {
-	                var urls = srv.urls.filter(function (url) {
-	                    // remove the turns: url
-	                    return !url.match(/^turns:/);
+	        this._joined = false;
+	        this._localStream = null;
+	        this._publishing = false;
+	        this._client = window.AgoraRTC.createClient({ mode: 'live' });
+	        this._client.init('75832b52499b478287274f413804aa27', function () {
+	            console.log('AgoraRTC client initialized');
+	            _this._client.join(null, _this._roomName, _this._peerName, function (uid) {
+	                _this._joined = true;
+	                console.log("User " + uid + " joined to channel " + _this._roomName);
+	                _this._client.on('stream-added', function (evt) {
+	                    var stream = evt.stream;
+	                    console.log("new stream added: " + stream.getId());
+	                    _this._client.subscribe(stream, function (err) {
+	                        console.log("subscribe stream failed: " + err);
+	                    });
 	                });
-	                return Object.assign({}, srv, { urls: urls });
+	                _this._client.on('stream-subscribed', function (evt) {
+	                    var stream = evt.stream;
+	                    console.log("subscribe remote stream succeeded: " + stream.getId());
+	                    var elementId = "remote-audio-" + stream.getId();
+	                    var audioContainer = document.getElementById(elementId);
+	                    if (!audioContainer) {
+	                        audioContainer = document.createElement('div');
+	                        audioContainer.setAttribute('id', elementId);
+	                        document.body.appendChild(audioContainer);
+	                    }
+	                    stream.play(elementId);
+	                });
+	                _this._client.on('stream-removed', function (evt) {
+	                    var stream = evt.stream;
+	                    console.log("remote stream removed: " + stream.getId());
+	                    stream.stop();
+	                    var elementId = "remote-audio-" + stream.getId();
+	                    var audioContainer = document.getElementById(elementId);
+	                    if (audioContainer) {
+	                        audioContainer.remove();
+	                    }
+	                });
 	            });
-	        }
-	        this._socket.on('media', function (data) {
-	            try {
-	                switch (data.type) {
-	                    case 'MS_RESPONSE': {
-	                        var cb = _this._pending[data.meta.id];
-	                        delete _this._pending[data.meta.id];
-	                        delete _this._errors[data.meta.id];
-	                        cb && cb(data.payload);
-	                        break;
-	                    }
-	                    case 'MS_ERROR': {
-	                        var errb = _this._errors[data.meta.id];
-	                        delete _this._pending[data.meta.id];
-	                        delete _this._errors[data.meta.id];
-	                        errb && errb(data.payload);
-	                        break;
-	                    }
-	                    case 'MS_NOTIFY': {
-	                        _this._room.receiveNotification(data.payload);
-	                        break;
-	                    }
-	                }
-	            }
-	            catch (err) {
-	                console.log('Error', err, 'handling', data);
-	            }
-	        });
-	        this._socket.on('disconnect', function () {
-	            if (_this._room) {
-	                _this._room.leave();
-	            }
 	        });
 	    }
-	    Object.defineProperty(MediaProducer.prototype, "isDeviceSupported", {
-	        get: function () {
-	            return window.mediasoupClient.isDeviceSupported();
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(MediaProducer.prototype, "publish", {
-	        get: function () {
-	            return this._publish;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Object.defineProperty(MediaProducer.prototype, "joined", {
-	        get: function () {
-	            return !!this._room;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    MediaProducer.prototype.getAudioInputDevices = function () {
-	        return __awaiter(this, void 0, void 0, function () {
-	            var devices, deviceList;
-	            return __generator(this, function (_a) {
-	                switch (_a.label) {
-	                    case 0: return [4 /*yield*/, window.navigator.mediaDevices.enumerateDevices()];
-	                    case 1:
-	                        devices = _a.sent();
-	                        if (devices) {
-	                            deviceList = devices.filter(function (device) {
-	                                return device.kind === 'audioinput' && device.deviceId !== 'default';
-	                            }).map(function (device) {
-	                                return {
-	                                    deviceId: device.deviceId,
-	                                    deviceName: device.label
-	                                };
-	                            });
-	                            return [2 /*return*/, deviceList];
-	                        }
-	                        else {
-	                            return [2 /*return*/, []];
-	                        }
-	                        return [2 /*return*/];
-	                }
-	            });
-	        });
-	    };
-	    MediaProducer.prototype.stopCapture = function () {
-	        var e_1, _a, e_2, _b;
-	        for (var src in this._capturing) {
-	            if (this._capturing[src].cancel) {
-	                this._capturing[src].cancel();
-	            }
-	            var stream = this._capturing[src].stream;
-	            if (stream) {
-	                try {
-	                    for (var _c = __values(stream.getAudioTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
-	                        var track = _d.value;
-	                        track.stop();
-	                    }
-	                }
-	                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-	                finally {
-	                    try {
-	                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-	                    }
-	                    finally { if (e_1) throw e_1.error; }
-	                }
-	                try {
-	                    for (var _e = __values(stream.getVideoTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
-	                        var track = _f.value;
-	                        track.stop();
-	                    }
-	                }
-	                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-	                finally {
-	                    try {
-	                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-	                    }
-	                    finally { if (e_2) throw e_2.error; }
-	                }
-	            }
-	        }
-	        this._capturing = {};
-	        this._connectProducer('audio');
-	        this._connectProducer('video');
-	    };
-	    MediaProducer.prototype.capture = function () {
-	        return __awaiter(this, void 0, void 0, function () {
-	            var constraints, stream, err_1;
-	            return __generator(this, function (_a) {
-	                switch (_a.label) {
-	                    case 0:
-	                        this.stopCapture();
-	                        this._sendStream = this._sendStream || new MediaStream();
-	                        constraints = {
-	                            audio: true
-	                        };
-	                        _a.label = 1;
-	                    case 1:
-	                        _a.trys.push([1, 4, , 5]);
-	                        return [4 /*yield*/, navigator.mediaDevices.getUserMedia(constraints)];
-	                    case 2:
-	                        stream = _a.sent();
-	                        this._capturing.gum = {
-	                            stream: stream,
-	                            audio: true
-	                        };
-	                        return [4 /*yield*/, this._hookup(this._capturing.gum, this._sendStream)];
-	                    case 3:
-	                        _a.sent();
-	                        return [3 /*break*/, 5];
-	                    case 4:
-	                        err_1 = _a.sent();
-	                        alert("Error getting media (error code: " + err_1.code + ")");
-	                        return [3 /*break*/, 5];
-	                    case 5: return [2 /*return*/];
-	                }
-	            });
-	        });
-	    };
-	    MediaProducer.prototype.leave = function () {
-	        if (this._room) {
-	            this._room.leave();
-	        }
+	    MediaProducer.isDeviceSupported = function () {
+	        return !!window.AgoraRTC.checkSystemRequirements();
 	    };
 	    MediaProducer.prototype.join = function () {
 	        return __awaiter(this, void 0, void 0, function () {
 	            var _this = this;
 	            return __generator(this, function (_a) {
 	                return [2 /*return*/, new Promise(function (resolve, reject) {
-	                        var pub = _this._publish;
-	                        var peerName = _this._peerName;
-	                        _this._room = new window.mediasoupClient.Room({
-	                            requestTimeout: 8000,
-	                            turnServers: _this._turnServers
-	                        });
-	                        _this._room.on('close', function () {
-	                            _this.stopCapture();
-	                            if (_this._transport) {
-	                                _this._transport.close();
-	                                _this._transport = null;
-	                                _this._sendStream = null;
-	                            }
-	                            _this._setSource();
-	                            _this._room = null;
-	                            console.log('Room closed');
-	                        });
-	                        _this._room.on('newpeer', function (peer) {
-	                            console.log('Room new peer:', peer);
-	                        });
-	                        _this._room.on('request', function (request, callback, errback) {
-	                            if (!_this._socket.connected) {
-	                                return errback(new Error('Socket is not open'));
-	                            }
-	                            _this._pending[++_this._requestId] = callback;
-	                            _this._errors[_this._requestId] = errback;
-	                            _this._socket.emit('media', {
-	                                type: 'MS_SEND',
-	                                payload: request,
-	                                meta: {
-	                                    id: _this._requestId,
-	                                    channel: _this._roomName
-	                                }
-	                            });
-	                        });
-	                        _this._room.on('notify', function (notification) {
-	                            if (!_this._socket.connected) {
-	                                console.log('Socket is not open');
-	                                return;
-	                            }
-	                            _this._socket.emit('media', {
-	                                type: 'MS_SEND',
-	                                payload: notification,
-	                                meta: {
-	                                    channel: _this._roomName,
-	                                    notification: true
-	                                }
-	                            });
-	                        });
-	                        _this._room.join(peerName).then(function (peers) {
-	                            console.log('Channel', _this._roomName, 'joined with peers', peers);
-	                            if (pub) {
-	                                _this._transport = _this._room.createTransport('send');
-	                                _this._maybeStream(_this._sendStream);
-	                                resolve({
-	                                    room: _this._room,
-	                                    peers: peers
+	                        if (_this._client) {
+	                            if (!_this._joined) {
+	                                _this._client.join(null, _this._roomName, _this._peerName, function (uid) {
+	                                    _this._joined = true;
+	                                    resolve();
+	                                }, function (err) {
+	                                    reject(new Error(err));
 	                                });
 	                            }
 	                            else {
-	                                _this._transport = _this._room.createTransport('recv');
-	                                // The server will only ever send us a single publisher.
-	                                // Stream it if it is new...
-	                                _this._room.on('newpeer', function (peer) {
-	                                    console.log('New peer detected:', peer.name);
-	                                    _this._setSource(_this._startStream(peer));
-	                                });
-	                                // ... or if it already exists.
-	                                if (peers[0]) {
-	                                    console.log('Existing peer detected:', peers[0].name);
-	                                    _this._setSource(_this._startStream(peers[0]));
-	                                }
+	                                resolve();
 	                            }
-	                        }).catch(reject);
+	                        }
+	                        else {
+	                            reject(new Error('AgoraRTC client is nulll'));
+	                        }
 	                    })];
 	            });
 	        });
 	    };
-	    MediaProducer.prototype._startStream = function (peer) {
-	        var stream = new MediaStream();
-	        var that = this;
-	        function addConsumer(consumer) {
-	            if (!consumer.supported) {
-	                console.log('consumer', consumer.id, 'not supported');
-	                return;
-	            }
-	            consumer.on('stats', that._showStats);
-	            //consumer.enableStats(1000);
-	            consumer.receive(that._transport)
-	                .then(function receiveTrack(track) {
-	                stream.addTrack(track);
-	                consumer.on('close', function closeConsumer() {
-	                    // Remove the old track.
-	                    console.log('removing the old track', track.id);
-	                    that._clearStats(consumer.kind);
-	                    stream.removeTrack(track);
-	                    if (stream.getTracks().length === 0) {
-	                        // Replace the stream.
-	                        console.log('replacing stream');
-	                        stream = new MediaStream();
-	                        that._setSource(stream);
-	                    }
-	                });
-	            }).catch(function onError(e) {
-	                console.log('Cannot add track', e);
-	            });
-	        }
-	        // Add consumers that are added later...
-	        peer.on('newconsumer', addConsumer);
-	        peer.on('closed', function closedPeer() {
-	            that._setSource(stream);
-	        });
-	        // ... as well as the ones that were already present.
-	        for (var i = 0; i < peer.consumers.length; i++) {
-	            addConsumer(peer.consumers[i]);
-	        }
-	        return stream;
-	    };
-	    MediaProducer.prototype._setSource = function (stream) {
+	    MediaProducer.prototype.leave = function () {
 	        return __awaiter(this, void 0, void 0, function () {
-	            var that, tracks, i, url;
+	            var _this = this;
 	            return __generator(this, function (_a) {
-	                switch (_a.label) {
-	                    case 0:
-	                        that = this;
-	                        if (this._playStream && !stream) {
-	                            try {
-	                                if (this._playStream.stop) {
-	                                    this._playStream.stop();
-	                                }
-	                                else if (this._playStream.getTracks) {
-	                                    tracks = this._playStream.getTracks();
-	                                    for (i = 0; i < tracks.length; i++) {
-	                                        tracks[i].stop();
-	                                    }
-	                                }
+	                return [2 /*return*/, new Promise(function (resolve, reject) {
+	                        if (_this._client) {
+	                            if (_this._joined) {
+	                                _this._client.leave(function () {
+	                                    resolve();
+	                                }, function (err) {
+	                                    reject(new Error(err));
+	                                });
 	                            }
-	                            catch (e) {
-	                                console.log('Error stopping stream', e);
-	                            }
-	                            this._playStream = null;
-	                        }
-	                        if (!!stream) return [3 /*break*/, 1];
-	                        if (this._mediaElement) {
-	                            this._mediaElement.removeAttribute('src');
-	                            try {
-	                                this._mediaElement.srcObject = null;
-	                            }
-	                            catch (e) {
-	                            }
-	                            this._mediaElement.style.background = 'blue';
-	                            this._mediaElement.load();
-	                        }
-	                        return [3 /*break*/, 3];
-	                    case 1:
-	                        // We have an actual MediaStream.
-	                        this._playStream = stream;
-	                        return [4 /*yield*/, this._whenStreamIsActive(stream)];
-	                    case 2:
-	                        if (_a.sent()) {
-	                            console.log('adding active stream');
-	                            if (!that._mediaElement) {
-	                                that._mediaElement = document.createElement('audio');
-	                                that._mediaElement.autoplay = true;
-	                                document.body.appendChild(that._mediaElement);
-	                            }
-	                            that._mediaElement.style.background = 'black';
-	                            try {
-	                                that._mediaElement.srcObject = stream || null;
-	                            }
-	                            catch (e) {
-	                                url = (window.URL || window.webkitURL);
-	                                if (url) {
-	                                    that._mediaElement.src = url.createObjectURL(stream);
-	                                }
+	                            else {
+	                                resolve();
 	                            }
 	                        }
-	                        _a.label = 3;
-	                    case 3: return [2 /*return*/];
-	                }
+	                        else {
+	                            reject(new Error('AgoraRTC client is null'));
+	                        }
+	                    })];
 	            });
 	        });
 	    };
-	    MediaProducer.prototype._hookup = function (capturing, newStream) {
+	    MediaProducer.prototype.publish = function () {
 	        return __awaiter(this, void 0, void 0, function () {
-	            var e_3, _a, e_4, _b, vtrack, _c, _d, track, atrack, _e, _f, track;
-	            return __generator(this, function (_g) {
-	                switch (_g.label) {
-	                    case 0:
-	                        vtrack = capturing.stream.getVideoTracks();
-	                        if (capturing.video && vtrack.length > 0) {
-	                            try {
-	                                for (_c = __values(newStream.getVideoTracks()), _d = _c.next(); !_d.done; _d = _c.next()) {
-	                                    track = _d.value;
-	                                    track.stop();
-	                                }
-	                            }
-	                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-	                            finally {
-	                                try {
-	                                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-	                                }
-	                                finally { if (e_3) throw e_3.error; }
-	                            }
-	                            newStream.addTrack(vtrack[0]);
-	                        }
-	                        atrack = capturing.stream.getAudioTracks();
-	                        if (capturing.audio && atrack.length > 0) {
-	                            try {
-	                                for (_e = __values(newStream.getAudioTracks()), _f = _e.next(); !_f.done; _f = _e.next()) {
-	                                    track = _f.value;
-	                                    track.stop();
-	                                }
-	                            }
-	                            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-	                            finally {
-	                                try {
-	                                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-	                                }
-	                                finally { if (e_4) throw e_4.error; }
-	                            }
-	                            newStream.addTrack(atrack[0]);
-	                        }
-	                        return [4 /*yield*/, this._maybeStream(newStream)];
-	                    case 1:
-	                        _g.sent();
-	                        return [2 /*return*/];
-	                }
-	            });
-	        });
-	    };
-	    MediaProducer.prototype._maybeStream = function (stream) {
-	        return __awaiter(this, void 0, void 0, function () {
-	            var notEnded, that, atrack, vtrack;
+	            var _this = this;
 	            return __generator(this, function (_a) {
-	                switch (_a.label) {
-	                    case 0:
-	                        notEnded = function (track) {
-	                            if (track.readyState === 'ended' && stream.removeTrack) {
-	                                stream.removeTrack(track);
-	                                return false;
-	                            }
-	                            return true;
-	                        };
-	                        that = this;
-	                        if (!!stream) return [3 /*break*/, 1];
-	                        console.log('no sending stream yet');
-	                        return [3 /*break*/, 3];
-	                    case 1:
-	                        this._sendStream = stream;
-	                        console.log('streaming');
-	                        return [4 /*yield*/, that._whenStreamIsActive(stream)];
-	                    case 2:
-	                        if (_a.sent()) {
-	                            atrack = stream.getAudioTracks();
-	                            vtrack = stream.getVideoTracks();
-	                            that._connectProducer('audio', atrack.find(notEnded));
-	                            that._connectProducer('video', vtrack.find(notEnded));
+	                return [2 /*return*/, new Promise(function (resolve, reject) {
+	                        if (!_this.isPresenter()) {
+	                            reject(new Error('Only presenter can publish'));
 	                        }
-	                        _a.label = 3;
-	                    case 3: return [2 /*return*/];
-	                }
+	                        else if (!_this._publishing) {
+	                            if (!_this._localStream) {
+	                                _this._localStream = window.AgoraRTC.createStream({
+	                                    streamID: _this._peerName,
+	                                    audio: true,
+	                                    video: false,
+	                                    screen: false
+	                                });
+	                                _this._localStream.on('accessAllowed', function () {
+	                                    console.log('accessAllowed');
+	                                });
+	                                _this._localStream.on('accessDenied', function () {
+	                                    console.log('accessDenied');
+	                                });
+	                                _this._localStream.init(function () {
+	                                    console.log('local stream initialized');
+	                                    _this._client.publish(_this._localStream, function (err) {
+	                                        reject(new Error("publish local stream failed with error: " + err));
+	                                    });
+	                                    _this._client.on('stream-published', function (evt) {
+	                                        console.log('local stream successfully published');
+	                                        _this._publishing = true;
+	                                        resolve();
+	                                    });
+	                                });
+	                            }
+	                            else {
+	                                _this._client.publish(_this._localStream, function (err) {
+	                                    reject(new Error("publish local stream failed with error: " + err));
+	                                });
+	                                _this._client.on('stream-published', function (evt) {
+	                                    console.log('local stream successfully published');
+	                                    _this._publishing = true;
+	                                    resolve();
+	                                });
+	                            }
+	                        }
+	                        else {
+	                            resolve();
+	                        }
+	                    })];
 	            });
 	        });
 	    };
-	    MediaProducer.prototype._whenStreamIsActive = function (stream) {
-	        var _this = this;
-	        return new Promise(function (resolve, reject) {
-	            var that = _this;
-	            function maybeCallback() {
-	                delete that._streamActiveTimeout[stream.id];
-	                if (stream.onactive === maybeCallback) {
-	                    stream.onactive = null;
-	                }
-	                if (!stream.active) {
-	                    that._streamActiveTimeout[stream.id] = setTimeout(maybeCallback, 500);
-	                }
-	                else {
-	                    resolve(stream);
-	                }
-	            }
-	            if (!stream) {
-	                resolve(stream);
-	            }
-	            else {
-	                var id = stream.id;
-	                if (stream.active) {
-	                    resolve(stream);
-	                }
-	                else if ('onactive' in stream) {
-	                    stream.onactive = maybeCallback;
-	                }
-	                else if (!_this._streamActiveTimeout[id]) {
-	                    maybeCallback();
-	                }
-	            }
+	    MediaProducer.prototype.unpublish = function () {
+	        return __awaiter(this, void 0, void 0, function () {
+	            var _this = this;
+	            return __generator(this, function (_a) {
+	                return [2 /*return*/, new Promise(function (resolve) {
+	                        if (_this._client && _this._publishing && _this._localStream) {
+	                            _this._client.unpublish(_this._localStream, function (err) {
+	                                console.log("unpublish failed with error: " + err);
+	                            });
+	                        }
+	                        _this._publishing = false;
+	                        resolve();
+	                    })];
+	            });
 	        });
 	    };
-	    MediaProducer.prototype._connectProducer = function (type, track) {
-	        var _this = this;
-	        if (this._producers[type]) {
-	            if (this._room && track && this._lastProduced[type] === track.id) {
-	                return;
-	            }
-	            console.log('Stop producing', type, this._producers[type].track.id);
-	            this._producers[type].close();
-	            delete this._producers[type];
-	            delete this._lastProduced[type];
-	        }
-	        if (this._room && track) {
-	            console.log('Producing', type, track.id);
-	            this._lastProduced[type] = track.id;
-	            var opts = type === 'video' ? { simulcast: true } : {};
-	            this._producers[type] = this._room.createProducer(track, opts);
-	            this._producers[type].on('stats', this._showStats);
-	            this._producers[type].enableStats(1000);
-	            this._producers[type].send(this._transport);
-	            this._producers[type].on('close', function () {
-	                _this._clearStats(type);
+	    MediaProducer.prototype.isPresenter = function () {
+	        return this._publish;
+	    };
+	    Object.defineProperty(MediaProducer.prototype, "joined", {
+	        get: function () {
+	            return this._joined;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(MediaProducer.prototype, "publishing", {
+	        get: function () {
+	            return this._publishing;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    MediaProducer.prototype.getAudioInputDevices = function () {
+	        return __awaiter(this, void 0, void 0, function () {
+	            return __generator(this, function (_a) {
+	                return [2 /*return*/, new Promise(function (resolve, reject) {
+	                        window.AgoraRTC.getDevices(function (devices) {
+	                            var deviceList = [];
+	                            for (var i = 0; i < devices.length; i++) {
+	                                var device = devices[i];
+	                                if (device.kind === 'audioinput' && device.deviceId !== 'default') {
+	                                    deviceList.push({
+	                                        deviceId: device.deviceId,
+	                                        deviceName: device.label || "microphone" + (i + 1)
+	                                    });
+	                                }
+	                            }
+	                            resolve(deviceList);
+	                        }, function (err) {
+	                            reject(new Error(err));
+	                        });
+	                    })];
 	            });
-	        }
-	    };
-	    MediaProducer.prototype._showStats = function (s) {
-	        for (var i = 0; i < s.length; i++) {
-	            var o = s[i];
-	            console.log("" + o.type[0] + o.mediaType + "kBps: " + Math.round(o.bitrate / 1024 / 8));
-	        }
-	    };
-	    MediaProducer.prototype._clearStats = function (kind) {
+	        });
 	    };
 	    return MediaProducer;
 	}());
@@ -17165,7 +16836,7 @@
 	        }
 	        else if (ev.messageType === protolist.MsgType.room_MediaOptionMessage) {
 	            if (!window.mediaProducer) {
-	                window.mediaProducer = new mod_mediasoup_1.MediaProducer(server.socket, "room-" + ev.messageData.roomId, ev.messageData.publish, "peer-" + ev.messageData.userId, ev.messageData.turnServers);
+	                window.mediaProducer = new mod_mediasoup_1.MediaProducer("room-" + ev.messageData.roomId, ev.messageData.publish, "peer-" + ev.messageData.userId);
 	            }
 	            var buttonCSS = {
 	                padding: '4px 4px'
@@ -17192,10 +16863,10 @@
 	                                id: 'tb-live',
 	                                type: 'button',
 	                                radioGroup: 1,
-	                                disabled: !window.mediaProducer.isDeviceSupported,
+	                                disabled: !mod_mediasoup_1.MediaProducer.isDeviceSupported(),
 	                                styles: {
 	                                    css: buttonCSS,
-	                                    icon: window.mediaProducer.isDeviceSupported ? '/images/mic.png' : '/images/mic-blocked.png',
+	                                    icon: mod_mediasoup_1.MediaProducer.isDeviceSupported() ? '/images/mic.png' : '/images/mic-blocked.png',
 	                                },
 	                                callback: function (type) {
 	                                    return __awaiter(this, void 0, void 0, function () {
@@ -17205,33 +16876,39 @@
 	                                            switch (_a.label) {
 	                                                case 0:
 	                                                    console.log("live broadcast " + type);
-	                                                    if (!window.mediaProducer) return [3 /*break*/, 7];
-	                                                    if (!window.mediaProducer.joined) return [3 /*break*/, 1];
-	                                                    window.mediaProducer.leave();
+	                                                    if (!window.mediaProducer) return [3 /*break*/, 10];
+	                                                    if (!window.mediaProducer.publishing) return [3 /*break*/, 2];
+	                                                    return [4 /*yield*/, window.mediaProducer.unpublish()];
+	                                                case 1:
+	                                                    _a.sent();
 	                                                    $(this).toolbar('setStyle', 'tb-live', {
 	                                                        icon: '/images/mic.png'
 	                                                    });
-	                                                    return [3 /*break*/, 7];
-	                                                case 1:
-	                                                    if (!!window.mediaProducer.publish) return [3 /*break*/, 2];
-	                                                    window.mediaProducer.join();
-	                                                    return [3 /*break*/, 7];
+	                                                    return [3 /*break*/, 10];
 	                                                case 2:
-	                                                    deviceList = [];
-	                                                    _a.label = 3;
+	                                                    if (!!window.mediaProducer.isPresenter()) return [3 /*break*/, 4];
+	                                                    return [4 /*yield*/, window.mediaProducer.join()];
 	                                                case 3:
-	                                                    _a.trys.push([3, 5, , 6]);
-	                                                    navigator.mediaDevices.getUserMedia({ audio: true });
-	                                                    return [4 /*yield*/, window.mediaProducer.getAudioInputDevices()];
+	                                                    _a.sent();
+	                                                    return [3 /*break*/, 10];
 	                                                case 4:
+	                                                    deviceList = [];
+	                                                    _a.label = 5;
+	                                                case 5:
+	                                                    _a.trys.push([5, 8, , 9]);
+	                                                    return [4 /*yield*/, navigator.mediaDevices.getUserMedia({ audio: true })];
+	                                                case 6:
+	                                                    _a.sent();
+	                                                    return [4 /*yield*/, window.mediaProducer.getAudioInputDevices()];
+	                                                case 7:
 	                                                    deviceList = _a.sent();
 	                                                    console.log(deviceList);
-	                                                    return [3 /*break*/, 6];
-	                                                case 5:
+	                                                    return [3 /*break*/, 9];
+	                                                case 8:
 	                                                    err_1 = _a.sent();
 	                                                    console.log(err_1);
 	                                                    return [2 /*return*/];
-	                                                case 6:
+	                                                case 9:
 	                                                    if (deviceList.length === 0) {
 	                                                        alert('未找到音频输入设备');
 	                                                    }
@@ -17255,17 +16932,17 @@
 	                                                        $dlgFooter = $('<div></div>').addClass('modal-footer').appendTo($dlgContent);
 	                                                        $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on('click', function () {
 	                                                            $popupSelectDevice_1.modal('hide');
-	                                                            if (!window.mediaProducer.joined) {
-	                                                                window.mediaProducer.join().then(function () {
-	                                                                    if (window.mediaProducer.publish) {
-	                                                                        window.mediaProducer.capture().then(function () {
-	                                                                            $(_this).toolbar('setStyle', 'tb-live', {
-	                                                                                icon: '/images/mic-unmute.png'
-	                                                                            });
-	                                                                        });
-	                                                                    }
+	                                                            window.mediaProducer.join().then(function () {
+	                                                                window.mediaProducer.publish().then(function () {
+	                                                                    $(_this).toolbar('setStyle', 'tb-live', {
+	                                                                        icon: '/images/mic-unmute.png'
+	                                                                    });
+	                                                                }).catch(function (err) {
+	                                                                    console.log(err);
 	                                                                });
-	                                                            }
+	                                                            }).catch(function (err) {
+	                                                                console.log(err);
+	                                                            });
 	                                                        });
 	                                                        $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on('click', function () {
 	                                                            $popupSelectDevice_1.modal('hide');
@@ -17287,8 +16964,8 @@
 	                                                        });
 	                                                        $popupSelectDevice_1.modal('show');
 	                                                    }
-	                                                    _a.label = 7;
-	                                                case 7: return [2 /*return*/];
+	                                                    _a.label = 10;
+	                                                case 10: return [2 /*return*/];
 	                                            }
 	                                        });
 	                                    });

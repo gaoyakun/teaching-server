@@ -50,7 +50,7 @@ export function init (uri: string) {
             }
         } else if (ev.messageType === proto.MsgType.room_MediaOptionMessage) {
             if (!window.mediaProducer) {
-                window.mediaProducer = new MediaProducer (server!.socket!, `room-${ev.messageData.roomId}`, ev.messageData.publish, `peer-${ev.messageData.userId}`, ev.messageData.turnServers);
+                window.mediaProducer = new MediaProducer (`room-${ev.messageData.roomId}`, ev.messageData.publish, `peer-${ev.messageData.userId}`);
             }
             const buttonCSS = {
                 padding: '4px 4px'
@@ -77,25 +77,25 @@ export function init (uri: string) {
                             id: 'tb-live',
                             type: 'button',
                             radioGroup: 1,
-                            disabled: !window.mediaProducer!.isDeviceSupported,
+                            disabled: !MediaProducer.isDeviceSupported(),
                             styles: {
                                 css: buttonCSS,
-                                icon: window.mediaProducer!.isDeviceSupported ? '/images/mic.png' : '/images/mic-blocked.png',
+                                icon: MediaProducer.isDeviceSupported() ? '/images/mic.png' : '/images/mic-blocked.png',
                             },
                             callback: async function (this:Element, type) {
                                 console.log (`live broadcast ${type}`);
                                 if (window.mediaProducer) {
-                                    if (window.mediaProducer.joined) {
-                                        window.mediaProducer.leave ();
+                                    if (window.mediaProducer.publishing) {
+                                        await window.mediaProducer.unpublish ();
                                         $(this).toolbar('setStyle', 'tb-live', {
                                             icon: '/images/mic.png'
                                         });
-                                    } else if (!window.mediaProducer.publish) {
-                                        window.mediaProducer.join ();
+                                    } else if (!window.mediaProducer.isPresenter()) {
+                                        await window.mediaProducer.join ();
                                     } else {
                                         let deviceList: DeviceInfo[] = [];
                                         try {
-                                            navigator.mediaDevices.getUserMedia({audio:true});
+                                            await navigator.mediaDevices.getUserMedia({audio:true});
                                             deviceList = await window.mediaProducer.getAudioInputDevices();
                                             console.log (deviceList);
                                         } catch (err) {
@@ -124,17 +124,17 @@ export function init (uri: string) {
                                             const $dlgFooter = $('<div></div>').addClass ('modal-footer').appendTo ($dlgContent);
                                             $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-primary']).html('确定').appendTo($dlgFooter).on ('click', () => {
                                                 $popupSelectDevice.modal ('hide');
-                                                if (!window.mediaProducer!.joined) {
-                                                    window.mediaProducer!.join ().then (()=>{
-                                                        if (window.mediaProducer!.publish) {
-                                                            window.mediaProducer!.capture ().then (()=>{
-                                                                $(this).toolbar('setStyle', 'tb-live', {
-                                                                    icon: '/images/mic-unmute.png'
-                                                                });                                                                                        
-                                                            });
-                                                        }
+                                                window.mediaProducer!.join ().then (()=>{
+                                                    window.mediaProducer!.publish ().then (()=>{
+                                                        $(this).toolbar('setStyle', 'tb-live', {
+                                                            icon: '/images/mic-unmute.png'
+                                                        });                                                                                        
+                                                    }).catch (err=>{
+                                                        console.log (err);
                                                     });
-                                                }
+                                                }).catch (err=>{
+                                                    console.log (err);
+                                                });
                                             });
                                             $('<button></button>').attr('type', 'button').addClass(['btn', 'btn-secondary']).html('取消').appendTo($dlgFooter).on ('click', function(){
                                                 $popupSelectDevice.modal ('hide');
