@@ -1,5 +1,6 @@
 import * as lib from '../../catk';
 import * as wb from '../whiteboard';
+import { WBSelectTool } from '../tools/select';
 import * as proto from '../../../../common/protocols/protolist';
 import { IToolProps, IToolGroup } from '../../ui';
 
@@ -16,6 +17,7 @@ export class WBToolPalette {
         }
     }
     loadSubToolPalette (id: string) {
+        const that = this;
         switch (id) {
             case 'tb-select': {
                 this._loadSubToolPalette ({
@@ -29,6 +31,30 @@ export class WBToolPalette {
                                 text: '选择工具',
                             },
                             disabled: true
+                        }, {
+                            id: 'tb-align-top',
+                            styles: {
+                                icon: '/images/shape_align_top.png'
+                            },
+                            callback: function (type?) {
+                                const selectTool = that._editor.whiteboard.getCurrentTool () as WBSelectTool;
+                                const objects = selectTool.selectedObject;
+                            }
+                        }, {
+                            id: 'tb-align-bottom',
+                            styles: {
+                                icon: '/images/shape_align_bottom.png'
+                            }
+                        }, {
+                            id: 'tb-align-left',
+                            styles: {
+                                icon: '/images/shape_align_left.png'
+                            }
+                        }, {
+                            id: 'tb-align-right',
+                            styles: {
+                                icon: '/images/shape_align_right.png'
+                            }
                         }]
                     }
                 });

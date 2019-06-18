@@ -1156,7 +1156,7 @@
 	        }).appendTo(clickDiv) : null;
 	        tool.styles.text ? jquery('<div></div>').addClass('small').html(tool.styles.text).appendTo(clickDiv) : null;
 	        if (tool.subTools && tool.subTools.length > 0) {
-	            button.addClass(['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
+	            button.addClass(['dropdown-toggle']).attr('data-toggle', 'dropdown');
 	            var menu = jquery('<div></div>').addClass('dropdown-menu').appendTo(groupDiv);
 	            for (var i = 0; i < tool.subTools.length; i++) {
 	                var subTool = tool.subTools[i];
@@ -9659,6 +9659,36 @@
 	        values[valuesById[2] = "Erase"] = 2;
 	        return values;
 	    })();
+	    /**
+	     * AlignType enum.
+	     * @name whiteboard.AlignType
+	     * @enum {string}
+	     * @property {number} Top=1 Top value
+	     * @property {number} Bottom=2 Bottom value
+	     * @property {number} Left=3 Left value
+	     * @property {number} Right=4 Right value
+	     */
+	    whiteboard.AlignType = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[1] = "Top"] = 1;
+	        values[valuesById[2] = "Bottom"] = 2;
+	        values[valuesById[3] = "Left"] = 3;
+	        values[valuesById[4] = "Right"] = 4;
+	        return values;
+	    })();
+	    /**
+	     * ArrangeType enum.
+	     * @name whiteboard.ArrangeType
+	     * @enum {string}
+	     * @property {number} Horizontal=1 Horizontal value
+	     * @property {number} Vertical=2 Vertical value
+	     */
+	    whiteboard.ArrangeType = (function () {
+	        var valuesById = {}, values = Object.create(valuesById);
+	        values[valuesById[1] = "Horizontal"] = 1;
+	        values[valuesById[2] = "Vertical"] = 2;
+	        return values;
+	    })();
 	    whiteboard.CommandMessage = (function () {
 	        /**
 	         * Properties of a CommandMessage.
@@ -12373,6 +12403,464 @@
 	        };
 	        return MoveObjectMessage;
 	    })();
+	    whiteboard.AlignObjectMessage = (function () {
+	        /**
+	         * Properties of an AlignObjectMessage.
+	         * @memberof whiteboard
+	         * @interface IAlignObjectMessage
+	         * @property {Array.<string>|null} [names] AlignObjectMessage names
+	         * @property {whiteboard.AlignType|null} [type] AlignObjectMessage type
+	         */
+	        /**
+	         * Constructs a new AlignObjectMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an AlignObjectMessage.
+	         * @implements IAlignObjectMessage
+	         * @constructor
+	         * @param {whiteboard.IAlignObjectMessage=} [properties] Properties to set
+	         */
+	        function AlignObjectMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * AlignObjectMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @instance
+	         */
+	        AlignObjectMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * AlignObjectMessage type.
+	         * @member {whiteboard.AlignType} type
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @instance
+	         */
+	        AlignObjectMessage.prototype.type = 1;
+	        /**
+	         * Creates a new AlignObjectMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectMessage=} [properties] Properties to set
+	         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage instance
+	         */
+	        AlignObjectMessage.create = function create(properties) {
+	            return new AlignObjectMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified AlignObjectMessage message. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectMessage} message AlignObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).int32(message.type);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified AlignObjectMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {whiteboard.IAlignObjectMessage} message AlignObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        AlignObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an AlignObjectMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    case 2:
+	                        message.type = reader.int32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an AlignObjectMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        AlignObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an AlignObjectMessage message.
+	         * @function verify
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        AlignObjectMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                switch (message.type) {
+	                    default:
+	                        return "type: enum value expected";
+	                    case 1:
+	                    case 2:
+	                    case 3:
+	                    case 4:
+	                        break;
+	                }
+	            return null;
+	        };
+	        /**
+	         * Creates an AlignObjectMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+	         */
+	        AlignObjectMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.AlignObjectMessage)
+	                return object;
+	            var message = new $root.whiteboard.AlignObjectMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.AlignObjectMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            switch (object.type) {
+	                case "Top":
+	                case 1:
+	                    message.type = 1;
+	                    break;
+	                case "Bottom":
+	                case 2:
+	                    message.type = 2;
+	                    break;
+	                case "Left":
+	                case 3:
+	                    message.type = 3;
+	                    break;
+	                case "Right":
+	                case 4:
+	                    message.type = 4;
+	                    break;
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an AlignObjectMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @static
+	         * @param {whiteboard.AlignObjectMessage} message AlignObjectMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        AlignObjectMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (options.defaults)
+	                object.type = options.enums === String ? "Top" : 1;
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                object.type = options.enums === String ? $root.whiteboard.AlignType[message.type] : message.type;
+	            return object;
+	        };
+	        /**
+	         * Converts this AlignObjectMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.AlignObjectMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        AlignObjectMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return AlignObjectMessage;
+	    })();
+	    whiteboard.ArrangeObjectMessage = (function () {
+	        /**
+	         * Properties of an ArrangeObjectMessage.
+	         * @memberof whiteboard
+	         * @interface IArrangeObjectMessage
+	         * @property {Array.<string>|null} [names] ArrangeObjectMessage names
+	         * @property {whiteboard.ArrangeType|null} [type] ArrangeObjectMessage type
+	         */
+	        /**
+	         * Constructs a new ArrangeObjectMessage.
+	         * @memberof whiteboard
+	         * @classdesc Represents an ArrangeObjectMessage.
+	         * @implements IArrangeObjectMessage
+	         * @constructor
+	         * @param {whiteboard.IArrangeObjectMessage=} [properties] Properties to set
+	         */
+	        function ArrangeObjectMessage(properties) {
+	            this.names = [];
+	            if (properties)
+	                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+	                    if (properties[keys[i]] != null)
+	                        this[keys[i]] = properties[keys[i]];
+	        }
+	        /**
+	         * ArrangeObjectMessage names.
+	         * @member {Array.<string>} names
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @instance
+	         */
+	        ArrangeObjectMessage.prototype.names = $util.emptyArray;
+	        /**
+	         * ArrangeObjectMessage type.
+	         * @member {whiteboard.ArrangeType} type
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @instance
+	         */
+	        ArrangeObjectMessage.prototype.type = 1;
+	        /**
+	         * Creates a new ArrangeObjectMessage instance using the specified properties.
+	         * @function create
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectMessage=} [properties] Properties to set
+	         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage instance
+	         */
+	        ArrangeObjectMessage.create = function create(properties) {
+	            return new ArrangeObjectMessage(properties);
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectMessage message. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+	         * @function encode
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectMessage} message ArrangeObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectMessage.encode = function encode(message, writer) {
+	            if (!writer)
+	                writer = $Writer.create();
+	            if (message.names != null && message.names.length)
+	                for (var i = 0; i < message.names.length; ++i)
+	                    writer.uint32(/* id 1, wireType 2 =*/ 10).string(message.names[i]);
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                writer.uint32(/* id 2, wireType 0 =*/ 16).int32(message.type);
+	            return writer;
+	        };
+	        /**
+	         * Encodes the specified ArrangeObjectMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+	         * @function encodeDelimited
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {whiteboard.IArrangeObjectMessage} message ArrangeObjectMessage message or plain object to encode
+	         * @param {$protobuf.Writer} [writer] Writer to encode to
+	         * @returns {$protobuf.Writer} Writer
+	         */
+	        ArrangeObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+	            return this.encode(message, writer).ldelim();
+	        };
+	        /**
+	         * Decodes an ArrangeObjectMessage message from the specified reader or buffer.
+	         * @function decode
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @param {number} [length] Message length if known beforehand
+	         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectMessage.decode = function decode(reader, length) {
+	            if (!(reader instanceof $Reader))
+	                reader = $Reader.create(reader);
+	            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ArrangeObjectMessage();
+	            while (reader.pos < end) {
+	                var tag = reader.uint32();
+	                switch (tag >>> 3) {
+	                    case 1:
+	                        if (!(message.names && message.names.length))
+	                            message.names = [];
+	                        message.names.push(reader.string());
+	                        break;
+	                    case 2:
+	                        message.type = reader.int32();
+	                        break;
+	                    default:
+	                        reader.skipType(tag & 7);
+	                        break;
+	                }
+	            }
+	            return message;
+	        };
+	        /**
+	         * Decodes an ArrangeObjectMessage message from the specified reader or buffer, length delimited.
+	         * @function decodeDelimited
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+	         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+	         * @throws {Error} If the payload is not a reader or valid buffer
+	         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+	         */
+	        ArrangeObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+	            if (!(reader instanceof $Reader))
+	                reader = new $Reader(reader);
+	            return this.decode(reader, reader.uint32());
+	        };
+	        /**
+	         * Verifies an ArrangeObjectMessage message.
+	         * @function verify
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} message Plain object to verify
+	         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+	         */
+	        ArrangeObjectMessage.verify = function verify(message) {
+	            if (typeof message !== "object" || message === null)
+	                return "object expected";
+	            if (message.names != null && message.hasOwnProperty("names")) {
+	                if (!Array.isArray(message.names))
+	                    return "names: array expected";
+	                for (var i = 0; i < message.names.length; ++i)
+	                    if (!$util.isString(message.names[i]))
+	                        return "names: string[] expected";
+	            }
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                switch (message.type) {
+	                    default:
+	                        return "type: enum value expected";
+	                    case 1:
+	                    case 2:
+	                        break;
+	                }
+	            return null;
+	        };
+	        /**
+	         * Creates an ArrangeObjectMessage message from a plain object. Also converts values to their respective internal types.
+	         * @function fromObject
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {Object.<string,*>} object Plain object
+	         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+	         */
+	        ArrangeObjectMessage.fromObject = function fromObject(object) {
+	            if (object instanceof $root.whiteboard.ArrangeObjectMessage)
+	                return object;
+	            var message = new $root.whiteboard.ArrangeObjectMessage();
+	            if (object.names) {
+	                if (!Array.isArray(object.names))
+	                    throw TypeError(".whiteboard.ArrangeObjectMessage.names: array expected");
+	                message.names = [];
+	                for (var i = 0; i < object.names.length; ++i)
+	                    message.names[i] = String(object.names[i]);
+	            }
+	            switch (object.type) {
+	                case "Horizontal":
+	                case 1:
+	                    message.type = 1;
+	                    break;
+	                case "Vertical":
+	                case 2:
+	                    message.type = 2;
+	                    break;
+	            }
+	            return message;
+	        };
+	        /**
+	         * Creates a plain object from an ArrangeObjectMessage message. Also converts values to other types if specified.
+	         * @function toObject
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @static
+	         * @param {whiteboard.ArrangeObjectMessage} message ArrangeObjectMessage
+	         * @param {$protobuf.IConversionOptions} [options] Conversion options
+	         * @returns {Object.<string,*>} Plain object
+	         */
+	        ArrangeObjectMessage.toObject = function toObject(message, options) {
+	            if (!options)
+	                options = {};
+	            var object = {};
+	            if (options.arrays || options.defaults)
+	                object.names = [];
+	            if (options.defaults)
+	                object.type = options.enums === String ? "Horizontal" : 1;
+	            if (message.names && message.names.length) {
+	                object.names = [];
+	                for (var j = 0; j < message.names.length; ++j)
+	                    object.names[j] = message.names[j];
+	            }
+	            if (message.type != null && message.hasOwnProperty("type"))
+	                object.type = options.enums === String ? $root.whiteboard.ArrangeType[message.type] : message.type;
+	            return object;
+	        };
+	        /**
+	         * Converts this ArrangeObjectMessage to JSON.
+	         * @function toJSON
+	         * @memberof whiteboard.ArrangeObjectMessage
+	         * @instance
+	         * @returns {Object.<string,*>} JSON object
+	         */
+	        ArrangeObjectMessage.prototype.toJSON = function toJSON() {
+	            return this.constructor.toObject(this, minimal$1.util.toJSONOptions);
+	        };
+	        return ArrangeObjectMessage;
+	    })();
 	    whiteboard.ClearPageMessage = (function () {
 	        /**
 	         * Properties of a ClearPageMessage.
@@ -12860,21 +13348,25 @@
 	    MsgType[MsgType["room_TurnServer"] = 20004] = "room_TurnServer";
 	    MsgType[MsgType["room_MediaOptionMessage"] = 20005] = "room_MediaOptionMessage";
 	    MsgType[MsgType["whiteboard_StrokeType"] = 30000] = "whiteboard_StrokeType";
-	    MsgType[MsgType["whiteboard_CommandMessage"] = 30001] = "whiteboard_CommandMessage";
-	    MsgType[MsgType["whiteboard_EventMessage"] = 30002] = "whiteboard_EventMessage";
-	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30003] = "whiteboard_CreateObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30004] = "whiteboard_DeleteObjectMessage";
-	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30005] = "whiteboard_DeleteObjectsMessage";
-	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30006] = "whiteboard_SetObjectPropertyMessage";
-	    MsgType[MsgType["whiteboard_Point"] = 30007] = "whiteboard_Point";
-	    MsgType[MsgType["whiteboard_StrokeMessage"] = 30008] = "whiteboard_StrokeMessage";
-	    MsgType[MsgType["whiteboard_DrawMessage"] = 30009] = "whiteboard_DrawMessage";
-	    MsgType[MsgType["whiteboard_EraseMessage"] = 30010] = "whiteboard_EraseMessage";
-	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30011] = "whiteboard_SwapObjectMessage";
-	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30012] = "whiteboard_MoveObjectMessage";
-	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30013] = "whiteboard_ClearPageMessage";
-	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30014] = "whiteboard_ClearBoardMessage";
-	    MsgType[MsgType["whiteboard_UndoMessage"] = 30015] = "whiteboard_UndoMessage";
+	    MsgType[MsgType["whiteboard_AlignType"] = 30001] = "whiteboard_AlignType";
+	    MsgType[MsgType["whiteboard_ArrangeType"] = 30002] = "whiteboard_ArrangeType";
+	    MsgType[MsgType["whiteboard_CommandMessage"] = 30003] = "whiteboard_CommandMessage";
+	    MsgType[MsgType["whiteboard_EventMessage"] = 30004] = "whiteboard_EventMessage";
+	    MsgType[MsgType["whiteboard_CreateObjectMessage"] = 30005] = "whiteboard_CreateObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectMessage"] = 30006] = "whiteboard_DeleteObjectMessage";
+	    MsgType[MsgType["whiteboard_DeleteObjectsMessage"] = 30007] = "whiteboard_DeleteObjectsMessage";
+	    MsgType[MsgType["whiteboard_SetObjectPropertyMessage"] = 30008] = "whiteboard_SetObjectPropertyMessage";
+	    MsgType[MsgType["whiteboard_Point"] = 30009] = "whiteboard_Point";
+	    MsgType[MsgType["whiteboard_StrokeMessage"] = 30010] = "whiteboard_StrokeMessage";
+	    MsgType[MsgType["whiteboard_DrawMessage"] = 30011] = "whiteboard_DrawMessage";
+	    MsgType[MsgType["whiteboard_EraseMessage"] = 30012] = "whiteboard_EraseMessage";
+	    MsgType[MsgType["whiteboard_SwapObjectMessage"] = 30013] = "whiteboard_SwapObjectMessage";
+	    MsgType[MsgType["whiteboard_MoveObjectMessage"] = 30014] = "whiteboard_MoveObjectMessage";
+	    MsgType[MsgType["whiteboard_AlignObjectMessage"] = 30015] = "whiteboard_AlignObjectMessage";
+	    MsgType[MsgType["whiteboard_ArrangeObjectMessage"] = 30016] = "whiteboard_ArrangeObjectMessage";
+	    MsgType[MsgType["whiteboard_ClearPageMessage"] = 30017] = "whiteboard_ClearPageMessage";
+	    MsgType[MsgType["whiteboard_ClearBoardMessage"] = 30018] = "whiteboard_ClearBoardMessage";
+	    MsgType[MsgType["whiteboard_UndoMessage"] = 30019] = "whiteboard_UndoMessage";
 	})(MsgType = exports.MsgType || (exports.MsgType = {}));
 	var msgMap = {
 	    10000: protocols.base.UberMessage,
@@ -12885,21 +13377,25 @@
 	    20004: protocols.room.TurnServer,
 	    20005: protocols.room.MediaOptionMessage,
 	    30000: protocols.whiteboard.StrokeType,
-	    30001: protocols.whiteboard.CommandMessage,
-	    30002: protocols.whiteboard.EventMessage,
-	    30003: protocols.whiteboard.CreateObjectMessage,
-	    30004: protocols.whiteboard.DeleteObjectMessage,
-	    30005: protocols.whiteboard.DeleteObjectsMessage,
-	    30006: protocols.whiteboard.SetObjectPropertyMessage,
-	    30007: protocols.whiteboard.Point,
-	    30008: protocols.whiteboard.StrokeMessage,
-	    30009: protocols.whiteboard.DrawMessage,
-	    30010: protocols.whiteboard.EraseMessage,
-	    30011: protocols.whiteboard.SwapObjectMessage,
-	    30012: protocols.whiteboard.MoveObjectMessage,
-	    30013: protocols.whiteboard.ClearPageMessage,
-	    30014: protocols.whiteboard.ClearBoardMessage,
-	    30015: protocols.whiteboard.UndoMessage,
+	    30001: protocols.whiteboard.AlignType,
+	    30002: protocols.whiteboard.ArrangeType,
+	    30003: protocols.whiteboard.CommandMessage,
+	    30004: protocols.whiteboard.EventMessage,
+	    30005: protocols.whiteboard.CreateObjectMessage,
+	    30006: protocols.whiteboard.DeleteObjectMessage,
+	    30007: protocols.whiteboard.DeleteObjectsMessage,
+	    30008: protocols.whiteboard.SetObjectPropertyMessage,
+	    30009: protocols.whiteboard.Point,
+	    30010: protocols.whiteboard.StrokeMessage,
+	    30011: protocols.whiteboard.DrawMessage,
+	    30012: protocols.whiteboard.EraseMessage,
+	    30013: protocols.whiteboard.SwapObjectMessage,
+	    30014: protocols.whiteboard.MoveObjectMessage,
+	    30015: protocols.whiteboard.AlignObjectMessage,
+	    30016: protocols.whiteboard.ArrangeObjectMessage,
+	    30017: protocols.whiteboard.ClearPageMessage,
+	    30018: protocols.whiteboard.ClearBoardMessage,
+	    30019: protocols.whiteboard.UndoMessage,
 	};
 	exports.msgMap = msgMap;
 	__export(protocols);
@@ -13049,6 +13545,114 @@
 	    unexecute: function (whiteboard, command) {
 	        if (command.context) {
 	            command.context.object.translation = { x: command.context.x1, y: command.context.y1 };
+	        }
+	    }
+	};
+	executors[protolist.MsgType.whiteboard_ArrangeObjectMessage] = {
+	    execute: function (whiteboard, command, results) {
+	        if (command.event.messageData.names && command.event.messageData.names.length > 1) {
+	            command.context = {};
+	            var objects = command.event.messageData.names.map(function (name) { return whiteboard.findEntity(name); });
+	            var positions = objects.map(function (obj) { return obj.translation; });
+	            command.context = { objects: objects, positions: positions };
+	            if (command.event.messageData.type === protolist.whiteboard.ArrangeType.Horizontal) {
+	                objects.sort(function (a, b) {
+	                    return a.worldTransform.e - b.worldTransform.e;
+	                });
+	                var posStart = objects[0].worldTransform.e;
+	                var gap = (objects[objects.length - 1].worldTransform.e - posStart) / (objects.length - 1);
+	                for (var i = 1; i < objects.length - 1; i++) {
+	                    objects[i].worldTranslation = { x: posStart + i * gap, y: objects[i].worldTransform.f };
+	                    objects[i].collapseTransform();
+	                }
+	            }
+	            else if (command.event.messageData.type === protolist.whiteboard.ArrangeType.Vertical) {
+	                objects.sort(function (a, b) {
+	                    return a.worldTransform.f - b.worldTransform.f;
+	                });
+	                var posStart = objects[0].worldTransform.f;
+	                var gap = (objects[objects.length - 1].worldTransform.f - posStart) / (objects.length - 1);
+	                for (var i = 1; i < objects.length - 1; i++) {
+	                    objects[i].worldTranslation = { x: objects[i].worldTransform.e, y: posStart + i * gap };
+	                    objects[i].collapseTransform();
+	                }
+	            }
+	        }
+	    },
+	    unexecute: function (whiteboard, command) {
+	        if (command.context) {
+	            for (var i = 0; i < command.context.objects.length; i++) {
+	                command.context.objects[i].translation = command.context.positions[i];
+	            }
+	        }
+	    }
+	};
+	executors[protolist.MsgType.whiteboard_AlignObjectMessage] = {
+	    execute: function (whiteboard, command, results) {
+	        if (command.event.messageData.names && command.event.messageData.names.length > 1) {
+	            command.context = {};
+	            var objects = command.event.messageData.names.map(function (name) { return whiteboard.findEntity(name); });
+	            var positions = objects.map(function (obj) { return obj.translation; });
+	            command.context = { objects: objects, positions: positions };
+	            if (command.event.messageData.type === protolist.whiteboard.AlignType.Left) {
+	                var minx_1 = objects[0].worldTransform.e;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var x = objects[i].worldTransform.e;
+	                    if (x < minx_1) {
+	                        minx_1 = x;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: minx_1, y: obj.worldTransform.f };
+	                    obj.collapseTransform();
+	                });
+	            }
+	            else if (command.event.messageData.type === protolist.whiteboard.AlignType.Right) {
+	                var maxx_1 = objects[0].worldTransform.e;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var x = objects[i].worldTransform.e;
+	                    if (x > maxx_1) {
+	                        maxx_1 = x;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: maxx_1, y: obj.worldTransform.f };
+	                    obj.collapseTransform();
+	                });
+	            }
+	            else if (command.event.messageData.type === protolist.whiteboard.AlignType.Top) {
+	                var miny_1 = objects[0].worldTransform.f;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var y = objects[i].worldTransform.f;
+	                    if (y < miny_1) {
+	                        miny_1 = y;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: obj.worldTransform.e, y: miny_1 };
+	                    obj.collapseTransform();
+	                });
+	            }
+	            else if (command.event.messageData.type === protolist.whiteboard.AlignType.Bottom) {
+	                var maxy_1 = objects[0].worldTransform.f;
+	                for (var i = 1; i < objects.length; i++) {
+	                    var y = objects[i].worldTransform.f;
+	                    if (y > maxy_1) {
+	                        maxy_1 = y;
+	                    }
+	                }
+	                objects.forEach(function (obj) {
+	                    obj.worldTranslation = { x: obj.worldTransform.e, y: maxy_1 };
+	                    obj.collapseTransform();
+	                });
+	            }
+	        }
+	    },
+	    unexecute: function (whiteboard, command) {
+	        if (command.context) {
+	            for (var i = 0; i < command.context.objects.length; i++) {
+	                command.context.objects[i].translation = command.context.positions[i];
+	            }
 	        }
 	    }
 	};
@@ -13450,6 +14054,9 @@
 	            }
 	        }
 	    };
+	    WhiteBoard.prototype.getCurrentTool = function () {
+	        return this._tools[this._currentTool];
+	    };
 	    WhiteBoard.prototype.addFactory = function (factory) {
 	        this._factories[factory.name] = factory;
 	    };
@@ -13552,12 +14159,12 @@
 	            }
 	        } else if (type === MsgType.whiteboard_UseToolMessage) {
 	            if (this._currentTool !== '') {
-	                const prevTool = this._tools[this._currentTool];
-	                prevTool.deactivate();
-	            }
-	            this._currentTool = '';
-	            if (cmd.name) {
-	                const newTool = this._tools[cmd.name];
+	                const prevTool =StrokeType this._tools[this._currentTool];
+	                prevTool.deactivStrokeTypeate();
+	            }StrokeType
+	            this._currentTool = StrokeType'';
+	            if (cmd.name) {StrokeType
+	                const newTool = StrokeTypethis._tools[cmd.name];
 	                if (newTool) {
 	                    this._currentTool = cmd.name;
 	                    const args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};
@@ -13724,6 +14331,7 @@
 	        }
 	    };
 	    WBToolPalette.prototype.loadSubToolPalette = function (id) {
+	        var that = this;
 	        switch (id) {
 	            case 'tb-select': {
 	                this._loadSubToolPalette({
@@ -13737,6 +14345,30 @@
 	                                    text: '选择工具',
 	                                },
 	                                disabled: true
+	                            }, {
+	                                id: 'tb-align-top',
+	                                styles: {
+	                                    icon: '/images/shape_align_top.png'
+	                                },
+	                                callback: function (type) {
+	                                    var selectTool = that._editor.whiteboard.getCurrentTool();
+	                                    var objects = selectTool.selectedObject;
+	                                }
+	                            }, {
+	                                id: 'tb-align-bottom',
+	                                styles: {
+	                                    icon: '/images/shape_align_bottom.png'
+	                                }
+	                            }, {
+	                                id: 'tb-align-left',
+	                                styles: {
+	                                    icon: '/images/shape_align_left.png'
+	                                }
+	                            }, {
+	                                id: 'tb-align-right',
+	                                styles: {
+	                                    icon: '/images/shape_align_right.png'
+	                                }
 	                            }]
 	                    }
 	                });

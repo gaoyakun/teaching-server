@@ -215,7 +215,7 @@ export class Toolbar extends Widget {
         }).appendTo(clickDiv) : null;
         tool.styles.text ? $('<div></div>').addClass('small').html(tool.styles.text).appendTo (clickDiv) : null;
         if (tool.subTools && tool.subTools.length > 0) {
-            button.addClass (['dropdown-toggle', 'no-pointer-events']).attr('data-toggle', 'dropdown');
+            button.addClass (['dropdown-toggle']).attr('data-toggle', 'dropdown');
             const menu = $('<div></div>').addClass ('dropdown-menu').appendTo (groupDiv);
             for (let i = 0; i < tool.subTools.length; i++) {
                 const subTool = tool.subTools[i];

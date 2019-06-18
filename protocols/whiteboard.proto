@@ -10,6 +10,18 @@ enum StrokeType {
     Erase = 2;
 }
 
+enum AlignType {
+    Top = 1;
+    Bottom = 2;
+    Left = 3;
+    Right = 4;
+}
+
+enum ArrangeType {
+    Horizontal = 1;
+    Vertical = 2;
+}
+
 message CommandMessage {
     string command = 1;
 }
@@ -81,6 +93,16 @@ message MoveObjectMessage {
     int32 y1 = 3;
     int32 x2 = 4;
     int32 y2 = 5;
+}
+
+message AlignObjectMessage {
+    repeated string names = 1;
+    AlignType type = 2;
+}
+
+message ArrangeObjectMessage {
+    repeated string names = 1;
+    ArrangeType type = 2;
 }
 
 message ClearPageMessage {

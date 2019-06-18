@@ -1,8 +1,8 @@
 import * as lib from '../catk';
-import { MsgType } from '../../../common/protocols/protolist';
+import * as proto from '../../../common/protocols/protolist';
 
 export interface IWBCommand {
-    type: MsgType;
+    type: proto.MsgType;
     event: WBMessageEvent;
     context: any;    
 }
@@ -13,7 +13,7 @@ export interface IWBCommandExecutor {
 }
 
 const executors: { [msgType: number]: IWBCommandExecutor } = {};
-executors[MsgType.whiteboard_CreateObjectMessage] = {
+executors[proto.MsgType.whiteboard_CreateObjectMessage] = {
     execute: (whiteboard, command, results) => {
         const data = command.event.messageData;
         command.context = whiteboard.createEntity (data.type, data.x, data.y, data.paramsJson ? JSON.parse(data.paramsJson) : {});
@@ -28,7 +28,7 @@ executors[MsgType.whiteboard_CreateObjectMessage] = {
         }
     },
 };
-executors[MsgType.whiteboard_DeleteObjectMessage] = {
+executors[proto.MsgType.whiteboard_DeleteObjectMessage] = {
     execute: (whiteboard, command, results) => {
         const data = command.event.messageData;
         const obj = whiteboard.findEntity (data.name);
@@ -44,7 +44,7 @@ executors[MsgType.whiteboard_DeleteObjectMessage] = {
         whiteboard.addEntity (command.context.parent, command.context.object);
     }
 };
-executors[MsgType.whiteboard_DeleteObjectsMessage] = {
+executors[proto.MsgType.whiteboard_DeleteObjectsMessage] = {
     execute: (whiteboard, command, results) => {
         const data = command.event.messageData;
         command.context.parents = [];
@@ -64,7 +64,7 @@ executors[MsgType.whiteboard_DeleteObjectsMessage] = {
         }
     }
 };
-executors[MsgType.whiteboard_SwapObjectMessage] = {
+executors[proto.MsgType.whiteboard_SwapObjectMessage] = {
     execute: (whiteboard, command, results) => {
         const object1 = whiteboard.findEntity (command.event.messageData.name1);
         const object2 = whiteboard.findEntity (command.event.messageData.name2);
@@ -116,7 +116,7 @@ executors[MsgType.whiteboard_SwapObjectMessage] = {
         command.context.object2.translation = command.context.translation2;
     }
 };
-executors[MsgType.whiteboard_MoveObjectMessage] = {
+executors[proto.MsgType.whiteboard_MoveObjectMessage] = {
     execute: (whiteboard, command, results) => {
         const obj = whiteboard.findEntity (command.event.messageData.name);
         if (obj) {
@@ -136,7 +136,111 @@ executors[MsgType.whiteboard_MoveObjectMessage] = {
         }
     }
 };
-executors[MsgType.whiteboard_SetObjectPropertyMessage] = {
+executors[proto.MsgType.whiteboard_ArrangeObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        if (command.event.messageData.names && command.event.messageData.names.length > 1) {
+            command.context = {};
+            const objects: lib.SceneObject[] = command.event.messageData.names.map ((name:string) => whiteboard.findEntity(name));
+            const positions: any[] = objects.map ((obj: lib.SceneObject) => obj.translation);
+            command.context = { objects, positions };
+            if (command.event.messageData.type === proto.whiteboard.ArrangeType.Horizontal) {
+                objects.sort ((a, b) => {
+                    return a.worldTransform.e - b.worldTransform.e;
+                });
+                const posStart = objects[0].worldTransform.e;
+                const gap = (objects[objects.length-1].worldTransform.e - posStart) / (objects.length - 1);
+                for (let i = 1; i < objects.length - 1; i++) {
+                    objects[i].worldTranslation = { x:posStart + i * gap, y:objects[i].worldTransform.f };
+                    objects[i].collapseTransform ();
+                }
+            } else if (command.event.messageData.type === proto.whiteboard.ArrangeType.Vertical) {
+                objects.sort ((a, b) => {
+                    return a.worldTransform.f - b.worldTransform.f;
+                });
+                const posStart = objects[0].worldTransform.f;
+                const gap = (objects[objects.length-1].worldTransform.f - posStart) / (objects.length - 1);
+                for (let i = 1; i < objects.length - 1; i++) {
+                    objects[i].worldTranslation = { x:objects[i].worldTransform.e, y:posStart + i * gap };
+                    objects[i].collapseTransform ();
+                }
+            }
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        if (command.context) {
+            for (let i = 0; i < command.context.objects.length; i++) {
+                command.context.objects[i].translation = command.context.positions[i];
+            }
+        }
+    }
+};
+executors[proto.MsgType.whiteboard_AlignObjectMessage] = {
+    execute: (whiteboard, command, results) => {
+        if (command.event.messageData.names && command.event.messageData.names.length > 1) {
+            command.context = {};
+            const objects: lib.SceneObject[] = command.event.messageData.names.map ((name:string) => whiteboard.findEntity(name));
+            const positions: any[] = objects.map ((obj: lib.SceneObject) => obj.translation);
+            command.context = { objects, positions };
+            if (command.event.messageData.type === proto.whiteboard.AlignType.Left) {
+                let minx = objects[0].worldTransform.e;
+                for (let i = 1; i < objects.length; i++) {
+                    const x = objects[i].worldTransform.e;
+                    if (x < minx) {
+                        minx = x;
+                    }
+                }
+                objects.forEach (obj => {
+                    obj.worldTranslation = { x:minx, y:obj.worldTransform.f };
+                    obj.collapseTransform ();
+                });
+            } else if (command.event.messageData.type === proto.whiteboard.AlignType.Right) {
+                let maxx = objects[0].worldTransform.e;
+                for (let i = 1; i < objects.length; i++) {
+                    const x = objects[i].worldTransform.e;
+                    if (x > maxx) {
+                        maxx = x;
+                    }
+                }
+                objects.forEach (obj => {
+                    obj.worldTranslation = { x:maxx, y:obj.worldTransform.f };
+                    obj.collapseTransform ();
+                });
+            } else if (command.event.messageData.type === proto.whiteboard.AlignType.Top) {
+                let miny = objects[0].worldTransform.f;
+                for (let i = 1; i < objects.length; i++) {
+                    const y = objects[i].worldTransform.f;
+                    if (y < miny) {
+                        miny = y;
+                    }
+                }
+                objects.forEach (obj => {
+                    obj.worldTranslation = { x:obj.worldTransform.e, y:miny };
+                    obj.collapseTransform ();
+                });
+            } else if (command.event.messageData.type === proto.whiteboard.AlignType.Bottom) {
+                let maxy = objects[0].worldTransform.f;
+                for (let i = 1; i < objects.length; i++) {
+                    const y = objects[i].worldTransform.f;
+                    if (y > maxy) {
+                        maxy = y;
+                    }
+                }
+                objects.forEach (obj => {
+                    obj.worldTranslation = { x:obj.worldTransform.e, y:maxy };
+                    obj.collapseTransform ();
+                });
+            }
+        }
+    },
+    unexecute: (whiteboard, command) => {
+        if (command.context) {
+            for (let i = 0; i < command.context.objects.length; i++) {
+                command.context.objects[i].translation = command.context.positions[i];
+            }
+        }
+    }
+};
+executors[proto.MsgType.whiteboard_SetObjectPropertyMessage] = {
     execute: (whiteboard, command, results) => {
         const data = command.event.messageData;
         const obj = whiteboard.findEntity (data.name);
@@ -157,7 +261,7 @@ executors[MsgType.whiteboard_SetObjectPropertyMessage] = {
         command.context.object.triggerEx (ev);
     }
 };
-executors[MsgType.whiteboard_ClearBoardMessage] = {
+executors[proto.MsgType.whiteboard_ClearBoardMessage] = {
     execute: (whiteboard, command, results) => {
         command.context = whiteboard.view!.rootNode;
         command.context.view = null;
@@ -169,7 +273,7 @@ executors[MsgType.whiteboard_ClearBoardMessage] = {
         whiteboard.view!.rootNode.view = whiteboard.view;
     }
 };
-executors[MsgType.whiteboard_StrokeMessage] = {
+executors[proto.MsgType.whiteboard_StrokeMessage] = {
     execute: (whiteboard, command, results) => {
         let freeDraw: lib.SceneObject|null = whiteboard.findEntityByType ('FreeDraw');
         if (!freeDraw) {
@@ -203,9 +307,9 @@ export interface IPropertyList {
 
 export class EvtSocketMessage extends lib.BaseEvent {
     static readonly type: string = '@socketMessage';
-    readonly messageType: MsgType;
+    readonly messageType: proto.MsgType;
     readonly messageData: any;
-    constructor(messageType: MsgType, messageData: any) {
+    constructor(messageType: proto.MsgType, messageData: any) {
         super(EvtSocketMessage.type);
         this.messageType = messageType;
         this.messageData = messageData;
@@ -397,12 +501,12 @@ export class WBGetObjectEvent extends lib.BaseEvent {
 
 export class WBMessageEvent extends lib.BaseEvent {
     static readonly type: string = '@WBMessage';
-    messageType: MsgType;
+    messageType: proto.MsgType;
     messageData: any;
     broadcast: boolean;
     results?: any;
     object?: string;
-    constructor (type: MsgType, data: any, results?: any, object?: string) {
+    constructor (type: proto.MsgType, data: any, results?: any, object?: string) {
         super (WBMessageEvent.type);
         this.messageType = type;
         this.messageData = data;
@@ -545,6 +649,9 @@ export class WhiteBoard extends lib.EventObserver {
             }
         }
     }
+    getCurrentTool (): WBTool {
+        return this._tools[this._currentTool];
+    }
     addFactory(factory: WBFactory): void {
         this._factories[factory.name] = factory;
     }
@@ -618,7 +725,7 @@ export class WhiteBoard extends lib.EventObserver {
             if (obj) {
                 obj.triggerEx (ev);
             }
-        } else if (ev.messageType === MsgType.whiteboard_UndoMessage) {
+        } else if (ev.messageType === proto.MsgType.whiteboard_UndoMessage) {
             if (this._commandStack.length > 0) {
                 const cmd = this._commandStack.pop ();
                 executors[cmd!.type].unexecute (this, cmd!);
@@ -644,12 +751,12 @@ export class WhiteBoard extends lib.EventObserver {
             }
         } else if (type === MsgType.whiteboard_UseToolMessage) {
             if (this._currentTool !== '') {
-                const prevTool = this._tools[this._currentTool];
-                prevTool.deactivate();
-            }
-            this._currentTool = '';
-            if (cmd.name) {
-                const newTool = this._tools[cmd.name];
+                const prevTool =StrokeType this._tools[this._currentTool];
+                prevTool.deactivStrokeTypeate();
+            }StrokeType
+            this._currentTool = StrokeType'';
+            if (cmd.name) {StrokeType
+                const newTool = StrokeTypethis._tools[cmd.name];
                 if (newTool) {
                     this._currentTool = cmd.name;
                     const args = cmd.paramsJson ? JSON.parse(cmd.paramsJson) : {};

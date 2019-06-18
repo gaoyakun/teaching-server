@@ -1669,6 +1669,38 @@ $root.whiteboard = (function() {
         return values;
     })();
 
+    /**
+     * AlignType enum.
+     * @name whiteboard.AlignType
+     * @enum {string}
+     * @property {number} Top=1 Top value
+     * @property {number} Bottom=2 Bottom value
+     * @property {number} Left=3 Left value
+     * @property {number} Right=4 Right value
+     */
+    whiteboard.AlignType = (function() {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[1] = "Top"] = 1;
+        values[valuesById[2] = "Bottom"] = 2;
+        values[valuesById[3] = "Left"] = 3;
+        values[valuesById[4] = "Right"] = 4;
+        return values;
+    })();
+
+    /**
+     * ArrangeType enum.
+     * @name whiteboard.ArrangeType
+     * @enum {string}
+     * @property {number} Horizontal=1 Horizontal value
+     * @property {number} Vertical=2 Vertical value
+     */
+    whiteboard.ArrangeType = (function() {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[1] = "Horizontal"] = 1;
+        values[valuesById[2] = "Vertical"] = 2;
+        return values;
+    })();
+
     whiteboard.CommandMessage = (function() {
 
         /**
@@ -4574,6 +4606,494 @@ $root.whiteboard = (function() {
         };
 
         return MoveObjectMessage;
+    })();
+
+    whiteboard.AlignObjectMessage = (function() {
+
+        /**
+         * Properties of an AlignObjectMessage.
+         * @memberof whiteboard
+         * @interface IAlignObjectMessage
+         * @property {Array.<string>|null} [names] AlignObjectMessage names
+         * @property {whiteboard.AlignType|null} [type] AlignObjectMessage type
+         */
+
+        /**
+         * Constructs a new AlignObjectMessage.
+         * @memberof whiteboard
+         * @classdesc Represents an AlignObjectMessage.
+         * @implements IAlignObjectMessage
+         * @constructor
+         * @param {whiteboard.IAlignObjectMessage=} [properties] Properties to set
+         */
+        function AlignObjectMessage(properties) {
+            this.names = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * AlignObjectMessage names.
+         * @member {Array.<string>} names
+         * @memberof whiteboard.AlignObjectMessage
+         * @instance
+         */
+        AlignObjectMessage.prototype.names = $util.emptyArray;
+
+        /**
+         * AlignObjectMessage type.
+         * @member {whiteboard.AlignType} type
+         * @memberof whiteboard.AlignObjectMessage
+         * @instance
+         */
+        AlignObjectMessage.prototype.type = 1;
+
+        /**
+         * Creates a new AlignObjectMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {whiteboard.IAlignObjectMessage=} [properties] Properties to set
+         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage instance
+         */
+        AlignObjectMessage.create = function create(properties) {
+            return new AlignObjectMessage(properties);
+        };
+
+        /**
+         * Encodes the specified AlignObjectMessage message. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {whiteboard.IAlignObjectMessage} message AlignObjectMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AlignObjectMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.names != null && message.names.length)
+                for (var i = 0; i < message.names.length; ++i)
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.names[i]);
+            if (message.type != null && message.hasOwnProperty("type"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified AlignObjectMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {whiteboard.IAlignObjectMessage} message AlignObjectMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AlignObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an AlignObjectMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AlignObjectMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.AlignObjectMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    if (!(message.names && message.names.length))
+                        message.names = [];
+                    message.names.push(reader.string());
+                    break;
+                case 2:
+                    message.type = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an AlignObjectMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AlignObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an AlignObjectMessage message.
+         * @function verify
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        AlignObjectMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.names != null && message.hasOwnProperty("names")) {
+                if (!Array.isArray(message.names))
+                    return "names: array expected";
+                for (var i = 0; i < message.names.length; ++i)
+                    if (!$util.isString(message.names[i]))
+                        return "names: string[] expected";
+            }
+            if (message.type != null && message.hasOwnProperty("type"))
+                switch (message.type) {
+                default:
+                    return "type: enum value expected";
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    break;
+                }
+            return null;
+        };
+
+        /**
+         * Creates an AlignObjectMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.AlignObjectMessage} AlignObjectMessage
+         */
+        AlignObjectMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.AlignObjectMessage)
+                return object;
+            var message = new $root.whiteboard.AlignObjectMessage();
+            if (object.names) {
+                if (!Array.isArray(object.names))
+                    throw TypeError(".whiteboard.AlignObjectMessage.names: array expected");
+                message.names = [];
+                for (var i = 0; i < object.names.length; ++i)
+                    message.names[i] = String(object.names[i]);
+            }
+            switch (object.type) {
+            case "Top":
+            case 1:
+                message.type = 1;
+                break;
+            case "Bottom":
+            case 2:
+                message.type = 2;
+                break;
+            case "Left":
+            case 3:
+                message.type = 3;
+                break;
+            case "Right":
+            case 4:
+                message.type = 4;
+                break;
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an AlignObjectMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.AlignObjectMessage
+         * @static
+         * @param {whiteboard.AlignObjectMessage} message AlignObjectMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        AlignObjectMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.names = [];
+            if (options.defaults)
+                object.type = options.enums === String ? "Top" : 1;
+            if (message.names && message.names.length) {
+                object.names = [];
+                for (var j = 0; j < message.names.length; ++j)
+                    object.names[j] = message.names[j];
+            }
+            if (message.type != null && message.hasOwnProperty("type"))
+                object.type = options.enums === String ? $root.whiteboard.AlignType[message.type] : message.type;
+            return object;
+        };
+
+        /**
+         * Converts this AlignObjectMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.AlignObjectMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        AlignObjectMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return AlignObjectMessage;
+    })();
+
+    whiteboard.ArrangeObjectMessage = (function() {
+
+        /**
+         * Properties of an ArrangeObjectMessage.
+         * @memberof whiteboard
+         * @interface IArrangeObjectMessage
+         * @property {Array.<string>|null} [names] ArrangeObjectMessage names
+         * @property {whiteboard.ArrangeType|null} [type] ArrangeObjectMessage type
+         */
+
+        /**
+         * Constructs a new ArrangeObjectMessage.
+         * @memberof whiteboard
+         * @classdesc Represents an ArrangeObjectMessage.
+         * @implements IArrangeObjectMessage
+         * @constructor
+         * @param {whiteboard.IArrangeObjectMessage=} [properties] Properties to set
+         */
+        function ArrangeObjectMessage(properties) {
+            this.names = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ArrangeObjectMessage names.
+         * @member {Array.<string>} names
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @instance
+         */
+        ArrangeObjectMessage.prototype.names = $util.emptyArray;
+
+        /**
+         * ArrangeObjectMessage type.
+         * @member {whiteboard.ArrangeType} type
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @instance
+         */
+        ArrangeObjectMessage.prototype.type = 1;
+
+        /**
+         * Creates a new ArrangeObjectMessage instance using the specified properties.
+         * @function create
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {whiteboard.IArrangeObjectMessage=} [properties] Properties to set
+         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage instance
+         */
+        ArrangeObjectMessage.create = function create(properties) {
+            return new ArrangeObjectMessage(properties);
+        };
+
+        /**
+         * Encodes the specified ArrangeObjectMessage message. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+         * @function encode
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {whiteboard.IArrangeObjectMessage} message ArrangeObjectMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArrangeObjectMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.names != null && message.names.length)
+                for (var i = 0; i < message.names.length; ++i)
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.names[i]);
+            if (message.type != null && message.hasOwnProperty("type"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ArrangeObjectMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {whiteboard.IArrangeObjectMessage} message ArrangeObjectMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArrangeObjectMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an ArrangeObjectMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArrangeObjectMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.whiteboard.ArrangeObjectMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    if (!(message.names && message.names.length))
+                        message.names = [];
+                    message.names.push(reader.string());
+                    break;
+                case 2:
+                    message.type = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an ArrangeObjectMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArrangeObjectMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an ArrangeObjectMessage message.
+         * @function verify
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ArrangeObjectMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.names != null && message.hasOwnProperty("names")) {
+                if (!Array.isArray(message.names))
+                    return "names: array expected";
+                for (var i = 0; i < message.names.length; ++i)
+                    if (!$util.isString(message.names[i]))
+                        return "names: string[] expected";
+            }
+            if (message.type != null && message.hasOwnProperty("type"))
+                switch (message.type) {
+                default:
+                    return "type: enum value expected";
+                case 1:
+                case 2:
+                    break;
+                }
+            return null;
+        };
+
+        /**
+         * Creates an ArrangeObjectMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {whiteboard.ArrangeObjectMessage} ArrangeObjectMessage
+         */
+        ArrangeObjectMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.whiteboard.ArrangeObjectMessage)
+                return object;
+            var message = new $root.whiteboard.ArrangeObjectMessage();
+            if (object.names) {
+                if (!Array.isArray(object.names))
+                    throw TypeError(".whiteboard.ArrangeObjectMessage.names: array expected");
+                message.names = [];
+                for (var i = 0; i < object.names.length; ++i)
+                    message.names[i] = String(object.names[i]);
+            }
+            switch (object.type) {
+            case "Horizontal":
+            case 1:
+                message.type = 1;
+                break;
+            case "Vertical":
+            case 2:
+                message.type = 2;
+                break;
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an ArrangeObjectMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @static
+         * @param {whiteboard.ArrangeObjectMessage} message ArrangeObjectMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ArrangeObjectMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.names = [];
+            if (options.defaults)
+                object.type = options.enums === String ? "Horizontal" : 1;
+            if (message.names && message.names.length) {
+                object.names = [];
+                for (var j = 0; j < message.names.length; ++j)
+                    object.names[j] = message.names[j];
+            }
+            if (message.type != null && message.hasOwnProperty("type"))
+                object.type = options.enums === String ? $root.whiteboard.ArrangeType[message.type] : message.type;
+            return object;
+        };
+
+        /**
+         * Converts this ArrangeObjectMessage to JSON.
+         * @function toJSON
+         * @memberof whiteboard.ArrangeObjectMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ArrangeObjectMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return ArrangeObjectMessage;
     })();
 
     whiteboard.ClearPageMessage = (function() {

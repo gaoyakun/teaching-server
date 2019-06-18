@@ -709,6 +709,20 @@ export namespace whiteboard {
         Erase = 2
     }
 
+    /** AlignType enum. */
+    enum AlignType {
+        Top = 1,
+        Bottom = 2,
+        Left = 3,
+        Right = 4
+    }
+
+    /** ArrangeType enum. */
+    enum ArrangeType {
+        Horizontal = 1,
+        Vertical = 2
+    }
+
     /** Properties of a CommandMessage. */
     interface ICommandMessage {
 
@@ -1934,6 +1948,198 @@ export namespace whiteboard {
 
         /**
          * Converts this MoveObjectMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of an AlignObjectMessage. */
+    interface IAlignObjectMessage {
+
+        /** AlignObjectMessage names */
+        names?: (string[]|null);
+
+        /** AlignObjectMessage type */
+        type?: (whiteboard.AlignType|null);
+    }
+
+    /** Represents an AlignObjectMessage. */
+    class AlignObjectMessage implements IAlignObjectMessage {
+
+        /**
+         * Constructs a new AlignObjectMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IAlignObjectMessage);
+
+        /** AlignObjectMessage names. */
+        public names: string[];
+
+        /** AlignObjectMessage type. */
+        public type: whiteboard.AlignType;
+
+        /**
+         * Creates a new AlignObjectMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns AlignObjectMessage instance
+         */
+        public static create(properties?: whiteboard.IAlignObjectMessage): whiteboard.AlignObjectMessage;
+
+        /**
+         * Encodes the specified AlignObjectMessage message. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+         * @param message AlignObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IAlignObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified AlignObjectMessage message, length delimited. Does not implicitly {@link whiteboard.AlignObjectMessage.verify|verify} messages.
+         * @param message AlignObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IAlignObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an AlignObjectMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns AlignObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.AlignObjectMessage;
+
+        /**
+         * Decodes an AlignObjectMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns AlignObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.AlignObjectMessage;
+
+        /**
+         * Verifies an AlignObjectMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an AlignObjectMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns AlignObjectMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.AlignObjectMessage;
+
+        /**
+         * Creates a plain object from an AlignObjectMessage message. Also converts values to other types if specified.
+         * @param message AlignObjectMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.AlignObjectMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this AlignObjectMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of an ArrangeObjectMessage. */
+    interface IArrangeObjectMessage {
+
+        /** ArrangeObjectMessage names */
+        names?: (string[]|null);
+
+        /** ArrangeObjectMessage type */
+        type?: (whiteboard.ArrangeType|null);
+    }
+
+    /** Represents an ArrangeObjectMessage. */
+    class ArrangeObjectMessage implements IArrangeObjectMessage {
+
+        /**
+         * Constructs a new ArrangeObjectMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: whiteboard.IArrangeObjectMessage);
+
+        /** ArrangeObjectMessage names. */
+        public names: string[];
+
+        /** ArrangeObjectMessage type. */
+        public type: whiteboard.ArrangeType;
+
+        /**
+         * Creates a new ArrangeObjectMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ArrangeObjectMessage instance
+         */
+        public static create(properties?: whiteboard.IArrangeObjectMessage): whiteboard.ArrangeObjectMessage;
+
+        /**
+         * Encodes the specified ArrangeObjectMessage message. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+         * @param message ArrangeObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: whiteboard.IArrangeObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ArrangeObjectMessage message, length delimited. Does not implicitly {@link whiteboard.ArrangeObjectMessage.verify|verify} messages.
+         * @param message ArrangeObjectMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: whiteboard.IArrangeObjectMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an ArrangeObjectMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ArrangeObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): whiteboard.ArrangeObjectMessage;
+
+        /**
+         * Decodes an ArrangeObjectMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ArrangeObjectMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): whiteboard.ArrangeObjectMessage;
+
+        /**
+         * Verifies an ArrangeObjectMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an ArrangeObjectMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ArrangeObjectMessage
+         */
+        public static fromObject(object: { [k: string]: any }): whiteboard.ArrangeObjectMessage;
+
+        /**
+         * Creates a plain object from an ArrangeObjectMessage message. Also converts values to other types if specified.
+         * @param message ArrangeObjectMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: whiteboard.ArrangeObjectMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ArrangeObjectMessage to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };

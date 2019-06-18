@@ -127,6 +127,20 @@
             "Erase": 2
           }
         },
+        "AlignType": {
+          "values": {
+            "Top": 1,
+            "Bottom": 2,
+            "Left": 3,
+            "Right": 4
+          }
+        },
+        "ArrangeType": {
+          "values": {
+            "Horizontal": 1,
+            "Vertical": 2
+          }
+        },
         "CommandMessage": {
           "fields": {
             "command": {
@@ -324,6 +338,32 @@
             "y2": {
               "type": "int32",
               "id": 5
+            }
+          }
+        },
+        "AlignObjectMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            },
+            "type": {
+              "type": "AlignType",
+              "id": 2
+            }
+          }
+        },
+        "ArrangeObjectMessage": {
+          "fields": {
+            "names": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            },
+            "type": {
+              "type": "ArrangeType",
+              "id": 2
             }
           }
         },
